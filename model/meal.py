@@ -1,13 +1,13 @@
-from typing import List
+from typing import Dict
 
-from model import Ingredient
+from model.calories import HasCalories
 
-class Meal():
+class Meal(HasCalories):
     """Models a meal.
     Meals are collections of ingredients, by ratio.
     """
 
     @property
-    def ingredients(self) -> List[Ingredient]:
-        """Returns the list of ingredients currently associated with the meal."""
+    def ingredients(self) -> Dict[str, float]:
+        """Returns dict of ingredient ID's and quantities in grams, currently associated with the meal."""
         raise NotImplementedError
