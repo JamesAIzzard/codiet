@@ -1,10 +1,8 @@
-<ui version="4.0" >
- <author></author>
- <comment></comment>
- <exportmacro></exportmacro>
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow" >
-  <property name="geometry" >
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -12,14 +10,152 @@
     <height>600</height>
    </rect>
   </property>
-  <property name="windowTitle" >
-   <string>MainWindow</string>
+  <property name="windowTitle">
+   <string>CoDiet</string>
   </property>
-  <widget class="QMenuBar" name="menubar" />
-  <widget class="QWidget" name="centralwidget" />
-  <widget class="QStatusBar" name="statusbar" />
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuCodiet">
+    <property name="title">
+     <string>Preferences</string>
+    </property>
+    <addaction name="actionGlobal_Nutrients"/>
+    <addaction name="actionUser_Requirements"/>
+   </widget>
+   <widget class="QMenu" name="menuIngredients">
+    <property name="title">
+     <string>Ingredients</string>
+    </property>
+    <addaction name="actionAdd_Ingredient"/>
+    <addaction name="actionEdit_Ingredient"/>
+   </widget>
+   <widget class="QMenu" name="menuRecipes">
+    <property name="title">
+     <string>Recipes</string>
+    </property>
+    <addaction name="actionNew_Recipe"/>
+    <addaction name="actionSearch_Edit_Recipes"/>
+   </widget>
+   <widget class="QMenu" name="menuMeals">
+    <property name="title">
+     <string>Meal Goals</string>
+    </property>
+    <addaction name="actionNew_Meal_Goal"/>
+    <addaction name="actionSearch_Edit_Meal_Goals"/>
+   </widget>
+   <widget class="QMenu" name="menuRun">
+    <property name="title">
+     <string>Run</string>
+    </property>
+    <addaction name="actionFind_Meals"/>
+   </widget>
+   <widget class="QMenu" name="menuDay_Goals">
+    <property name="title">
+     <string>Day Plans</string>
+    </property>
+    <addaction name="actionNew_Day_Goal"/>
+    <addaction name="actionSearch_Edit_Meal_Plan"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionDocs"/>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuCodiet"/>
+   <addaction name="menuIngredients"/>
+   <addaction name="menuRecipes"/>
+   <addaction name="menuMeals"/>
+   <addaction name="menuDay_Goals"/>
+   <addaction name="menuRun"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionGlobal_Requirements">
+   <property name="text">
+    <string>Global Requirements</string>
+   </property>
+  </action>
+  <action name="actionGlobal_Nutrients">
+   <property name="text">
+    <string>Edit Nutrients</string>
+   </property>
+  </action>
+  <action name="actionAdd_Ingredient">
+   <property name="text">
+    <string>New Ingredient</string>
+   </property>
+  </action>
+  <action name="actionEdit_Ingredient">
+   <property name="text">
+    <string>Search/Edit Ingredients</string>
+   </property>
+  </action>
+  <action name="actionSearch_Ingredient">
+   <property name="text">
+    <string>Search Ingredient</string>
+   </property>
+  </action>
+  <action name="actionNew_Recipe">
+   <property name="text">
+    <string>New Recipe</string>
+   </property>
+  </action>
+  <action name="actionSearch_Edit_Recipes">
+   <property name="text">
+    <string>Search/Edit Recipes</string>
+   </property>
+  </action>
+  <action name="actionFind_Meals">
+   <property name="text">
+    <string>Find Meals</string>
+   </property>
+  </action>
+  <action name="actionNew_Meal_Goal">
+   <property name="text">
+    <string>New Meal Goal</string>
+   </property>
+  </action>
+  <action name="actionSearch_Edit_Meal_Goals">
+   <property name="text">
+    <string>Search/Edit Meal Goals</string>
+   </property>
+  </action>
+  <action name="actionDocs">
+   <property name="text">
+    <string>Docs</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionNew_Day_Goal">
+   <property name="text">
+    <string>New Day Plan</string>
+   </property>
+  </action>
+  <action name="actionSearch_Edit_Meal_Plan">
+   <property name="text">
+    <string>Search/Edit Day Plan</string>
+   </property>
+  </action>
+  <action name="actionUser_Requirements">
+   <property name="text">
+    <string>User Requirements</string>
+   </property>
+  </action>
  </widget>
- <pixmapfunction></pixmapfunction>
+ <resources/>
  <connections/>
 </ui>
-
