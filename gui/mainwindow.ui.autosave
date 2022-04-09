@@ -13,12 +13,43 @@
   <property name="windowTitle">
    <string>CoDiet</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+  <widget class="QWidget" name="central_widget">
+   <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QStackedWidget" name="stackedWidget">
-      <widget class="QWidget" name="page"/>
-      <widget class="QWidget" name="page_2"/>
+     <widget class="QStackedWidget" name="wg_pages">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="pg_nutrient_manager">
+       <widget class="QLabel" name="label">
+        <property name="geometry">
+         <rect>
+          <x>290</x>
+          <y>250</y>
+          <width>161</width>
+          <height>51</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Nutrient Manager Page Here</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="pg_user_reqs">
+       <widget class="QLabel" name="label_2">
+        <property name="geometry">
+         <rect>
+          <x>300</x>
+          <y>220</y>
+          <width>281</width>
+          <height>81</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>User Requirements Page Here</string>
+        </property>
+       </widget>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -29,15 +60,15 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuCodiet">
+   <widget class="QMenu" name="btn_preferences">
     <property name="title">
      <string>Preferences</string>
     </property>
-    <addaction name="actionGlobal_Nutrients"/>
-    <addaction name="actionUser_Requirements"/>
+    <addaction name="btn_manage_nutrients"/>
+    <addaction name="btn_user_requirements"/>
    </widget>
    <widget class="QMenu" name="menuIngredients">
     <property name="title">
@@ -80,7 +111,7 @@
     <addaction name="actionDocs"/>
     <addaction name="actionAbout"/>
    </widget>
-   <addaction name="menuCodiet"/>
+   <addaction name="btn_preferences"/>
    <addaction name="menuIngredients"/>
    <addaction name="menuRecipes"/>
    <addaction name="menuMeals"/>
@@ -94,9 +125,9 @@
     <string>Global Requirements</string>
    </property>
   </action>
-  <action name="actionGlobal_Nutrients">
+  <action name="btn_manage_nutrients">
    <property name="text">
-    <string>Edit Nutrients</string>
+    <string>Manage Nutrients</string>
    </property>
   </action>
   <action name="actionAdd_Ingredient">
@@ -159,7 +190,7 @@
     <string>Search/Edit Day Plan</string>
    </property>
   </action>
-  <action name="actionUser_Requirements">
+  <action name="btn_user_requirements">
    <property name="text">
     <string>User Requirements</string>
    </property>
