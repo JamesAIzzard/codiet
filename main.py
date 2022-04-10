@@ -1,10 +1,10 @@
 from PyQt6 import QtWidgets
 
-from model import User
 from gui import MainWindow
+from model import user
 
 # Init the user instance
-user = User()
+user = user.User()
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])

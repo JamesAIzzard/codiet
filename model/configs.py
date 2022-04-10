@@ -1,31 +1,29 @@
-from model import FlagImpliesNutrient
-
 FLAG_CONFIGS = {
     "alcohol_free": {
         "string": "Alcohol Free",
         "nutrient_relations": {
-            "alcohol": FlagImpliesNutrient.zero
+            "alcohol": "zero"
         },
         "direct_alias": True
     },
     "caffeine_free": {
         "string": "Caffeine Free",
         "nutrient_relations": {
-            "caffeine": FlagImpliesNutrient.zero
+            "caffeine": "zero"
         },
         "direct_alias": True
     },
     "lactose_free": {
         "string": "Lactose Free",
         "nutrient_relations": {
-            "lactose": FlagImpliesNutrient.zero,
+            "lactose": "zero"
         },
         "direct_alias": True
     },
     "gluten_free": {
         "string": "Gluten Free",
         "nutrient_relations": {
-            "gluten": FlagImpliesNutrient.zero
+            "gluten": "zero"
         },
         "direct_alias": True
     },

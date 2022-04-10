@@ -44,7 +44,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QListWidget" name="listWidget_2"/>
+          <widget class="QListWidget" name="lst_user_flags"/>
          </item>
         </layout>
        </widget>
@@ -66,14 +66,14 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton">
+          <widget class="QPushButton" name="btn_adopt_flag">
            <property name="text">
             <string>Adopt Flag</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_2">
+          <widget class="QPushButton" name="btn_remove_flag">
            <property name="text">
             <string>Remove Flag</string>
            </property>

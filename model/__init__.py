@@ -1,3 +1,3 @@
-from .user import User, user
-from .flags import FlagImpliesNutrient
-from .configs import FLAG_CONFIGS
+from model import configs
+from model import user
+from model import flags
