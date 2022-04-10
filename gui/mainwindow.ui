@@ -21,10 +21,16 @@
     <item>
      <widget class="QStackedWidget" name="wg_pages">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="pg_nutrient_manager">
        <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="NutrientRatioEditor" name="nutrient_ratio_editor" native="true"/>
+        </item>
+        <item>
+         <widget class="NutrientRatioEditor" name="nutrient_ratio_editor_2" native="true"/>
+        </item>
         <item>
          <widget class="QLabel" name="label">
           <property name="text">
@@ -191,6 +197,14 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>NutrientRatioEditor</class>
+   <extends>QWidget</extends>
+   <header>gui.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

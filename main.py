@@ -1,5 +1,4 @@
 from PyQt6 import QtWidgets
-
 from gui import MainWindow
 
 if __name__ == "__main__":

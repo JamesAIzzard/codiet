@@ -24,6 +24,12 @@ class Ui_MainWindow(object):
         self.pg_nutrient_manager.setObjectName("pg_nutrient_manager")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.pg_nutrient_manager)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.nutrient_ratio_editor = NutrientRatioEditor(self.pg_nutrient_manager)
+        self.nutrient_ratio_editor.setObjectName("nutrient_ratio_editor")
+        self.verticalLayout_2.addWidget(self.nutrient_ratio_editor)
+        self.nutrient_ratio_editor_2 = NutrientRatioEditor(self.pg_nutrient_manager)
+        self.nutrient_ratio_editor_2.setObjectName("nutrient_ratio_editor_2")
+        self.verticalLayout_2.addWidget(self.nutrient_ratio_editor_2)
         self.label = QtWidgets.QLabel(self.pg_nutrient_manager)
         self.label.setObjectName("label")
         self.verticalLayout_2.addWidget(self.label)
@@ -111,7 +117,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.wg_pages.setCurrentIndex(1)
+        self.wg_pages.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -141,3 +147,4 @@ class Ui_MainWindow(object):
         self.actionNew_Day_Goal.setText(_translate("MainWindow", "New Day Plan"))
         self.actionSearch_Edit_Meal_Plan.setText(_translate("MainWindow", "Search/Edit Day Plan"))
         self.btn_user_requirements.setText(_translate("MainWindow", "User Requirements"))
+from gui import NutrientRatioEditor
