@@ -34,13 +34,10 @@ class Ui_MainWindow(object):
         self.label.setObjectName("label")
         self.verticalLayout_2.addWidget(self.label)
         self.wg_pages.addWidget(self.pg_nutrient_manager)
-        self.pg_user_reqs = QtWidgets.QWidget()
+        self.pg_user_reqs = UserRequirementsEditor()
         self.pg_user_reqs.setObjectName("pg_user_reqs")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.pg_user_reqs)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.label_2 = QtWidgets.QLabel(self.pg_user_reqs)
-        self.label_2.setObjectName("label_2")
-        self.verticalLayout_3.addWidget(self.label_2)
         self.wg_pages.addWidget(self.pg_user_reqs)
         self.verticalLayout.addWidget(self.wg_pages)
         MainWindow.setCentralWidget(self.central_widget)
@@ -117,14 +114,13 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.wg_pages.setCurrentIndex(0)
+        self.wg_pages.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "CoDiet"))
         self.label.setText(_translate("MainWindow", "Nutrient Manager Page Here"))
-        self.label_2.setText(_translate("MainWindow", "User Requirements Page Here"))
         self.btn_preferences.setTitle(_translate("MainWindow", "Preferences"))
         self.menuIngredients.setTitle(_translate("MainWindow", "Ingredients"))
         self.menuRecipes.setTitle(_translate("MainWindow", "Recipes"))
@@ -147,4 +143,4 @@ class Ui_MainWindow(object):
         self.actionNew_Day_Goal.setText(_translate("MainWindow", "New Day Plan"))
         self.actionSearch_Edit_Meal_Plan.setText(_translate("MainWindow", "Search/Edit Day Plan"))
         self.btn_user_requirements.setText(_translate("MainWindow", "User Requirements"))
-from gui import NutrientRatioEditor
+from gui import NutrientRatioEditor, UserRequirementsEditor
