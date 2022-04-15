@@ -1,24 +1,21 @@
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets, uic, QtGui
 
-from .mainwindow import Ui_MainWindow
+import gui
 
-
-class MainWindow(QtWidgets.QMainWindow):
+class MainWindowView(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
+        # Declare the active widgets
+        self.btn_manage_nutrients: QtGui.QAction
+        self.btn_user_requirements: QtGui.QAction
+        self.wg_page_stack: QtWidgets.QStackedWidget
 
-        # Connect the menu buttons to the page change handlers
-        self.ui.btn_manage_nutrients.triggered.connect(
-            lambda: self.change_window(0)
-        )
-        self.ui.btn_user_requirements.triggered.connect(
-            lambda: self.change_window(1)
-        )
+        # Bring the ui file in
+        uic.load_ui.loadUi("gui/mainwindow.ui", self)
 
     def change_window(self, page_id: int):
         """Updates the main window to show the pane with the
         specified ID."""
-        self.ui.wg_pages.setCurrentIndex(page_id)
+        print(f'change to {page_id}')
+        self.wg_page_stack.setCurrentIndex(page_id)

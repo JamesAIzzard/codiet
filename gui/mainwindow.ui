@@ -19,17 +19,17 @@
   <widget class="QWidget" name="central_widget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QStackedWidget" name="wg_pages">
+     <widget class="QStackedWidget" name="wg_page_stack">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="pg_nutrient_manager">
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="NutrientRatioEditor" name="nutrient_ratio_editor" native="true"/>
+         <widget class="NutrientRatioEditorView" name="nutrient_ratio_editor" native="true"/>
         </item>
         <item>
-         <widget class="NutrientRatioEditor" name="nutrient_ratio_editor_2" native="true"/>
+         <widget class="NutrientRatioEditorView" name="nutrient_ratio_editor_2" native="true"/>
         </item>
         <item>
          <widget class="QLabel" name="label">
@@ -40,9 +40,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="UserRequirementsEditor" name="pg_user_reqs">
-       <layout class="QVBoxLayout" name="verticalLayout_3"/>
-      </widget>
+      <widget class="UserRequirementsEditorView" name="pg_user_reqs"/>
      </widget>
     </item>
    </layout>
@@ -191,13 +189,13 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>NutrientRatioEditor</class>
+   <class>NutrientRatioEditorView</class>
    <extends>QWidget</extends>
    <header>gui.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>UserRequirementsEditor</class>
+   <class>UserRequirementsEditorView</class>
    <extends>QWidget</extends>
    <header>gui.h</header>
    <container>1</container>

@@ -1,3 +1,3 @@
-from model import configs
-from model import user
-from model import flags
+from .user import User, user
+from . import flags
+from . import configs

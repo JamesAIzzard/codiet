@@ -1,4 +1,7 @@
 # Expose the main GUI viewmodels
-from .nutrient_ratio_editor_view import NutrientRatioEditor
-from .user_requirements_editor_view import UserRequirementsEditor
-from .mainwindow_view import MainWindow
+from .nutrient_ratio_editor_view import NutrientRatioEditorView
+from .nutrient_ratio_editor_ctrl import NutrientRatioEditorCtrl
+from .user_requirements_editor_view import UserRequirementsEditorView
+from .user_requirements_editor_ctrl import UserRequirementsEditorCtrl
+from .mainwindow_view import MainWindowView
+from .mainwindow_ctrl import MainWindowCtrl

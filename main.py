@@ -1,16 +1,15 @@
 from PyQt6 import QtWidgets
 
-from gui import MainWindow
-from model import user
-
-# Init the user instance
-user = user.User()
+import model, gui
 
 if __name__ == "__main__":
+    # Init the user instance
+    user = model.User()
+
+    # Instantiate the gui
     app = QtWidgets.QApplication([])
-
-    # Create an instance of your window and show it
-    lw = MainWindow()
-    lw.show()
-
+    main_window_view = gui.MainWindowView()
+    main_window_ctrl = gui.MainWindowCtrl(main_window_view)
+    # Show the gui
+    main_window_view.show()
     app.exec()

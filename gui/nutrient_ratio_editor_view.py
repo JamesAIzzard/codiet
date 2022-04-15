@@ -1,11 +1,13 @@
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets, uic
 
-from .nutrient_ratio_editor import Ui_nutrient_ratio_editor
+import gui
 
-
-class NutrientRatioEditor(QtWidgets.QWidget):
+class NutrientRatioEditorView(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ui = Ui_nutrient_ratio_editor()
-        self.ui.setupUi(self)
+        # Declare the active widgets
+        # ...
+
+        # Bring the ui file in
+        uic.load_ui.loadUi('gui/nutrient_ratio_editor.ui', self)
