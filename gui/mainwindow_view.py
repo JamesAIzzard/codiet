@@ -7,8 +7,8 @@ class MainWindowView(QtWidgets.QMainWindow):
         super().__init__(*args, **kwargs)
 
         # Declare the active widgets
-        self.btn_manage_nutrients: QtGui.QAction
         self.btn_user_requirements: QtGui.QAction
+        self.btn_add_ingredient: QtGui.QAction
         self.wg_page_stack: QtWidgets.QStackedWidget
 
         # Bring the ui file in

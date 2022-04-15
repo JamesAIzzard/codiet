@@ -23,23 +23,7 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="pg_nutrient_manager">
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="NutrientRatioEditorView" name="nutrient_ratio_editor" native="true"/>
-        </item>
-        <item>
-         <widget class="NutrientRatioEditorView" name="nutrient_ratio_editor_2" native="true"/>
-        </item>
-        <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Nutrient Manager Page Here</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
+      <widget class="IngredientEditorView" name="pg_ingredient_editor"/>
       <widget class="UserRequirementsEditorView" name="pg_user_reqs"/>
      </widget>
     </item>
@@ -65,8 +49,8 @@
     <property name="title">
      <string>Ingredients</string>
     </property>
-    <addaction name="actionAdd_Ingredient"/>
-    <addaction name="actionEdit_Ingredient"/>
+    <addaction name="btn_add_ingredient"/>
+    <addaction name="btn_new_ingredient"/>
    </widget>
    <widget class="QMenu" name="menuRecipes">
     <property name="title">
@@ -121,12 +105,12 @@
     <string>Manage Nutrients</string>
    </property>
   </action>
-  <action name="actionAdd_Ingredient">
+  <action name="btn_add_ingredient">
    <property name="text">
     <string>New Ingredient</string>
    </property>
   </action>
-  <action name="actionEdit_Ingredient">
+  <action name="btn_new_ingredient">
    <property name="text">
     <string>Search/Edit Ingredients</string>
    </property>
@@ -189,13 +173,13 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>NutrientRatioEditorView</class>
+   <class>UserRequirementsEditorView</class>
    <extends>QWidget</extends>
    <header>gui.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>UserRequirementsEditorView</class>
+   <class>IngredientEditorView</class>
    <extends>QWidget</extends>
    <header>gui.h</header>
    <container>1</container>

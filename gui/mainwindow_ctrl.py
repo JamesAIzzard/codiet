@@ -13,7 +13,7 @@ class MainWindowCtrl:
         )
 
         # Wire menu buttons to change page
-        self.view.btn_manage_nutrients.triggered.connect(
+        self.view.btn_add_ingredient.triggered.connect(
             lambda: self.view.change_window(0)
         )
         self.view.btn_user_requirements.triggered.connect(
