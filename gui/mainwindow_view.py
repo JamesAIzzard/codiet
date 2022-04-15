@@ -14,8 +14,9 @@ class MainWindowView(QtWidgets.QMainWindow):
         # Bring the ui file in
         uic.load_ui.loadUi("gui/mainwindow.ui", self)
 
-    def change_window(self, page_id: int):
+    def change_window(self, page_name: str):
         """Updates the main window to show the pane with the
         specified ID."""
-        print(f'change to {page_id}')
-        self.wg_page_stack.setCurrentIndex(page_id)
+        page = self.wg_page_stack.findChild(QtWidgets.QWidget, page_name)
+        self.wg_page_stack.setCurrentWidget(page) # type: ignore
+        # self.wg_page_stack.setCurrentIndex(page_id)
