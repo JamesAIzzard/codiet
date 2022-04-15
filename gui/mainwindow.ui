@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>CoDiet</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>assets/pydiet.ico</normaloff>assets/pydiet.ico</iconset>
+  </property>
   <property name="autoFillBackground">
    <bool>false</bool>
   </property>
