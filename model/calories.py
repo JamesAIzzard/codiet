@@ -1,8 +1,8 @@
 from typing import Union
 from abc import ABC, abstractmethod
 
-from model.ingredient import Ingredient
-from model.meal import Meal
+from model.ingredients import Ingredient
+from model.meals import Meal
 
 class HasCalories(ABC):
     """Base class for objects which have calories when assigned a quantity."""

@@ -4,7 +4,7 @@ import model, gui
 
 if __name__ == "__main__":
     # Init the user instance
-    user = model.User()
+    user = model.user.User()
 
     # Instantiate the gui
     app = QtWidgets.QApplication([])
