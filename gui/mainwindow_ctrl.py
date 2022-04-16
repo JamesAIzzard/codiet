@@ -25,10 +25,13 @@ class MainWindowCtrl(gui.CodietCtrl):
 
     def add_page(self, name:str, cls_controller=gui.CodietCtrl, cls_view=QtWidgets.QWidget) -> gui.CodietCtrl:
         """Adds a page to the stack."""
+        # Init the view
         view = cls_view()
+        # Set its name so we can ID for page change
         view.setObjectName(name)
+        # Init controller
         controller = cls_controller(view)
-        self.view.wg_page_stack.insertWidget(
-            0, controller.view
-        )
+        # Insert view into stack
+        self.view.add_page(view)
+        # Kick back the controller for reference
         return controller

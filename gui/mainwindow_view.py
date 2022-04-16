@@ -14,6 +14,12 @@ class MainWindowView(QtWidgets.QMainWindow):
         # Bring the ui file in
         uic.load_ui.loadUi("gui/mainwindow.ui", self)
 
+    def add_page(self, page_view) -> None:
+        """Adds a page widget into the stack."""
+        self.wg_page_stack.insertWidget(
+            0, page_view
+        )
+
     def change_window(self, page_name: str):
         """Updates the main window to show the pane with the
         specified ID."""
