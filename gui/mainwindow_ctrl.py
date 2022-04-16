@@ -11,6 +11,11 @@ class MainWindowCtrl:
                 gui.UserRequirementsEditorView, "pg_user_reqs"
             ) # type: ignore
         )
+        self.ingredient_editor_ctrl = gui.IngredientEditorCtrl(
+            self.view.wg_page_stack.findChild(
+                gui.IngredientEditorView, "pg_ingredient_editor"
+            ) # type: ignore
+        )
 
         # Wire menu buttons to change page
         self.view.btn_add_ingredient.triggered.connect(

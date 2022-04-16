@@ -7,7 +7,7 @@ class IngredientEditorView(QtWidgets.QWidget):
         super().__init__(*args, **kwargs)
 
         # Declare active widgets
-        # ...
+        self.btn_save_ingredient: QtWidgets.QPushButton
 
         # Load in the ui file
         uic.load_ui.loadUi('gui/ingredient_editor.ui', self)
