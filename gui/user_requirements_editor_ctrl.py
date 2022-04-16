@@ -15,7 +15,7 @@ class UserRequirementsEditorCtrl(gui.CodietCtrl):
     def on_adopt_flag_click(self):
         """Click handler for the adopt flag button."""
         # Grab the currently selected flag name
-        flag_name = model.flags.get_flag_name_from_string(
+        flag_name = model.flags.flag_string_to_flag_name(
             self.view.lst_global_flags.currentItem().text()
         )
         # Add the flag to the model user
@@ -26,7 +26,7 @@ class UserRequirementsEditorCtrl(gui.CodietCtrl):
     def on_remove_flag_click(self):
         """Click handler for the remove flag button."""
         # Grab the currently selected flag name
-        flag_name = model.flags.get_flag_name_from_string(
+        flag_name = model.flags.flag_string_to_flag_name(
             self.view.lst_user_flags.currentItem().text()
         )
         # Remove the flag from the model user
