@@ -1,26 +1,34 @@
+from PyQt6 import QtWidgets
+
 import gui
 
 
-class MainWindowCtrl:
-    def __init__(self, view: gui.MainWindowView):
-        self.view = view
+class MainWindowCtrl(gui.CodietCtrl):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        # Init the child controllers
-        self.user_requirements_editor_ctrl = gui.UserRequirementsEditorCtrl(
-            self.view.wg_page_stack.findChild(
-                gui.UserRequirementsEditorView, "pg_user_reqs"
-            ) # type: ignore
+        # Add the pages
+        self.user_requirements_editor_ctrl = self.add_page(
+            cls_controller=gui.UserRequirementsEditorCtrl,
+            cls_view=gui.UserRequirementsEditorView,
+            name="pg_user_reqs"
         )
-        self.ingredient_editor_ctrl = gui.IngredientEditorCtrl(
-            self.view.wg_page_stack.findChild(
-                gui.IngredientEditorView, "pg_ingredient_editor"
-            ) # type: ignore
+        self.ingredient_editor_ctrl = self.add_page(
+            cls_controller=gui.IngredientEditorCtrl,
+            cls_view=gui.IngredientEditorView,
+            name="pg_ingredient_editor"
         )
 
         # Wire menu buttons to change page
-        self.view.btn_add_ingredient.triggered.connect(
-            lambda: self.view.change_window("pg_ingredient_editor")
+        self.view.btn_add_ingredient.triggered.connect(lambda: self.view.change_window("pg_ingredient_editor"))
+        self.view.btn_user_requirements.triggered.connect(lambda: self.view.change_window("pg_user_reqs"))
+
+    def add_page(self, name:str, cls_controller=gui.CodietCtrl, cls_view=QtWidgets.QWidget) -> gui.CodietCtrl:
+        """Adds a page to the stack."""
+        view = cls_view()
+        view.setObjectName(name)
+        controller = cls_controller(view)
+        self.view.wg_page_stack.insertWidget(
+            0, controller.view
         )
-        self.view.btn_user_requirements.triggered.connect(
-            lambda: self.view.change_window("pg_user_reqs")
-        )
+        return controller

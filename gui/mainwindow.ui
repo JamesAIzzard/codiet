@@ -39,17 +39,19 @@
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="central_widget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QStackedWidget" name="wg_page_stack">
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <widget class="IngredientEditorView" name="pg_ingredient_editor"/>
-      <widget class="UserRequirementsEditorView" name="pg_user_reqs"/>
-     </widget>
-    </item>
-   </layout>
+   <widget class="QStackedWidget" name="wg_page_stack">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>9</y>
+      <width>482</width>
+      <height>639</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>-1</number>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -199,20 +201,6 @@
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>UserRequirementsEditorView</class>
-   <extends>QWidget</extends>
-   <header>gui.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>IngredientEditorView</class>
-   <extends>QWidget</extends>
-   <header>gui.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

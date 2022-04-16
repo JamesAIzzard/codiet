@@ -1,8 +1,8 @@
 import model, gui
 
-class UserRequirementsEditorCtrl:
-    def __init__(self, view: gui.UserRequirementsEditorView):
-        self.view = view
+class UserRequirementsEditorCtrl(gui.CodietCtrl):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         # Wire the add/remove buttons
         self.view.btn_adopt_flag.clicked.connect(self.on_adopt_flag_click)

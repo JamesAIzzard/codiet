@@ -1,8 +1,8 @@
 import gui
 
-class IngredientEditorCtrl:
-    def __init__(self, view: gui.IngredientEditorView):
-        self.view = view
+class IngredientEditorCtrl(gui.CodietCtrl):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         # Wire the active elements
         self.view.btn_save_ingredient.clicked.connect(

@@ -1,4 +1,5 @@
 # Expose the main GUI viewmodels
+from .codiet_ctrl import CodietCtrl
 from .ingredient_editor_view import IngredientEditorView
 from .ingredient_editor_ctrl import IngredientEditorCtrl
 from .nutrient_ratio_editor_view import NutrientRatioEditorView
