@@ -55,9 +55,10 @@ class FlagSelectorView(QtWidgets.QWidget):
 
     def remove_flag(self, flag:str) -> None:
         """Removes the currently selected adopted flag from the adopted list."""
-        self.lst_adopted_flags.takeItem( # type: ignore
-            self.lst_adopted_flags.row(flag) # type: ignore
-        )
+        for i in range(0, self.lst_adopted_flags.count()): # type: ignore
+            if flag == self.lst_adopted_flags.item(i).text(): # type: ignore
+                self.lst_adopted_flags.takeItem(i) # type: ignore
+                break
 
     def clear_adopted_flags(self) -> None:
         """Clears the flags in the adopted list."""
