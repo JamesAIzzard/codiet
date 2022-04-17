@@ -1,1 +1,4 @@
-from .main import save_ingredient
+from .main import (
+    get_flag_strings,
+    save_ingredient
+)

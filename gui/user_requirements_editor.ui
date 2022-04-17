@@ -28,7 +28,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="global_flag_reqs">
+    <widget class="QGroupBox" name="wg_user_flag_selector">
      <property name="enabled">
       <bool>true</bool>
      </property>

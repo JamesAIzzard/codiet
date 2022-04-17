@@ -6,3 +6,6 @@ class IngredientEditorView(QtWidgets.QWidget):
 
         # Load in the ui file
         uic.load_ui.loadUi('gui/ingredient_editor.ui', self)
+
+        # Call out active elements for intellisense
+        self.wg_flags: QtWidgets.QGroupBox

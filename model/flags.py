@@ -1,3 +1,5 @@
+from typing import List
+
 import model
 
 def flag_string_to_flag_name(flag_string: str) -> str:
