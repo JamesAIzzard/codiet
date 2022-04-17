@@ -25,8 +25,8 @@ class FlagSelectorView(QtWidgets.QWidget):
     def all_adopted_flags(self) -> List[str]:
         """Returns a list of all the currently adopted flags in the widget's list."""
         flags: List[str] = []
-        for i in range(1, self.lst_adopted_flags.count()): # type: ignore
-            flags.append(self.lst_adopted_flags.item(i)) #type: ignore
+        for i in range(0, self.lst_adopted_flags.count()): # type: ignore
+            flags.append(self.lst_adopted_flags.item(i).text()) #type: ignore
         return flags
 
     @property

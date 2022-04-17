@@ -13,8 +13,8 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         flag_selector_view = gui.FlagSelectorView()
         self.flag_selector_ctrl = gui.FlagSelectorCtrl(
             view=flag_selector_view,
-            on_flag_adoption_callback=lambda flag_string: print(f"{flag_string} adopted"),
-            on_flag_removal_callback=lambda flag_string: print(f"{flag_string} removed")
+            on_flag_adoption_callback=lambda flag_str: self.on_flag_adopt(flag_str),
+            on_flag_removal_callback=lambda flag_str: self.on_flag_remove(flag_str)
         )
         vbox = QtWidgets.QVBoxLayout()
         vbox.addWidget(flag_selector_view)
@@ -33,3 +33,11 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         # Grab the name from the ingredient lineedit
         self.ingredient.name = self.view.txt_ingredient_name.text() # type: ignore
         data.save_ingredient(self.ingredient)
+
+    def on_flag_adopt(self, flag_str:str) -> None:
+        """Handler function for flag adoption."""
+        pass
+
+    def on_flag_remove(self, flag_str:str) -> None:
+        """Hander function for flag removal."""
+        pass
