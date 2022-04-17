@@ -24,7 +24,7 @@ def get_flag_strings() -> List[str]:
 def save_ingredient(ingredient: model.ingredients.Ingredient):
     """Saves the ingredient."""
     qry = f"""INSERT INTO ingredients
-        (ingredient_name)
+        (name)
         VALUES
         ('{ingredient.name}');
     """
