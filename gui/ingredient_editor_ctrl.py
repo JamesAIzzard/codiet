@@ -19,6 +19,9 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         # Load in a fresh ingredient instance
         self.ingredient = model.ingredients.Ingredient()
 
+        # Initial setup on the form
+        self.view.set_cost_units(data.get_mass_units())
+
         # Wire the active elements
         self.view.btn_save_ingredient.clicked.connect(  # type: ignore
             self.on_save_ingredient

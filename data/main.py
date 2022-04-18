@@ -21,6 +21,20 @@ def get_flag_strings() -> List[str]:
         flags.append(row[0])
     return flags
 
+def get_mass_units() -> List[str]:
+    """Returns a list of all mass units."""
+    qry = f"""SELECT
+        unit_name
+    FROM
+        mass_units
+    """
+    cursor.execute(qry)
+    data = cursor.fetchall()
+    units = []
+    for row in data:
+        units.append(row[0])
+    return units    
+
 def save_ingredient(ingredient: model.ingredients.Ingredient):
     """Saves the ingredient."""
     qry = f"""INSERT INTO ingredients
