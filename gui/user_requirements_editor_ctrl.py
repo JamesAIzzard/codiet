@@ -4,48 +4,21 @@ class UserRequirementsEditorCtrl(gui.CodietCtrl):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Wire the add/remove buttons
-        self.view.btn_adopt_flag.clicked.connect(self.on_adopt_flag_click)  # type: ignore
-        self.view.btn_remove_flag.clicked.connect(self.on_remove_flag_click)  # type: ignore
+        # Call out the view type for intellisense
+        self.view: gui.UserRequirementsEditorView
 
-        # Do initial setup on the view
-        self.populate_global_flags()
-        self.populate_user_flags()
-
-    def on_adopt_flag_click(self):
-        """Click handler for the adopt flag button."""
-        # Grab the currently selected flag name
-        flag_name = model.flags.flag_string_to_flag_name(
-            self.view.lst_global_flags.currentItem().text()  # type: ignore
+        # Init the controller for the flag editor
+        self.flag_selector_ctrl = gui.FlagSelectorCtrl(
+            view=self.view.wg_flag_selector,
+            on_flag_adoption_callback=self.on_user_flag_adopted,
+            on_flag_removal_callback=self.on_user_flag_removal
         )
-        # Add the flag to the model user
-        model.user.user.add_global_flag(flag_name)  # type: ignore
-        # Update the user flags list on the view
-        self.populate_user_flags()
 
-    def on_remove_flag_click(self):
-        """Click handler for the remove flag button."""
-        # Grab the currently selected flag name
-        flag_name = model.flags.flag_string_to_flag_name(
-            self.view.lst_user_flags.currentItem().text()  # type: ignore
-        )
-        # Remove the flag from the model user
-        model.user.user.global_flags.remove(flag_name)
-        # Update the user flags list on the view
-        self.populate_user_flags()
+    def on_user_flag_adopted(self, flag_str) -> None:
+        """Handler for adoption of user flag."""
+        pass
 
-    def populate_global_flags(self):
-        """Uses the flag configs to populate the list of global flags on the view."""
-        # Clear the list
-        self.view.lst_global_flags.clear()  # type: ignore
-        # Rebuild the list
-        for flag in model.configs.FLAG_CONFIGS.values():
-            self.view.lst_global_flags.addItem(flag["string"])  # type: ignore
-
-    def populate_user_flags(self):
-        """Populates list of user flags on the gui from list on user model."""
-        # Clear the list
-        self.view.lst_user_flags.clear()  # type: ignore
-        # Rebuild the list
-        for flag in model.user.user.global_flags:  # type: ignore
-            self.view.lst_user_flags.addItem(model.configs.FLAG_CONFIGS[flag]["string"])  # type: ignore
+    def on_user_flag_removal(self, flag_str) -> None:
+        """Handler for removal of user flag."""
+        pass
+   

@@ -1,14 +1,19 @@
 from PyQt6 import QtWidgets, uic
 
+import gui
+
 class UserRequirementsEditorView(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # Declare active widgets
-        self.btn_adopt_flag: QtWidgets.QPushButton
-        self.btn_remove_flag: QtWidgets.QPushButton
-        self.lst_user_flags: QtWidgets.QListWidget
-        self.lst_global_flags: QtWidgets.QListWidget
+        self.wg_flags: QtWidgets.QGroupBox
 
         # Bring the ui file in
         uic.load_ui.loadUi('gui/user_requirements_editor.ui', self)
+
+        # Build the flag editor widget
+        self.wg_flag_selector = gui.FlagSelectorView()
+        vbox = QtWidgets.QVBoxLayout()
+        vbox.addWidget(self.wg_flag_selector)
+        self.wg_flags.setLayout(vbox)
