@@ -9,16 +9,12 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         # Call out the view type for intellisense
         self.view: gui.IngredientEditorView
 
-        # Insert the flag editor widget
-        flag_selector_view = gui.FlagSelectorView()
+        # Init controller for flag selector widget
         self.flag_selector_ctrl = gui.FlagSelectorCtrl(
-            view=flag_selector_view,
-            on_flag_adoption_callback=lambda flag_str: self.on_flag_adopt(flag_str),
-            on_flag_removal_callback=lambda flag_str: self.on_flag_remove(flag_str)
+            view=self.view.wg_flag_selector,
+            on_flag_adoption_callback=self.on_flag_adopt,
+            on_flag_removal_callback=self.on_flag_remove
         )
-        vbox = QtWidgets.QVBoxLayout()
-        vbox.addWidget(flag_selector_view)
-        self.view.wg_flags.setLayout(vbox)
 
         # Load in a fresh ingredient instance
         self.ingredient = model.ingredients.Ingredient()

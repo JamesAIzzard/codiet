@@ -16,4 +16,5 @@ class UserRequirementsEditorView(QtWidgets.QWidget):
         self.wg_flag_selector = gui.FlagSelectorView()
         vbox = QtWidgets.QVBoxLayout()
         vbox.addWidget(self.wg_flag_selector)
+        vbox.setContentsMargins(0,0,0,0)
         self.wg_flags.setLayout(vbox)
