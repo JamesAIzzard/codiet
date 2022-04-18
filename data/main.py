@@ -1,15 +1,28 @@
 import sqlite3
-from typing import List
+
+from typing import List, Tuple
 
 import model
 
 # Initialise the connecton
-conn = sqlite3.connect('data/codiet.db')
+conn = sqlite3.connect("data/codiet.db")
 cursor = conn.cursor()
+
+
+def get_adopted_nutrients() -> List[Tuple[str, str]]:
+    """Returns a list of the adopted nutrients."""
+    qry = """SELECT
+        nutrient_name, nutrient_string
+    FROM
+        nutrients
+    """
+    cursor.execute(qry)
+    data = cursor.fetchall()
+    return data
 
 def get_flag_strings() -> List[str]:
     """Returns a list of all flag strings."""
-    qry = f"""SELECT
+    qry = """SELECT
         flag_string
     FROM
         flags;
@@ -21,9 +34,10 @@ def get_flag_strings() -> List[str]:
         flags.append(row[0])
     return flags
 
+
 def get_mass_units() -> List[str]:
     """Returns a list of all mass units."""
-    qry = f"""SELECT
+    qry = """SELECT
         unit_name
     FROM
         mass_units
@@ -33,7 +47,8 @@ def get_mass_units() -> List[str]:
     units = []
     for row in data:
         units.append(row[0])
-    return units    
+    return units
+
 
 def save_ingredient(ingredient: model.ingredients.Ingredient):
     """Saves the ingredient."""

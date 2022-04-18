@@ -1,10 +1,14 @@
-from PyQt6 import QtWidgets
+from typing import Dict
 
 import gui, data, model
+
 
 class IngredientEditorCtrl(gui.CodietCtrl):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Create dict for nutrient editor controllers
+        self.nutrient_editor_ctrls: Dict[str, gui.NutrientRatioEditorCtrl] = {}
 
         # Call out the view type for intellisense
         self.view: gui.IngredientEditorView
@@ -13,30 +17,45 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         self.flag_selector_ctrl = gui.FlagSelectorCtrl(
             view=self.view.wg_flag_selector,
             on_flag_adoption_callback=self.on_flag_adopt,
-            on_flag_removal_callback=self.on_flag_remove
+            on_flag_removal_callback=self.on_flag_remove,
         )
 
         # Load in a fresh ingredient instance
         self.ingredient = model.ingredients.Ingredient()
 
         # Initial setup on the form
+        # Do the cost units
         self.view.set_cost_units(data.get_mass_units())
+        # Do the nutrients
+        nutrients = data.get_adopted_nutrients()
+        for nutrient in nutrients:
+            self.add_nutrient_ratio_editor(
+                nutrient_name=nutrient[0], nutrient_str=nutrient[1]
+            )
 
         # Wire the active elements
         self.view.btn_save_ingredient.clicked.connect(  # type: ignore
             self.on_save_ingredient
         )
 
+    def add_nutrient_ratio_editor(self, nutrient_name: str, nutrient_str: str) -> None:
+        """Adds a nutrient ratio editor widget."""
+        # Create the view
+        view = gui.NutrientRatioEditorView(nutrient_str=nutrient_str)
+        ctrl = gui.NutrientRatioEditorCtrl(view=view, nutrient_str=nutrient_str)
+        self.nutrient_editor_ctrls[nutrient_name] = ctrl
+        self.view.add_nutrient_widget(view)
+
     def on_save_ingredient(self) -> None:
         """Click handler for save ingredient button."""
         # Grab the name from the ingredient lineedit
-        self.ingredient.name = self.view.txt_ingredient_name.text() # type: ignore
+        self.ingredient.name = self.view.txt_ingredient_name.text()  # type: ignore
         data.save_ingredient(self.ingredient)
 
-    def on_flag_adopt(self, flag_str:str) -> None:
+    def on_flag_adopt(self, flag_str: str) -> None:
         """Handler function for flag adoption."""
         pass
 
-    def on_flag_remove(self, flag_str:str) -> None:
+    def on_flag_remove(self, flag_str: str) -> None:
         """Hander function for flag removal."""
         pass
