@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>800</height>
+    <height>700</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>500</width>
-    <height>800</height>
+    <height>0</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -39,19 +39,15 @@
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="central_widget">
-   <widget class="QStackedWidget" name="wg_page_stack">
-    <property name="geometry">
-     <rect>
-      <x>9</x>
-      <y>9</y>
-      <width>482</width>
-      <height>639</height>
-     </rect>
-    </property>
-    <property name="currentIndex">
-     <number>-1</number>
-    </property>
-   </widget>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QStackedWidget" name="wg_page_stack">
+      <property name="currentIndex">
+       <number>-1</number>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
