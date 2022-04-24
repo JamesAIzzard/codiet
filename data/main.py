@@ -53,7 +53,7 @@ def get_mass_units() -> List[str]:
 def save_ingredient(ingredient: model.ingredients.Ingredient):
     """Saves the ingredient."""
     qry = f"""INSERT INTO ingredients
-        (name)
+        (name, )
         VALUES
         ('{ingredient.name}');
     """

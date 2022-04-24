@@ -46,12 +46,6 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         self.nutrient_editor_ctrls[nutrient_name] = ctrl
         self.view.add_nutrient_widget(view)
 
-    def on_save_ingredient(self) -> None:
-        """Click handler for save ingredient button."""
-        # Grab the name from the ingredient lineedit
-        self.ingredient.name = self.view.txt_ingredient_name.text()  # type: ignore
-        data.save_ingredient(self.ingredient)
-
     def on_flag_adopt(self, flag_str: str) -> None:
         """Handler function for flag adoption."""
         pass
@@ -59,3 +53,16 @@ class IngredientEditorCtrl(gui.CodietCtrl):
     def on_flag_remove(self, flag_str: str) -> None:
         """Hander function for flag removal."""
         pass
+
+    def on_save_ingredient(self) -> None:
+        """Click handler for save ingredient button."""
+        # Grab the name from the ingredient lineedit
+        self.ingredient.name = self.view.name
+        # Convert the cost to a cost per gram
+        cost_per_unit = self.view.cost / self.view.cost_mass
+        cost_per_gram = model.units.convert_mass(
+            starting_units = self.view.cost_units,
+            starting_value = self.view.cost
+        )
+        # Hmmmm, not sure about the best way to do this just yet.
+        data.save_ingredient(self.ingredient)
