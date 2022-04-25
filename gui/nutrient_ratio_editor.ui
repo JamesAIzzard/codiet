@@ -33,7 +33,7 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <property name="spacing">
-    <number>0</number>
+    <number>2</number>
    </property>
    <property name="leftMargin">
     <number>0</number>
@@ -61,10 +61,24 @@
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="txt_nutrient_mass"/>
+    <widget class="QLineEdit" name="txt_nutrient_mass">
+     <property name="maximumSize">
+      <size>
+       <width>160</width>
+       <height>16777215</height>
+      </size>
+     </property>
+    </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="cmb_nutrient_mass_unit"/>
+    <widget class="QComboBox" name="cmb_nutrient_mass_unit">
+     <property name="maximumSize">
+      <size>
+       <width>50</width>
+       <height>16777215</height>
+      </size>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QLabel" name="label_2">
@@ -74,10 +88,37 @@
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="txt_ingredient_mass"/>
+    <widget class="QLineEdit" name="txt_ingredient_mass">
+     <property name="maximumSize">
+      <size>
+       <width>160</width>
+       <height>16777215</height>
+      </size>
+     </property>
+    </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="cmb_ingredient_qty_unit"/>
+    <widget class="QComboBox" name="cmb_ingredient_qty_unit">
+     <property name="maximumSize">
+      <size>
+       <width>50</width>
+       <height>16777215</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>

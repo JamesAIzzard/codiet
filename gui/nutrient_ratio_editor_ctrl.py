@@ -14,5 +14,11 @@ class NutrientRatioEditorCtrl(gui.CodietCtrl):
         self.view: gui.NutrientRatioEditorView
 
         # Initial setup
-        self.view.set_nutrient_mass_units(data.get_mass_units())
-        self.view.set_ingredient_qty_units(data.get_mass_units())
+        # Initially put basic mass units in the dropdowns
+        mass_units = data.get_mass_units()
+        gui.utils.cmb_add_items_once(
+            self.view.cmb_ingredient_qty_unit, mass_units
+        )
+        gui.utils.cmb_add_items_once(
+            self.view.cmb_nutrient_mass_unit, mass_units
+        )

@@ -1,4 +1,4 @@
-from typing import Dict
+import typing
 
 import gui, data, model
 
@@ -8,7 +8,7 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         super().__init__(*args, **kwargs)
 
         # Create dict for nutrient editor controllers
-        self.nutrient_editor_ctrls: Dict[str, gui.NutrientRatioEditorCtrl] = {}
+        self.nutrient_editor_ctrls: typing.Dict[str, gui.NutrientRatioEditorCtrl] = {}
 
         # Call out the view type for intellisense
         self.view: gui.IngredientEditorView
@@ -24,9 +24,20 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         self.ingredient = model.ingredients.Ingredient()
 
         # Initial setup on the form
-        # Do the cost units
-        self.view.set_cost_units(data.get_mass_units())
-        # Do the nutrients
+        # Cache the basic mass units
+        mass_units = data.get_mass_units()
+        # Do the cost widget setup
+        gui.utils.cmb_add_items_once(
+            self.view.cmb_cost_units, mass_units
+        )
+        # Do the bulk widget setup
+        gui.utils.cmb_add_items_once(
+            self.view.cmb_ref_qty_units, mass_units
+        )
+        gui.utils.cmb_add_items_once(
+            self.view.cmb_mass_pieces_units, mass_units
+        )      
+        # Do the nutrients widget setup
         nutrients = data.get_adopted_nutrients()
         for nutrient in nutrients:
             self.add_nutrient_ratio_editor(

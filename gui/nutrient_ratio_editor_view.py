@@ -25,13 +25,3 @@ class NutrientRatioEditorView(QtWidgets.QWidget):
     def set_nutrient_name(self, nutrient_name: str) -> None:
         """Sets the nutrient name on the widget."""
         self.lbl_nutrient_name.setText(f"{nutrient_name}:")
-
-    def set_nutrient_mass_units(self, units: List[str]) -> None:
-        """Sets the nutrient mass units."""
-        self.cmb_nutrient_mass_unit.clear()
-        self.cmb_nutrient_mass_unit.addItems(units)
-
-    def set_ingredient_qty_units(self, units: List[str]) -> None:
-        """Sets the ingredient quantity units."""
-        self.cmb_ingredient_qty_unit.clear()
-        self.cmb_ingredient_qty_unit.addItems
