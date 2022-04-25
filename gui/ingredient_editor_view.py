@@ -15,6 +15,12 @@ class IngredientEditorView(QtWidgets.QWidget):
         self.txt_cost: QtWidgets.QLineEdit
         self.txt_cost_mass: QtWidgets.QLineEdit
         self.cmb_cost_units: QtWidgets.QComboBox
+        self.txt_ref_qty: QtWidgets.QLineEdit
+        self.cmb_ref_qty_units: QtWidgets.QComboBox
+        self.txt_num_pieces: QtWidgets.QLineEdit
+        self.txt_mass_pieces: QtWidgets.QLineEdit
+        self.cmb_mass_pieces_units: QtWidgets.QComboBox
+        self.txt_gi: QtWidgets.QLineEdit
         self.scl_nutrients: QtWidgets.QWidget
         self.lyt_flags: QtWidgets.QVBoxLayout
         self.lyt_nutrients: QtWidgets.QVBoxLayout
@@ -23,9 +29,11 @@ class IngredientEditorView(QtWidgets.QWidget):
         uic.load_ui.loadUi("gui/ingredient_editor.ui", self)
 
         # Set the validators to catch basic errors
-        float_val = QtGui.QDoubleValidator()
-        self.txt_cost.setValidator(float_val)
-        self.txt_cost_mass.setValidator(float_val)
+        self.txt_cost.setValidator(gui.PositiveFloatValidator())
+        self.txt_cost_mass.setValidator(gui.PositiveFloatValidator())
+        self.txt_ref_qty.setValidator(gui.PositiveFloatValidator())
+        self.txt_num_pieces.setValidator(gui.PositiveFloatValidator())
+        self.txt_mass_pieces.setValidator(gui.PositiveFloatValidator())
 
         # Build the flag editor widget
         self.wg_flag_selector = gui.FlagSelectorView()
