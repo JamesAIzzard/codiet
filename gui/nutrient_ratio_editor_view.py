@@ -1,6 +1,8 @@
-from typing import List
+import typing
 
 from PyQt6 import QtWidgets, uic
+
+import gui
 
 class NutrientRatioEditorView(QtWidgets.QWidget):
     def __init__(self,
@@ -18,6 +20,10 @@ class NutrientRatioEditorView(QtWidgets.QWidget):
 
         # Bring the ui file in
         uic.load_ui.loadUi('gui/nutrient_ratio_editor.ui', self)
+
+        # Add positive float validator to numerical input
+        self.txt_ingredient_mass.setValidator(gui.PositiveFloatValidator())
+        self.txt_nutrient_mass.setValidator(gui.PositiveFloatValidator())
 
         # Update the nutrient name label
         self.set_nutrient_name(nutrient_str)
