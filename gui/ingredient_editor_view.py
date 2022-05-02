@@ -46,9 +46,12 @@ class IngredientEditorView(QtWidgets.QWidget):
         self.lyt_flags.addWidget(self.wg_flag_selector)
 
     @property
-    def name(self) -> str:
+    def name(self) -> typing.Optional[str]:
         """Returns the ingredient name from the line edit."""
-        return self.txt_ingredient_name.text()
+        if self.txt_ingredient_name.text() == "":
+            return None
+        else:
+            return self.txt_ingredient_name.text()
 
     @property
     def cost(self) -> typing.Optional[float]:
@@ -73,6 +76,53 @@ class IngredientEditorView(QtWidgets.QWidget):
     def cost_units(self) -> str:
         """Returns the cost units from the combobox."""
         return self.cmb_cost_units.currentText()
+
+    @property
+    def dens_vol(self) -> typing.Optional[float]:
+        """Returns the density volume from the line edit."""
+        if self.txt_dens_vol.text() == "":
+            return None
+        else:
+            return float(self.txt_dens_vol.text())
+
+    @property
+    def dens_vol_units(self) -> str:
+        """Returns the volume units from the density combobox."""
+        return self.cmb_dens_vol_units.currentText()
+
+    @property
+    def dens_mass(self) -> typing.Optional[float]:
+        """Returns the density mass from the line edit."""
+        if self.txt_dens_mass.text() == "":
+            return None
+        else:
+            return float(self.txt_dens_mass.text())
+
+    @property
+    def dens_mass_units(self) -> str:
+        """Returns the mass units from the density combobox."""
+        return self.cmb_dens_mass_units.currentText()
+
+    @property
+    def num_pieces(self) -> typing.Optional[float]:
+        """Returns the number of pieces from the line edit."""
+        if self.txt_num_pieces.text() == "":
+            return None
+        else:
+            return float(self.txt_num_pieces.text())
+
+    @property
+    def pc_mass(self) -> typing.Optional[float]:
+        """Returns the piece mass value from the line edit."""
+        if self.txt_mass_pieces.text() == "":
+            return None
+        else:
+            return float(self.txt_mass_pieces.text())
+
+    @property
+    def pc_mass_units(self) -> str:
+        """Returns the piece mass units from the combobox."""
+        return self.cmb_mass_pieces_units.currentText()
 
     def add_nutrient_widget(self, view: gui.NutrientRatioEditorView) -> None:
         """Adds a nutrient ratio editor widget view."""
