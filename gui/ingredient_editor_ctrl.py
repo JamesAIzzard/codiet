@@ -1,5 +1,7 @@
 import typing
 
+from PyQt6 import QtWidgets
+
 import gui, data, model
 
 
@@ -25,8 +27,8 @@ class IngredientEditorCtrl(gui.CodietCtrl):
 
         # Initial setup on the form
         # Cache the basic mass units
-        mass_units = data.get_mass_units()
-        vol_units = data.get_vol_units()
+        mass_units = data.quantity.get_mass_units()
+        vol_units = data.quantity.get_vol_units()
         # Do the cost widget setup
         gui.utils.cmb_add_items_once(
             self.view.cmb_cost_units, mass_units
@@ -45,7 +47,7 @@ class IngredientEditorCtrl(gui.CodietCtrl):
             self.view.cmb_mass_pieces_units, mass_units
         )      
         # Do the nutrients widget setup
-        nutrients = data.get_adopted_nutrients()
+        nutrients = data.nutrients.get_adopted_nutrients()
         for nutrient in nutrients:
             self.add_nutrient_ratio_editor(
                 nutrient_name=nutrient[0], nutrient_str=nutrient[1]
@@ -76,11 +78,24 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         """Click handler for save ingredient button."""
         # Grab the name from the ingredient lineedit
         self.ingredient.name = self.view.name
+
         # Convert the cost to a cost per gram
+        # Catch unpopulated cost fields
+        if self.view.cost is None or self.view.cost_mass is None:
+            # Warn the user that cost must be populated
+            QtWidgets.QMessageBox.warning(self.view,
+                'Cost Required',
+                'The cost details for this ingredient must be populated.'
+            )
+            # Quit the function
+            return None
+
+        # Go ahead and calculate the cost per gram
         cost_per_unit = self.view.cost / self.view.cost_mass
         cost_per_gram = model.units.convert_mass(
             starting_units = self.view.cost_units,
             starting_value = self.view.cost
         )
+
         # Hmmmm, not sure about the best way to do this just yet.
-        data.save_ingredient(self.ingredient)
+        # data.save_ingredient(self.ingredient)

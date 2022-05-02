@@ -26,7 +26,7 @@ class FlagSelectorCtrl(gui.CodietCtrl):
     def set_global_flags(self) -> None:
         """Loads the global flags into the box."""
         self.view.clear_global_flags()
-        self.view.set_global_flags(data.get_flag_strings())
+        self.view.set_global_flags(data.flags.get_flag_strings())
 
     def _on_flag_adoption(self) -> None:
         """Handler for adoption button press.

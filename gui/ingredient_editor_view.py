@@ -64,7 +64,7 @@ class IngredientEditorView(QtWidgets.QWidget):
     @property
     def cost_mass(self) -> typing.Optional[float]:
         """Returns the cost mass from the line edit."""
-        if self.txt_cost.text() == "":
+        if self.txt_cost_mass.text() == "":
             return None
         else:
             return float(self.txt_cost_mass.text())
