@@ -70,8 +70,8 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         # First, calculate the cost per single unit
         cost_per_unit = self.view.cost / self.view.cost_mass
 
-        # Now convert that to grams
-        cost_per_gram = model.quantity.convert_qty_unit(
+        # Get the ratio between the units
+        unit_r = model.quantity.convert_qty_unit(
             qty=1,
             start_unit=self.view.cost_units,
             end_unit='g',
@@ -80,7 +80,7 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         )
 
         # Done
-        return cost_per_gram
+        return cost_per_unit/unit_r
 
     @property
     def g_per_ml(self) -> typing.Optional[float]:
@@ -149,7 +149,7 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         """Click handler for save ingredient button."""
         # Set title for warning boxes
         warn_title = "Incomplete Data"
-        
+
         # Check name has been populated
         if self.view.name is None:
             self._show_warning(warn_title, "The ingredient name must be populated.")
