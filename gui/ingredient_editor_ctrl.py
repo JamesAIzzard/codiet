@@ -26,6 +26,7 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         # Initial setup on the form
         # Cache the basic mass units
         mass_units = data.get_mass_units()
+        vol_units = data.get_vol_units()
         # Do the cost widget setup
         gui.utils.cmb_add_items_once(
             self.view.cmb_cost_units, mass_units
@@ -33,6 +34,12 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         # Do the bulk widget setup
         gui.utils.cmb_add_items_once(
             self.view.cmb_ref_qty_units, mass_units
+        )
+        gui.utils.cmb_add_items_once(
+            self.view.cmb_dens_mass_units, mass_units
+        )
+        gui.utils.cmb_add_items_once(
+            self.view.cmb_dens_vol_units, vol_units
         )
         gui.utils.cmb_add_items_once(
             self.view.cmb_mass_pieces_units, mass_units

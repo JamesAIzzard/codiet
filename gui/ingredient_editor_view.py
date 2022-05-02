@@ -17,6 +17,10 @@ class IngredientEditorView(QtWidgets.QWidget):
         self.cmb_cost_units: QtWidgets.QComboBox
         self.txt_ref_qty: QtWidgets.QLineEdit
         self.cmb_ref_qty_units: QtWidgets.QComboBox
+        self.txt_dens_vol: QtWidgets.QLineEdit
+        self.cmb_dens_vol_units: QtWidgets.QComboBox
+        self.txt_dens_mass: QtWidgets.QLineEdit
+        self.cmb_dens_mass_units: QtWidgets.QComboBox
         self.txt_num_pieces: QtWidgets.QLineEdit
         self.txt_mass_pieces: QtWidgets.QLineEdit
         self.cmb_mass_pieces_units: QtWidgets.QComboBox
@@ -32,6 +36,8 @@ class IngredientEditorView(QtWidgets.QWidget):
         self.txt_cost.setValidator(gui.PositiveFloatValidator())
         self.txt_cost_mass.setValidator(gui.PositiveFloatValidator())
         self.txt_ref_qty.setValidator(gui.PositiveFloatValidator())
+        self.txt_dens_vol.setValidator(gui.PositiveFloatValidator())
+        self.txt_dens_mass.setValidator(gui.PositiveFloatValidator())
         self.txt_num_pieces.setValidator(gui.PositiveFloatValidator())
         self.txt_mass_pieces.setValidator(gui.PositiveFloatValidator())
 
