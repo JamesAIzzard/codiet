@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
+    <width>510</width>
     <height>700</height>
    </rect>
   </property>
@@ -54,8 +54,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>500</width>
-     <height>21</height>
+     <width>510</width>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="btn_preferences">

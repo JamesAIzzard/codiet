@@ -13,10 +13,8 @@ class IngredientEditorView(QtWidgets.QWidget):
         self.wg_flags: QtWidgets.QGroupBox
         self.txt_ingredient_name: QtWidgets.QLineEdit
         self.txt_cost: QtWidgets.QLineEdit
-        self.txt_cost_mass: QtWidgets.QLineEdit
+        self.txt_cost_qty: QtWidgets.QLineEdit
         self.cmb_cost_units: QtWidgets.QComboBox
-        self.txt_ref_qty: QtWidgets.QLineEdit
-        self.cmb_ref_qty_units: QtWidgets.QComboBox
         self.txt_dens_vol: QtWidgets.QLineEdit
         self.cmb_dens_vol_units: QtWidgets.QComboBox
         self.txt_dens_mass: QtWidgets.QLineEdit
@@ -28,14 +26,17 @@ class IngredientEditorView(QtWidgets.QWidget):
         self.scl_nutrients: QtWidgets.QWidget
         self.lyt_flags: QtWidgets.QVBoxLayout
         self.lyt_nutrients: QtWidgets.QVBoxLayout
+        self.btn_save_ingredient:QtWidgets.QPushButton
+
+        # Create a dict to store the nutrient editor views
+        self.nutrient_editor_views: typing.Dict[str, gui.NutrientRatioEditorView] = {}
 
         # Load in the ui file
         uic.load_ui.loadUi("gui/ingredient_editor.ui", self)
 
         # Set the validators to catch basic errors
         self.txt_cost.setValidator(gui.PositiveFloatValidator())
-        self.txt_cost_mass.setValidator(gui.PositiveFloatValidator())
-        self.txt_ref_qty.setValidator(gui.PositiveFloatValidator())
+        self.txt_cost_qty.setValidator(gui.PositiveFloatValidator())
         self.txt_dens_vol.setValidator(gui.PositiveFloatValidator())
         self.txt_dens_mass.setValidator(gui.PositiveFloatValidator())
         self.txt_num_pieces.setValidator(gui.PositiveFloatValidator())
@@ -54,6 +55,15 @@ class IngredientEditorView(QtWidgets.QWidget):
             return self.txt_ingredient_name.text()
 
     @property
+    def cost_is_defined(self) -> bool:
+        """Returns True/False to indicate if the cost fields are defined."""
+        if self.txt_cost.text() == "":
+            return False
+        if self.txt_cost_qty.text() == "":
+            return False
+        return True
+
+    @property
     def cost(self) -> typing.Optional[float]:
         """Returns the cost from the line edit.
         Validation prevents the user entering non-numeric values
@@ -65,12 +75,12 @@ class IngredientEditorView(QtWidgets.QWidget):
             return float(self.txt_cost.text())
 
     @property
-    def cost_mass(self) -> typing.Optional[float]:
+    def cost_qty(self) -> typing.Optional[float]:
         """Returns the cost mass from the line edit."""
-        if self.txt_cost_mass.text() == "":
+        if self.txt_cost_qty.text() == "":
             return None
         else:
-            return float(self.txt_cost_mass.text())
+            return float(self.txt_cost_qty.text())
 
     @property
     def cost_units(self) -> str:
@@ -124,6 +134,18 @@ class IngredientEditorView(QtWidgets.QWidget):
         """Returns the piece mass units from the combobox."""
         return self.cmb_mass_pieces_units.currentText()
 
-    def add_nutrient_widget(self, view: gui.NutrientRatioEditorView) -> None:
+    @property
+    def all_nutrients_defined(self) -> bool:
+        """Returns True/False to indicate if all the nutrients have been defined."""
+        for view in self.nutrient_editor_views.values():
+            if not view.nutrient_ratio_defined:
+                return False
+        # All were defined
+        return True
+
+    def add_nutrient_widget(self, nutrient_name:str, view: gui.NutrientRatioEditorView) -> None:
         """Adds a nutrient ratio editor widget view."""
+        # Stash the view instance
+        self.nutrient_editor_views[nutrient_name] = view
+        # Insert the view
         self.lyt_nutrients.addWidget(view)

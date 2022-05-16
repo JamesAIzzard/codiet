@@ -88,7 +88,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="txt_ingredient_mass">
+    <widget class="QLineEdit" name="txt_ingredient_qty">
      <property name="maximumSize">
       <size>
        <width>160</width>

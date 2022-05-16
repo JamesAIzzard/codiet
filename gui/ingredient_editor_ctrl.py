@@ -34,10 +34,6 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         gui.utils.cmb_add_items_once(
             self.view.cmb_cost_units, mass_units
         )
-        # Do the bulk widget setup
-        gui.utils.cmb_add_items_once(
-            self.view.cmb_ref_qty_units, mass_units
-        )
         gui.utils.cmb_add_items_once(
             self.view.cmb_dens_mass_units, mass_units
         )
@@ -55,7 +51,8 @@ class IngredientEditorCtrl(gui.CodietCtrl):
             )
 
         # Wire the active elements
-        self.view.btn_save_ingredient.clicked.connect(  # type: ignore
+        # Handle the save button press
+        self.view.btn_save_ingredient.clicked.connect(
             self.on_save_ingredient
         )
 
@@ -63,12 +60,12 @@ class IngredientEditorCtrl(gui.CodietCtrl):
     def cost_per_g(self) -> typing.Optional[float]:
         """Returns the cost per gram specified on the view."""
         # Return None if any of the required values are not specified
-        if self.view.cost is None or self.view.cost_mass is None:
+        if self.view.cost is None or self.view.cost_qty is None:
             return None
 
         # OK, values are specified, so go ahead and calculate cost per gram
         # First, calculate the cost per single unit
-        cost_per_unit = self.view.cost / self.view.cost_mass
+        cost_per_unit = self.view.cost / self.view.cost_qty
 
         # Get the ratio between the units
         unit_r = model.quantity.convert_qty_unit(
@@ -124,18 +121,20 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         pc_mass_g = pcs_mass_g / self.view.num_pieces
         return pc_mass_g
 
-
     def _show_warning(self, title:str, message:str) -> None:
         """Raises a warning dialog box."""
         QtWidgets.QMessageBox.warning(self.view, title, message)        
 
     def add_nutrient_ratio_editor(self, nutrient_name: str, nutrient_str: str) -> None:
         """Adds a nutrient ratio editor widget."""
-        # Create the view
+        # Init the view
         view = gui.NutrientRatioEditorView(nutrient_str=nutrient_str)
+        # Init the controller
         ctrl = gui.NutrientRatioEditorCtrl(view=view, nutrient_str=nutrient_str)
+        # Stash the controller
         self.nutrient_editor_ctrls[nutrient_name] = ctrl
-        self.view.add_nutrient_widget(view)
+        # Add the view
+        self.view.add_nutrient_widget(nutrient_name, view)
 
     def on_flag_adopt(self, flag_str: str) -> None:
         """Handler function for flag adoption."""
@@ -147,22 +146,32 @@ class IngredientEditorCtrl(gui.CodietCtrl):
 
     def on_save_ingredient(self) -> None:
         """Click handler for save ingredient button."""
-        # Set title for warning boxes
+        # First check the form has been completed
+        # Set title for incomplete data warnings
         warn_title = "Incomplete Data"
-
         # Check name has been populated
         if self.view.name is None:
             self._show_warning(warn_title, "The ingredient name must be populated.")
             return
         # Check cost has been populated
-        if self.cost_per_g is None:
+        if not self.view.cost_is_defined:
             self._show_warning(warn_title, "The ingredient cost data must be populated.")
             return
+        # Check nutrient data has been populated
+        if not self.view.all_nutrients_defined:
+            self._show_warning(warn_title, "All nutrient data must be populated.")
+            return
 
-        # Grab the name from the ingredient lineedit
+        # Set the ingredient name
         self.ingredient.name = self.view.name
-        self.ingredient.cost_per_g = self.cost_per_g
-        print(self.ingredient.cost_per_g)
-
-        # Hmmmm, not sure about the best way to do this just yet.
-        # data.save_ingredient(self.ingredient)
+        # Set the ingredient cost info
+        self.ingredient.cost_per_ref_qty = self.view.cost
+        self.ingredient.cost_ref_qty = self.view.cost_qty
+        self.ingredient.cost_pref_unit = self.view.cost_units
+        # Set the ingredient density info
+        # Set the ingredient piece mass info
+        # Set the ingredient flags info
+        # Set the glycaemic index info
+        # Set the nutrients info
+        # Go ahead and save the ingredient
+        data.ingredients.save_ingredient(self.ingredient)

@@ -1,1 +1,1 @@
-from .ingredients import Ingredient
+from .ingredient import Ingredient
