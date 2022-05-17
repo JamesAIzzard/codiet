@@ -158,7 +158,7 @@ class IngredientEditorCtrl(gui.CodietCtrl):
             self._show_warning(warn_title, "The ingredient cost data must be populated.")
             return
         # Check nutrient data has been populated
-        if not self.view.all_nutrients_defined:
+        if not self.view.all_nutrient_fields_filled:
             self._show_warning(warn_title, "All nutrient data must be populated.")
             return
 
@@ -169,9 +169,18 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         self.ingredient.cost_ref_qty = self.view.cost_qty
         self.ingredient.cost_pref_unit = self.view.cost_units
         # Set the ingredient density info
+        self.ingredient.dens_vol_ref_qty = self.view.dens_vol
+        self.ingredient.dens_vol_unit = self.view.dens_vol_units
+        self.ingredient.dens_mass_ref_qty = self.view.dens_mass
+        self.ingredient.dens_mass_unit = self.view.dens_mass_units
         # Set the ingredient piece mass info
+        self.ingredient.piece_mass_ref_num = self.view.num_pieces
+        self.ingredient.piece_mass_ref_mass = self.view.pc_mass
+        self.ingredient.piece_mass_ref_units = self.view.pc_mass_units
         # Set the ingredient flags info
+        self.ingredient.flags = self.view.adopted_flag_names
         # Set the glycaemic index info
+        self.ingredient.gi = self.view.gi
         # Set the nutrients info
         # Go ahead and save the ingredient
         data.ingredients.save_ingredient(self.ingredient)

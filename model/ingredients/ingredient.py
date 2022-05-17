@@ -19,7 +19,7 @@ class Ingredient:
         piece_mass_ref_units: str = "g",
         flags: typing.Optional[typing.List[str]] = None,
         gi: typing.Optional[float] = None,
-        nutrients: typing.Optional[typing.Dict[int, model.nutrients.NutrientQuantityData]] = None
+        nutrients: typing.Optional[typing.Dict[int, model.nutrients.NutrientRatioData]] = None
     ):
         # Init the members
         # Ingredient name
@@ -49,10 +49,3 @@ class Ingredient:
             self.nutrients = {}
         else:
             self.nutrients = nutrients
-
-    @property
-    def is_defined(self) -> bool:
-        """Returns True/False to indicate if the ingredient is defined.
-        Undefined nutrients cannot be used in optimisations.
-        """
-        raise NotImplementedError

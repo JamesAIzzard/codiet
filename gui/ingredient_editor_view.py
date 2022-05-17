@@ -1,6 +1,6 @@
 import typing
 
-from PyQt6 import QtWidgets, QtGui, uic
+from PyQt6 import QtWidgets, uic
 
 import gui
 
@@ -41,6 +41,7 @@ class IngredientEditorView(QtWidgets.QWidget):
         self.txt_dens_mass.setValidator(gui.PositiveFloatValidator())
         self.txt_num_pieces.setValidator(gui.PositiveFloatValidator())
         self.txt_mass_pieces.setValidator(gui.PositiveFloatValidator())
+        self.txt_gi.setValidator(gui.PositiveFloatValidator())
 
         # Build the flag editor widget
         self.wg_flag_selector = gui.FlagSelectorView()
@@ -135,13 +136,35 @@ class IngredientEditorView(QtWidgets.QWidget):
         return self.cmb_mass_pieces_units.currentText()
 
     @property
-    def all_nutrients_defined(self) -> bool:
-        """Returns True/False to indicate if all the nutrients have been defined."""
+    def adopted_flag_names(self) -> typing.List[str]:
+        """Returns a list of all of the adopted flag names on the view."""
+        return self.wg_flag_selector.all_adopted_flags
+
+    @property
+    def gi(self) -> typing.Optional[float]:
+        """Returns the GI value.
+        This is validated to be a float \in [0, 100]
+        """
+        if self.txt_gi.text() == "":
+            return None
+        else:
+            return float(self.txt_gi.text())
+
+    @property
+    def all_nutrient_fields_filled(self) -> bool:
+        """Returns True/False to indicate if all the nutrients have been defined.
+        Note:
+            This doesn't do any checks to ensure that this is the full list of adopted nutrients.
+            It just checks that all nutrient lines on the form have been populated.
+        """
         for view in self.nutrient_editor_views.values():
             if not view.nutrient_ratio_defined:
                 return False
         # All were defined
         return True
+
+    # @property
+    # def nutrients_data(self) -> typing.Dict[str, ]
 
     def add_nutrient_widget(self, nutrient_name:str, view: gui.NutrientRatioEditorView) -> None:
         """Adds a nutrient ratio editor widget view."""

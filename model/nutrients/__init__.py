@@ -1,1 +1,1 @@
-from .nutrient_qty_data import NutrientQuantityData
+from .nutrient_qty_data import NutrientRatioData
