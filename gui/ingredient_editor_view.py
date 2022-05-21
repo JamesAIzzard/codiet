@@ -4,6 +4,9 @@ from PyQt6 import QtWidgets, uic
 
 import gui
 
+if typing.TYPE_CHECKING:
+    from model.nutrients import NutrientRatioData
+
 
 class IngredientEditorView(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
@@ -26,7 +29,7 @@ class IngredientEditorView(QtWidgets.QWidget):
         self.scl_nutrients: QtWidgets.QWidget
         self.lyt_flags: QtWidgets.QVBoxLayout
         self.lyt_nutrients: QtWidgets.QVBoxLayout
-        self.btn_save_ingredient:QtWidgets.QPushButton
+        self.btn_save_ingredient: QtWidgets.QPushButton
 
         # Create a dict to store the nutrient editor views
         self.nutrient_editor_views: typing.Dict[str, gui.NutrientRatioEditorView] = {}
@@ -41,7 +44,7 @@ class IngredientEditorView(QtWidgets.QWidget):
         self.txt_dens_mass.setValidator(gui.PositiveFloatValidator())
         self.txt_num_pieces.setValidator(gui.PositiveFloatValidator())
         self.txt_mass_pieces.setValidator(gui.PositiveFloatValidator())
-        self.txt_gi.setValidator(gui.PositiveFloatValidator())
+        self.txt_gi.setValidator(gui.Float0To100Validator())
 
         # Build the flag editor widget
         self.wg_flag_selector = gui.FlagSelectorView()
@@ -143,7 +146,7 @@ class IngredientEditorView(QtWidgets.QWidget):
     @property
     def gi(self) -> typing.Optional[float]:
         """Returns the GI value.
-        This is validated to be a float \in [0, 100]
+        This is validated to be a float in [0, 100]
         """
         if self.txt_gi.text() == "":
             return None
@@ -163,10 +166,31 @@ class IngredientEditorView(QtWidgets.QWidget):
         # All were defined
         return True
 
-    # @property
-    # def nutrients_data(self) -> typing.Dict[str, ]
+    @property
+    def all_nutrient_ratio_data(self) -> typing.Dict[str, "NutrientRatioData"]:
+        """Returns the nutrients data."""
+        nutrient_ratio_data = {}
+        for nut_name, nr_widget in self.nutrient_editor_views.items():
+            nutrient_ratio_data[nut_name] = {
+                "nutrient_mass": nr_widget.nutrient_mass,
+                "nutrient_mass_unit": nr_widget.nutrient_mass_units,
+                "ingredient_qty": nr_widget.ingredient_qty,
+                "ingredient_qty_unit": nr_widget.ingredient_qty_units,
+            }
+        return nutrient_ratio_data
 
-    def add_nutrient_widget(self, nutrient_name:str, view: gui.NutrientRatioEditorView) -> None:
+    def get_nutrient_ratio_data(self, nutrient_name) -> "NutrientRatioData":
+        nr_widget = self.nutrient_editor_views[nutrient_name]
+        return {
+            "nutrient_mass": nr_widget.nutrient_mass,
+            "nutrient_mass_unit": nr_widget.nutrient_mass_units,
+            "ingredient_qty": nr_widget.ingredient_qty,
+            "ingredient_qty_unit": nr_widget.ingredient_qty_units,
+        }
+
+    def add_nutrient_widget(
+        self, nutrient_name: str, view: gui.NutrientRatioEditorView
+    ) -> None:
         """Adds a nutrient ratio editor widget view."""
         # Stash the view instance
         self.nutrient_editor_views[nutrient_name] = view

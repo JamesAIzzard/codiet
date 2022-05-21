@@ -31,18 +31,10 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         mass_units = list(data.quantity.get_mass_units().keys())
         vol_units = list(data.quantity.get_vol_units().keys())
         # Do the cost widget setup
-        gui.utils.cmb_add_items_once(
-            self.view.cmb_cost_units, mass_units
-        )
-        gui.utils.cmb_add_items_once(
-            self.view.cmb_dens_mass_units, mass_units
-        )
-        gui.utils.cmb_add_items_once(
-            self.view.cmb_dens_vol_units, vol_units
-        )
-        gui.utils.cmb_add_items_once(
-            self.view.cmb_mass_pieces_units, mass_units
-        )      
+        gui.utils.cmb_add_items_once(self.view.cmb_cost_units, mass_units)
+        gui.utils.cmb_add_items_once(self.view.cmb_dens_mass_units, mass_units)
+        gui.utils.cmb_add_items_once(self.view.cmb_dens_vol_units, vol_units)
+        gui.utils.cmb_add_items_once(self.view.cmb_mass_pieces_units, mass_units)
         # Do the nutrients widget setup
         nutrients = data.nutrients.get_adopted_nutrients()
         for nutrient in nutrients:
@@ -52,9 +44,7 @@ class IngredientEditorCtrl(gui.CodietCtrl):
 
         # Wire the active elements
         # Handle the save button press
-        self.view.btn_save_ingredient.clicked.connect(
-            self.on_save_ingredient
-        )
+        self.view.btn_save_ingredient.clicked.connect(self.on_save_ingredient)
 
     @property
     def cost_per_g(self) -> typing.Optional[float]:
@@ -71,13 +61,13 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         unit_r = model.quantity.convert_qty_unit(
             qty=1,
             start_unit=self.view.cost_units,
-            end_unit='g',
+            end_unit="g",
             g_per_ml=self.g_per_ml,
-            piece_mass_g=self.piece_mass_g
+            piece_mass_g=self.piece_mass_g,
         )
 
         # Done
-        return cost_per_unit/unit_r
+        return cost_per_unit / unit_r
 
     @property
     def g_per_ml(self) -> typing.Optional[float]:
@@ -89,18 +79,14 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         # Values are specified - go ahead and calculate
         # Convert the fluid volume to mls
         vol_mls = model.quantity.convert_qty_unit(
-            qty=self.view.dens_vol,
-            start_unit=self.view.dens_vol_units,
-            end_unit="ml"
+            qty=self.view.dens_vol, start_unit=self.view.dens_vol_units, end_unit="ml"
         )
         # Convert the mass volume to grams
         mass_g = model.quantity.convert_qty_unit(
-            qty=self.view.dens_mass,
-            start_unit=self.view.dens_mass_units,
-            end_unit='g'
+            qty=self.view.dens_mass, start_unit=self.view.dens_mass_units, end_unit="g"
         )
         # Derive the ratio
-        g_per_ml = mass_g/vol_mls
+        g_per_ml = mass_g / vol_mls
         return g_per_ml
 
     @property
@@ -109,26 +95,31 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         # Return None if any of the required info is missing
         if self.view.pc_mass is None or self.view.num_pieces is None:
             return None
-        
+
         # OK, all the info is there, go ahead
         # Convert the total pieces mass into grams
         pcs_mass_g = model.quantity.convert_qty_unit(
-            qty=self.view.pc_mass,
-            start_unit=self.view.pc_mass_units,
-            end_unit='g'
+            qty=self.view.pc_mass, start_unit=self.view.pc_mass_units, end_unit="g"
         )
         # Calc the mass of a single pc
         pc_mass_g = pcs_mass_g / self.view.num_pieces
         return pc_mass_g
 
-    def _show_warning(self, title:str, message:str) -> None:
+    def _show_warning(self, title: str, message: str) -> None:
         """Raises a warning dialog box."""
-        QtWidgets.QMessageBox.warning(self.view, title, message)        
+        QtWidgets.QMessageBox.warning(self.view, title, message)
 
     def add_nutrient_ratio_editor(self, nutrient_name: str, nutrient_str: str) -> None:
         """Adds a nutrient ratio editor widget."""
+        # If the nutrient is carbohydrate, bind to the carbohydrate
+        # change handler, so we can update the GI
+        carb_change_handler = None
+        if nutrient_name == "carbohydrate":
+            carb_change_handler = self.on_carb_ratio_change
         # Init the view
-        view = gui.NutrientRatioEditorView(nutrient_str=nutrient_str)
+        view = gui.NutrientRatioEditorView(
+            nutrient_str=nutrient_str, on_nutrient_mass_change=carb_change_handler
+        )
         # Init the controller
         ctrl = gui.NutrientRatioEditorCtrl(view=view, nutrient_str=nutrient_str)
         # Stash the controller
@@ -144,6 +135,20 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         """Hander function for flag removal."""
         pass
 
+    def on_carb_ratio_change(self) -> None:
+        """Handler for carbohydrate ratio change."""
+        # Grab the value from the carbohydrate widget
+        carb_ratio_data = self.view.get_nutrient_ratio_data(nutrient_name="carbohydrate")
+        # If carbs are zero, then zero the gi, and prevent user messing with it
+        if carb_ratio_data["nutrient_mass"] == 0:
+            self.view.txt_gi.setText("0")
+            self.view.txt_gi.setEnabled(False)
+        # If carbs are non-zero, clear zero value from the GI, and allow user to change
+        else:
+            if self.view.gi == 0:
+                self.view.txt_gi.setText("")
+            self.view.txt_gi.setEnabled(True)
+
     def on_save_ingredient(self) -> None:
         """Click handler for save ingredient button."""
         # First check the form has been completed
@@ -155,7 +160,9 @@ class IngredientEditorCtrl(gui.CodietCtrl):
             return
         # Check cost has been populated
         if not self.view.cost_is_defined:
-            self._show_warning(warn_title, "The ingredient cost data must be populated.")
+            self._show_warning(
+                warn_title, "The ingredient cost data must be populated."
+            )
             return
         # Check nutrient data has been populated
         if not self.view.all_nutrient_fields_filled:
@@ -182,5 +189,9 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         # Set the glycaemic index info
         self.ingredient.gi = self.view.gi
         # Set the nutrients info
+        nutrients_data = self.view.all_nutrient_ratio_data
+        for nutrient_name, nutrient_data in nutrients_data.items():
+            self.ingredient.nutrients[nutrient_name] = nutrient_data
         # Go ahead and save the ingredient
-        data.ingredients.save_ingredient(self.ingredient)
+        print(self.ingredient)
+        # data.ingredients.save_ingredient(self.ingredient)

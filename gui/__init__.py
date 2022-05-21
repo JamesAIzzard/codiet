@@ -1,5 +1,8 @@
 # Expose the main GUI viewmodels
-from .validators import PositiveFloatValidator
+from .validators import (
+    PositiveFloatValidator,
+    Float0To100Validator
+)
 from . import utils
 from .codiet_ctrl import CodietCtrl
 from .flag_selector_view import FlagSelectorView

@@ -19,7 +19,7 @@ class Ingredient:
         piece_mass_ref_units: str = "g",
         flags: typing.Optional[typing.List[str]] = None,
         gi: typing.Optional[float] = None,
-        nutrients: typing.Optional[typing.Dict[int, model.nutrients.NutrientRatioData]] = None
+        nutrients: typing.Optional[typing.Dict[str, model.nutrients.NutrientRatioData]] = None
     ):
         # Init the members
         # Ingredient name
