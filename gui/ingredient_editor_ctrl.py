@@ -19,8 +19,6 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         # Init controller for flag selector widget
         self.flag_selector_ctrl = gui.FlagSelectorCtrl(
             view=self.view.wg_flag_selector,
-            on_flag_adoption_callback=self.on_flag_adopt,
-            on_flag_removal_callback=self.on_flag_remove,
         )
 
         # Load in a fresh ingredient instance
@@ -127,14 +125,6 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         # Add the view
         self.view.add_nutrient_widget(nutrient_name, view)
 
-    def on_flag_adopt(self, flag_str: str) -> None:
-        """Handler function for flag adoption."""
-        pass
-
-    def on_flag_remove(self, flag_str: str) -> None:
-        """Hander function for flag removal."""
-        pass
-
     def on_carb_ratio_change(self) -> None:
         """Handler for carbohydrate ratio change."""
         # Grab the value from the carbohydrate widget
@@ -185,7 +175,7 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         self.ingredient.piece_mass_ref_mass = self.view.pc_mass
         self.ingredient.piece_mass_ref_units = self.view.pc_mass_units
         # Set the ingredient flags info
-        self.ingredient.flags = self.view.adopted_flag_names
+        self.ingredient.flags = list(self.flag_selector_ctrl.adopted_flags.keys())
         # Set the glycaemic index info
         self.ingredient.gi = self.view.gi
         # Set the nutrients info
