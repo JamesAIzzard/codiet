@@ -72,9 +72,15 @@
    </item>
    <item>
     <widget class="QComboBox" name="cmb_nutrient_mass_unit">
+     <property name="minimumSize">
+      <size>
+       <width>60</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="maximumSize">
       <size>
-       <width>50</width>
+       <width>60</width>
        <height>16777215</height>
       </size>
      </property>
@@ -99,9 +105,15 @@
    </item>
    <item>
     <widget class="QComboBox" name="cmb_ingredient_qty_unit">
+     <property name="minimumSize">
+      <size>
+       <width>60</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="maximumSize">
       <size>
-       <width>50</width>
+       <width>60</width>
        <height>16777215</height>
       </size>
      </property>

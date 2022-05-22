@@ -193,7 +193,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>All Flags</string>
+         <string>Available Flags</string>
         </property>
        </widget>
       </item>

@@ -234,13 +234,13 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>50</width>
+             <width>60</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>50</width>
+             <width>60</width>
              <height>16777215</height>
             </size>
            </property>
@@ -337,13 +337,13 @@
           <widget class="QComboBox" name="cmb_dens_vol_units">
            <property name="minimumSize">
             <size>
-             <width>50</width>
+             <width>60</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>50</width>
+             <width>60</width>
              <height>16777215</height>
             </size>
            </property>
@@ -376,13 +376,13 @@
           <widget class="QComboBox" name="cmb_dens_mass_units">
            <property name="minimumSize">
             <size>
-             <width>50</width>
+             <width>60</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>50</width>
+             <width>60</width>
              <height>16777215</height>
             </size>
            </property>
@@ -502,13 +502,13 @@
           <widget class="QComboBox" name="cmb_mass_pieces_units">
            <property name="minimumSize">
             <size>
-             <width>50</width>
+             <width>60</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>50</width>
+             <width>60</width>
              <height>16777215</height>
             </size>
            </property>
