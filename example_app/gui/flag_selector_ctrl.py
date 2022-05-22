@@ -23,6 +23,8 @@ class FlagSelectorCtrl(gui.CodietCtrl):
         # Wire the responses up
         self.view.btn_adopt_flag.clicked.connect(self._on_flag_adoption)
         self.view.btn_remove_flag.clicked.connect(self._on_flag_removal)
+        self.view.btn_adopt_all_flags.clicked.connect(self._on_adopt_all_flags)
+        self.view.btn_remove_all_flags.clicked.connect(self._on_remove_all_flags)
 
         # Load the global flags
         self.init_global_flags()
@@ -36,6 +38,31 @@ class FlagSelectorCtrl(gui.CodietCtrl):
         self.view.clear_global_flags()
         # Set the global flags on the view
         self.view.set_global_flags(list(self.global_flags.values()))
+
+    def adopt_flag(self, flag_name:str, flag_string:str) -> None:
+        """Adopts the specified flag."""
+        if flag_name in self.adopted_flags.keys():
+            return
+        # First run the callback
+        if self.on_flag_adoption_callback is not None:
+            self.on_flag_adoption_callback(flag_name)
+        # Adopt the flag into adopted list
+        self.adopted_flags[flag_name] = flag_string
+        # Update the view
+        self.view.adopt_flag(flag_string)
+        
+    def remove_flag(self, flag_name:str, flag_string:str) -> None:
+        """Removes specified flag."""
+        if flag_name not in self.adopted_flags.keys():
+            return
+        # First run the callback
+        if self.on_flag_removal_callback is not None:
+            self.on_flag_removal_callback(flag_name)
+        # Remove the flag
+        del self.adopted_flags[flag_name]
+        # Update the view
+        self.view.remove_flag(flag_string)
+
 
     def _on_flag_adoption(self) -> None:
         """Handler for adoption button press.
@@ -51,13 +78,17 @@ class FlagSelectorCtrl(gui.CodietCtrl):
         ):
             # Grab the flag_name corresponding to the flag_string
             flag_name = codiet.flag_string_to_name(selected_flag_string)
-            # Fire the callback if present
-            if self.on_flag_adoption_callback is not None:
-                self.on_flag_adoption_callback(flag_name)
-            # Adopt the flag in the view
-            self.view.adopt_flag(selected_flag_string)
-            # Add the flag to the adopted list
-            self.adopted_flags[flag_name] = selected_flag_string
+            # Adopt
+            self.adopt_flag(flag_name, selected_flag_string)
+
+    def _on_adopt_all_flags(self) -> None:
+        """Handler for adopt-all button press.
+        Runs the flag adoption callback for every flag before changing the list views.
+        """
+        all_flags = codiet.get_flag_names_and_strings()
+        for flag_name, flag_string in all_flags.items():
+            if flag_name not in self.adopted_flags.keys():
+                self.adopt_flag(flag_name, flag_string)
 
     def _on_flag_removal(self) -> None:
         """Handler for removal button press.
@@ -68,10 +99,11 @@ class FlagSelectorCtrl(gui.CodietCtrl):
         if selected_flag_string is not None:
             # Grab the flag_name corresponding to the flag_string
             flag_name = codiet.flag_string_to_name(selected_flag_string)
-            # Fire the callback if present
-            if self.on_flag_removal_callback is not None:
-                self.on_flag_removal_callback(flag_name)
-            # Adopt the flag in the view
-            self.view.remove_flag(selected_flag_string)
-            # Add the flag to the adopted list
-            del self.adopted_flags[flag_name]
+            # Remove
+            self.remove_flag(flag_name, selected_flag_string)
+
+    def _on_remove_all_flags(self) -> None:
+        """Handler for remove-all button press."""
+        # Copy, so we don't change list size during iteration.
+        for flag_name, flag_string in self.adopted_flags.copy().items():
+            self.remove_flag(flag_name, flag_string)

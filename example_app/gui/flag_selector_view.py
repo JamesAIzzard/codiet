@@ -14,6 +14,8 @@ class FlagSelectorView(QtWidgets.QWidget):
         self.lst_global_flags: QtWidgets.QListWidget
         self.btn_adopt_flag:QtWidgets.QPushButton
         self.btn_remove_flag: QtWidgets.QPushButton
+        self.btn_adopt_all_flags: QtWidgets.QPushButton
+        self.btn_remove_all_flags: QtWidgets.QPushButton
 
     @property
     def selected_adopted_flag(self) -> Optional[str]:
@@ -47,7 +49,7 @@ class FlagSelectorView(QtWidgets.QWidget):
 
     def set_adopted_flags(self, flags:List[str]) -> None:
         """Sets the flags in the adopted list."""
-        self.clear_adopted_flags() # type: ignore
+        self.clear_adopted_flags()
         self._add_flags(self.lst_adopted_flags, flags)
 
     def adopt_flag(self, flag:str) -> None:
