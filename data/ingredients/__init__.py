@@ -1,1 +1,1 @@
-from .main import save_ingredient
+from .main import save_new_ingredient

@@ -193,4 +193,4 @@ class IngredientEditorCtrl(gui.CodietCtrl):
         for nutrient_name, nutrient_data in nutrients_data.items():
             self.ingredient.nutrients[nutrient_name] = nutrient_data
         # Go ahead and save the ingredient
-        data.ingredients.save_ingredient(self.ingredient)
+        data.ingredients.save_new_ingredient(self.ingredient)

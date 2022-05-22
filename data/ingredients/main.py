@@ -1,9 +1,17 @@
+import sqlite3
+
 import model
 import data 
 
-def save_ingredient(ingredient: model.ingredients.Ingredient):
+def save_new_ingredient(ingredient: model.ingredients.Ingredient):
     """Saves the ingredient."""
-    qry = f"""INSERT INTO ingredients(
+    conn = None
+    try:
+        # Grab the connection and cursor
+        conn, cursor = data.connect()
+        # First, save the ingredient to the ingredient table
+        cursor.execute(f'''
+        INSERT INTO ingredients (
             name, 
             cost_per_ref_qty, 
             cost_ref_qty, 
@@ -30,7 +38,41 @@ def save_ingredient(ingredient: model.ingredients.Ingredient):
             '{ingredient.piece_mass_ref_units}',
             '{ingredient.gi}'
         );
-    """
-    conn, cursor = data.connect()
-    cursor.execute(qry)
-    conn.commit()
+        ''')
+        # Now write the positive flags to the ingredient_flag table
+        # Grab the ingredient id from the cursor
+        ingredient_id = cursor.lastrowid
+        for flag in ingredient.flags:
+            cursor.execute(f'''
+            INSERT INTO ingredient_flags (
+                flag_name, ingredient_id
+            ) VALUES (
+                '{flag}', '{ingredient_id}'
+            );
+            ''')
+        # Now write the nutrient relations to the ingredient_nutrient table
+        for nutrient_name, nr_data in ingredient.nutrients.items():
+            cursor.execute(f'''
+            INSERT INTO ingredient_nutrients (
+                ingredient_id, 
+                nutrient_name, 
+                ingredient_qty, 
+                ingredient_qty_unit,
+                nutrient_mass,
+                nutrient_mass_unit
+            ) VALUES (
+                '{ingredient_id}',
+                '{nutrient_name}',
+                '{nr_data["ingredient_qty"]}',
+                '{nr_data["ingredient_qty_unit"]}',
+                '{nr_data["nutrient_mass"]}',
+                '{nr_data["nutrient_mass_unit"]}'
+            );
+            ''')
+        # All OK, Commit
+        conn.commit()
+    except sqlite3.Error as e:
+        if conn is not None:
+            conn.rollback()
+            print(e)
+    
