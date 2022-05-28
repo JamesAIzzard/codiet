@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from PyQt6 import QtWidgets, uic
+from PyQt6 import QtWidgets, QtCore, uic
 
 class FlagSelectorView(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
@@ -57,12 +57,15 @@ class FlagSelectorView(QtWidgets.QWidget):
         if flag not in self.all_adopted_flags:
             self.lst_adopted_flags.addItem(flag)
 
-    def remove_flag(self, flag:str) -> None:
+    def remove_flag(self, flag_text:str) -> None:
         """Removes the currently selected adopted flag from the adopted list."""
-        for i in range(0, self.lst_adopted_flags.count()):
-            if flag == self.lst_adopted_flags.item(i).text():
-                self.lst_adopted_flags.takeItem(i)
-                break
+        self.lst_adopted_flags.takeItem(
+            self.lst_adopted_flags.row(
+                self.lst_adopted_flags.findItems(
+                    flag_text, QtCore.Qt.MatchFlag.MatchExactly
+                )[0]
+            )
+        )
 
     def clear_adopted_flags(self) -> None:
         """Clears the flags in the adopted list."""
