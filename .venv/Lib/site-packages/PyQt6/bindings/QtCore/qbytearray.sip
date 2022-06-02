@@ -399,6 +399,9 @@ public:
 
     QByteArray sliced(qsizetype pos) const;
     QByteArray sliced(qsizetype pos, qsizetype n) const;
+%If (Qt_6_3_0 -)
+    bool isValidUtf8() const;
+%End
 };
 
 bool operator==(const QByteArray &a1, const QByteArray &a2);
