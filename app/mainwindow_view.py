@@ -11,6 +11,10 @@ class MainWindowView(QtWidgets.QMainWindow):
         self.wg_page_stack: QtWidgets.QStackedWidget
         self.btn_ingredients: QtWidgets.QMenu
         self.btn_user_requirements: QtGui.QAction
+        self.statusbar: QtWidgets.QStatusBar
+
+        # Write a welcom message to the status bar
+        self.statusbar.showMessage("CoDiet V0.1")
 
 
     def add_page(self, page_view:QtWidgets.QWidget) -> None:
