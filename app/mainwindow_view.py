@@ -1,4 +1,4 @@
-from PyQt6 import QtWidgets, uic
+from PyQt6 import QtWidgets, QtGui, uic
 
 class MainWindowView(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
@@ -9,6 +9,8 @@ class MainWindowView(QtWidgets.QMainWindow):
 
         # Define the main widgets
         self.wg_page_stack: QtWidgets.QStackedWidget
+        self.btn_ingredients: QtWidgets.QMenu
+        self.btn_user_requirements: QtGui.QAction
 
 
     def add_page(self, page_view:QtWidgets.QWidget) -> None:

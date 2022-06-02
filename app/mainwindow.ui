@@ -65,12 +65,10 @@
     <addaction name="btn_manage_nutrients"/>
     <addaction name="btn_user_requirements"/>
    </widget>
-   <widget class="QMenu" name="menuIngredients">
+   <widget class="QMenu" name="btn_ingredients">
     <property name="title">
      <string>Ingredients</string>
     </property>
-    <addaction name="btn_add_ingredient"/>
-    <addaction name="btn_new_ingredient"/>
    </widget>
    <widget class="QMenu" name="menuRecipes">
     <property name="title">
@@ -107,7 +105,7 @@
     <addaction name="actionDocs"/>
     <addaction name="actionAbout"/>
    </widget>
-   <addaction name="menuIngredients"/>
+   <addaction name="btn_ingredients"/>
    <addaction name="menuRecipes"/>
    <addaction name="menuMeals"/>
    <addaction name="menuDay_Goals"/>
