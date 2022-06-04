@@ -16,13 +16,16 @@ class IngredientEditorCtrl(app.CodietCtrl):
         # Call out the view type for intellisense
         self.view: app.IngredientEditorView
 
+        # Init a list of all mass dropdowns
+        self._dynamic_unit_dropdowns = [
+            self.view.cmb_cost_units,
+            self.view.cmb_mass_pieces_units
+        ]
+
         # Init controller for flag selector widget
         self.flag_selector_ctrl = app.FlagSelectorCtrl(
             view=self.view.wg_flag_selector,
         )
-
-        # Load in a fresh ingredient instance
-        self.ingredient = codiet.Ingredient()
 
         # Initial setup on the form
         # Cache the basic mass units
@@ -43,6 +46,11 @@ class IngredientEditorCtrl(app.CodietCtrl):
         # Wire the active elements
         # Handle the save button press
         self.view.btn_save_ingredient.clicked.connect(self.on_save_ingredient)
+        self.view.txt_dens_mass.textChanged.connect(self.on_dens_field_change)
+        self.view.txt_dens_vol.textChanged.connect(self.on_dens_field_change)
+
+        # Load in a fresh ingredient instance
+        self.ingredient = codiet.Ingredient()
 
     @property
     def cost_per_g(self) -> typing.Optional[float]:
@@ -88,6 +96,16 @@ class IngredientEditorCtrl(app.CodietCtrl):
         return g_per_ml
 
     @property
+    def dens_is_defined(self) -> bool:
+        """Returns True/False to indicate if density is defined."""
+        if self.view.dens_vol is None:
+            return False
+        elif self.view.dens_mass is None:
+            return False
+        else:
+            return True
+
+    @property
     def piece_mass_g(self) -> typing.Optional[float]:
         """Returns the piece mass in grams from the view."""
         # Return None if any of the required info is missing
@@ -122,8 +140,34 @@ class IngredientEditorCtrl(app.CodietCtrl):
         ctrl = app.NutrientRatioEditorCtrl(view=view, nutrient_str=nutrient_str)
         # Stash the controller
         self.nutrient_editor_ctrls[nutrient_name] = ctrl
+        # Add the mass dropdowns the the list
+        self._dynamic_unit_dropdowns.append(view.cmb_ingredient_qty_unit)
+        self._dynamic_unit_dropdowns.append(view.cmb_nutrient_mass_unit)
         # Add the view
         self.view.add_nutrient_widget(nutrient_name, view)
+
+    def on_dens_field_change(self) -> None:
+        """Handler for changes to the density field."""
+        if self.dens_is_defined:
+            self.add_dens_units()
+        else:
+            self.remove_dens_units()
+
+    def add_dens_units(self) -> None:
+        """Adds density units to all unit fields on the form."""
+        for combobox in self._dynamic_unit_dropdowns:
+            app.utils.cmb_add_items_once(
+                combobox=combobox,
+                items=list(codiet.get_vol_units().keys())
+            )
+
+    def remove_dens_units(self) -> None:
+        """Removes density units to all unit fields on the form."""
+        for combobox in self._dynamic_unit_dropdowns:
+            app.utils.cmb_remove_items(
+                combobox=combobox,
+                items=list(codiet.get_vol_units().keys())
+            )
 
     def on_carb_ratio_change(self) -> None:
         """Handler for carbohydrate ratio change."""
