@@ -13,11 +13,11 @@ class IngredientEditorCtrl(app.CodietCtrl):
         # Create dict for nutrient editor controllers
         self.nutrient_editor_ctrls: typing.Dict[str, app.NutrientRatioEditorCtrl] = {}
 
-        # Call out the view type for intellisense
+        # Call out widgets for intellisense
         self.view: app.IngredientEditorView
 
         # Init a list of all mass dropdowns
-        self._dynamic_unit_dropdowns = [
+        self._dynamic_unit_dropdowns:typing.List[app.CodietComboBox] = [
             self.view.cmb_cost_units,
             self.view.cmb_mass_pieces_units
         ]
@@ -32,10 +32,10 @@ class IngredientEditorCtrl(app.CodietCtrl):
         mass_units = list(codiet.get_mass_units().keys())
         vol_units = list(codiet.get_vol_units().keys())
         # Do the cost widget setup
-        app.utils.cmb_add_items_once(self.view.cmb_cost_units, mass_units)
-        app.utils.cmb_add_items_once(self.view.cmb_dens_mass_units, mass_units)
-        app.utils.cmb_add_items_once(self.view.cmb_dens_vol_units, vol_units)
-        app.utils.cmb_add_items_once(self.view.cmb_mass_pieces_units, mass_units)
+        self.view.cmb_cost_units.add_items_once(mass_units)
+        self.view.cmb_dens_mass_units.add_items_once(mass_units)
+        self.view.cmb_dens_vol_units.add_items_once(vol_units)
+        self.view.cmb_mass_pieces_units.add_items_once(mass_units)
         # Do the nutrients widget setup
         nutrients = codiet.get_adopted_nutrients()
         for nutrient in nutrients:
@@ -140,9 +140,8 @@ class IngredientEditorCtrl(app.CodietCtrl):
         ctrl = app.NutrientRatioEditorCtrl(view=view, nutrient_str=nutrient_str)
         # Stash the controller
         self.nutrient_editor_ctrls[nutrient_name] = ctrl
-        # Add the mass dropdowns the the list
+        # Add the mass dropdown the the list
         self._dynamic_unit_dropdowns.append(view.cmb_ingredient_qty_unit)
-        self._dynamic_unit_dropdowns.append(view.cmb_nutrient_mass_unit)
         # Add the view
         self.view.add_nutrient_widget(nutrient_name, view)
 
@@ -156,18 +155,12 @@ class IngredientEditorCtrl(app.CodietCtrl):
     def add_dens_units(self) -> None:
         """Adds density units to all unit fields on the form."""
         for combobox in self._dynamic_unit_dropdowns:
-            app.utils.cmb_add_items_once(
-                combobox=combobox,
-                items=list(codiet.get_vol_units().keys())
-            )
+            combobox.add_items_once(list(codiet.get_vol_units().keys()))
 
     def remove_dens_units(self) -> None:
         """Removes density units to all unit fields on the form."""
         for combobox in self._dynamic_unit_dropdowns:
-            app.utils.cmb_remove_items(
-                combobox=combobox,
-                items=list(codiet.get_vol_units().keys())
-            )
+            combobox.remove_items(list(codiet.get_vol_units().keys()))
 
     def on_carb_ratio_change(self) -> None:
         """Handler for carbohydrate ratio change."""

@@ -5,8 +5,8 @@ from .validators import (
     PositiveFloatValidator,
     Float0To100Validator
 )
-from . import utils
 from .codiet_ctrl import CodietCtrl
+from .codiet_combobox import CodietComboBox
 from .flag_selector_view import FlagSelectorView
 from .flag_selector_ctrl import FlagSelectorCtrl
 from .nutrient_ratio_editor_view import NutrientRatioEditorView

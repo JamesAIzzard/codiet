@@ -18,9 +18,9 @@ class NutrientRatioEditorView(QtWidgets.QWidget):
         # Call out active elements for intelllisense
         self.lbl_nutrient_name: QtWidgets.QLabel
         self.txt_nutrient_mass: QtWidgets.QLineEdit
-        self.cmb_nutrient_mass_unit: QtWidgets.QComboBox
+        self.cmb_nutrient_mass_unit: app.CodietComboBox
         self.txt_ingredient_qty: QtWidgets.QLineEdit
-        self.cmb_ingredient_qty_unit: QtWidgets.QComboBox
+        self.cmb_ingredient_qty_unit: app.CodietComboBox
 
         # Bring the ui file in
         uic.load_ui.loadUi("app/nutrient_ratio_editor.ui", self)

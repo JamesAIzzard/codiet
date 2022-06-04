@@ -71,7 +71,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="cmb_nutrient_mass_unit">
+    <widget class="CodietComboBox" name="cmb_nutrient_mass_unit">
      <property name="minimumSize">
       <size>
        <width>60</width>
@@ -104,7 +104,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="cmb_ingredient_qty_unit">
+    <widget class="CodietComboBox" name="cmb_ingredient_qty_unit">
      <property name="minimumSize">
       <size>
        <width>60</width>
@@ -134,6 +134,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CodietComboBox</class>
+   <extends>QComboBox</extends>
+   <header>app/codiet_combobox.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

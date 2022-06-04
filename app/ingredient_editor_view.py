@@ -14,14 +14,14 @@ class IngredientEditorView(QtWidgets.QWidget):
         self.txt_ingredient_name: QtWidgets.QLineEdit
         self.txt_cost: QtWidgets.QLineEdit
         self.txt_cost_qty: QtWidgets.QLineEdit
-        self.cmb_cost_units: QtWidgets.QComboBox
+        self.cmb_cost_units: app.CodietComboBox
         self.txt_dens_vol: QtWidgets.QLineEdit
-        self.cmb_dens_vol_units: QtWidgets.QComboBox
+        self.cmb_dens_vol_units: app.CodietComboBox
         self.txt_dens_mass: QtWidgets.QLineEdit
-        self.cmb_dens_mass_units: QtWidgets.QComboBox
+        self.cmb_dens_mass_units: app.CodietComboBox
         self.txt_num_pieces: QtWidgets.QLineEdit
         self.txt_mass_pieces: QtWidgets.QLineEdit
-        self.cmb_mass_pieces_units: QtWidgets.QComboBox
+        self.cmb_mass_pieces_units: app.CodietComboBox
         self.wg_flag_selector: app.FlagSelectorView
         self.txt_gi: QtWidgets.QLineEdit
         self.scl_nutrients: QtWidgets.QWidget
