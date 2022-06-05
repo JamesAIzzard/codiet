@@ -18,7 +18,7 @@ class NumericalValidator(QtGui.QValidator):
 class PositiveFloatValidator(NumericalValidator):
     def validate(self, input: str, pos: int) -> typing.Tuple[QtGui.QValidator.State, str, int]:
         state, input, pos = super().validate(input, pos)
-        if state is QtGui.QValidator.State.Invalid:
+        if state in (QtGui.QValidator.State.Invalid, QtGui.QValidator.State.Intermediate):
             return (state, input, pos)
         # Now check float is greater than zero
         if float(input) < 0: # type: ignore
@@ -29,11 +29,10 @@ class PositiveFloatValidator(NumericalValidator):
 class Float0To100Validator(PositiveFloatValidator):
     def validate(self, input: str, pos: int) -> typing.Tuple[QtGui.QValidator.State, str, int]:
         state, input, pos = super().validate(input, pos)
-        if state is QtGui.QValidator.State.Invalid:
+        if state in (QtGui.QValidator.State.Invalid, QtGui.QValidator.State.Intermediate):
             return (state, input, pos)
         # Now check float is greater than zero
         if float(input) < 0 or float(input) > 100: # type: ignore
             return (QtGui.QValidator.State.Invalid, input, pos)
         # All OK, return valid
-        return (QtGui.QValidator.State.Acceptable, input, pos)        
-        
+        return (QtGui.QValidator.State.Acceptable, input, pos)
