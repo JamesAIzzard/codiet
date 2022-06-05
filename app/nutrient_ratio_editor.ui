@@ -61,7 +61,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="txt_nutrient_mass">
+    <widget class="CodietNumberLineEdit" name="txt_nutrient_mass">
      <property name="maximumSize">
       <size>
        <width>160</width>
@@ -94,7 +94,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="txt_ingredient_qty">
+    <widget class="CodietNumberLineEdit" name="txt_ingredient_qty">
      <property name="maximumSize">
       <size>
        <width>160</width>
@@ -139,6 +139,11 @@
    <class>CodietComboBox</class>
    <extends>QComboBox</extends>
    <header>app/codiet_combobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CodietNumberLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>app/codiet_line_edit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

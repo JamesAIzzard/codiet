@@ -202,7 +202,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="txt_ingredient_name">
+                <widget class="CodietLineEdit" name="txt_ingredient_name">
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
@@ -258,7 +258,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="txt_cost">
+                <widget class="CodietNumberLineEdit" name="txt_cost">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -287,7 +287,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="txt_cost_qty">
+                <widget class="CodietNumberLineEdit" name="txt_cost_qty">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -414,7 +414,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="txt_dens_vol">
+                <widget class="CodietNumberLineEdit" name="txt_dens_vol">
                  <property name="minimumSize">
                   <size>
                    <width>100</width>
@@ -453,7 +453,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="txt_dens_mass">
+                <widget class="CodietNumberLineEdit" name="txt_dens_mass">
                  <property name="minimumSize">
                   <size>
                    <width>100</width>
@@ -538,7 +538,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="txt_num_pieces">
+                <widget class="CodietNumberLineEdit" name="txt_num_pieces">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -585,7 +585,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="txt_mass_pieces">
+                <widget class="CodietNumberLineEdit" name="txt_mass_pieces">
                  <property name="minimumSize">
                   <size>
                    <width>100</width>
@@ -737,7 +737,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="txt_gi">
+             <widget class="CodietNumberLineEdit" name="txt_gi">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -960,6 +960,16 @@
    <class>CodietComboBox</class>
    <extends>QComboBox</extends>
    <header>app/codiet_combobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CodietLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>app/codiet_line_edit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CodietNumberLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>app/codiet_line_edit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

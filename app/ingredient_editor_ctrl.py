@@ -17,9 +17,9 @@ class IngredientEditorCtrl(app.CodietCtrl):
         self.view: app.IngredientEditorView
 
         # Init a list of all mass dropdowns
-        self._dynamic_unit_dropdowns:typing.List[app.CodietComboBox] = [
+        self._dynamic_unit_dropdowns: typing.List[app.CodietComboBox] = [
             self.view.cmb_cost_units,
-            self.view.cmb_mass_pieces_units
+            self.view.cmb_mass_pieces_units,
         ]
 
         # Init controller for flag selector widget
@@ -56,17 +56,19 @@ class IngredientEditorCtrl(app.CodietCtrl):
     def cost_per_g(self) -> typing.Optional[float]:
         """Returns the cost per gram specified on the view."""
         # Return None if any of the required values are not specified
-        if self.view.cost is None or self.view.cost_qty is None:
+        if not self.view.cost_is_defined:
             return None
 
-        # OK, values are specified, so go ahead and calculate cost per gram
+        # Go ahead and calculate cost per gram
         # First, calculate the cost per single unit
-        cost_per_unit = self.view.cost / self.view.cost_qty
+        cost_per_unit = (
+            self.view.txt_cost.text() / self.view.txt_cost_qty.text() # type:ignore
+        )
 
         # Get the ratio between the units
         unit_r = codiet.convert_qty_unit(
             qty=1,
-            start_unit=self.view.cost_units,
+            start_unit=self.view.cmb_cost_units.currentText(),
             end_unit="g",
             g_per_ml=self.g_per_ml,
             piece_mass_g=self.piece_mass_g,
@@ -79,46 +81,42 @@ class IngredientEditorCtrl(app.CodietCtrl):
     def g_per_ml(self) -> typing.Optional[float]:
         """Returns the grams per ml specified on the view."""
         # Return none if any of the required values are not specified
-        if self.view.dens_mass is None or self.view.dens_vol is None:
+        if self.view.dens_is_defined == False:
             return None
 
         # Values are specified - go ahead and calculate
         # Convert the fluid volume to mls
         vol_mls = codiet.convert_qty_unit(
-            qty=self.view.dens_vol, start_unit=self.view.dens_vol_units, end_unit="ml"
+            qty=self.view.txt_dens_vol.text(), # type: ignore
+            start_unit=self.view.cmb_dens_vol_units.currentText(),
+            end_unit="ml",
         )
         # Convert the mass volume to grams
         mass_g = codiet.convert_qty_unit(
-            qty=self.view.dens_mass, start_unit=self.view.dens_mass_units, end_unit="g"
+            qty=self.view.txt_dens_mass.text(), # type: ignore
+            start_unit=self.view.cmb_dens_mass_units.currentText(), 
+            end_unit="g"
         )
         # Derive the ratio
         g_per_ml = mass_g / vol_mls
         return g_per_ml
 
     @property
-    def dens_is_defined(self) -> bool:
-        """Returns True/False to indicate if density is defined."""
-        if self.view.dens_vol is None:
-            return False
-        elif self.view.dens_mass is None:
-            return False
-        else:
-            return True
-
-    @property
     def piece_mass_g(self) -> typing.Optional[float]:
         """Returns the piece mass in grams from the view."""
         # Return None if any of the required info is missing
-        if self.view.pc_mass is None or self.view.num_pieces is None:
+        if not self.view.piece_mass_is_defined:
             return None
 
         # OK, all the info is there, go ahead
         # Convert the total pieces mass into grams
         pcs_mass_g = codiet.convert_qty_unit(
-            qty=self.view.pc_mass, start_unit=self.view.pc_mass_units, end_unit="g"
+            qty=self.view.txt_mass_pieces.text(), # type: ignore
+            start_unit=self.view.cmb_mass_pieces_units.currentText(), 
+            end_unit="g"
         )
         # Calc the mass of a single pc
-        pc_mass_g = pcs_mass_g / self.view.num_pieces
+        pc_mass_g = pcs_mass_g / self.view.txt_num_pieces.text() # type: ignore
         return pc_mass_g
 
     def _show_warning(self, title: str, message: str) -> None:
@@ -147,7 +145,7 @@ class IngredientEditorCtrl(app.CodietCtrl):
 
     def on_dens_field_change(self) -> None:
         """Handler for changes to the density field."""
-        if self.dens_is_defined:
+        if self.view.dens_is_defined:
             self.add_dens_units()
         else:
             self.remove_dens_units()
@@ -165,14 +163,16 @@ class IngredientEditorCtrl(app.CodietCtrl):
     def on_carb_ratio_change(self) -> None:
         """Handler for carbohydrate ratio change."""
         # Grab the value from the carbohydrate widget
-        carb_ratio_data = self.view.get_nutrient_ratio_data(nutrient_name="carbohydrate")
+        carb_ratio_data = self.view.get_nutrient_ratio_data(
+            nutrient_name="carbohydrate"
+        )
         # If carbs are zero, then zero the gi, and prevent user messing with it
         if carb_ratio_data["nutrient_mass"] == 0:
             self.view.txt_gi.setText("0")
             self.view.txt_gi.setEnabled(False)
         # If carbs are non-zero, clear zero value from the GI, and allow user to change
         else:
-            if self.view.gi == 0:
+            if self.view.txt_gi.text() == 0:
                 self.view.txt_gi.setText("")
             self.view.txt_gi.setEnabled(True)
 
@@ -182,7 +182,7 @@ class IngredientEditorCtrl(app.CodietCtrl):
         # Set title for incomplete data warnings
         warn_title = "Incomplete Data"
         # Check name has been populated
-        if self.view.name is None:
+        if self.view.txt_ingredient_name.text() is None:
             self._show_warning(warn_title, "The ingredient name must be populated.")
             return
         # Check cost has been populated
@@ -197,24 +197,24 @@ class IngredientEditorCtrl(app.CodietCtrl):
             return
 
         # Set the ingredient name
-        self.ingredient.name = self.view.name
+        self.ingredient.name = self.view.txt_ingredient_name.text()
         # Set the ingredient cost info
-        self.ingredient.cost_per_ref_qty = self.view.cost
-        self.ingredient.cost_ref_qty = self.view.cost_qty
-        self.ingredient.cost_pref_unit = self.view.cost_units
+        self.ingredient.cost_per_ref_qty = self.view.txt_cost.text()
+        self.ingredient.cost_ref_qty = self.view.txt_cost_qty.text()
+        self.ingredient.cost_pref_unit = self.view.cmb_cost_units.currentText()
         # Set the ingredient density info
-        self.ingredient.dens_vol_ref_qty = self.view.dens_vol
-        self.ingredient.dens_vol_unit = self.view.dens_vol_units
-        self.ingredient.dens_mass_ref_qty = self.view.dens_mass
-        self.ingredient.dens_mass_unit = self.view.dens_mass_units
+        self.ingredient.dens_vol_ref_qty = self.view.txt_dens_vol.text()
+        self.ingredient.dens_vol_unit = self.view.cmb_dens_vol_units.currentText()
+        self.ingredient.dens_mass_ref_qty = self.view.txt_dens_mass.text()
+        self.ingredient.dens_mass_unit = self.view.cmb_dens_mass_units.currentText()
         # Set the ingredient piece mass info
-        self.ingredient.piece_mass_ref_num = self.view.num_pieces
-        self.ingredient.piece_mass_ref_mass = self.view.pc_mass
-        self.ingredient.piece_mass_ref_units = self.view.pc_mass_units
+        self.ingredient.piece_mass_ref_num = self.view.txt_num_pieces.text()
+        self.ingredient.piece_mass_ref_mass = self.view.txt_mass_pieces.text()
+        self.ingredient.piece_mass_ref_units = self.view.cmb_mass_pieces_units.currentText()
         # Set the ingredient flags info
         self.ingredient.flags = list(self.flag_selector_ctrl.adopted_flags.keys())
         # Set the glycaemic index info
-        self.ingredient.gi = self.view.gi
+        self.ingredient.gi = self.view.txt_gi.text()
         # Set the nutrients info
         nutrients_data = self.view.all_nutrient_ratio_data
         for nutrient_name, nutrient_data in nutrients_data.items():

@@ -2,11 +2,16 @@ from PyQt6 import QtWidgets
 
 # Expose the main GUI viewmodels
 from .validators import (
+    NumericalValidator,
     PositiveFloatValidator,
     Float0To100Validator
 )
 from .codiet_ctrl import CodietCtrl
 from .codiet_combobox import CodietComboBox
+from .codiet_line_edit import (
+    CodietLineEdit,
+    CodietNumberLineEdit
+)
 from .flag_selector_view import FlagSelectorView
 from .flag_selector_ctrl import FlagSelectorCtrl
 from .nutrient_ratio_editor_view import NutrientRatioEditorView

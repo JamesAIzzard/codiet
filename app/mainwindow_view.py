@@ -14,7 +14,7 @@ class MainWindowView(QtWidgets.QMainWindow):
         self.statusbar: QtWidgets.QStatusBar
 
         # Write a welcom message to the status bar
-        self.statusbar.showMessage("CoDiet V0.1")
+        self.statusbar.showMessage("...")
 
 
     def add_page(self, page_view:QtWidgets.QWidget) -> None:
