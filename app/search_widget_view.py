@@ -17,6 +17,7 @@ class SearchWidgetView(QtWidgets.QWidget):
         self.txt_search_term: QtWidgets.QLineEdit
         self.btn_delete_selection: QtWidgets.QPushButton
         self.btn_edit_selection: QtWidgets.QPushButton
+        self.gp_search_widget: QtWidgets.QGroupBox
 
         # Live dict of results shown
         self._search_results: typing.List[str] = []
@@ -33,6 +34,10 @@ class SearchWidgetView(QtWidgets.QWidget):
     def search_results(self) -> typing.List[str]:
         """Returns a list of the currently dispayed strings."""
         return self._search_results.copy()
+
+    def set_title(self, title:str) -> None:
+        """Sets the title of the widget."""
+        self.gp_search_widget.setTitle(title)
 
     def add_search_result(self, text: str) -> None:
         """Adds a search result to the results box."""

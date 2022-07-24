@@ -49,9 +49,9 @@ class IngredientEditorView(QtWidgets.QWidget):
     @property
     def cost_is_defined(self) -> bool:
         """Returns True/False to indicate if the cost fields are defined."""
-        if self.txt_cost.text() == "":
+        if self.txt_cost.text() is None:
             return False
-        if self.txt_cost_qty.text() == "":
+        if self.txt_cost_qty.text() is None:
             return False
         return True
 
@@ -68,9 +68,9 @@ class IngredientEditorView(QtWidgets.QWidget):
     @property
     def piece_mass_is_defined(self) -> bool:
         """Returns True/False to indicate if peice mass is defined."""
-        if self.txt_num_pieces is None:
+        if self.txt_num_pieces.text() is None:
             return False
-        elif self.txt_mass_pieces is None:
+        elif self.txt_mass_pieces.text() is None:
             return False
         else:
             return True

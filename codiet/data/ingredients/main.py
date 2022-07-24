@@ -8,6 +8,7 @@ def save_new_ingredient(ingredient: model.ingredients.Ingredient):
     try:
         # Grab the connection and cursor
         conn, cursor = data.connect()
+
         # First, save the ingredient to the ingredient table
         cursor.execute(f'''
         INSERT INTO ingredients (
@@ -38,6 +39,7 @@ def save_new_ingredient(ingredient: model.ingredients.Ingredient):
             '{ingredient.gi}'
         );
         ''')
+
         # Now write the positive flags to the ingredient_flag table
         # Grab the ingredient id from the cursor
         ingredient_id = cursor.lastrowid
@@ -49,6 +51,7 @@ def save_new_ingredient(ingredient: model.ingredients.Ingredient):
                 '{flag}', '{ingredient_id}'
             );
             ''')
+
         # Now write the nutrient relations to the ingredient_nutrient table
         for nutrient_name, nr_data in ingredient.nutrients.items():
             cursor.execute(f'''
@@ -68,6 +71,7 @@ def save_new_ingredient(ingredient: model.ingredients.Ingredient):
                 '{nr_data["nutrient_mass_unit"]}'
             );
             ''')
+            
         # All OK, Commit
         conn.commit()
     except sqlite3.Error as e:

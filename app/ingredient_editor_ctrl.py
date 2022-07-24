@@ -16,16 +16,17 @@ class IngredientEditorCtrl(app.CodietCtrl):
         # Call out widgets for intellisense
         self.view: app.IngredientEditorView
 
-        # Init a list of all mass dropdowns
-        self._dynamic_unit_dropdowns: typing.List[app.CodietComboBox] = [
-            self.view.cmb_cost_units,
-            self.view.cmb_mass_pieces_units,
-        ]
-
         # Init controller for flag selector widget
         self.flag_selector_ctrl = app.FlagSelectorCtrl(
             view=self.view.wg_flag_selector,
         )
+
+        # Init a list of all quantity unit dropdowns that need to stay up to date
+        # with mass properties
+        self._dynamic_unit_dropdowns: typing.List[app.CodietComboBox] = [
+            self.view.cmb_cost_units,
+            self.view.cmb_mass_pieces_units,
+        ]
 
         # Initial setup on the form
         # Cache the basic mass units
@@ -46,8 +47,15 @@ class IngredientEditorCtrl(app.CodietCtrl):
         # Wire the active elements
         # Handle the save button press
         self.view.btn_save_ingredient.clicked.connect(self.on_save_ingredient)
+        # Handle changes to density widget
         self.view.txt_dens_mass.textChanged.connect(self.on_dens_field_change)
         self.view.txt_dens_vol.textChanged.connect(self.on_dens_field_change)
+        # Handle changes to the pc mass widget
+        self.view.txt_num_pieces.textChanged.connect(self.on_pc_mass_field_change)
+        self.view.txt_mass_pieces.textChanged.connect(self.on_pc_mass_field_change)
+
+        # Set the title on the search widget
+        self.view.wg_ingredient_search.set_title("Ingredient Search")
 
         # Load in a fresh ingredient instance
         self.ingredient = codiet.Ingredient()
@@ -62,7 +70,7 @@ class IngredientEditorCtrl(app.CodietCtrl):
         # Go ahead and calculate cost per gram
         # First, calculate the cost per single unit
         cost_per_unit = (
-            self.view.txt_cost.text() / self.view.txt_cost_qty.text() # type:ignore
+            self.view.txt_cost.text() / self.view.txt_cost_qty.text() # type: ignore
         )
 
         # Get the ratio between the units
@@ -143,13 +151,6 @@ class IngredientEditorCtrl(app.CodietCtrl):
         # Add the view
         self.view.add_nutrient_widget(nutrient_name, view)
 
-    def on_dens_field_change(self) -> None:
-        """Handler for changes to the density field."""
-        if self.view.dens_is_defined:
-            self.add_dens_units()
-        else:
-            self.remove_dens_units()
-
     def add_dens_units(self) -> None:
         """Adds density units to all unit fields on the form."""
         for combobox in self._dynamic_unit_dropdowns:
@@ -159,6 +160,32 @@ class IngredientEditorCtrl(app.CodietCtrl):
         """Removes density units to all unit fields on the form."""
         for combobox in self._dynamic_unit_dropdowns:
             combobox.remove_items(list(codiet.get_vol_units().keys()))
+
+    def add_pc_units(self) -> None:
+        """Adds piece units to all unit fields on the form."""
+        for combobox in self._dynamic_unit_dropdowns:
+            combobox.add_items_once(["pc"])
+
+    def remove_pc_units(self) -> None:
+        """Removes piece units from all unit fields on the form."""
+        for combobox in self._dynamic_unit_dropdowns:
+            combobox.remove_items(["pc"])
+
+    def on_dens_field_change(self) -> None:
+        """Handler for changes to the density field."""
+        if self.view.dens_is_defined:
+            self.add_dens_units()
+        else:
+            self.remove_dens_units()
+
+    def on_pc_mass_field_change(self) -> None:
+        """Handles changes to the piece mass field."""
+        if self.view.piece_mass_is_defined:
+            # Add piece units to dropdowns
+            self.add_pc_units()
+        else:
+            # Remove piece units from dropdowns
+            self.remove_pc_units()
 
     def on_carb_ratio_change(self) -> None:
         """Handler for carbohydrate ratio change."""
@@ -196,6 +223,7 @@ class IngredientEditorCtrl(app.CodietCtrl):
             self._show_warning(warn_title, "All nutrient data must be populated.")
             return
 
+        # All seems populated, so now pass the data into the ingredient instance
         # Set the ingredient name
         self.ingredient.name = self.view.txt_ingredient_name.text()
         # Set the ingredient cost info
@@ -219,5 +247,6 @@ class IngredientEditorCtrl(app.CodietCtrl):
         nutrients_data = self.view.all_nutrient_ratio_data
         for nutrient_name, nutrient_data in nutrients_data.items():
             self.ingredient.nutrients[nutrient_name] = nutrient_data
+
         # Go ahead and save the ingredient
         codiet.save_new_ingredient(self.ingredient)
