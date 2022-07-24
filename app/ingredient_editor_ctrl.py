@@ -16,10 +16,17 @@ class IngredientEditorCtrl(app.CodietCtrl):
         # Call out widgets for intellisense
         self.view: app.IngredientEditorView
 
-        # Init controller for flag selector widget
+        # Init the flag selector widget
         self.flag_selector_ctrl = app.FlagSelectorCtrl(
             view=self.view.wg_flag_selector,
         )
+
+        # Init the search widget
+        self.ingredient_search_ctrl = app.SearchWidgetCtrl(
+            view=self.view.wg_ingredient_search
+        )
+        # Update the title
+        self.view.wg_ingredient_search.set_title("Ingredient Search")
 
         # Init a list of all quantity unit dropdowns that need to stay up to date
         # with mass properties
@@ -54,8 +61,10 @@ class IngredientEditorCtrl(app.CodietCtrl):
         self.view.txt_num_pieces.textChanged.connect(self.on_pc_mass_field_change)
         self.view.txt_mass_pieces.textChanged.connect(self.on_pc_mass_field_change)
 
-        # Set the title on the search widget
-        self.view.wg_ingredient_search.set_title("Ingredient Search")
+        # Load all ingredient names into the search widget
+        self.view.wg_ingredient_search.add_search_results(
+            codiet.load_all_ingredient_names()
+        )
 
         # Load in a fresh ingredient instance
         self.ingredient = codiet.Ingredient()

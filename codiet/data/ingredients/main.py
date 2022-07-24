@@ -1,8 +1,9 @@
 import sqlite3
+import typing
 
 from codiet import model, data
 
-def save_new_ingredient(ingredient: model.ingredients.Ingredient):
+def save_new_ingredient(ingredient: model.ingredients.Ingredient) -> None:
     """Saves the ingredient."""
     conn = None
     try:
@@ -79,3 +80,22 @@ def save_new_ingredient(ingredient: model.ingredients.Ingredient):
             conn.rollback()
             print(e)
     
+def load_all_ingredient_names() -> typing.List[str]:
+    """Returns a list of all ingredient names currently in the database."""
+    # Grab connection and cursor
+    conn, cursor = data.connect()
+
+    # Build the query
+    cursor.execute(f'''
+    SELECT name
+    FROM ingredients;
+    ''')
+
+    # Build results list to return
+    _results = cursor.fetchall()
+    results: typing.List[str] = []
+    for result in _results:
+        results.append(result[0])
+
+    # Return results
+    return results

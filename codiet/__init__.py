@@ -9,4 +9,7 @@ from .data.quantity import (
     get_vol_units
 )
 from .data.nutrients import get_adopted_nutrients
-from .data.ingredients import save_new_ingredient
+from .data.ingredients import (
+    save_new_ingredient,
+    load_all_ingredient_names
+)

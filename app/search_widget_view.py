@@ -13,7 +13,6 @@ class SearchWidgetView(QtWidgets.QWidget):
         # Identify active widgets for controller
         self.lst_search_results: QtWidgets.QListWidget
         self.btn_search: QtWidgets.QPushButton
-        self.chk_option: QtWidgets.QCheckBox
         self.txt_search_term: QtWidgets.QLineEdit
         self.btn_delete_selection: QtWidgets.QPushButton
         self.btn_edit_selection: QtWidgets.QPushButton
@@ -21,14 +20,6 @@ class SearchWidgetView(QtWidgets.QWidget):
 
         # Live dict of results shown
         self._search_results: typing.List[str] = []
-
-    @property
-    def search_term(self) -> typing.Optional[str]:
-        """Returns the current search term, or None if unpopulated."""
-        if self.txt_search_term.text() == "":
-            return None
-        else:
-            return self.txt_search_term.text()
 
     @property
     def search_results(self) -> typing.List[str]:
@@ -39,10 +30,17 @@ class SearchWidgetView(QtWidgets.QWidget):
         """Sets the title of the widget."""
         self.gp_search_widget.setTitle(title)
 
-    def add_search_result(self, text: str) -> None:
-        """Adds a search result to the results box."""
-        if text not in self._search_results:
-            self.lst_search_results.addItem(text)
+    def add_search_result(self, result: str) -> None:
+        """Adds a string to the results box."""
+        if result not in self._search_results:
+            self.lst_search_results.addItem(result)
+
+    def add_search_results(self, results: typing.List[str]) -> None:
+        """Adds a list of strings to the result box.
+        - Does not add an item if it is already there.
+        """
+        for result in results:
+            self.add_search_result(result)
 
     def remove_search_result(self, text: str) -> None:
         """Removes a specific search result from the list."""

@@ -81,7 +81,7 @@
           <number>4</number>
          </property>
          <item>
-          <widget class="QLineEdit" name="txt_search_term"/>
+          <widget class="CodietLineEdit" name="txt_search_term"/>
          </item>
          <item>
           <widget class="QPushButton" name="btn_search">
@@ -149,6 +149,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CodietLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>app/codiet_line_edit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
