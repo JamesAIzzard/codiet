@@ -3,7 +3,8 @@ def _create_schema(cursor):
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS ingredient_base (
             ingredient_id INTEGER PRIMARY KEY,
-            ingredient_name TEXT NOT NULL UNIQUE
+            ingredient_name TEXT NOT NULL UNIQUE,
+            GI REAL
         )
     """)
     cursor.execute("""
@@ -11,8 +12,8 @@ def _create_schema(cursor):
             ingredient_id INTEGER,
             cost_unit TEXT,
             cost_value REAL,
-            mass_unit TEXT,
-            mass_value REAL,
+            qty_unit TEXT,
+            qty_value REAL,
             FOREIGN KEY (ingredient_id) REFERENCES ingredient_base(ingredient_id)
         )
     """)

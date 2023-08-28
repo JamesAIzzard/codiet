@@ -1,0 +1,58 @@
+{
+  "name": "Olive Oil",
+  "cost": {
+    "cost_unit": "GBP",
+    "cost_value": 8.99,
+    "qty_unit": "l",
+    "qty_value": 1
+  },
+  "bulk": {
+    "density": {
+      "mass_unit": "kg",
+      "mass_value": 0.92,
+      "vol_unit": "l",
+      "vol_value": 1
+    },
+    "piece_mass": { "pc_qty": null, "mass_unit": null, "mass_value": null }
+  },
+  "flags": [
+    "alcohol free",
+    "caffeine free",
+    "gluten free",
+    "lactose free",
+    "nut free",
+    "vegan",
+    "vegetarian"
+  ],
+  "GI": 0,
+  "nutrients": {
+    "protein": {
+      "quantity": { "unit": "g", "value": 0 },
+      "in_serving_size": { "unit": "ml", "value": 100 }
+    },
+    "trans_fat": {
+      "quantity": { "unit": "g", "value": 0 },
+      "in_serving_size": { "unit": "ml", "value": 100 }
+    },
+    "polyunsaturated_fat": {
+      "quantity": { "unit": "g", "value": 1.6 },
+      "in_serving_size": { "unit": "ml", "value": 100 }
+    },
+    "monounsaturated_fat": {
+      "quantity": { "unit": "g", "value": 9.8 },
+      "in_serving_size": { "unit": "ml", "value": 100 }
+    },
+    "saturated_fat": {
+      "quantity": { "unit": "g", "value": 1.9 },
+      "in_serving_size": { "unit": "ml", "value": 100 }
+    },
+    "carbohydrate": {
+      "quantity": { "unit": "g", "value": 0 },
+      "in_serving_size": { "unit": "ml", "value": 100 }
+    },
+    "sodium": {
+      "quantity": { "unit": "mg", "value": 0 },
+      "in_serving_size": { "unit": "ml", "value": 100 }
+    }
+  }
+}

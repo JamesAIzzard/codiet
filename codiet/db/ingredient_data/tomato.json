@@ -3,8 +3,8 @@
     "cost": {
         "cost_unit": "GBP",
         "cost_value": 5.56,
-        "mass_unit": "lb",
-        "mass_value": 1
+        "qty_unit": "lb",
+        "qty_value": 1
     },
     "bulk": {
         "density": {

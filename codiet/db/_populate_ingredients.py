@@ -13,13 +13,24 @@ def _populate_ingredients(db_service: DatabaseService):
 
         # Add the ingredient name to the database, getting primary key
         db_service.repo.add_ingredient_name(data['name'])
+
         # Get the ingredient ID from the database
         ingredient_id = db_service.repo.get_ingredient_id(data['name'])
+
         # Add the ingredient cost data
-        db_service.repo.add_ingredient_cost(
+        db_service.repo.set_ingredient_cost(
             ingredient_id = ingredient_id,
             cost_unit = data['cost']['cost_unit'],
             cost_value = data['cost']['cost_value'],
-            mass_unit = data['cost']['mass_unit'],
-            mass_value = data['cost']['mass_value']
+            mass_unit = data['cost']['qty_unit'],
+            mass_value = data['cost']['qty_value']
+        )
+
+        # Add the ingredient density data
+        db_service.repo.set_ingredient_density(
+            ingredient_id = ingredient_id,
+            dens_mass_unit = data['bulk']['density']['mass_unit'],
+            dens_mass_value = data['bulk']['density']['mass_value'],
+            dens_vol_unit = data['bulk']['density']['vol_unit'],
+            dens_vol_value = data['bulk']['density']['vol_value']
         )
