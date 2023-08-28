@@ -1,3 +1,5 @@
+from typing import Optional
+
 class Repository:
     def __init__(self, db):
         self.db = db
@@ -37,26 +39,26 @@ class Repository:
     def set_ingredient_cost(
         self,
         ingredient_id: int,
-        cost_unit: str,
-        cost_value: float,
-        mass_unit: str,
-        mass_value: float,
+        cost_unit: Optional[str],
+        cost_value: Optional[float],
+        qty_unit: Optional[str],
+        qty_value: Optional[float],
     ) -> None:
         self.db.execute(
             """
             INSERT INTO ingredient_cost (ingredient_id, cost_unit, cost_value, qty_unit, qty_value)
             VALUES (?, ?, ?, ?, ?);
         """,
-            (ingredient_id, cost_unit, cost_value, mass_unit, mass_value),
+            (ingredient_id, cost_unit, cost_value, qty_unit, qty_value),
         )
 
     def set_ingredient_density(
         self,
         ingredient_id: int,
-        dens_mass_unit: str,
-        dens_mass_value: float,
-        dens_vol_unit: str,
-        dens_vol_value: float,
+        dens_mass_unit: Optional[str],
+        dens_mass_value: Optional[float],
+        dens_vol_unit: Optional[str],
+        dens_vol_value: Optional[float],
     ):
         self.db.execute(
             """
