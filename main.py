@@ -7,7 +7,7 @@ from codiet.controllers.main_window_ctrl import MainWindowCtrl
 from codiet.db.database import Database
 from codiet.db.repository import Repository
 from codiet.db.database_service import DatabaseService
-from codiet.db._populate_ingredients import _populate_ingredients
+from codiet.db._populate_database import _populate_ingredients, _populate_flags
 
 DB_PATH = os.path.join("codiet", "db", "codiet.db")
 
@@ -18,6 +18,7 @@ if __name__ == "__main__":
         db = Database(DB_PATH)
         repo = Repository(db)
         db_service = DatabaseService(repo)
+        _populate_flags(db_service)
         _populate_ingredients(db_service)
     else:
         # Open the existing database
