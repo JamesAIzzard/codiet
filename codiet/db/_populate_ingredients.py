@@ -13,3 +13,4 @@ def _populate_ingredients(db_service: DatabaseService):
 
         # Add the ingredient name to the database
         db_service.repo.add_ingredient_name(data['name'])
+        
