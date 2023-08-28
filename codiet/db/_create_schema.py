@@ -17,6 +17,19 @@ def _create_schema(cursor):
         )
     """)
     cursor.execute("""
+        CREATE TABLE IF NOT EXISTS ingredient_bulk (
+            ingredient_id INTEGER,
+            density_mass_unit TEXT,
+            density_mass_value REAL,
+            density_vol_unit TEXT,
+            density_vol_value REAL,
+            pc_qty REAL,
+            pc_mass_unit TEXT,
+            pc_mass_value REAL,
+            FOREIGN KEY (ingredient_id) REFERENCES ingredient_base(ingredient_id)
+        )           
+    """)
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS flag_list (
             flag_id INTEGER PRIMARY KEY AUTOINCREMENT,
             flag_name TEXT NOT NULL UNIQUE

@@ -2,16 +2,19 @@
     "name": "Wholegrain Rice",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 1.99,
-        "mass_unit": "g",
-        "mass_value": 250
+        "cost_value": 1.97,
+        "mass_unit": "kg",
+        "mass_value": 1
     },
     "bulk": {
         "density": {
-            "vol_unit": null,
-            "vol_value": null
+            "mass_unit": "g",
+            "mass_value": 400,
+            "vol_unit": "L",
+            "vol_value": 0.5
         },
-        "piece_mass": { 
+        "piece_mass": {
+            "pc_qty": 1,
             "mass_unit": "g",
             "mass_value": 250
         }
@@ -22,7 +25,7 @@
         "protein": {
             "quantity": {
                 "unit": "g",
-                "value": 1.1
+                "value": 2.8
             },
             "in_serving_size": {
                 "unit": "g",
@@ -32,7 +35,7 @@
         "trans_fat": {
             "quantity": {
                 "unit": "g",
-                "value": 1.1
+                "value": 0
             },
             "in_serving_size": {
                 "unit": "g",
@@ -42,7 +45,7 @@
         "polyunsaturated_fat": {
             "quantity": {
                 "unit": "g",
-                "value": 1.1
+                "value": 0.4
             },
             "in_serving_size": {
                 "unit": "g",
@@ -52,7 +55,7 @@
         "monounsaturated_fat": {
             "quantity": {
                 "unit": "g",
-                "value": 1.1
+                "value": 0.25
             },
             "in_serving_size": {
                 "unit": "g",
@@ -62,7 +65,7 @@
         "saturated_fat": {
             "quantity": {
                 "unit": "g",
-                "value": 1.1
+                "value": 0.3
             },
             "in_serving_size": {
                 "unit": "g",
@@ -72,7 +75,7 @@
         "carbohydrate": {
             "quantity": {
                 "unit": "g",
-                "value": 1.1
+                "value": 24.5
             },
             "in_serving_size": {
                 "unit": "g",
@@ -81,13 +84,13 @@
         },
         "sodium": {
             "quantity": {
-                "unit": "g",
-                "value": 1.1
+                "unit": "mg",
+                "value": 0.005
             },
             "in_serving_size": {
                 "unit": "g",
                 "value": 100
             }
-        }                                            
+        }                                              
     }
 }

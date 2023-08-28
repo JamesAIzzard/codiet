@@ -1,19 +1,22 @@
 {
-    "name": "Tomato",
+    "name": "Whole Tomato",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 1.99,
-        "mass_unit": "g",
-        "mass_value": 250
+        "cost_value": 5.56,
+        "mass_unit": "lb",
+        "mass_value": 1
     },
     "bulk": {
         "density": {
+            "mass_unit": null,
+            "mass_value": null,
             "vol_unit": null,
             "vol_value": null
         },
-        "piece_mass": { 
+        "piece_mass": {
+            "pc_qty": 1,
             "mass_unit": "g",
-            "mass_value": 250
+            "mass_value": 150
         }
     },
     "flags": ["alcohol free", "caffeine free", "gluten free", "lactose free", "nut free", "vegan", "vegetarian"],
@@ -22,7 +25,7 @@
         "protein": {
             "quantity": {
                 "unit": "g",
-                "value": 1.1
+                "value": 0.9
             },
             "in_serving_size": {
                 "unit": "g",
@@ -32,7 +35,7 @@
         "trans_fat": {
             "quantity": {
                 "unit": "g",
-                "value": 1.1
+                "value": 0
             },
             "in_serving_size": {
                 "unit": "g",
@@ -42,7 +45,7 @@
         "polyunsaturated_fat": {
             "quantity": {
                 "unit": "g",
-                "value": 1.1
+                "value": 0.1
             },
             "in_serving_size": {
                 "unit": "g",
@@ -52,7 +55,7 @@
         "monounsaturated_fat": {
             "quantity": {
                 "unit": "g",
-                "value": 1.1
+                "value": 0.037
             },
             "in_serving_size": {
                 "unit": "g",
@@ -66,13 +69,13 @@
             },
             "in_serving_size": {
                 "unit": "g",
-                "value": 100
+                "value": 0.03
             }
         },
         "carbohydrate": {
             "quantity": {
                 "unit": "g",
-                "value": 1.1
+                "value": 3.9
             },
             "in_serving_size": {
                 "unit": "g",
@@ -81,8 +84,8 @@
         },
         "sodium": {
             "quantity": {
-                "unit": "g",
-                "value": 1.1
+                "unit": "mg",
+                "value": 5
             },
             "in_serving_size": {
                 "unit": "g",
