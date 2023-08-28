@@ -8,6 +8,6 @@ class Repository:
         Args:
             name (str): The name of the ingredient to add.
         """
-        self.db.execute(f"""
-            INSERT INTO ingredient_base (name) VALUES ({name});
-        """)
+        self.db.execute("""
+            INSERT INTO ingredient_base (ingredient_name) VALUES (?);
+        """, (name,))

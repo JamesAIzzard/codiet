@@ -2,7 +2,6 @@ import sqlite3
 import os
 
 from codiet.db._create_schema import _create_schema
-from codiet.db._populate_ingredients import _populate_ingredients
 
 class Database:
     def __init__(self, DB_PATH):
@@ -12,7 +11,6 @@ class Database:
         self.cursor = self.connection.cursor()
         if not self.db_exists:
             _create_schema(self.cursor)
-            _populate_ingredients(self.cursor)
             
     def execute(self, query, params=()):
         with self.connection:
