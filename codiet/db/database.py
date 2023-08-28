@@ -13,8 +13,7 @@ class Database:
             _create_schema(self.cursor)
             
     def execute(self, query, params=()):
-        with self.connection:
-            return self.connection.execute(query, params)
+        return self.connection.execute(query, params)
 
     def fetch_all(self, query, params=()):
         with self.connection:
