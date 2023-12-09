@@ -3,6 +3,7 @@ from PyQt6.QtGui import QFont
 
 from codiet.views.ingredient_name_editor_view import IngredientNameEditorView
 from codiet.views.ingredient_cost_editor_view import IngredientCostEditorView
+from codiet.views.ingredient_density_editor_view import IngredientDensityEditorView
 
 class IngredientEditorView(QWidget):
     def __init__(self):
@@ -41,6 +42,23 @@ class IngredientEditorView(QWidget):
 
         # Add the basic info group to the column1 layout
         column1_layout.addWidget(basic_info_group)
+
+        # Create the Bulk Properties group
+        bulk_properties_group = QGroupBox("Bulk Properties")
+        bulk_properties_group_layout = QVBoxLayout()
+
+        # Create an instance of the density widget and add it to a vertical layout
+        self.ingredientDensityWidget = IngredientDensityEditorView()
+        bulk_properties_group_layout.addWidget(self.ingredientDensityWidget)
+
+        # Create an instance of the piece mass widget and add it to a vertical layout
+        # TODO: Add piece mass widget here
+
+        # Set the layout for the bulk properties group
+        bulk_properties_group.setLayout(bulk_properties_group_layout)
+
+        # Add the bulk properties group to the column1 layout
+        column1_layout.addWidget(bulk_properties_group)
 
         # Add stretch to end of layout
         column1_layout.addStretch(1)
