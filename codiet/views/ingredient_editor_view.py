@@ -4,6 +4,7 @@ from PyQt6.QtGui import QFont
 from codiet.views.ingredient_name_editor_view import IngredientNameEditorView
 from codiet.views.ingredient_cost_editor_view import IngredientCostEditorView
 from codiet.views.ingredient_density_editor_view import IngredientDensityEditorView
+from codiet.views.ingredient_pc_mass_editor_view import IngredientPcMassEditorView
 
 class IngredientEditorView(QWidget):
     def __init__(self):
@@ -52,7 +53,8 @@ class IngredientEditorView(QWidget):
         bulk_properties_group_layout.addWidget(self.ingredientDensityWidget)
 
         # Create an instance of the piece mass widget and add it to a vertical layout
-        # TODO: Add piece mass widget here
+        self.ingredientPcMassWidget = IngredientPcMassEditorView()
+        bulk_properties_group_layout.addWidget(self.ingredientPcMassWidget)
 
         # Set the layout for the bulk properties group
         bulk_properties_group.setLayout(bulk_properties_group_layout)
