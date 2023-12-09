@@ -2,7 +2,7 @@ import sys, os
 
 from PyQt6.QtWidgets import QApplication
 
-from codiet.ui.main_window_view import MainWindowView
+from codiet.views.main_window_view import MainWindowView
 from codiet.controllers.main_window_ctrl import MainWindowCtrl
 from codiet.db.database import Database
 from codiet.db.repository import Repository

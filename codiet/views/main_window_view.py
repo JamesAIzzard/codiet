@@ -1,8 +1,8 @@
 from PyQt6.QtWidgets import QMainWindow, QMenuBar, QMenu, QStackedWidget, QWidget, QVBoxLayout, QLabel
 from PyQt6.QtGui import QAction, QIcon
 
-from codiet.ui.ingredient_editor_view import IngredientEditorView
-from codiet.ui.recipe_editor_view import RecipeEditorView
+from codiet.views.ingredient_editor_view import IngredientEditorView
+from codiet.views.recipe_editor_view import RecipeEditorView
 
 class MainWindowView(QMainWindow):
     def __init__(self):
