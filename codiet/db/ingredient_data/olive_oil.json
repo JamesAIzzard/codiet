@@ -13,7 +13,11 @@
       "vol_unit": "l",
       "vol_value": 1
     },
-    "piece_mass": { "pc_qty": null, "mass_unit": null, "mass_value": null }
+    "piece_mass": {
+      "pc_qty": null,
+      "mass_unit": null,
+      "mass_value": null
+    }
   },
   "flags": [
     "alcohol free",
@@ -27,32 +31,74 @@
   "GI": 0,
   "nutrients": {
     "protein": {
-      "quantity": { "unit": "g", "value": 0 },
-      "in_serving_size": { "unit": "ml", "value": 100 }
+      "quantity": {
+        "unit": "g",
+        "value": 0
+      },
+      "in_serving_size": {
+        "unit": "ml",
+        "value": 100
+      }
     },
     "trans_fat": {
-      "quantity": { "unit": "g", "value": 0 },
-      "in_serving_size": { "unit": "ml", "value": 100 }
+      "quantity": {
+        "unit": "g",
+        "value": 0
+      },
+      "in_serving_size": {
+        "unit": "ml",
+        "value": 100
+      }
     },
     "polyunsaturated_fat": {
-      "quantity": { "unit": "g", "value": 1.6 },
-      "in_serving_size": { "unit": "ml", "value": 100 }
+      "quantity": {
+        "unit": "g",
+        "value": 1.6
+      },
+      "in_serving_size": {
+        "unit": "ml",
+        "value": 100
+      }
     },
     "monounsaturated_fat": {
-      "quantity": { "unit": "g", "value": 9.8 },
-      "in_serving_size": { "unit": "ml", "value": 100 }
+      "quantity": {
+        "unit": "g",
+        "value": 9.8
+      },
+      "in_serving_size": {
+        "unit": "ml",
+        "value": 100
+      }
     },
     "saturated_fat": {
-      "quantity": { "unit": "g", "value": 1.9 },
-      "in_serving_size": { "unit": "ml", "value": 100 }
+      "quantity": {
+        "unit": "g",
+        "value": 1.9
+      },
+      "in_serving_size": {
+        "unit": "ml",
+        "value": 100
+      }
     },
     "carbohydrate": {
-      "quantity": { "unit": "g", "value": 0 },
-      "in_serving_size": { "unit": "ml", "value": 100 }
+      "quantity": {
+        "unit": "g",
+        "value": 0
+      },
+      "in_serving_size": {
+        "unit": "ml",
+        "value": 100
+      }
     },
     "sodium": {
-      "quantity": { "unit": "mg", "value": 0 },
-      "in_serving_size": { "unit": "ml", "value": 100 }
+      "quantity": {
+        "unit": "mg",
+        "value": 0
+      },
+      "in_serving_size": {
+        "unit": "ml",
+        "value": 100
+      }
     }
   }
 }

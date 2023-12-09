@@ -1,0 +1,104 @@
+{
+    "name": "Onion",
+    "cost": {
+        "cost_unit": "GBP",
+        "cost_value": 3.00,
+        "qty_unit": "kg",
+        "qty_value": 1
+    },
+    "bulk": {
+        "density": {
+            "mass_unit": "kg",
+            "mass_value": 0.11,
+            "vol_unit": null,
+            "vol_value": null
+        },
+        "piece_mass": {
+            "pc_qty": null,
+            "mass_unit": null,
+            "mass_value": null
+        }
+    },
+    "flags": [
+        "alcohol free",
+        "caffeine free",
+        "gluten free",
+        "lactose free",
+        "nut free",
+        "vegan",
+        "vegetarian"
+    ],
+    "GI": 10,
+    "nutrients": {
+        "protein": {
+            "quantity": {
+                "unit": "g",
+                "value": 1.1
+            },
+            "in_serving_size": {
+                "unit": "g",
+                "value": 100
+            }
+        },
+        "trans_fat": {
+            "quantity": {
+                "unit": "g",
+                "value": 0
+            },
+            "in_serving_size": {
+                "unit": "g",
+                "value": 100
+            }
+        },
+        "polyunsaturated_fat": {
+            "quantity": {
+                "unit": "g",
+                "value": 0.017
+            },
+            "in_serving_size": {
+                "unit": "g",
+                "value": 100
+            }
+        },
+        "monounsaturated_fat": {
+            "quantity": {
+                "unit": "g",
+                "value": 0.013
+            },
+            "in_serving_size": {
+                "unit": "g",
+                "value": 100
+            }
+        },
+        "saturated_fat": {
+            "quantity": {
+                "unit": "g",
+                "value": 0.042
+            },
+            "in_serving_size": {
+                "unit": "g",
+                "value": 100
+            }
+        },
+        "carbohydrate": {
+            "quantity": {
+                "unit": "g",
+                "value": 9.34
+            },
+            "in_serving_size": {
+                "unit": "g",
+                "value": 100
+            }
+        },
+        "sodium": {
+            "quantity": {
+                "unit": "mg",
+                "value": 4
+            },
+            "in_serving_size": {
+                "unit": "g",
+                "value": 100
+            }
+        }
+    }
+}
