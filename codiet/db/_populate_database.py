@@ -65,7 +65,6 @@ def _populate_nutrients(db_service: DatabaseService):
         mandatory = data["mandatory"]
         # Add the nutrient to the database, stashing the id
         nutrient_id = db_service.repo.add_nutrient(name, mandatory, parent_id)
-        print(f"Added {name} with ID {nutrient_id}, and parent ID {parent_id}")
         # Stash the nutrients ID in the dict
         nutrient_ids[name] = nutrient_id
         # Grab the child elements
