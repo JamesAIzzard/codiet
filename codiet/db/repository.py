@@ -20,6 +20,15 @@ class Repository:
             (name,),
         )
 
+    def get_all_flags(self) -> list[str]:
+        """Returns a list of all the flags in the database."""
+        rows = self.db.execute(
+            """
+            SELECT flag_name FROM flag_list;
+        """
+        ).fetchall()
+        return [row[0] for row in rows]
+
     def get_ingredient_id(self, name: str) -> int:
         return self.db.execute(
             """

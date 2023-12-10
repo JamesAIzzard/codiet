@@ -25,11 +25,11 @@ class MainWindowView(QMainWindow):
         self.stacked_widget = QStackedWidget()
         self.setCentralWidget(self.stacked_widget)
         # Create the pages for the stacked widget
-        self.ingredient_editor = IngredientEditorView()
-        self.recipe_editor = RecipeEditorView()
+        self.ingredient_editor_view = IngredientEditorView()
+        self.recipe_editor_view = RecipeEditorView()
         # Add the pages to the stacked widget
-        self.stacked_widget.addWidget(self.ingredient_editor)
-        self.stacked_widget.addWidget(self.recipe_editor)    
+        self.stacked_widget.addWidget(self.ingredient_editor_view)
+        self.stacked_widget.addWidget(self.recipe_editor_view)    
 
     def _build_menu_bar(self):
         # Create a menu bar

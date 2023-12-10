@@ -1,7 +1,16 @@
+from codiet.db.database_service import DatabaseService
+from codiet.views.main_window_view import MainWindowView
+from codiet.controllers.ingredient_editor_ctrl import IngredientEditorCtrl
+
 class MainWindowCtrl:
-    def __init__(self, view, db_service):
+    def __init__(self, view:MainWindowView, db_service:DatabaseService):
         self.view = view
         self.db_service = db_service
+
+        # Instantiate the ingredient editor controller
+        self.ingredient_editor_ctrl = IngredientEditorCtrl(
+            self.view.ingredient_editor_view, self.db_service
+        )
 
         # Connect the signals and slots
         self.view.new_ingredient_action.triggered.connect(self.on_new_ingredient_clicked)

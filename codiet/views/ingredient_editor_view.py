@@ -31,9 +31,11 @@ class IngredientEditorView(QWidget):
 
         # Create a horizontal layout for the columns
         columns_layout = QHBoxLayout()
+        page_layout.addLayout(columns_layout)
 
         # Create a vertical layout for the first column
         column1_layout = QVBoxLayout()
+        columns_layout.addLayout(column1_layout, 1)
 
         # Create the Basic Info widget
         self.ingredientBasicInfoWidget = IngredientBasicInfoEditorView()
@@ -44,8 +46,8 @@ class IngredientEditorView(QWidget):
         column1_layout.addWidget(self.ingredientBulkPropertiesWidget)
 
         # Add the flags widget to the column1 layout
-        self.ingredientFlagWidget = IngredientFlagEditorView()
-        column1_layout.addWidget(self.ingredientFlagWidget)
+        self.flag_editor_view = IngredientFlagEditorView()
+        column1_layout.addWidget(self.flag_editor_view)
 
         # Add the GI widget to the column1 layout
         self.ingredientGIWidget = IngredientGIEditorView()
@@ -54,8 +56,6 @@ class IngredientEditorView(QWidget):
         # Add stretch to end of layout
         column1_layout.addStretch(1)
 
-        # Add the column1 layout to the columns layout
-        columns_layout.addLayout(column1_layout, 1)
 
         # Create the second column.
         column2_layout = QVBoxLayout()
@@ -67,9 +67,6 @@ class IngredientEditorView(QWidget):
 
         # Add a stretch to the end of the layout
         column2_layout.addStretch(1)
-
-        # Add the columns layout to the page layout
-        page_layout.addLayout(columns_layout)
 
         # Add a save ingredient button to the bottom of the page
         self.save_ingredient_button = QPushButton("Save Ingredient")

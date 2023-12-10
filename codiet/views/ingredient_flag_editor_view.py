@@ -37,20 +37,6 @@ class IngredientFlagEditorView(QWidget):
         buttons_layout = QVBoxLayout()
         columns_layout.addLayout(buttons_layout, 0)
 
-        # Populate the checkable flags list
-        # Add 10 items to the list as an example
-        for i in range(10):
-            # Create the item
-            item = QListWidgetItem(f"Item {i}")
-            # Make the item checkable
-            item.setFlags(
-                item.flags() | Qt.ItemFlag.ItemIsUserCheckable
-            )
-            # Set the item as initially unchecked
-            item.setCheckState(Qt.CheckState.Unchecked)
-            # Add the item
-            self.listWidget.addItem(item)
-
         # Populate buttons column with helper buttons
         # Add a 'Select All' button
         self.select_all_button = QPushButton("Select All")
@@ -64,3 +50,16 @@ class IngredientFlagEditorView(QWidget):
         # Add a 'Clear Selection' button
         self.clear_selection_button = QPushButton("Clear Selection")
         buttons_layout.addWidget(self.clear_selection_button)
+
+    def add_flag_to_list(self, flag_name) -> None:
+        """Adds a flag to the list of checkable flags"""
+        # Create the item
+        item = QListWidgetItem(flag_name)
+        # Make the item checkable
+        item.setFlags(
+            item.flags() | Qt.ItemFlag.ItemIsUserCheckable
+        )
+        # Set the item as initially unchecked
+        item.setCheckState(Qt.CheckState.Unchecked)
+        # Add the item
+        self.listWidget.addItem(item)
