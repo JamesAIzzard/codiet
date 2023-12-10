@@ -9,8 +9,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QFont
 
 from codiet.views.ingredient_basic_info_editor_view import IngredientBasicInfoEditorView
-from codiet.views.ingredient_density_editor_view import IngredientDensityEditorView
-from codiet.views.ingredient_pc_mass_editor_view import IngredientPcMassEditorView
+from codiet.views.ingredient_bulk_properties_editor_view import IngredientBulkPropertiesEditorView
 from codiet.views.ingredient_flag_editor_view import IngredientFlagEditorView
 from codiet.views.ingredient_gi_editor_view import IngredientGIEditorView
 from codiet.views.ingredient_nutrients_editor_view import IngredientNutrientsEditorView
@@ -40,23 +39,9 @@ class IngredientEditorView(QWidget):
         self.ingredientBasicInfoWidget = IngredientBasicInfoEditorView()
         column1_layout.addWidget(self.ingredientBasicInfoWidget)
 
-        # Create the Bulk Properties group
-        bulk_properties_group = QGroupBox("Bulk Properties")
-        bulk_properties_group_layout = QVBoxLayout()
-
-        # Create an instance of the density widget and add it to a vertical layout
-        self.ingredientDensityWidget = IngredientDensityEditorView()
-        bulk_properties_group_layout.addWidget(self.ingredientDensityWidget)
-
-        # Create an instance of the piece mass widget and add it to a vertical layout
-        self.ingredientPcMassWidget = IngredientPcMassEditorView()
-        bulk_properties_group_layout.addWidget(self.ingredientPcMassWidget)
-
-        # Set the layout for the bulk properties group
-        bulk_properties_group.setLayout(bulk_properties_group_layout)
-
-        # Add the bulk properties group to the column1 layout
-        column1_layout.addWidget(bulk_properties_group)
+        # Create the bulk properties widget
+        self.ingredientBulkPropertiesWidget = IngredientBulkPropertiesEditorView()
+        column1_layout.addWidget(self.ingredientBulkPropertiesWidget)
 
         # Add the flags widget to the column1 layout
         self.ingredientFlagWidget = IngredientFlagEditorView()
