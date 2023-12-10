@@ -6,6 +6,7 @@ from codiet.views.ingredient_cost_editor_view import IngredientCostEditorView
 from codiet.views.ingredient_density_editor_view import IngredientDensityEditorView
 from codiet.views.ingredient_pc_mass_editor_view import IngredientPcMassEditorView
 from codiet.views.ingredient_flag_editor_view import IngredientFlagEditorView
+from codiet.views.ingredient_gi_editor_view import IngredientGIEditorView
 
 class IngredientEditorView(QWidget):
     def __init__(self):
@@ -66,6 +67,10 @@ class IngredientEditorView(QWidget):
         # Add the flags widget to the column1 layout
         self.ingredientFlagWidget = IngredientFlagEditorView()
         column1_layout.addWidget(self.ingredientFlagWidget)
+
+        # Add the GI widget to the column1 layout
+        self.ingredientGIWidget = IngredientGIEditorView()
+        column1_layout.addWidget(self.ingredientGIWidget)
 
         # Add stretch to end of layout
         column1_layout.addStretch(1)

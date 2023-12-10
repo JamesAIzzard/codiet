@@ -2,7 +2,6 @@ from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QHBoxLayout,
-    QLabel,
     QGroupBox,
     QListWidget,
     QListWidgetItem,
