@@ -1,4 +1,5 @@
 import os, json
+from typing import Optional
 
 from codiet.models.ingredient import Ingredient
 from codiet.db.database_service import DatabaseService
@@ -49,3 +50,37 @@ def _populate_ingredients(db_service: DatabaseService):
 
         # Save the ingredient
         db_service.save_ingredient(ingredient)
+
+def _populate_nutrients(db_service: DatabaseService):
+    # Load the dict from the nutrient_data.json file
+    with open(os.path.join(os.path.dirname(__file__), "nutrient_data.json")) as f:
+        data = json.load(f)
+
+    # Create a dict to match nutrient names and ID's
+    nutrient_ids = {}
+
+    # Create a function to recursively add nutrients
+    def _add_nutrient(name: str, data: dict, parent_id: Optional[int]):
+        # Grab the mandatory status of the nutrient
+        mandatory = data["mandatory"]
+        # Add the nutrient to the database, stashing the id
+        nutrient_id = db_service.repo.add_nutrient(name, mandatory, parent_id)
+        print(f"Added {name} with ID {nutrient_id}, and parent ID {parent_id}")
+        # Stash the nutrients ID in the dict
+        nutrient_ids[name] = nutrient_id
+        # Grab the child elements
+        children = data["children"]
+        # Add each child   
+        for nutrient_name, nutrient_data in children.items():
+            # Get parent's ID
+            parent_id = nutrient_ids[name]
+            # Add the nutrient
+            _add_nutrient(nutrient_name, nutrient_data, parent_id=parent_id)
+
+    # Add each nutrient
+    for nutrient_name, nutrient_data in data.items():
+        # Add the nutrient
+        _add_nutrient(nutrient_name, nutrient_data, None)
+
+    # Commit the changes
+    db_service.repo.db.commit()

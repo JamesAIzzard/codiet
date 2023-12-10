@@ -1,5 +1,6 @@
 from typing import Optional
 
+
 class Repository:
     def __init__(self, db):
         self.db = db
@@ -12,13 +13,14 @@ class Repository:
             (name,),
         ).fetchone()[0]
 
-    def add_flag(self, name: str) -> None:
-        self.db.execute(
+    def add_flag(self, name: str) -> int:
+        cursor = self.db.execute(
             """
             INSERT INTO flag_list (flag_name) VALUES (?);
         """,
             (name,),
         )
+        return cursor.lastrowid
 
     def get_all_flags(self) -> list[str]:
         """Returns a list of all the flags in the database."""
@@ -82,3 +84,13 @@ class Repository:
                 dens_vol_value,
             ),
         )
+
+    def add_nutrient(self, name: str, mandatory: bool, parent_id: Optional[int]) -> int:
+        """Adds a nutrient to the database and returns the ID."""
+        cursor = self.db.execute(
+            """
+            INSERT INTO nutrient_list (nutrient_name, mandatory, parent_id) VALUES (?, ?, ?);
+            """,
+            (name, mandatory, parent_id),
+        )
+        return cursor.lastrowid

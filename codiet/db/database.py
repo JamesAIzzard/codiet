@@ -18,3 +18,6 @@ class Database:
     def fetch_all(self, query, params=()):
         with self.connection:
             return self.connection.execute(query, params).fetchall()
+
+    def commit(self):
+        self.connection.commit()

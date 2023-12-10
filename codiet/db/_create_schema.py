@@ -48,7 +48,8 @@ def _create_schema(cursor):
         CREATE TABLE IF NOT EXISTS nutrient_list (
             nutrient_id INTEGER PRIMARY KEY AUTOINCREMENT,
             nutrient_name TEXT NOT NULL UNIQUE,
-            mandatory BOOLEAN NOT NULL
+            mandatory BOOLEAN NOT NULL,
+            parent_id INTEGER
         )
     """)
     cursor.execute("""
