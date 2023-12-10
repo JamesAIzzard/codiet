@@ -8,8 +8,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QFont
 
-from codiet.views.ingredient_name_editor_view import IngredientNameEditorView
-from codiet.views.ingredient_cost_editor_view import IngredientCostEditorView
+from codiet.views.ingredient_basic_info_editor_view import IngredientBasicInfoEditorView
 from codiet.views.ingredient_density_editor_view import IngredientDensityEditorView
 from codiet.views.ingredient_pc_mass_editor_view import IngredientPcMassEditorView
 from codiet.views.ingredient_flag_editor_view import IngredientFlagEditorView
@@ -37,23 +36,9 @@ class IngredientEditorView(QWidget):
         # Create a vertical layout for the first column
         column1_layout = QVBoxLayout()
 
-        # Create the basic info group
-        basic_info_group = QGroupBox("Basic Info")
-        basic_info_group_layout = QVBoxLayout()
-
-        # Create an instance of IngredientNameWidget and add it to a vertical layout
-        self.ingredientNameWidget = IngredientNameEditorView()
-        basic_info_group_layout.addWidget(self.ingredientNameWidget)
-
-        # Create an instance of IngredientCostWidget and add it to a vertical layout
-        self.ingredientCostWidget = IngredientCostEditorView()
-        basic_info_group_layout.addWidget(self.ingredientCostWidget)
-
-        # Set the layout for the basic info group
-        basic_info_group.setLayout(basic_info_group_layout)
-
-        # Add the basic info group to the column1 layout
-        column1_layout.addWidget(basic_info_group)
+        # Create the Basic Info widget
+        self.ingredientBasicInfoWidget = IngredientBasicInfoEditorView()
+        column1_layout.addWidget(self.ingredientBasicInfoWidget)
 
         # Create the Bulk Properties group
         bulk_properties_group = QGroupBox("Bulk Properties")
