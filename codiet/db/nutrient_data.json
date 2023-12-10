@@ -165,7 +165,7 @@
             }
         }
     },
-    "fats": {
+    "fat": {
         "mandatory": true,
         "aliases": [],
         "children": {

@@ -62,8 +62,8 @@ class IngredientEditorView(QWidget):
         columns_layout.addLayout(column2_layout, 1)
 
         # Create a nutrient editor widget and add it to the column2 layout
-        self.ingredientNutrientsWidget = IngredientNutrientsEditorView()
-        column2_layout.addWidget(self.ingredientNutrientsWidget)
+        self.nutrient_editor_view = IngredientNutrientsEditorView()
+        column2_layout.addWidget(self.nutrient_editor_view)
 
         # Add a stretch to the end of the layout
         column2_layout.addStretch(1)

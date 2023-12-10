@@ -94,3 +94,12 @@ class Repository:
             (name, mandatory, parent_id),
         )
         return cursor.lastrowid
+
+    def get_mandatory_nutrient_names(self) -> list[str]:
+        """Returns a list of all the mandatory nutrient names in the database."""
+        rows = self.db.execute(
+            """
+            SELECT nutrient_name FROM nutrient_list WHERE mandatory = TRUE;
+        """
+        ).fetchall()
+        return [row[0] for row in rows]

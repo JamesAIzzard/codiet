@@ -35,10 +35,10 @@ class IngredientNutrientsEditorView(QWidget):
         self.listWidget = QListWidget()
         rows_layout.addWidget(self.listWidget)
 
-        # Add custom widgets to the list
-        for nutr_name in ["Protein", "Carbohydrate", "Trans Fat"]:  # Example with 5 custom widgets
-            listItem = QListWidgetItem(self.listWidget)
-            nutrient_widget = IngredientNutrientEditorView(nutr_name)
-            listItem.setSizeHint(nutrient_widget.sizeHint())  # Important to set the size hint
-            self.listWidget.addItem(listItem)
-            self.listWidget.setItemWidget(listItem, nutrient_widget)
+    def add_nutrient(self, nutrient_name: str):
+        # Add a new row to the list
+        listItem = QListWidgetItem(self.listWidget)
+        nutrient_widget = IngredientNutrientEditorView(nutrient_name)
+        listItem.setSizeHint(nutrient_widget.sizeHint())
+        self.listWidget.addItem(listItem)
+        self.listWidget.setItemWidget(listItem, nutrient_widget)
