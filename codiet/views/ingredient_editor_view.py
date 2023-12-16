@@ -3,7 +3,6 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QLabel,
-    QGroupBox,
     QPushButton,
 )
 from PyQt6.QtGui import QFont
@@ -38,20 +37,20 @@ class IngredientEditorView(QWidget):
         columns_layout.addLayout(column1_layout, 1)
 
         # Create the Basic Info widget
-        self.ingredientBasicInfoWidget = IngredientBasicInfoEditorView()
-        column1_layout.addWidget(self.ingredientBasicInfoWidget)
+        self.ingredient_basic_info_editor_view = IngredientBasicInfoEditorView()
+        column1_layout.addWidget(self.ingredient_basic_info_editor_view)
 
         # Create the bulk properties widget
-        self.ingredientBulkPropertiesWidget = IngredientBulkPropertiesEditorView()
-        column1_layout.addWidget(self.ingredientBulkPropertiesWidget)
+        self.ingredient_bulk_properties_editor_view = IngredientBulkPropertiesEditorView()
+        column1_layout.addWidget(self.ingredient_bulk_properties_editor_view)
 
         # Add the flags widget to the column1 layout
         self.flag_editor_view = IngredientFlagEditorView()
         column1_layout.addWidget(self.flag_editor_view)
 
         # Add the GI widget to the column1 layout
-        self.ingredientGIWidget = IngredientGIEditorView()
-        column1_layout.addWidget(self.ingredientGIWidget)
+        self.ingredient_gi_editor_view = IngredientGIEditorView()
+        column1_layout.addWidget(self.ingredient_gi_editor_view)
 
         # Add stretch to end of layout
         column1_layout.addStretch(1)
