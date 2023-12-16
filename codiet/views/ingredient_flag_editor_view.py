@@ -39,17 +39,20 @@ class IngredientFlagEditorView(QWidget):
 
         # Populate buttons column with helper buttons
         # Add a 'Select All' button
-        self.select_all_button = QPushButton("Select All")
-        buttons_layout.addWidget(self.select_all_button)
+        self.btn_select_all = QPushButton("Select All")
+        buttons_layout.addWidget(self.btn_select_all)
         # Add a 'Deselect All' button
-        self.deselect_all_button = QPushButton("Deselect All")
-        buttons_layout.addWidget(self.deselect_all_button)
+        self.btn_deselect_all = QPushButton("Deselect All")
+        buttons_layout.addWidget(self.btn_deselect_all)
         # Add an 'Invert Selection' button
-        self.invert_selection_button = QPushButton("Invert Selection")
-        buttons_layout.addWidget(self.invert_selection_button)
+        self.btn_invert_selection = QPushButton("Invert Selection")
+        buttons_layout.addWidget(self.btn_invert_selection)
         # Add a 'Clear Selection' button
-        self.clear_selection_button = QPushButton("Clear Selection")
-        buttons_layout.addWidget(self.clear_selection_button)
+        self.btn_clear_selection = QPushButton("Clear Selection")
+        buttons_layout.addWidget(self.btn_clear_selection)
+
+        # Create a dict of the flag ui elements
+        self.flags = {}
 
     def add_flag_to_list(self, flag_name) -> None:
         """Adds a flag to the list of checkable flags"""
@@ -61,5 +64,30 @@ class IngredientFlagEditorView(QWidget):
         )
         # Set the item as initially unchecked
         item.setCheckState(Qt.CheckState.Unchecked)
-        # Add the item
+        # Add the item to the UI
         self.listWidget.addItem(item)
+        # Add the item to the list in lowercase
+        self.flags[flag_name.lower()] = item
+
+    def select_flag(self, flag: str):
+        '''Update the flag to be selected.'''
+        self.flags[flag].setCheckState(Qt.CheckState.Checked)
+
+    def deselect_flag(self, flag: str):
+        '''Update the flag to be deselected.'''
+        self.flags[flag].setCheckState(Qt.CheckState.Unchecked)
+
+    def invert_flag_selection(self, flag: str):
+        '''Invert the selection of the flag.'''
+        if self.flags[flag].checkState() == Qt.CheckState.Checked:
+            self.flags[flag].setCheckState(Qt.CheckState.Unchecked)
+        else:
+            self.flags[flag].setCheckState(Qt.CheckState.Checked)
+    
+    def get_selected_flags(self) -> list[str]:
+        '''Get a list of all the selected flags.'''
+        selected_flags = []
+        for flag in self.flags:
+            if self.flags[flag].checkState() == Qt.CheckState.Checked:
+                selected_flags.append(flag)
+        return selected_flags
