@@ -4,7 +4,10 @@ from PyQt6.QtWidgets import (
     QGroupBox,
     QPushButton,
     QListWidget,
+    QListWidgetItem,
 )
+
+from codiet.views.ingredient_quantity_editor_view import IngredientQuantityEditorView
 
 class IngredientsEditorView(QWidget):
     def __init__(self):
@@ -30,7 +33,19 @@ class IngredientsEditorView(QWidget):
         # Create a list widget to hold the ingredients
         self.list_ingredients = QListWidget()
         ingredients_layout.addWidget(self.list_ingredients)
-        # Add some dummy ingredients for now
-        self.list_ingredients.addItem("Ingredient 1")
-        self.list_ingredients.addItem("Ingredient 2")
-        self.list_ingredients.addItem("Ingredient 3")
+
+        # Add some dummy instances of IngredientQuantiyEditorView for now
+        # Create a list of dummy ingredient names
+        dummy_ingredient_names = ["Ingredient 1", "Ingredient 2", "Ingredient 3"]
+        # Loop through the dummy ingredient names
+        for ingredient_name in dummy_ingredient_names:
+            # Add a new row to the list
+            listItem = QListWidgetItem(self.list_ingredients)
+            # Create a new instance of IngredientQuantityEditorView
+            dummy_ingredient = IngredientQuantityEditorView(ingredient_name)
+            # Set the size hint of the list item to the size hint of the ingredient editor
+            listItem.setSizeHint(dummy_ingredient.sizeHint())
+            # Add the list item to the list
+            self.list_ingredients.addItem(listItem)
+            # Set the widget of the list item to be the ingredient editor
+            self.list_ingredients.setItemWidget(listItem, dummy_ingredient)

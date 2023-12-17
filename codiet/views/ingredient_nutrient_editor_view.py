@@ -4,8 +4,7 @@ from PyQt6.QtWidgets import (
     QLabel,
     QLineEdit,
     QComboBox,
-    QPushButton,
-    QSizePolicy
+    QPushButton
 )
 
 
