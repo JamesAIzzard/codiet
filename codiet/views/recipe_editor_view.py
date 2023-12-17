@@ -7,10 +7,12 @@ from PyQt6.QtWidgets import (
     QListWidget,
     QLineEdit,
     QGroupBox,
-    QSizePolicy,
     QTextEdit
 )
 from PyQt6.QtGui import QFont
+
+from codiet.views.ingredients_editor_view import IngredientsEditorView
+from codiet.views.serve_times_editor_view import ServeTimesEditorView
 
 class RecipeEditorView(QWidget):
     def __init__(self):
@@ -60,47 +62,17 @@ class RecipeEditorView(QWidget):
         column2_layout = QVBoxLayout()
         columns_layout.addLayout(column2_layout, 2)
 
-        # Create the ingredients group within the second col
-        ingredients_group = QGroupBox("Ingredients")
-        column2_layout.addWidget(ingredients_group)
-        ingredients_layout = QVBoxLayout()
-        ingredients_group.setLayout(ingredients_layout)
-        ingredients_layout.setContentsMargins(5, 5, 5, 5)
-
-        # Create an add ingredient button
-        self.btn_add_ingredient = QPushButton("Add Ingredient")
-        ingredients_layout.addWidget(self.btn_add_ingredient)
-
-        # Create a list widget to hold the ingredients
-        self.list_ingredients = QListWidget()
-        ingredients_layout.addWidget(self.list_ingredients)
-        # Add some dummy ingredients for now
-        self.list_ingredients.addItem("Ingredient 1")
-        self.list_ingredients.addItem("Ingredient 2")
-        self.list_ingredients.addItem("Ingredient 3")
+        # Add the ingredients editor widget to the second col
+        self.ingredients_editor = IngredientsEditorView()
+        column2_layout.addWidget(self.ingredients_editor)
 
         # Create the third column
         column3_layout = QVBoxLayout()
         columns_layout.addLayout(column3_layout, 1)
 
-        # Put a group inside the third column called 'Time'
-        time_group = QGroupBox("Time")
-        column3_layout.addWidget(time_group)
-        time_layout = QVBoxLayout()
-        time_group.setLayout(time_layout)
-        time_layout.setContentsMargins(5, 5, 5, 5)
-
-        # Create a button to add a time window
-        self.btn_add_time_window = QPushButton("Add Time Window")
-        time_layout.addWidget(self.btn_add_time_window)
-
-        # Create a list widget to hold the time windows
-        self.list_time_windows = QListWidget()
-        time_layout.addWidget(self.list_time_windows)
-        # Add some dummy time windows for now
-        self.list_time_windows.addItem("Time Window 1")
-        self.list_time_windows.addItem("Time Window 2")
-        self.list_time_windows.addItem("Time Window 3")
+        # Add the serve times editor widget to the third col
+        self.serve_times_editor = ServeTimesEditorView()
+        column3_layout.addWidget(self.serve_times_editor)
 
         # At the bottom of the page, put a 'Save Recipe' button
         self.btn_save_recipe = QPushButton("Save Recipe")
