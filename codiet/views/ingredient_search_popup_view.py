@@ -23,8 +23,8 @@ class IngredientSearchPopupView(QDialog):
         layout.addWidget(self.lst_search_results)
 
         # Add a button to the bottom saying open
-        self.btn_open = QPushButton("Open")
-        layout.addWidget(self.btn_open)
+        self.btn_select = QPushButton("Select")
+        layout.addWidget(self.btn_select)
 
     def show(self):
         self.exec()
