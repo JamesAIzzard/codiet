@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QMainWindow, QMenuBar, QMenu, QStackedWidget, QWidge
 from PyQt6.QtGui import QAction, QIcon
 
 from codiet.views.ingredient_editor_view import IngredientEditorView
+from codiet.views.ingredient_search_popup_view import IngredientSearchPopupView
 from codiet.views.recipe_editor_view import RecipeEditorView
 from codiet.views.meal_goal_editor_view import MealGoalEditorView
 
@@ -32,7 +33,9 @@ class MainWindowView(QMainWindow):
         # Add the pages to the stacked widget
         self.stacked_widget.addWidget(self.ingredient_editor_view)
         self.stacked_widget.addWidget(self.recipe_editor_view) 
-        self.stacked_widget.addWidget(self.meal_goal_editor_view)   
+        self.stacked_widget.addWidget(self.meal_goal_editor_view)
+        # Init the popup windows
+        self.ingredient_search_view = IngredientSearchPopupView()
 
     def _build_menu_bar(self):
         # Create a menu bar
@@ -83,10 +86,17 @@ class MainWindowView(QMainWindow):
         menu_bar.addMenu(help_menu)
 
     def show_ingredient_editor(self):
+        """Switches the panel to the ingdredient editor."""
         self.stacked_widget.setCurrentIndex(0)
 
+    def show_ingredient_search_popup(self):
+        """Opens the ingredient search popup."""
+        self.ingredient_search_view.show()
+
     def show_recipe_editor(self):
+        """Switches the panel to the recipe editor."""
         self.stacked_widget.setCurrentIndex(1)
 
     def show_meal_goal_editor(self):
+        """Switches the panel to the meal goal editor."""
         self.stacked_widget.setCurrentIndex(2)

@@ -14,17 +14,26 @@ class MainWindowCtrl:
 
         # Connect the signals and slots
         self.view.new_ingredient_action.triggered.connect(self.on_new_ingredient_clicked)
+        self.view.edit_ingredient_action.triggered.connect(self.on_edit_ingredient_clicked)
         self.view.new_recipe_action.triggered.connect(self.on_new_recipe_clicked)
         self.view.new_meal_goal_action.triggered.connect(self.on_new_meal_goal_clicked)
 
     def on_new_ingredient_clicked(self):
+        """Handle the user clicking the New Ingredient button."""
         self.view.show_ingredient_editor()
         print("New Ingredient clicked")
 
+    def on_edit_ingredient_clicked(self):
+        """Handle the user clicking the Edit Ingredient button."""
+        self.view.show_ingredient_search_popup()
+        print("Edit Ingredient clicked")
+
     def on_new_recipe_clicked(self):
+        """Handle the user clicking the New Recipe button."""
         self.view.show_recipe_editor()
         print("New Recipe clicked")
 
     def on_new_meal_goal_clicked(self):
+        """Handle the user clicking the New Meal Goal button."""
         self.view.show_meal_goal_editor()
         print("New Meal Goal clicked")
