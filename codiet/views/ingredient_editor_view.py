@@ -64,9 +64,6 @@ class IngredientEditorView(QWidget):
         self.nutrient_editor_view = IngredientNutrientsEditorView()
         column2_layout.addWidget(self.nutrient_editor_view)
 
-        # Add a stretch to the end of the layout
-        column2_layout.addStretch(1)
-
         # Add a save ingredient button to the bottom of the page
         self.save_ingredient_button = QPushButton("Save Ingredient")
         # Limit the width of the button

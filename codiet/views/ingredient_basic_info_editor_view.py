@@ -2,9 +2,8 @@ from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QGroupBox,
-    QPushButton,
-    QListWidget,
-    QListWidgetItem,
+    QLabel,
+    QTextEdit,
 )
 
 from codiet.views.ingredient_name_editor_view import IngredientNameEditorView
@@ -28,9 +27,17 @@ class IngredientBasicInfoEditorView(QWidget):
         rows_layout = QVBoxLayout()
         group_box.setLayout(rows_layout)
 
-        # Bring in the name and cost editors
+        # Bring in the name editor
         self.name_editor = IngredientNameEditorView()
         rows_layout.addWidget(self.name_editor)
+
+        # Add a description field and multiline textbox
+        label = QLabel("Description:")
+        rows_layout.addWidget(label)
+        self.txt_ingredient_description = QTextEdit()
+        rows_layout.addWidget(self.txt_ingredient_description)
+
+        # Bring in the cost editor
         self.cost_editor = IngredientCostEditorView()
         rows_layout.addWidget(self.cost_editor)
 
