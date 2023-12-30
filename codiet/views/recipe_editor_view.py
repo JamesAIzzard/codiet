@@ -52,6 +52,14 @@ class RecipeEditorView(QWidget):
         self.textbox_recipe_name = QLineEdit()
         recipe_name_layout.addWidget(self.textbox_recipe_name)
 
+        # Add a row containing the recipe description label and multiline textbox
+        label = QLabel("Description:")
+        basic_info_layout.addWidget(label)
+        self.textbox_recipe_description = QTextEdit()
+        basic_info_layout.addWidget(self.textbox_recipe_description)
+        # Make the description box just three lines high
+        self.textbox_recipe_description.setFixedHeight(60)
+
         # Add a row containing the recipe instructions label and multiline textbox
         label = QLabel("Instructions:")
         basic_info_layout.addWidget(label)
