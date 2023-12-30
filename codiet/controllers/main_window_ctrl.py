@@ -1,6 +1,7 @@
 from codiet.db.database_service import DatabaseService
 from codiet.views.main_window_view import MainWindowView
 from codiet.controllers.ingredient_editor_ctrl import IngredientEditorCtrl
+from codiet.controllers.ingredient_search_popup_ctrl import IngredientSearchPopupCtrl
 
 class MainWindowCtrl:
     def __init__(self, view:MainWindowView, db_service:DatabaseService):
@@ -10,6 +11,10 @@ class MainWindowCtrl:
         # Instantiate the ingredient editor controller
         self.ingredient_editor_ctrl = IngredientEditorCtrl(
             self.view.ingredient_editor_view, self.db_service
+        )
+        # Instantiate the ingredient search popup controller
+        self.ingredient_search_popup_ctrl = IngredientSearchPopupCtrl(
+            self.view.ingredient_search_view, self.db_service
         )
 
         # Connect the signals and slots

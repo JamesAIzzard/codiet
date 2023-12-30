@@ -39,6 +39,15 @@ class Repository:
             (name,),
         ).fetchone()[0]
 
+    def get_ingredient_names(self) -> list[str]:
+        """Returns a list of all the ingredient names in the database."""
+        rows = self.db.execute(
+            """
+            SELECT ingredient_name FROM ingredient_base;
+        """
+        ).fetchall()
+        return [row[0] for row in rows]
+
     def add_ingredient_name(self, name: str):
         self.db.execute(
             """

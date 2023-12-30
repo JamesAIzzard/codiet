@@ -13,8 +13,8 @@ class IngredientSearchPopupView(QDialog):
         self.setLayout(layout)
 
         # Create a search textbox and add it to the layout
-        self.search_textbox = QLineEdit()
-        layout.addWidget(self.search_textbox)
+        self.txt_search = QLineEdit()
+        layout.addWidget(self.txt_search)
 
         # Create a dropdown and add it to the layout
         self.lst_search_results = QListWidget()
@@ -25,6 +25,11 @@ class IngredientSearchPopupView(QDialog):
         # Add a button to the bottom saying open
         self.btn_select = QPushButton("Select")
         layout.addWidget(self.btn_select)
+
+    def update_ingredient_list(self, matching_ingredient_names: list[str]):
+        self.lst_search_results.clear()
+        for ingredient_name in matching_ingredient_names:
+            self.lst_search_results.addItem(ingredient_name)
 
     def show(self):
         self.exec()

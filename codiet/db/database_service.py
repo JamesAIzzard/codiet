@@ -1,9 +1,17 @@
+from fuzzywuzzy import process
+
 from codiet.models.ingredient import Ingredient
 from codiet.db.repository import Repository
 
 class DatabaseService:
     def __init__(self, repo: Repository):
         self.repo = repo
+
+    def load_matching_ingredient_names(self, name: str) -> list[str]:
+        """Returns a list of ingredient names that match the given name."""
+        all_names = self.repo.get_ingredient_names()
+        matches = process.extract(name, all_names, limit=10)
+        return [match[0] for match in matches]  # Return only the names, not the scores
 
     def save_ingredient(self, ingredient: Ingredient):
         with self.repo.db.connection:
