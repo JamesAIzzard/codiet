@@ -3,6 +3,7 @@ from PyQt6.QtGui import QAction, QIcon
 
 from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.views.recipe_editor_view import RecipeEditorView
+from codiet.views.meal_goal_editor_view import MealGoalEditorView
 
 class MainWindowView(QMainWindow):
     def __init__(self):
@@ -27,9 +28,11 @@ class MainWindowView(QMainWindow):
         # Create the pages for the stacked widget
         self.ingredient_editor_view = IngredientEditorView()
         self.recipe_editor_view = RecipeEditorView()
+        self.meal_goal_editor_view = MealGoalEditorView()
         # Add the pages to the stacked widget
         self.stacked_widget.addWidget(self.ingredient_editor_view)
-        self.stacked_widget.addWidget(self.recipe_editor_view)    
+        self.stacked_widget.addWidget(self.recipe_editor_view) 
+        self.stacked_widget.addWidget(self.meal_goal_editor_view)   
 
     def _build_menu_bar(self):
         # Create a menu bar
@@ -59,6 +62,9 @@ class MainWindowView(QMainWindow):
         # Create the Meal Goals menu
         meal_goals_menu = QMenu("Meal Goals", self)
         menu_bar.addMenu(meal_goals_menu)
+        # Create the 'New Meal Goal' action
+        self.new_meal_goal_action = QAction("New Meal Goal", self)
+        meal_goals_menu.addAction(self.new_meal_goal_action)
 
         # Create the Day Plans menu
         day_plans_menu = QMenu("Day Plans", self)
@@ -81,3 +87,6 @@ class MainWindowView(QMainWindow):
 
     def show_recipe_editor(self):
         self.stacked_widget.setCurrentIndex(1)
+
+    def show_meal_goal_editor(self):
+        self.stacked_widget.setCurrentIndex(2)
