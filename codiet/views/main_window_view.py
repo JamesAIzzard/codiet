@@ -4,6 +4,7 @@ from PyQt6.QtGui import QAction, QIcon
 from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.views.ingredient_search_popup_view import IngredientSearchPopupView
 from codiet.views.recipe_editor_view import RecipeEditorView
+from codiet.views.recipe_types_editor_view import RecipeTypesEditorView
 from codiet.views.meal_goal_editor_view import MealGoalEditorView
 
 class MainWindowView(QMainWindow):
@@ -29,10 +30,12 @@ class MainWindowView(QMainWindow):
         # Create the pages for the stacked widget
         self.ingredient_editor_view = IngredientEditorView()
         self.recipe_editor_view = RecipeEditorView()
+        self.recipe_types_editor_view = RecipeTypesEditorView()
         self.meal_goal_editor_view = MealGoalEditorView()
         # Add the pages to the stacked widget
         self.stacked_widget.addWidget(self.ingredient_editor_view)
-        self.stacked_widget.addWidget(self.recipe_editor_view) 
+        self.stacked_widget.addWidget(self.recipe_editor_view)
+        self.stacked_widget.addWidget(self.recipe_types_editor_view)
         self.stacked_widget.addWidget(self.meal_goal_editor_view)
         # Init the popup windows
         self.ingredient_search_view = IngredientSearchPopupView()
@@ -61,6 +64,9 @@ class MainWindowView(QMainWindow):
         # Create the "Edit Recipe" action
         self.edit_recipe_action = QAction("Edit Recipe", self)
         recipes_menu.addAction(self.edit_recipe_action)
+        # Create an "Edit Recipe Types" action
+        self.edit_recipe_types_action = QAction("Edit Recipe Types", self)
+        recipes_menu.addAction(self.edit_recipe_types_action)
 
         # Create the Meal Goals menu
         meal_goals_menu = QMenu("Meal Goals", self)
@@ -97,6 +103,10 @@ class MainWindowView(QMainWindow):
         """Switches the panel to the recipe editor."""
         self.stacked_widget.setCurrentIndex(1)
 
+    def show_recipe_types_editor(self):
+        """Switches the panel to the recipe types editor."""
+        self.stacked_widget.setCurrentIndex(2)
+
     def show_meal_goal_editor(self):
         """Switches the panel to the meal goal editor."""
-        self.stacked_widget.setCurrentIndex(2)
+        self.stacked_widget.setCurrentIndex(3)

@@ -7,9 +7,11 @@ from PyQt6.QtWidgets import (
     QListWidget,
     QLineEdit,
     QGroupBox,
-    QTextEdit
+    QTextEdit,
+    QListWidgetItem,
 )
 from PyQt6.QtGui import QFont
+from PyQt6.QtCore import Qt
 
 from codiet.views.ingredients_editor_view import IngredientsEditorView
 from codiet.views.serve_times_editor_view import ServeTimesEditorView
@@ -81,6 +83,24 @@ class RecipeEditorView(QWidget):
         # Add the serve times editor widget to the third col
         self.serve_times_editor = ServeTimesEditorView()
         column3_layout.addWidget(self.serve_times_editor)
+
+        # Create a group called 'Type' and add it to the third column
+        group_type = QGroupBox("Type")
+        column3_layout.addWidget(group_type)
+        group_type_layout = QVBoxLayout()
+        group_type.setLayout(group_type_layout)
+        group_type_layout.setContentsMargins(5, 5, 5, 5)
+        # Add a list of checkboxes to the group
+        self.list_type = QListWidget()
+        group_type_layout.addWidget(self.list_type)
+        # Populate some types to get started, although these will be pulled
+        # from the database in the future
+        meal_types = ["Breakfast", "Lunch", "Dinner", "Snack"]
+        for meal in meal_types:
+            item = QListWidgetItem(meal)
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            item.setCheckState(Qt.CheckState.Unchecked)
+            self.list_type.addItem(item)
 
         # At the bottom of the page, put a 'Save Recipe' button
         self.btn_save_recipe = QPushButton("Save Recipe")
