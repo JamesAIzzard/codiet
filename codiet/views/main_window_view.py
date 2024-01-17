@@ -6,6 +6,7 @@ from codiet.views.ingredient_search_popup_view import IngredientSearchPopupView
 from codiet.views.recipe_editor_view import RecipeEditorView
 from codiet.views.recipe_types_editor_view import RecipeTypesEditorView
 from codiet.views.meal_goal_editor_view import MealGoalEditorView
+from codiet.views.day_plan_editor_view import DayPlanEditorView
 
 class MainWindowView(QMainWindow):
     def __init__(self):
@@ -32,11 +33,13 @@ class MainWindowView(QMainWindow):
         self.recipe_editor_view = RecipeEditorView()
         self.recipe_types_editor_view = RecipeTypesEditorView()
         self.meal_goal_editor_view = MealGoalEditorView()
+        self.day_plan_editor_view = DayPlanEditorView()
         # Add the pages to the stacked widget
         self.stacked_widget.addWidget(self.ingredient_editor_view)
         self.stacked_widget.addWidget(self.recipe_editor_view)
         self.stacked_widget.addWidget(self.recipe_types_editor_view)
         self.stacked_widget.addWidget(self.meal_goal_editor_view)
+        self.stacked_widget.addWidget(self.day_plan_editor_view)
         # Init the popup windows
         self.ingredient_search_view = IngredientSearchPopupView()
 
