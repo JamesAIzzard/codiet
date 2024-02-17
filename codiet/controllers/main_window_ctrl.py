@@ -23,6 +23,7 @@ class MainWindowCtrl:
         self.view.new_recipe_action.triggered.connect(self.on_new_recipe_clicked)
         self.view.edit_recipe_types_action.triggered.connect(self.on_edit_recipe_types_clicked)
         self.view.new_meal_goal_action.triggered.connect(self.on_new_meal_goal_clicked)
+        self.view.new_day_plan_action.triggered.connect(self.on_new_day_plan_clicked)
 
     def on_new_ingredient_clicked(self):
         """Handle the user clicking the New Ingredient button."""
@@ -48,3 +49,8 @@ class MainWindowCtrl:
         """Handle the user clicking the New Meal Goal button."""
         self.view.show_meal_goal_editor()
         print("New Meal Goal clicked")
+
+    def on_new_day_plan_clicked(self):
+        """Handle the user clicking the New Day Plan button."""
+        self.view.show_day_plan_editor()
+        print("New Day Plan clicked")

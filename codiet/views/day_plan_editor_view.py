@@ -11,7 +11,7 @@ from PyQt6.QtWidgets import (
     QListWidgetItem,
 )
 
-from day_plan_meal_view import DayPlanMealView
+from codiet.views.day_plan_meal_view import DayPlanMealView
 
 class DayPlanEditorView(QWidget):
     def __init__(self):
@@ -60,11 +60,18 @@ class DayPlanEditorView(QWidget):
         lyt_top_level.addWidget(self.lst_meals)
         # Add a couple of meals to the listbox
         meal1 = DayPlanMealView()
-        meal1.txt_meal_name.setText("Meal 1")
-        meal2 = DayPlanMealView()
-        meal2.txt_meal_name.setText("Meal 2")
-        item1 = QListWidgetItem(self.lst_meals)
-        self.lst_meals.setItemWidget(item1, meal1)
-        item2 = QListWidgetItem(self.lst_meals)
-        self.lst_meals.setItemWidget(item2, meal2)
+        self.add_meal_view("Breakfast")
+        self.add_meal_view("Lunch")
+
+    def add_meal_view(self, meal_name: str):
+        meal = DayPlanMealView()
+        meal.txt_meal_name.setText(meal_name)
+        item = QListWidgetItem(self.lst_meals)
+        # Make sure the widget is large enough to show
+        # the custom contents
+        item.setSizeHint(meal.sizeHint())
+        # Add the item to the list
+        self.lst_meals.addItem(item)
+        # Set the widget for the item
+        self.lst_meals.setItemWidget(item, meal)
 

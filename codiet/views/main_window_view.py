@@ -81,6 +81,9 @@ class MainWindowView(QMainWindow):
         # Create the Day Plans menu
         day_plans_menu = QMenu("Day Plans", self)
         menu_bar.addMenu(day_plans_menu)
+        # Create the 'New Day Plan' action
+        self.new_day_plan_action = QAction("New Day Plan", self)
+        day_plans_menu.addAction(self.new_day_plan_action)
 
         # Create the Run menu
         run_menu = QMenu("Run", self)
@@ -113,3 +116,7 @@ class MainWindowView(QMainWindow):
     def show_meal_goal_editor(self):
         """Switches the panel to the meal goal editor."""
         self.stacked_widget.setCurrentIndex(3)
+
+    def show_day_plan_editor(self):
+        """Switches the panel to the day plan editor."""
+        self.stacked_widget.setCurrentIndex(4)
