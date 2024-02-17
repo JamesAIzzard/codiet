@@ -20,14 +20,23 @@ class DayPlanEditorView(QWidget):
         # Create a top level layout for the page
         lyt_top_level = QVBoxLayout()
         self.setLayout(lyt_top_level)
-        # Add a groupbox to contain day plan 'Basic Info'
+
+        # As the first row of the overall vertical layout
+        # create a horizontal layout.
+        lyt_first_row = QHBoxLayout()
+        # Add the first row to the top level layout
+        lyt_top_level.addLayout(lyt_first_row)
+
+        # The first column of this hz layout will contain the basic
+        # info groupbox.
         gb_basic_info = QGroupBox("Basic Info")
-        lyt_top_level.addWidget(gb_basic_info)
+        lyt_first_row.addWidget(gb_basic_info)
 
         # Add a vertical layout to the groupbox to contain basic info rows
         lyt_basic_info = QVBoxLayout()
         gb_basic_info.setLayout(lyt_basic_info)
         lyt_basic_info.setContentsMargins(5, 5, 5, 5)
+
         # Add a row containing the day plan name label and a textbox
         lyt_day_name = QHBoxLayout()
         lyt_basic_info.addLayout(lyt_day_name)
@@ -35,6 +44,7 @@ class DayPlanEditorView(QWidget):
         lyt_day_name.addWidget(lbl_name)
         self.txt_name = QLineEdit()
         lyt_day_name.addWidget(self.txt_name)
+
         # Add a row containing the max day cost
         lyt_max_day_cost = QHBoxLayout()
         lyt_basic_info.addLayout(lyt_max_day_cost)
@@ -43,16 +53,19 @@ class DayPlanEditorView(QWidget):
         self.txt_max_day_cost = QLineEdit()
         lyt_max_day_cost.addWidget(self.txt_max_day_cost)
 
-        # Add a horizontal layout to the groupbox to contain calorie summary
-        # and Add Meal button.
-        lyt_utils = QHBoxLayout()
-        lyt_basic_info.addLayout(lyt_utils)
-        # To the first column, add the total calories summary
+        # Add a row containing the calorie summary
+        lyt_calorie_summary = QHBoxLayout()
+        lyt_basic_info.addLayout(lyt_calorie_summary)
         lbl_calories = QLabel("Total Calories: ...")
-        lyt_utils.addWidget(lbl_calories)
+        lyt_calorie_summary.addWidget(lbl_calories)
+
         # To the second column, add the Add Meal button
         btn_add_meal = QPushButton("Add Meal")
-        lyt_utils.addWidget(btn_add_meal)
+        lyt_first_row.addWidget(btn_add_meal)
+
+        # Make the two columns in the first row take up equal space
+        lyt_first_row.setStretch(0, 1)
+        lyt_first_row.setStretch(1, 1)
 
         # Add a listbox to the page to contain the meals.
         # Each meal is a DayPlanMealView

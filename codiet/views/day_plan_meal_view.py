@@ -1,4 +1,3 @@
-
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -14,11 +13,11 @@ class DayPlanMealView(QWidget):
     def __init__(self):
         super().__init__()
 
-        # Create three vertical columns
+        # Create a top level layout
         lyt_top_level = QHBoxLayout()
         self.setLayout(lyt_top_level)
 
-        # Create the first column and add two rows
+        # Create the first row and add two rows
         lyt_first_col = QVBoxLayout()
         lyt_top_level.addLayout(lyt_first_col, 1)
         # In the first row, create a label and a textbox
