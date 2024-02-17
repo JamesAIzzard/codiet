@@ -75,21 +75,6 @@ class MealGoalEditorView(QWidget):
         self.textbox_meal_cost = QLineEdit()
         meal_cost_layout.addWidget(self.textbox_meal_cost)
 
-        # Add a row containing a label and a combo box for the meal class
-        meal_class_layout = QHBoxLayout()
-        basic_info_layout.addLayout(meal_class_layout)
-        label = QLabel("Meal Class: ")
-        meal_class_layout.addWidget(label)
-        self.dropdown_meal_class = QComboBox()
-        # Generate some dummy meal classes
-        self.dropdown_meal_class.addItem("Breakfast")
-        self.dropdown_meal_class.addItem("Lunch")
-        self.dropdown_meal_class.addItem("Dinner")
-        self.dropdown_meal_class.addItem("Snack")
-        self.dropdown_meal_class.addItem("Dessert")
-        self.dropdown_meal_class.addItem("Drink")
-        meal_class_layout.addWidget(self.dropdown_meal_class)
-
         # Create a second column
         column2_layout = QVBoxLayout()
         columns_layout.addLayout(column2_layout)
