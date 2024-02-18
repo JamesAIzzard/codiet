@@ -4,11 +4,9 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QPushButton,
-    QListWidget,
     QLineEdit,
     QGroupBox,
     QTextEdit,
-    QComboBox
 )
 from PyQt6.QtGui import QFont
 
@@ -24,7 +22,7 @@ class MealGoalEditorView(QWidget):
         self.setLayout(page_layout)
 
         # Create a label and add it to the layout
-        label = QLabel("Meal Editor")
+        label = QLabel("Meal Goal Editor")
         font = QFont()
         font.setBold(True)
         label.setFont(font)
@@ -48,7 +46,7 @@ class MealGoalEditorView(QWidget):
         # Add a row containing the meal name and textbox
         meal_name_layout = QHBoxLayout()
         basic_info_layout.addLayout(meal_name_layout)
-        label = QLabel("Name: ")
+        label = QLabel("Meal Type: ")
         meal_name_layout.addWidget(label)
         self.textbox_meal_name = QLineEdit()
         meal_name_layout.addWidget(self.textbox_meal_name)
@@ -58,22 +56,6 @@ class MealGoalEditorView(QWidget):
         basic_info_layout.addWidget(label)
         self.textbox_meal_description = QTextEdit()
         basic_info_layout.addWidget(self.textbox_meal_description)
-
-        # Add a row containing the meal time and textbox
-        meal_time_layout = QHBoxLayout()
-        basic_info_layout.addLayout(meal_time_layout)
-        label = QLabel("Meal Time: ")
-        meal_time_layout.addWidget(label)
-        self.textbox_meal_time = QLineEdit()
-        meal_time_layout.addWidget(self.textbox_meal_time)
-
-        # Add a row containing the meal target cost
-        meal_cost_layout = QHBoxLayout()
-        basic_info_layout.addLayout(meal_cost_layout)
-        label = QLabel("Max Cost: £")
-        meal_cost_layout.addWidget(label)
-        self.textbox_meal_cost = QLineEdit()
-        meal_cost_layout.addWidget(self.textbox_meal_cost)
 
         # Create a second column
         column2_layout = QVBoxLayout()

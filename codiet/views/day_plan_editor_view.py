@@ -59,6 +59,12 @@ class DayPlanEditorView(QWidget):
         lbl_calories = QLabel("Total Calories: ...")
         lyt_calorie_summary.addWidget(lbl_calories)
 
+        # Add a row containing the cost summary
+        lyt_cost_summary = QHBoxLayout()
+        lyt_basic_info.addLayout(lyt_cost_summary)
+        lbl_cost = QLabel("Total Cost: £...")
+        lyt_cost_summary.addWidget(lbl_cost)
+
         # To the second column, add the Add Meal button
         btn_add_meal = QPushButton("Add Meal")
         lyt_first_row.addWidget(btn_add_meal)

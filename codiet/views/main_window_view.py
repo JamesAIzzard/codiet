@@ -57,6 +57,9 @@ class MainWindowView(QMainWindow):
         # Create the "Edit Ingredient" action
         self.edit_ingredient_action = QAction("Edit Ingredient", self)
         ingredients_menu.addAction(self.edit_ingredient_action)
+        # Create a "Delete Ingredient" action
+        self.delete_ingredient_action = QAction("Delete Ingredient", self)
+        ingredients_menu.addAction(self.delete_ingredient_action)
 
         # Create the Recipes menu
         recipes_menu = QMenu("Recipes", self)
@@ -70,6 +73,9 @@ class MainWindowView(QMainWindow):
         # Create an "Edit Recipe Types" action
         self.edit_recipe_types_action = QAction("Edit Recipe Types", self)
         recipes_menu.addAction(self.edit_recipe_types_action)
+        # Create a "Delete Recipe" action
+        self.delete_recipe_action = QAction("Delete Recipe", self)
+        recipes_menu.addAction(self.delete_recipe_action)
 
         # Create the Meal Goals menu
         meal_goals_menu = QMenu("Meal Goals", self)
@@ -77,6 +83,12 @@ class MainWindowView(QMainWindow):
         # Create the 'New Meal Goal' action
         self.new_meal_goal_action = QAction("New Meal Goal", self)
         meal_goals_menu.addAction(self.new_meal_goal_action)
+        # Create the 'Edit Meal Goal' action
+        self.edit_meal_goal_action = QAction("Edit Meal Goal", self)
+        meal_goals_menu.addAction(self.edit_meal_goal_action)
+        # Create the 'Delete Meal Goal' action
+        self.delete_meal_goal_action = QAction("Delete Meal Goal", self)
+        meal_goals_menu.addAction(self.delete_meal_goal_action)
 
         # Create the Day Plans menu
         day_plans_menu = QMenu("Day Plans", self)
@@ -84,10 +96,26 @@ class MainWindowView(QMainWindow):
         # Create the 'New Day Plan' action
         self.new_day_plan_action = QAction("New Day Plan", self)
         day_plans_menu.addAction(self.new_day_plan_action)
+        # Create the 'Edit Day Plan' action
+        self.edit_day_plan_action = QAction("Edit Day Plan", self)
+        day_plans_menu.addAction(self.edit_day_plan_action)
+        # Create the 'Delete Day Plan' action
+        self.delete_day_plan_action = QAction("Delete Day Plan", self)
+        day_plans_menu.addAction(self.delete_day_plan_action)
 
         # Create the Run menu
         run_menu = QMenu("Run", self)
         menu_bar.addMenu(run_menu)
+        # Add a "Solve Day Plan" action
+        self.solve_day_plan_action = QAction("Solve Day Plan", self)
+        run_menu.addAction(self.solve_day_plan_action)
+
+        # Create a "Results" menu
+        results_menu = QMenu("Results", self)
+        menu_bar.addMenu(results_menu)
+        # Add a "View Result" action
+        self.view_result_action = QAction("View Result", self)
+        results_menu.addAction(self.view_result_action)
 
         # Create the Preferences menu
         preferences_menu = QMenu("Preferences", self)
