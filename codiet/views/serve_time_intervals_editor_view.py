@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
     QListWidget,
 )
 
-class ServeTimesEditorView(QWidget):
+class ServeTimeIntervalsEditorView(QWidget):
     def __init__(self):
         super().__init__()
 
@@ -18,7 +18,7 @@ class ServeTimesEditorView(QWidget):
         lyt_top_level.setContentsMargins(0, 0, 0, 0)
 
         # Create a groupbox inside this layout
-        grp_serve_times = QGroupBox("Serve Times")
+        grp_serve_times = QGroupBox("Serve Time Intervals")
         lyt_top_level.addWidget(grp_serve_times)
 
         # Create a vertical layout inside the groupbox

@@ -14,7 +14,7 @@ from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 
 from codiet.views.ingredients_editor_view import IngredientsEditorView
-from codiet.views.serve_times_editor_view import ServeTimesEditorView
+from codiet.views.serve_time_intervals_editor_view import ServeTimeIntervalsEditorView
 
 class RecipeEditorView(QWidget):
     def __init__(self):
@@ -81,7 +81,7 @@ class RecipeEditorView(QWidget):
         columns_layout.addLayout(column3_layout, 1)
 
         # Add the serve times editor widget to the third col
-        self.serve_times_editor = ServeTimesEditorView()
+        self.serve_times_editor = ServeTimeIntervalsEditorView()
         column3_layout.addWidget(self.serve_times_editor)
 
         # Create a group called 'Type' and add it to the third column

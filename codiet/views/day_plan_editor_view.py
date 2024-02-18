@@ -8,8 +8,9 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QGroupBox,
     QTextEdit,
-    QListWidgetItem,
+    QListWidgetItem
 )
+from PyQt6.QtGui import QFont
 
 from codiet.views.day_plan_meal_view import DayPlanMealView
 
@@ -20,6 +21,13 @@ class DayPlanEditorView(QWidget):
         # Create a top level layout for the page
         lyt_top_level = QVBoxLayout()
         self.setLayout(lyt_top_level)
+
+        # Create a label and add it to the layout
+        label = QLabel("Day Plan Editor")
+        font = QFont()
+        font.setBold(True)
+        label.setFont(font)
+        lyt_top_level.addWidget(label)
 
         # As the first row of the overall vertical layout
         # create a horizontal layout.

@@ -5,7 +5,8 @@ from PyQt6.QtWidgets import (
     QLabel,
     QLineEdit,
     QComboBox,
-    QPushButton
+    QPushButton,
+    QSizePolicy
 )
 from PyQt6.QtCore import Qt
 
@@ -81,7 +82,9 @@ class IngredientQuantityEditorView(QWidget):
         lower_tol_layout.addWidget(label)
 
         # After the tolerance layout, and a remove button
-        self.remove_button = QPushButton("X")
+        self.btn_remove = QPushButton("X")
         # Set the max width of the remove button
-        self.remove_button.setMaximumWidth(20)
-        layout.addWidget(self.remove_button)
+        self.btn_remove.setMaximumWidth(20)
+        layout.addWidget(self.btn_remove)
+        # Set the button to expand the full height of the col
+        self.btn_remove.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
