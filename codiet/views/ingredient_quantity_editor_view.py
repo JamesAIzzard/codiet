@@ -80,11 +80,3 @@ class IngredientQuantityEditorView(QWidget):
         # Add a label for '%'
         label = QLabel("%")
         lower_tol_layout.addWidget(label)
-
-        # After the tolerance layout, and a remove button
-        self.btn_remove = QPushButton("X")
-        # Set the max width of the remove button
-        self.btn_remove.setMaximumWidth(20)
-        layout.addWidget(self.btn_remove)
-        # Set the button to expand the full height of the col
-        self.btn_remove.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)

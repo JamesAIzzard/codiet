@@ -81,8 +81,8 @@ class RecipeEditorView(QWidget):
         columns_layout.addLayout(column3_layout, 1)
 
         # Add the serve times editor widget to the third col
-        self.serve_times_editor = ServeTimeIntervalsEditorView()
-        column3_layout.addWidget(self.serve_times_editor)
+        self.serve_time_intervals_editor_view = ServeTimeIntervalsEditorView()
+        column3_layout.addWidget(self.serve_time_intervals_editor_view)
 
         # Create a group called 'Type' and add it to the third column
         group_type = QGroupBox("Type")
