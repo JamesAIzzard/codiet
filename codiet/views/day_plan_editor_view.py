@@ -45,14 +45,6 @@ class DayPlanEditorView(QWidget):
         self.txt_name = QLineEdit()
         lyt_day_name.addWidget(self.txt_name)
 
-        # Add a row containing the max day cost
-        lyt_max_day_cost = QHBoxLayout()
-        lyt_basic_info.addLayout(lyt_max_day_cost)
-        lbl_max_day_cost = QLabel("Max Day Cost: £")
-        lyt_max_day_cost.addWidget(lbl_max_day_cost)
-        self.txt_max_day_cost = QLineEdit()
-        lyt_max_day_cost.addWidget(self.txt_max_day_cost)
-
         # Add a row containing the calorie summary
         lyt_calorie_summary = QHBoxLayout()
         lyt_basic_info.addLayout(lyt_calorie_summary)
@@ -81,6 +73,12 @@ class DayPlanEditorView(QWidget):
         meal1 = DayPlanMealView()
         self.add_meal_view("Breakfast")
         self.add_meal_view("Lunch")
+
+        # Add a save day button to the bottom of the page
+        btn_save_day_plan = QPushButton("Save Day Plan")
+        lyt_top_level.addWidget(btn_save_day_plan)
+        # Make text width set the width of the button
+        btn_save_day_plan.setMaximumWidth(150)
 
     def add_meal_view(self, meal_name: str):
         meal = DayPlanMealView()

@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QGroupBox
 
-class IngredientGIEditorView(QWidget):
+class GIEditorView(QWidget):
     def __init__(self):
         super().__init__()
 

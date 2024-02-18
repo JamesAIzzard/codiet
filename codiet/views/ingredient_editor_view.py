@@ -9,8 +9,8 @@ from PyQt6.QtGui import QFont
 
 from codiet.views.ingredient_basic_info_editor_view import IngredientBasicInfoEditorView
 from codiet.views.ingredient_bulk_properties_editor_view import IngredientBulkPropertiesEditorView
-from codiet.views.ingredient_flag_editor_view import IngredientFlagEditorView
-from codiet.views.ingredient_gi_editor_view import IngredientGIEditorView
+from codiet.views.flag_editor_view import FlagEditorView
+from codiet.views.gi_editor_view import GIEditorView
 from codiet.views.ingredient_nutrients_editor_view import IngredientNutrientsEditorView
 
 
@@ -45,11 +45,11 @@ class IngredientEditorView(QWidget):
         column1_layout.addWidget(self.ingredient_bulk_properties_editor_view)
 
         # Add the flags widget to the column1 layout
-        self.flag_editor_view = IngredientFlagEditorView()
+        self.flag_editor_view = FlagEditorView()
         column1_layout.addWidget(self.flag_editor_view)
 
         # Add the GI widget to the column1 layout
-        self.ingredient_gi_editor_view = IngredientGIEditorView()
+        self.ingredient_gi_editor_view = GIEditorView()
         column1_layout.addWidget(self.ingredient_gi_editor_view)
 
         # Add stretch to end of layout

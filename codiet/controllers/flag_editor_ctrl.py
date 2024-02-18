@@ -1,11 +1,11 @@
 from PyQt6.QtCore import Qt
 
 from codiet.db.database_service import DatabaseService
-from codiet.views.ingredient_flag_editor_view import IngredientFlagEditorView
+from codiet.views.flag_editor_view import FlagEditorView
 
 
-class IngredientFlagEditorCtrl:
-    def __init__(self, view: IngredientFlagEditorView, db_service: DatabaseService):
+class FlagEditorCtrl:
+    def __init__(self, view: FlagEditorView, db_service: DatabaseService):
         self.view = view
         self.db_service = db_service
 

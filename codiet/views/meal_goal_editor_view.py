@@ -11,6 +11,8 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QFont
 
 from codiet.views.nutrient_targets_editor_view import NutrientTargetsEditorView
+from codiet.views.flag_editor_view import FlagEditorView
+from codiet.views.gi_editor_view import GIEditorView
 
 class MealGoalEditorView(QWidget):
     """The UI element to allow the user to edit a meal goal."""
@@ -56,6 +58,14 @@ class MealGoalEditorView(QWidget):
         basic_info_layout.addWidget(label)
         self.textbox_meal_description = QTextEdit()
         basic_info_layout.addWidget(self.textbox_meal_description)
+
+        # Add a flag editor view
+        self.flag_editor_view = FlagEditorView()
+        column1_layout.addWidget(self.flag_editor_view)
+
+        # Add a GI editor view
+        self.gi_editor_view = GIEditorView()
+        column1_layout.addWidget(self.gi_editor_view)
 
         # Create a second column
         column2_layout = QVBoxLayout()

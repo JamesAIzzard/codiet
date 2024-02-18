@@ -10,7 +10,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt
 
 
-class IngredientFlagEditorView(QWidget):
+class FlagEditorView(QWidget):
     def __init__(self):
         super().__init__()
 
@@ -31,6 +31,9 @@ class IngredientFlagEditorView(QWidget):
 
         # Add a listbox of checkable items to the LHS column
         self.listWidget = QListWidget()
+
+        # Reduce padding at the top of the group box
+        columns_layout.setContentsMargins(5, 5, 5, 5)
         columns_layout.addWidget(self.listWidget, 1)
 
         # Create a vertical list of buttons in the RHS column
