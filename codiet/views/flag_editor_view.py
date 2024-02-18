@@ -53,6 +53,8 @@ class FlagEditorView(QWidget):
         # Add a 'Clear Selection' button
         self.btn_clear_selection = QPushButton("Clear Selection")
         buttons_layout.addWidget(self.btn_clear_selection)
+        # Push the buttons to the top
+        buttons_layout.addStretch()
 
         # Create a dict of the flag ui elements
         self.flags = {}

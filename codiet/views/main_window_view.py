@@ -7,6 +7,7 @@ from codiet.views.recipe_editor_view import RecipeEditorView
 from codiet.views.recipe_types_editor_view import RecipeTypesEditorView
 from codiet.views.meal_goal_editor_view import MealGoalEditorView
 from codiet.views.day_plan_editor_view import DayPlanEditorView
+from codiet.views.meal_goal_defaults_editor_view import MealGoalDefaultsEditorView
 
 class MainWindowView(QMainWindow):
     def __init__(self):
@@ -34,12 +35,14 @@ class MainWindowView(QMainWindow):
         self.recipe_types_editor_view = RecipeTypesEditorView()
         self.meal_goal_editor_view = MealGoalEditorView()
         self.day_plan_editor_view = DayPlanEditorView()
+        self.meal_goal_defaults_editor_view = MealGoalDefaultsEditorView()
         # Add the pages to the stacked widget
         self.stacked_widget.addWidget(self.ingredient_editor_view)
         self.stacked_widget.addWidget(self.recipe_editor_view)
         self.stacked_widget.addWidget(self.recipe_types_editor_view)
         self.stacked_widget.addWidget(self.meal_goal_editor_view)
         self.stacked_widget.addWidget(self.day_plan_editor_view)
+        self.stacked_widget.addWidget(self.meal_goal_defaults_editor_view)
         # Init the popup windows
         self.ingredient_search_view = IngredientSearchPopupView()
 
@@ -120,6 +123,9 @@ class MainWindowView(QMainWindow):
         # Create the Preferences menu
         preferences_menu = QMenu("Preferences", self)
         menu_bar.addMenu(preferences_menu)
+        # Add a set meal goal defaults action
+        self.edit_meal_goal_defaults_action = QAction("Edit Meal Goal Defaults", self)
+        preferences_menu.addAction(self.edit_meal_goal_defaults_action)
 
         # Create the Help menu
         help_menu = QMenu("Help", self)
@@ -148,3 +154,7 @@ class MainWindowView(QMainWindow):
     def show_day_plan_editor(self):
         """Switches the panel to the day plan editor."""
         self.stacked_widget.setCurrentIndex(4)
+
+    def show_meal_goal_defaults_editor(self):
+        """Opens the meal goal defaults editor."""
+        self.stacked_widget.setCurrentIndex(5)
