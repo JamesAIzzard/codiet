@@ -21,9 +21,10 @@ class IngredientQuantityEditorView(QWidget):
 
         # Create a label and add it to the layout
         label = QLabel(ingredient_name)
-        # Set the width
-        label.setMinimumWidth(120)
         layout.addWidget(label)
+
+        # Add a stretch
+        layout.addStretch(1)
 
         # Create a textbox for the ingredient quantity
         self.txtIngredientQuantity = QLineEdit()
