@@ -4,17 +4,15 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QPushButton,
-    QListWidget,
     QLineEdit,
     QGroupBox,
     QTextEdit,
-    QListWidgetItem,
 )
 from PyQt6.QtGui import QFont
-from PyQt6.QtCore import Qt
 
 from codiet.views.ingredients_editor_view import IngredientsEditorView
 from codiet.views.serve_time_intervals_editor_view import ServeTimeIntervalsEditorView
+from codiet.views.recipe_type_selector_view import RecipeTypeSelectorView
 
 class RecipeEditorView(QWidget):
     def __init__(self):
@@ -69,38 +67,24 @@ class RecipeEditorView(QWidget):
         basic_info_layout.addWidget(self.textbox_recipe_instructions)
 
         # Create the second column
-        column2_layout = QVBoxLayout()
-        columns_layout.addLayout(column2_layout, 2)
+        lyt_col_2 = QVBoxLayout()
+        columns_layout.addLayout(lyt_col_2, 2)
 
         # Add the ingredients editor widget to the second col
         self.ingredients_editor = IngredientsEditorView()
-        column2_layout.addWidget(self.ingredients_editor)
+        lyt_col_2.addWidget(self.ingredients_editor)
 
         # Create the third column
-        column3_layout = QVBoxLayout()
-        columns_layout.addLayout(column3_layout, 1)
+        lyt_col_3 = QVBoxLayout()
+        columns_layout.addLayout(lyt_col_3, 1)
 
         # Add the serve times editor widget to the third col
         self.serve_time_intervals_editor_view = ServeTimeIntervalsEditorView()
-        column3_layout.addWidget(self.serve_time_intervals_editor_view)
+        lyt_col_3.addWidget(self.serve_time_intervals_editor_view)
 
-        # Create a group called 'Type' and add it to the third column
-        group_type = QGroupBox("Type")
-        column3_layout.addWidget(group_type)
-        group_type_layout = QVBoxLayout()
-        group_type.setLayout(group_type_layout)
-        group_type_layout.setContentsMargins(5, 5, 5, 5)
-        # Add a list of checkboxes to the group
-        self.list_type = QListWidget()
-        group_type_layout.addWidget(self.list_type)
-        # Populate some types to get started, although these will be pulled
-        # from the database in the future
-        meal_types = ["Breakfast", "Lunch", "Dinner", "Snack"]
-        for meal in meal_types:
-            item = QListWidgetItem(meal)
-            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
-            item.setCheckState(Qt.CheckState.Unchecked)
-            self.list_type.addItem(item)
+        # Add the recipe type selector widget to the third col
+        self.recipe_type_selector_view = RecipeTypeSelectorView()
+        lyt_col_3.addWidget(self.recipe_type_selector_view)
 
         # At the bottom of the page, put a 'Save Recipe' button
         self.btn_save_recipe = QPushButton("Save Recipe")

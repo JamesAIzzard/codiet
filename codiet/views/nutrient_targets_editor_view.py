@@ -14,26 +14,28 @@ class NutrientTargetsEditorView(QWidget):
         super().__init__()
 
         # Create vertical layout as the top level
-        layout = QVBoxLayout()
-        self.setLayout(layout)
+        lyt_top_level = QVBoxLayout()
+        self.setLayout(lyt_top_level)
         # Reduce the vertical padding in this layout
-        layout.setContentsMargins(0, 0, 0, 0)
+        lyt_top_level.setContentsMargins(0, 0, 0, 0)
 
         # Put a group inside this layout
         group_box = QGroupBox("Nutrient Targets")
-        layout.addWidget(group_box)
+        lyt_top_level.addWidget(group_box)
 
         # Put a vertical layout inside the group box
-        rows_layout = QVBoxLayout()
-        group_box.setLayout(rows_layout)
+        lyt_rows = QVBoxLayout()
+        group_box.setLayout(lyt_rows)
+        # Remove margins
+        lyt_rows.setContentsMargins(5, 5, 5, 5)
 
         # Create an 'Add Target' button
         self.add_nutrient_button = QPushButton("Add Nutrient Target")
-        rows_layout.addWidget(self.add_nutrient_button)
+        lyt_rows.addWidget(self.add_nutrient_button)
 
         # Create a listbox for the nutrient rows
         self.listWidget = QListWidget()
-        rows_layout.addWidget(self.listWidget)
+        lyt_rows.addWidget(self.listWidget)
 
         # Add some dummy nutrients
         self.add_target_nutrient("Protein")
