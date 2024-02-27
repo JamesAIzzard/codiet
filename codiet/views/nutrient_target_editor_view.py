@@ -19,15 +19,19 @@ class NutrientTargetEditorView(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         # Create a label and add it to the layout
-        label = QLabel(nutrient_name + ":")
-        # Pad the label to 20 chars
-        label.setMinimumWidth(100)    
+        label = QLabel(nutrient_name + ":")  
         layout.addWidget(label)
+
+        # Add stretch to the layout to push the textbox to the right
+        layout.addStretch(1)
+
         # Create a textbox for nutrient mass
         self.txtNutrientMass = QLineEdit()
+
         # Limit the textbox to 10 chars
         self.txtNutrientMass.setMaximumWidth(60)
         layout.addWidget(self.txtNutrientMass)
+        
         # Create a dropdown for mass units
         self.cmbMassUnits = QComboBox()
         # Add some mass units to the dropdown
@@ -35,15 +39,6 @@ class NutrientTargetEditorView(QWidget):
         # TODO - pull mass units from config
         self.cmbMassUnits.addItems(["g", "mg", "µg"])
         layout.addWidget(self.cmbMassUnits)
-
-        # Add a stretch to push everything to the LHS
-        layout.addStretch()
-
-        # Add a button to remove the row
-        self.remove_button = QPushButton("X")
-        # Set the max width of the remove button
-        self.remove_button.setMaximumWidth(20)
-        layout.addWidget(self.remove_button)
 
         # Add a little space at either end of the widget
         layout.setContentsMargins(5, 0, 5, 0)

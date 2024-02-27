@@ -40,7 +40,7 @@ class MealGoalEditorView(QWidget):
         lyt_basic_info = QVBoxLayout()
         lyt_columns.addLayout(lyt_basic_info)
         # Set the width ratio of the first column
-        lyt_columns.setStretch(0, 2)
+        lyt_columns.setStretch(0, 3)
 
         # Create the Basic Info groupbox
         basic_info_group = QGroupBox("Basic Info")
