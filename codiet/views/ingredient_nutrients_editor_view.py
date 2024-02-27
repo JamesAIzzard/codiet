@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
+    QHBoxLayout,
     QGroupBox,
     QPushButton,
     QListWidget,
@@ -27,9 +28,15 @@ class IngredientNutrientsEditorView(QWidget):
         rows_layout = QVBoxLayout()
         group_box.setLayout(rows_layout)
 
-        # Create an 'Add Nutrient' button
-        self.add_nutrient_button = QPushButton("Add Nutrient")
-        rows_layout.addWidget(self.add_nutrient_button)
+        # Add an HBox layout for buttons
+        lyt_buttons = QHBoxLayout()
+        rows_layout.addLayout(lyt_buttons)
+
+        # Add the add/remove buttons
+        self.add_nutrient_button = QPushButton("Add")
+        lyt_buttons.addWidget(self.add_nutrient_button)
+        self.remove_nutrient_button = QPushButton("Remove")
+        lyt_buttons.addWidget(self.remove_nutrient_button)
 
         # Create a listbox for the nutrient rows
         self.listWidget = QListWidget()

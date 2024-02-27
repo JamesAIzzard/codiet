@@ -57,12 +57,12 @@ class IngredientEditorView(QWidget):
 
 
         # Create the second column.
-        column2_layout = QVBoxLayout()
-        columns_layout.addLayout(column2_layout, 1)
+        lyt_col_2 = QVBoxLayout()
+        columns_layout.addLayout(lyt_col_2, 1)
 
         # Create a nutrient editor widget and add it to the column2 layout
         self.nutrient_editor_view = IngredientNutrientsEditorView()
-        column2_layout.addWidget(self.nutrient_editor_view)
+        lyt_col_2.addWidget(self.nutrient_editor_view)
 
         # Add a save ingredient button to the bottom of the page
         self.save_ingredient_button = QPushButton("Save Ingredient")

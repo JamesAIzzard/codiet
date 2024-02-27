@@ -19,15 +19,18 @@ class IngredientNutrientEditorView(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         # Create a label and add it to the layout
-        label = QLabel(nutrient_name + ":")
-        # Pad the label to 20 chars
-        label.setMinimumWidth(100)    
+        label = QLabel(nutrient_name + ":") 
         layout.addWidget(label)
+
+        # Add a stretch
+        layout.addStretch(1)
+
         # Create a textbox for nutrient mass
         self.txtNutrientMass = QLineEdit()
         # Limit the textbox to 10 chars
         self.txtNutrientMass.setMaximumWidth(60)
         layout.addWidget(self.txtNutrientMass)
+
         # Create a dropdown for mass units
         self.cmbMassUnits = QComboBox()
         # Add some mass units to the dropdown
@@ -35,14 +38,17 @@ class IngredientNutrientEditorView(QWidget):
         # TODO - pull mass units from config
         self.cmbMassUnits.addItems(["g", "mg", "µg"])
         layout.addWidget(self.cmbMassUnits)
+
         # Create a label
         label = QLabel(" per ")
         layout.addWidget(label)
+
         # Create a textbox for ignredient mass
         self.txtIngredientMass = QLineEdit()
         # Set the max width of the textbox
         self.txtIngredientMass.setMaximumWidth(60)
         layout.addWidget(self.txtIngredientMass)
+        
         # Create a dropdown for mass units
         self.cmbIngredientMassUnits = QComboBox()
         # Add some mass units to the dropdown
@@ -50,15 +56,6 @@ class IngredientNutrientEditorView(QWidget):
         # TODO - pull mass units from config
         self.cmbIngredientMassUnits.addItems(["g", "kg"])
         layout.addWidget(self.cmbIngredientMassUnits)
-
-        # Add a stretch to push everything to the LHS
-        layout.addStretch()
-
-        # Add a button to remove the row
-        self.remove_button = QPushButton("X")
-        # Set the max width of the remove button
-        self.remove_button.setMaximumWidth(20)
-        layout.addWidget(self.remove_button)
 
         # Add a little space at either end of the widget
         layout.setContentsMargins(5, 0, 5, 0)
