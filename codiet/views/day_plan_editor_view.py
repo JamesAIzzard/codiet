@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QGroupBox,
     QTextEdit,
-    QListWidgetItem
+    QListWidgetItem,
 )
 from PyQt6.QtGui import QFont
 
@@ -90,7 +90,7 @@ class DayPlanEditorView(QWidget):
 
     def add_meal_view(self, meal_name: str):
         meal = DayPlanMealView()
-        meal.txt_meal_name.setText(meal_name)
+        # meal.txt_meal_name.setText(meal_name)
         item = QListWidgetItem(self.lst_meals)
         # Make sure the widget is large enough to show
         # the custom contents
