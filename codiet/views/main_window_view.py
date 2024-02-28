@@ -81,16 +81,16 @@ class MainWindowView(QMainWindow):
         recipes_menu.addAction(self.delete_recipe_action)
 
         # Create the Meal Goals menu
-        meal_goals_menu = QMenu("Meal Goals", self)
+        meal_goals_menu = QMenu("Meals", self)
         menu_bar.addMenu(meal_goals_menu)
         # Create the 'New Meal Goal' action
-        self.new_meal_goal_action = QAction("New Meal Goal", self)
+        self.new_meal_goal_action = QAction("New Meal Type", self)
         meal_goals_menu.addAction(self.new_meal_goal_action)
         # Create the 'Edit Meal Goal' action
-        self.edit_meal_goal_action = QAction("Edit Meal Goal", self)
+        self.edit_meal_goal_action = QAction("Edit Meal Type", self)
         meal_goals_menu.addAction(self.edit_meal_goal_action)
         # Create the 'Delete Meal Goal' action
-        self.delete_meal_goal_action = QAction("Delete Meal Goal", self)
+        self.delete_meal_goal_action = QAction("Delete Meal Type", self)
         meal_goals_menu.addAction(self.delete_meal_goal_action)
 
         # Create the Day Plans menu
