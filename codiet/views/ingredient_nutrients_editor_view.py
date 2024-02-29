@@ -3,9 +3,12 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QGroupBox,
-    QPushButton,
+    QLabel,
     QListWidget,
     QListWidgetItem,
+    QCheckBox,
+    QLineEdit,
+    QPushButton
 )
 
 from codiet.views.ingredient_nutrient_editor_view import IngredientNutrientEditorView
@@ -25,22 +28,37 @@ class IngredientNutrientsEditorView(QWidget):
         layout.addWidget(group_box)
 
         # Put a vertical layout inside the group box
-        rows_layout = QVBoxLayout()
-        group_box.setLayout(rows_layout)
+        lyt_top_level = QVBoxLayout()
+        group_box.setLayout(lyt_top_level)
 
-        # Add an HBox layout for buttons
-        lyt_buttons = QHBoxLayout()
-        rows_layout.addLayout(lyt_buttons)
+        # Add an HBox layout for 'Hide Complete' control
+        lyt_hide_complete = QHBoxLayout()
+        lyt_top_level.addLayout(lyt_hide_complete)
 
-        # Add the add/remove buttons
-        self.add_nutrient_button = QPushButton("Add")
-        lyt_buttons.addWidget(self.add_nutrient_button)
-        self.remove_nutrient_button = QPushButton("Remove")
-        lyt_buttons.addWidget(self.remove_nutrient_button)
+        # Add a checkbox to 'Hide Completed'
+        self.chk_hide_completed = QCheckBox("Hide Completed")
+        lyt_hide_complete.addWidget(self.chk_hide_completed)
+        # Add the label
+        self.lbl_hide_completed = QLabel("Hide Completed")
+
+        # Add an HBox layout for the filter controls
+        lyt_filter = QHBoxLayout()
+        lyt_top_level.addLayout(lyt_filter)
+        # Add the label
+        self.lbl_filter = QLabel("Filter: ")
+        lyt_filter.addWidget(self.lbl_filter)
+        # Add the filter input
+        self.txt_filter = QLineEdit()
+        lyt_filter.addWidget(self.txt_filter)
+        # Add the clear button
+        self.btn_clear_filter = QPushButton("X")
+        # Set width
+        self.btn_clear_filter.setMaximumWidth(20)
+        lyt_filter.addWidget(self.btn_clear_filter)
 
         # Create a listbox for the nutrient rows
         self.listWidget = QListWidget()
-        rows_layout.addWidget(self.listWidget)
+        lyt_top_level.addWidget(self.listWidget)
 
     def add_nutrient(self, nutrient_name: str):
         # Add a new row to the list
