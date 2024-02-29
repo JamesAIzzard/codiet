@@ -94,21 +94,21 @@ class Repository:
             ),
         )
 
-    def add_nutrient(self, name: str, mandatory: bool, parent_id: Optional[int]) -> int:
+    def add_nutrient(self, name: str, parent_id: Optional[int]) -> int:
         """Adds a nutrient to the database and returns the ID."""
         cursor = self.db.execute(
             """
-            INSERT INTO nutrient_list (nutrient_name, mandatory, parent_id) VALUES (?, ?, ?);
+            INSERT INTO nutrient_list (nutrient_name, parent_id) VALUES (?, ?);
             """,
-            (name, mandatory, parent_id),
+            (name, parent_id),
         )
         return cursor.lastrowid
-
-    def get_mandatory_nutrient_names(self) -> list[str]:
-        """Returns a list of all the mandatory nutrient names in the database."""
-        rows = self.db.execute(
+    
+    def add_nutrient_alias(self, alias: str, primary_nutrient_id: int) -> None:
+        """Adds a nutrient alias to the database."""
+        self.db.execute(
             """
-            SELECT nutrient_name FROM nutrient_list WHERE mandatory = TRUE;
-        """
-        ).fetchall()
-        return [row[0] for row in rows]
+            INSERT INTO nutrient_alias (nutrient_alias, primary_nutrient_id) VALUES (?, ?);
+        """,
+            (alias, primary_nutrient_id),
+        )

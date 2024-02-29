@@ -1,4 +1,22 @@
 def _create_schema(cursor):
+    # Create the nutrient tables
+    # Build the primary list of nutrients
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS nutrient_list (
+            nutrient_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nutrient_name TEXT NOT NULL UNIQUE,
+            parent_id INTEGER
+        )
+    """)
+    # Build the list of nutrient aliases
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS nutrient_alias (
+            nutrient_alias TEXT NOT NULL UNIQUE,
+            primary_nutrient_id INTEGER NOT NULL,
+            FOREIGN KEY (primary_nutrient_id) REFERENCES nutrient_list(nutrient_id)
+        )
+    """)
+
     # Create the ingredient tables.
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS ingredient_base (
@@ -42,14 +60,6 @@ def _create_schema(cursor):
             flag_id INTEGER,
             FOREIGN KEY (ingredient_id) REFERENCES ingredient_base(ingredient_id),
             FOREIGN KEY (flag_id) REFERENCES flag_list(flag_id)
-        )
-    """)
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS nutrient_list (
-            nutrient_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nutrient_name TEXT NOT NULL UNIQUE,
-            mandatory BOOLEAN NOT NULL,
-            parent_id INTEGER
         )
     """)
     cursor.execute("""
