@@ -73,6 +73,11 @@ def _populate_nutrients(db_service: DatabaseService):
             parent_id = nutrient_ids[name]
             # Add the nutrient
             _add_nutrient(nutrient_name, nutrient_data, parent_id=parent_id)
+        # Grab any associated aliases
+        aliases = data.get("aliases", [])
+        # Add each alias
+        for alias in aliases:
+            db_service.repo.add_nutrient_alias(alias, nutrient_id)
 
     # Add each nutrient
     for nutrient_name, nutrient_data in data.items():

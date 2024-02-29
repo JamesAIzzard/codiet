@@ -103,3 +103,12 @@ class Repository:
             (name, parent_id),
         )
         return cursor.lastrowid
+    
+    def add_nutrient_alias(self, alias: str, primary_nutrient_id: int) -> None:
+        """Adds a nutrient alias to the database."""
+        self.db.execute(
+            """
+            INSERT INTO nutrient_alias (nutrient_alias, primary_nutrient_id) VALUES (?, ?);
+        """,
+            (alias, primary_nutrient_id),
+        )

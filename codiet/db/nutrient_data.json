@@ -1,45 +1,36 @@
 {
     "carbohydrate": {
-        "mandatory": true,
         "aliases": [],
         "children": {
             "simple sugar" :{
-                "mandatory": false,
                 "aliases": [],
                 "children": {
                     "glucose": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "fructose": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "sucrose": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "lactose": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     }
                 }
             },
             "complex carbohydrate": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {
                     "starch": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "fiber": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     }
@@ -48,116 +39,93 @@
         }
     },
     "protein": {
-        "mandatory": true,
         "aliases": [],
         "children": {
             "essential amino acid": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {
                     "histidine": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "isoleucine": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "leucine": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "lysine": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "methionine": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "phenylalanine": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "threonine": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "tryptophan": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "valine": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     }
                 }
             },
             "non-essential amino acid": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {
                     "alanine": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "arginine": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "asparagine": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "aspartic acid": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "cysteine": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "glutamic acid": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "glutamine": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "glycine": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "proline": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "serine": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "tyrosine": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     }
@@ -166,190 +134,161 @@
         }
     },
     "fat": {
-        "mandatory": true,
         "aliases": [],
         "children": {
             "saturated fat": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             },
             "unsaturated fat": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {
                     "monounsaturated fat": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     },
                     "polyunsaturated fat": {
-                        "mandatory": false,
                         "aliases": [],
                         "children": {}
                     }
                 }
             },
             "trans fat": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             }
     }
     },
+    "water": {
+        "aliases": [],
+        "children": {}
+    },
+    "alcohol": {
+        "aliases": [],
+        "children": {}
+    },
     "vitamins": {
-        "mandatory": false,
         "aliases": [],
         "children": {
             "vitamin A": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             },
             "vitamin B": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {
                     "vitamin B1": {
-                        "mandatory": false,
                         "aliases": ["thiamine"],
                         "children": {}
                     },
                     "vitamin B2": {
-                        "mandatory": false,
                         "aliases": ["riboflavin"],
                         "children": {}
                     },
                     "vitamin B3": {
-                        "mandatory": false,
                         "aliases": ["niacin"],
                         "children": {}
                     },
                     "vitamin B5": {
-                        "mandatory": false,
                         "aliases": ["pantothenic acid"],
                         "children": {}
                     },
                     "vitamin B6": {
-                        "mandatory": false,
                         "aliases": ["pyridoxine"],
                         "children": {}
                     },
                     "vitamin B7": {
-                        "mandatory": false,
                         "aliases": ["biotin"],
                         "children": {}
                     },
                     "vitamin B9": {
-                        "mandatory": false,
                         "aliases": ["folate"],
                         "children": {}
                     },
                     "vitamin B12": {
-                        "mandatory": false,
                         "aliases": ["cobalamin"],
                         "children": {}
                     }
                 }
             },
             "vitamin C": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             },
             "vitamin D": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             },
             "vitamin E": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             },
             "vitamin K": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             }
         }
     },
     "minerals": {
-        "mandatory": false,
         "aliases": [],
         "children": {
             "calcium": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             },
             "chloride": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             },
             "chromium": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             },
             "copper": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             },
             "fluoride": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             },
             "iodine": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             },
             "iron": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             },
             "magnesium": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             },
             "manganese": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             },
             "molybdenum": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             },
             "phosphorus": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             },
             "potassium": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             },
             "selenium": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             },
             "sodium": {
-                "mandatory": true,
                 "aliases": [],
                 "children": {}
             },
             "zinc": {
-                "mandatory": false,
                 "aliases": [],
                 "children": {}
             }
