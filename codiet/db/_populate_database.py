@@ -61,10 +61,8 @@ def _populate_nutrients(db_service: DatabaseService):
 
     # Create a function to recursively add nutrients
     def _add_nutrient(name: str, data: dict, parent_id: Optional[int]):
-        # Grab the mandatory status of the nutrient
-        mandatory = data["mandatory"]
         # Add the nutrient to the database, stashing the id
-        nutrient_id = db_service.repo.add_nutrient(name, mandatory, parent_id)
+        nutrient_id = db_service.repo.add_nutrient(name, parent_id)
         # Stash the nutrients ID in the dict
         nutrient_ids[name] = nutrient_id
         # Grab the child elements

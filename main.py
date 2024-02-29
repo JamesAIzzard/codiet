@@ -10,7 +10,7 @@ from codiet.db.database_service import DatabaseService
 from codiet.db._populate_database import _populate_ingredients, _populate_flags, _populate_nutrients
 
 DB_PATH = os.path.join("codiet", "db", "codiet.db")
-RESET_DB = False
+RESET_DB = True
 
 if __name__ == "__main__":
     # Check if the database file exists
