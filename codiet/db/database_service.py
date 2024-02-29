@@ -47,3 +47,7 @@ class DatabaseService:
     def get_all_flags(self):
         """Returns a list of all the flags in the database."""
         return self.repo.get_all_flags()
+    
+    def get_all_nutrient_names(self):
+        """Returns a list of all the nutrients in the database."""
+        return self.repo.get_all_nutrient_names()

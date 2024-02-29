@@ -94,6 +94,15 @@ class Repository:
             ),
         )
 
+    def get_all_nutrient_names(self) -> list[str]:
+        """Returns a list of all the nutrient names in the database."""
+        rows = self.db.execute(
+            """
+            SELECT nutrient_name FROM nutrient_list;
+        """
+        ).fetchall()
+        return [row[0] for row in rows]
+
     def add_nutrient(self, name: str, parent_id: Optional[int]) -> int:
         """Adds a nutrient to the database and returns the ID."""
         cursor = self.db.execute(
