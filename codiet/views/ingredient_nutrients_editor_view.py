@@ -16,7 +16,13 @@ from codiet.views.ingredient_nutrient_editor_view import IngredientNutrientEdito
 class IngredientNutrientsEditorView(QWidget):
     def __init__(self):
         super().__init__()
+        self._init_ui()
 
+        # Create a dict to store widgets by nutrient name
+        self.nutrient_widgets = {}
+
+    def _init_ui(self):
+        """Initializes the UI elements."""
         # Create vertical layout as the top level
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -61,9 +67,25 @@ class IngredientNutrientsEditorView(QWidget):
         lyt_top_level.addWidget(self.listWidget)
 
     def add_nutrient(self, nutrient_name: str):
+        """Adds a new nutrient row to the list widget."""
         # Add a new row to the list
         listItem = QListWidgetItem(self.listWidget)
         nutrient_widget = IngredientNutrientEditorView(nutrient_name)
         listItem.setSizeHint(nutrient_widget.sizeHint())
         self.listWidget.addItem(listItem)
         self.listWidget.setItemWidget(listItem, nutrient_widget)
+        # Store the widget
+        self.nutrient_widgets[nutrient_name] = nutrient_widget
+
+    def hide_nutrient(self, nutrient_name: str):
+        """Hides a nutrient row in the list widget."""
+        self.nutrient_widgets[nutrient_name].hide()
+
+    def show_nutrient(self, nutrient_name: str):
+        """Shows a nutrient row in the list widget."""
+        self.nutrient_widgets[nutrient_name].show()
+
+    def show_all_nutrients(self):
+        """Shows all nutrient rows in the list widget."""
+        for nutrient_widget in self.nutrient_widgets.values():
+            nutrient_widget.show()
