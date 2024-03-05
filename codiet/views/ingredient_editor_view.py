@@ -11,7 +11,6 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QFont
 
-from codiet.views.ingredient_bulk_properties_editor_view import IngredientBulkPropertiesEditorView
 from codiet.views.flag_editor_view import FlagEditorView
 from codiet.views.gi_editor_view import GIEditorView
 from codiet.views.ingredient_nutrients_editor_view import IngredientNutrientsEditorView
@@ -53,9 +52,8 @@ class IngredientEditorView(QWidget):
         # Add the cost editor to the column 1 layout
         self._build_cost_UI(column1_layout)
 
-        # Create the bulk properties widget
-        self.ingredient_bulk_properties_editor_view = IngredientBulkPropertiesEditorView()
-        column1_layout.addWidget(self.ingredient_bulk_properties_editor_view)
+        # Add the bulk properties widget to the column1 layout
+        self._build_bulk_properties_UI(column1_layout)
 
         # Add the flags widget to the column1 layout
         self.flag_editor_view = FlagEditorView()
@@ -148,3 +146,76 @@ class IngredientEditorView(QWidget):
         # TODO - pull units from config file
         self.cmb_units.addItems(["g", "kg", "ml", "l"])
         lyt_cost.addWidget(self.cmb_units)   
+
+    def _build_bulk_properties_UI(self, container: QVBoxLayout):
+        """Build the UI for the bulk properties section of the ingredient editor page."""
+        # Create the bulk properties groupbox
+        gb_bulk_properties = QGroupBox("Bulk Properties")
+        container.addWidget(gb_bulk_properties)
+
+        # Add a vertical layout inside the groubox
+        lyt_top_level = QVBoxLayout()
+        gb_bulk_properties.setLayout(lyt_top_level)
+
+        # Add a horizontal layout for the density editor
+        lyt_density = QHBoxLayout()
+        lyt_top_level.addLayout(lyt_density)
+
+        # Create a label and add it to the layout
+        label = QLabel("Density:")
+        lyt_density.addWidget(label)
+
+        # Create a textbox and add it to the layout
+        self.txt_density = QLineEdit()
+        lyt_density.addWidget(self.txt_density)
+
+        # Create a volume units dropdown and add it to the layout
+        self.cmb_vol_units = QComboBox()
+        # Temporarily add units, these will get pulled from config file later
+        # TODO - pull units from config file
+        self.cmb_vol_units.addItems(["ml", "l"])
+        lyt_density.addWidget(self.cmb_vol_units)
+
+        # Create another label and add it to the layout
+        label = QLabel(" weighs ")
+        lyt_density.addWidget(label)
+
+        # Create a textbox and add it to the layout
+        self.txt_mass = QLineEdit()
+        lyt_density.addWidget(self.txt_mass)
+
+        # Create a mass units dropdown and add it to the layout
+        self.cmb_mass_units = QComboBox()
+        # Temporarily add units, these will get pulled from config file later
+        # TODO - pull units from config file
+        self.cmb_mass_units.addItems(["g", "kg"])
+        lyt_density.addWidget(self.cmb_mass_units)
+        
+        # Add a horizontal layout for the piece mass editor
+        lyt_piece_mass = QHBoxLayout()
+        lyt_top_level.addLayout(lyt_piece_mass)
+
+        # Create a label and add it to the layout
+        label = QLabel("Piece Mass:")
+        lyt_piece_mass.addWidget(label)
+
+        # Create a textbox and add it to the layout
+        self.txt_piece_qty = QLineEdit()
+        lyt_piece_mass.addWidget(self.txt_piece_qty)
+
+        # Create another label
+        label = QLabel(" piece(s) weighs ")
+        lyt_piece_mass.addWidget(label)
+
+        # Create a textbox and add it to the layout
+        self.txt_piece_mass = QLineEdit()
+        lyt_piece_mass.addWidget(self.txt_piece_mass)
+
+        # Create a mass units dropdown and add it to the layout
+        self.cmb_mass_units = QComboBox()
+        # Temporarily add units, these will get pulled from config file later
+        # TODO - pull units from config file
+        self.cmb_mass_units.addItems(["g", "kg"])
+        lyt_piece_mass.addWidget(self.cmb_mass_units)
+
+# EOF
