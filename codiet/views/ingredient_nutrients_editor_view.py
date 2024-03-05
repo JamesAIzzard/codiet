@@ -77,15 +77,16 @@ class IngredientNutrientsEditorView(QWidget):
         # Store the widget
         self.nutrient_widgets[nutrient_name] = nutrient_widget
 
-    def hide_nutrient(self, nutrient_name: str):
+    def remove_nutrient(self, nutrient_name: str):
         """Hides a nutrient row in the list widget."""
-        self.nutrient_widgets[nutrient_name].hide()
+        # If nutrient is not in the list, just return
+        if nutrient_name not in self.nutrient_widgets:
+            return
+        # Otherwise, remove it
+        nutrient_widget = self.nutrient_widgets.pop(nutrient_name)
+        self.listWidget.takeItem(self.listWidget.row(nutrient_widget))
 
-    def show_nutrient(self, nutrient_name: str):
-        """Shows a nutrient row in the list widget."""
-        self.nutrient_widgets[nutrient_name].show()
-
-    def show_all_nutrients(self):
-        """Shows all nutrient rows in the list widget."""
-        for nutrient_widget in self.nutrient_widgets.values():
-            nutrient_widget.show()
+    def remove_all_nutrients(self):
+        """Removes all nutrient rows from the list widget."""
+        self.listWidget.clear()
+        self.nutrient_widgets.clear()

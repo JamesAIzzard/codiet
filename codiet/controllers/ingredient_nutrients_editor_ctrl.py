@@ -39,20 +39,20 @@ class IngredientNutrientsEditorCtrl:
 
     def update_nutrient_visibility(self) -> None:
         """Updates the visibility of nutrients based on the filter and hide completed settings."""
-        # Start by showing all nutrients
-        self.view.show_all_nutrients()
+        # Start by removing all nutrients
+        self.view.remove_all_nutrients()
         # Grab the filtered nutrients
         filtered_nutrients = self.filtered_nutrients
-        # If nutrient is not on the filtered list, hide it
-        for nutrient in self.all_nutrient_names:
-            if nutrient not in filtered_nutrients:
-                self.view.hide_nutrient(nutrient)
-        # If 'Hide Completed' is checked, hide all completed nutrients
-        if self.view.chk_hide_completed.isChecked():
+        # If 'Hide Completed' is not checked, show all filtered nutrients
+        if not self.view.chk_hide_completed.isChecked():
+            for nutrient in filtered_nutrients:
+                self.view.add_nutrient(nutrient)
+        # If 'Hide Completed' is checked, only show nutrients that are not populated
+        else:
             # If nutrient is populated, hide it
             for nutrient in filtered_nutrients:
                 if self.ingredient.nutrient_is_populated(nutrient):
-                    self.view.hide_nutrient(nutrient)
+                    self.view.remove_nutrient(nutrient)
 
     def load_all_nutrients_into_ui(self) -> None:
         """Pulls all nutrients from the DB and loads them into the UI list."""
