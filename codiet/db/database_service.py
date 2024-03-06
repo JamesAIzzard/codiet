@@ -12,6 +12,12 @@ class DatabaseService:
         return filter_text(name, all_names, 10)
 
     def save_ingredient(self, ingredient: Ingredient):
+        """Saves the given ingredient to the database."""
+
+        # If the ingredient name is not set on the ingredient, raise an exception
+        if ingredient.name is None:
+            raise ValueError("Ingredient name must be set.")
+        
         with self.repo.db.connection:
             try:
                 # Add the ingredient name to the database, getting primary key

@@ -29,6 +29,16 @@ class IngredientEditorCtrl:
             self.view.nutrient_editor_view, self.db_service
         )
 
+        # Connect the view signals to the controller methods
+        self.view.txt_ingredient_name.textChanged.connect(self.on_ingredient_name_changed)
+        self.view.btn_save_ingredient.pressed.connect(self.on_save_ingredient_pressed)
+
     def on_ingredient_name_changed(self):
-        # self.ingredient.name = name
-        pass
+        """Handler for changes to the ingredient name."""
+        # Update the ingredient name
+        self.ingredient.name = self.view.txt_ingredient_name.text()
+
+    def on_save_ingredient_pressed(self):
+        """Handler for the save ingredient button."""
+        # Save the ingredient to the database
+        self.db_service.save_ingredient(self.ingredient)

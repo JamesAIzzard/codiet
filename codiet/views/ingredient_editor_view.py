@@ -66,7 +66,6 @@ class IngredientEditorView(QWidget):
         # Add stretch to end of layout
         column1_layout.addStretch(1)
 
-
         # Create the second column.
         lyt_col_2 = QVBoxLayout()
         columns_layout.addLayout(lyt_col_2, 1)
@@ -76,10 +75,10 @@ class IngredientEditorView(QWidget):
         lyt_col_2.addWidget(self.nutrient_editor_view)
 
         # Add a save ingredient button to the bottom of the page
-        self.save_ingredient_button = QPushButton("Save Ingredient")
+        self.btn_save_ingredient = QPushButton("Save Ingredient")
         # Limit the width of the button
-        self.save_ingredient_button.setMaximumWidth(150)
-        page_layout.addWidget(self.save_ingredient_button)
+        self.btn_save_ingredient.setMaximumWidth(150)
+        page_layout.addWidget(self.btn_save_ingredient)
 
     def _build_basic_info_UI(self, container: QVBoxLayout):
         """Build the UI for the basic info section of the ingredient editor page."""
@@ -101,8 +100,8 @@ class IngredientEditorView(QWidget):
         lyt_ingredient_name.addWidget(label)
 
         # Create a textbox and add it to the layout
-        self.txt_name = QLineEdit()
-        lyt_ingredient_name.addWidget(self.txt_name)
+        self.txt_ingredient_name = QLineEdit()
+        lyt_ingredient_name.addWidget(self.txt_ingredient_name)
 
         # Reduce the vertical padding in this layout
         lyt_ingredient_name.setContentsMargins(0, 0, 0, 0)
