@@ -2,7 +2,7 @@ from typing import Optional
 
 from codiet.db.database_service import DatabaseService
 from codiet.views.ingredient_editor_view import IngredientEditorView
-from codiet.views.flag_editor_view import FlagEditorView
+from codiet.views.dialog_box_view import OkDialogBoxView
 from codiet.controllers.flag_editor_ctrl import FlagEditorCtrl
 from codiet.controllers.ingredient_nutrients_editor_ctrl import IngredientNutrientsEditorCtrl
 from codiet.models.ingredient import Ingredient
@@ -40,5 +40,14 @@ class IngredientEditorCtrl:
 
     def on_save_ingredient_pressed(self):
         """Handler for the save ingredient button."""
-        # Save the ingredient to the database
-        self.db_service.save_ingredient(self.ingredient)
+        try:
+            # Save the ingredient to the database
+            self.db_service.save_ingredient(self.ingredient)
+
+            # Show confirm dialog box
+            dialog = OkDialogBoxView(message="Ingredient saved.", title="Ingredient Saved", parent=self.view)
+            _ = dialog.exec()
+            
+        except Exception as e:
+            # Show error dialog box
+            print(e)
