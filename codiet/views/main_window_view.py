@@ -20,7 +20,7 @@ class MainWindowView(QMainWindow):
         self.resize(900, 600)
 
         # Set the window icon   
-        icon = QIcon('codiet/resources/icons/icon.png')
+        icon = QIcon('codiet/resources/icons/app-icon.png')
         self.setWindowIcon(icon)
 
         # Build the menu bar
