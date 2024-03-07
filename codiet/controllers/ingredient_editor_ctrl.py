@@ -2,10 +2,11 @@ from typing import Optional
 
 from codiet.db.database_service import DatabaseService
 from codiet.views.ingredient_editor_view import IngredientEditorView
-from codiet.views.dialog_box_view import OkDialogBoxView
+from codiet.views.dialog_box_view import OkDialogBoxView, ErrorDialogBoxView
 from codiet.controllers.flag_editor_ctrl import FlagEditorCtrl
 from codiet.controllers.ingredient_nutrients_editor_ctrl import IngredientNutrientsEditorCtrl
 from codiet.models.ingredient import Ingredient
+from codiet.exceptions import ingredient_exceptions
 
 class IngredientEditorCtrl:
     def __init__(self, view: IngredientEditorView, db_service:DatabaseService, ingredient:Optional[Ingredient]=None):
@@ -47,7 +48,13 @@ class IngredientEditorCtrl:
             # Show confirm dialog box
             dialog = OkDialogBoxView(message="Ingredient saved.", title="Ingredient Saved", parent=self.view)
             _ = dialog.exec()
-            
+        
+        except ingredient_exceptions.IngredientNameExistsError as e:
+            # Create a generic error box
+            dialog = ErrorDialogBoxView(message=f'An ingredient called {e.ingredient_name} already exists.', title="Duplicate Ingredient Name", parent=self.view)
+            _ = dialog.exec()
+
         except Exception as e:
-            # Show error dialog box
-            print(e)
+            # Create a generic error box
+            dialog = ErrorDialogBoxView(message="An error occurred while saving the ingredient.", title="Error", parent=self.view)
+            _ = dialog.exec()

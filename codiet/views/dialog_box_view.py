@@ -65,3 +65,11 @@ class OkDialogBoxView(DialogBoxView):
         self.set_icon('codiet/resources/icons/ok-icon.png')
         self.set_text(message)
         self.setWindowTitle(title)
+
+class ErrorDialogBoxView(DialogBoxView):
+    def __init__(self, message:str, title:str, parent=None):
+        super().__init__(parent)
+        self.set_button_configuration(QDialogButtonBox.StandardButton.Ok)
+        self.set_icon('codiet/resources/icons/error-icon.png')
+        self.set_text(message)
+        self.setWindowTitle(title)

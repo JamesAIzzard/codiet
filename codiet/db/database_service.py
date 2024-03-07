@@ -46,6 +46,7 @@ class DatabaseService:
             except Exception as e:
                 # Roll back the transaction if an exception occurs
                 self.repo.db.connection.rollback()
+                # Re-raise any exceptions
                 raise e
             
     def get_all_flags(self):

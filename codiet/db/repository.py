@@ -1,5 +1,7 @@
 from typing import Optional
+import sqlite3
 
+from codiet.exceptions import ingredient_exceptions as ingredient_exceptions
 
 class Repository:
     def __init__(self, db):
@@ -49,12 +51,19 @@ class Repository:
         return [row[0] for row in rows]
 
     def add_ingredient_name(self, name: str):
-        self.db.execute(
-            """
-            INSERT INTO ingredient_base (ingredient_name) VALUES (?);
-        """,
-            (name,),
-        )
+        """Adds an ingredient name to the database."""
+        try:
+            self.db.execute(
+                """
+                INSERT INTO ingredient_base (ingredient_name) VALUES (?);
+            """,
+                (name,),
+            )
+        except sqlite3.IntegrityError as e:
+            if "UNIQUE constraint failed" in str(e):
+                raise ingredient_exceptions.IngredientNameExistsError(name)
+            else:
+                raise e
 
     def set_ingredient_cost(
         self,
