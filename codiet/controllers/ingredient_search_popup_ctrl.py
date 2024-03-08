@@ -22,7 +22,7 @@ class IngredientSearchPopupCtrl:
 
         # Connect the signals and slots
         self.view.txt_search.textChanged.connect(self.on_search_box_text_changed)
-        self.view.btn_select.clicked.connect(self.on_select_clicked)
+        self.view.btn_edit.clicked.connect(self.on_edit_clicked)
         self.view.btn_delete.clicked.connect(self.on_delete_clicked)
 
     @property
@@ -48,14 +48,14 @@ class IngredientSearchPopupCtrl:
         # Update the list of matching ingredients
         self.view.update_ingredient_list(matching_names)
 
-    def on_select_clicked(self):
+    def on_edit_clicked(self):
         """Handle the user clicking the Select button."""
         # Ignore if nothing selected
         if not self.ingredient_is_selected:
             return
         # Load the ingredient details into the editor
-        # ingredient = self.db_service.load_ingredient(selected_ingredient_name)
-        print(f"TODO: Load {self.selected_ingredient_name}")
+        ingredient = self.db_service.load_ingredient(self.selected_ingredient_name)
+        self.set_ingredient_instance(ingredient)
         # Close self
         self.view.close()
 

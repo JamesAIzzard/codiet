@@ -4,6 +4,7 @@ from typing import Optional
 class Ingredient:
     def __init__(self, name: Optional[str] = None):
         self.name = name
+        self.id:int | None = None
         self.cost_unit = None
         self.cost_value = None
         self.cost_qty_unit = None
@@ -16,7 +17,7 @@ class Ingredient:
         self.pc_mass_unit = None
         self.pc_mass_value = None
         self.flags = []
-        self.GI = None
+        self.gi = None
         self.nutrients = {}
 
     @property

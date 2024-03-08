@@ -1,7 +1,9 @@
 from typing import Optional
 import sqlite3
 
+from codiet.models.ingredient import Ingredient
 from codiet.exceptions import ingredient_exceptions as ingredient_exceptions
+
 
 class Repository:
     def __init__(self, db):
@@ -103,6 +105,92 @@ class Repository:
             ),
         )
 
+    def load_ingredient(self, name: str) -> Ingredient:
+        """Retrieves all the data for the named ingredient and
+        returns a populated ingredient object."""
+        # Grab the ID of the ingredient
+        ingredient_id = self.get_ingredient_id(name)
+
+        # Instantiate the ingredient
+        ingredient = Ingredient(name=name)
+
+        # Populate the ingreident ID
+        ingredient.id = ingredient_id
+
+        # Fetch data from the base table
+        base_data = self.db.execute(
+            """
+            SELECT gi FROM ingredient_base WHERE ingredient_id = ?;
+        """,
+            (ingredient_id,),
+        ).fetchone()
+        # Populate GI field on ingredient
+        ingredient.gi = base_data[0]
+
+        # Get the cost details
+        cost_data = self.db.execute(
+            """
+            SELECT cost_unit, cost_value, qty_unit, qty_value
+            FROM ingredient_cost
+            WHERE ingredient_id = ?;
+        """,
+            (ingredient_id,),
+        ).fetchone()
+        # Populate cost fields on ingredient
+        ingredient.cost_unit = cost_data[0]
+        ingredient.cost_value = cost_data[1]
+        ingredient.cost_qty_unit = cost_data[2]
+        ingredient.cost_qty_value = cost_data[3]
+
+        # Get the bulk details
+        bulk_data = self.db.execute(
+            """
+            SELECT density_mass_unit, density_mass_value, density_vol_unit, density_vol_value
+            FROM ingredient_bulk
+            WHERE ingredient_id = ?;
+        """,
+            (ingredient_id,),
+        ).fetchone()
+        # Populate bulk fields on ingredient
+        ingredient.density_mass_unit = bulk_data[0]
+        ingredient.density_mass_value = bulk_data[1]
+        ingredient.density_vol_unit = bulk_data[2]
+        ingredient.density_vol_value = bulk_data[3]
+
+        # Get the flags
+        flag_data = self.db.execute(
+            """
+            SELECT flag_name
+            FROM flag_list
+            JOIN ingredient_flags ON flag_list.flag_id = ingredient_flags.flag_id
+            WHERE ingredient_id = ?;
+        """,
+            (ingredient_id,),
+        ).fetchall()
+        # Populate flags on ingredient
+        ingredient.flags = [row[0] for row in flag_data]
+
+        # Get the nutrient data
+        nutrient_data = self.db.execute(
+            """
+            SELECT nutrient_name, quantity_unit, quantity_value, serving_size_unit, serving_size_value
+            FROM nutrient_list
+            JOIN ingredient_nutrient ON nutrient_list.nutrient_id = ingredient_nutrient.nutrient_id
+            WHERE ingredient_id = ?;
+        """,
+            (ingredient_id,),
+        ).fetchall()
+        # Populate nutrients on ingredient
+        for row in nutrient_data:
+            ingredient.nutrients[row[0]] = {
+                "ntr_qty": row[2],
+                "ntr_qty_unit": row[1],
+                "ing_qty": row[4],
+                "ing_qty_unit": row[3],
+            }
+
+        return ingredient
+
     def delete_ingredient(self, ingredient_name: str) -> None:
         """Deletes the given ingredient from the database."""
         # Grab the ID of the ingredient
@@ -131,7 +219,7 @@ class Repository:
             """
             DELETE FROM ingredient_flags
             WHERE ingredient_id = ?;
-            """
+            """,
         ]
         try:
             for query in queries:
@@ -159,7 +247,7 @@ class Repository:
             (name, parent_id),
         )
         return cursor.lastrowid
-    
+
     def add_nutrient_alias(self, alias: str, primary_nutrient_id: int) -> None:
         """Adds a nutrient alias to the database."""
         self.db.execute(

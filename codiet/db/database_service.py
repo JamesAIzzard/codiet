@@ -49,6 +49,10 @@ class DatabaseService:
                 # Re-raise any exceptions
                 raise e
 
+    def load_ingredient(self, name: str) -> Ingredient:
+        """Returns the ingredient with the given name."""
+        return self.repo.load_ingredient(name)
+
     def delete_ingredient(self, ingredient_name:str):
         """Deletes the given ingredient from the database."""
         self.repo.delete_ingredient(ingredient_name)

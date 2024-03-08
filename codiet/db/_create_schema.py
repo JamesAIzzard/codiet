@@ -22,7 +22,7 @@ def _create_schema(cursor):
         CREATE TABLE IF NOT EXISTS ingredient_base (
             ingredient_id INTEGER PRIMARY KEY,
             ingredient_name TEXT NOT NULL UNIQUE,
-            GI REAL
+            gi REAL
         )
     """)
     cursor.execute("""

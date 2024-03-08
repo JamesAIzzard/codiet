@@ -30,8 +30,8 @@ class IngredientSearchPopupView(QDialog):
         layout.addLayout(lyt_buttons)
 
         # Add an edit button
-        self.btn_select = QPushButton("Edit")
-        lyt_buttons.addWidget(self.btn_select)
+        self.btn_edit = QPushButton("Edit")
+        lyt_buttons.addWidget(self.btn_edit)
 
         # Add a delete button
         self.btn_delete = QPushButton("Delete")
