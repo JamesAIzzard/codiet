@@ -136,15 +136,15 @@ class IngredientEditorView(QWidget):
         lyt_cost.addWidget(label)
 
         # Create a textbox and add it to the layout
-        self.txt_quantity = QLineEdit()
-        lyt_cost.addWidget(self.txt_quantity)
+        self.txt_cost_quantity = QLineEdit()
+        lyt_cost.addWidget(self.txt_cost_quantity)
 
         # Create a units dropdown
-        self.cmb_units = QComboBox()
+        self.cmb_cost_unit = QComboBox()
         # Temporarily add units, these will get pulled from config file later
         # TODO - pull units from config file
-        self.cmb_units.addItems(["g", "kg", "ml", "l"])
-        lyt_cost.addWidget(self.cmb_units)   
+        self.cmb_cost_unit.addItems(["g", "kg", "ml", "l"])
+        lyt_cost.addWidget(self.cmb_cost_unit)   
 
     def _build_bulk_properties_UI(self, container: QVBoxLayout):
         """Build the UI for the bulk properties section of the ingredient editor page."""

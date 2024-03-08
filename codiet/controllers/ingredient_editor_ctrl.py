@@ -13,6 +13,9 @@ class IngredientEditorCtrl:
         self.view = view
         self.db_service = db_service
 
+        # Add a flag to track which mode editor is in
+        self.edit_mode = False
+
         # Init an ingredient if not provided
         if ingredient is None:
             self.ingredient = Ingredient()
@@ -36,9 +39,22 @@ class IngredientEditorCtrl:
 
     def set_ingredient_instance(self, ingredient:Ingredient):
         """Set the ingredient instance to edit."""
+        # Update the stored instance
         self.ingredient = ingredient
+
         # Update the view
-        self.view.update()
+        # Update ingredient name field
+        self.view.txt_ingredient_name.setText(self.ingredient.name)
+
+        # Update description field
+        # TODO: Populate description field
+
+        # Update the cost fields
+        self.view.txt_cost.setText(str(self.ingredient.cost_value))
+        self.view.txt_cost_quantity.setText(str(self.ingredient.cost_qty_value))
+        self.view.cmb_cost_unit.setCurrentText(self.ingredient.cost_unit)
+
+
 
     def on_ingredient_name_changed(self):
         """Handler for changes to the ingredient name."""
@@ -47,20 +63,25 @@ class IngredientEditorCtrl:
 
     def on_save_ingredient_pressed(self):
         """Handler for the save ingredient button."""
-        try:
-            # Save the ingredient to the database
-            self.db_service.save_ingredient(self.ingredient)
+        if self.edit_mode is False:
+            try:
+                # Save the ingredient to the database
+                self.db_service.save_ingredient(self.ingredient)
 
-            # Show confirm dialog box
-            dialog = OkDialogBoxView(message="Ingredient saved.", title="Ingredient Saved", parent=self.view)
-            _ = dialog.exec()
-        
-        except ingredient_exceptions.IngredientNameExistsError as e:
-            # Create a generic error box
-            dialog = ErrorDialogBoxView(message=f'An ingredient called {e.ingredient_name} already exists.', title="Duplicate Ingredient Name", parent=self.view)
-            _ = dialog.exec()
+                # Show confirm dialog box
+                dialog = OkDialogBoxView(message="Ingredient saved.", title="Ingredient Saved", parent=self.view)
+                _ = dialog.exec()
+            
+            except ingredient_exceptions.IngredientNameExistsError as e:
+                # Create a generic error box
+                dialog = ErrorDialogBoxView(message=f'An ingredient called {e.ingredient_name} already exists.', title="Duplicate Ingredient Name", parent=self.view)
+                _ = dialog.exec()
 
-        except Exception as e:
-            # Create a generic error box
-            dialog = ErrorDialogBoxView(message="An error occurred while saving the ingredient.", title="Error", parent=self.view)
-            _ = dialog.exec()
+            except Exception as e:
+                # Create a generic error box
+                dialog = ErrorDialogBoxView(message="An error occurred while saving the ingredient.", title="Error", parent=self.view)
+                _ = dialog.exec()
+        elif self.edit_mode is True:
+            # Update the ingredient.
+            # TODO: Implement update functionality
+            pass

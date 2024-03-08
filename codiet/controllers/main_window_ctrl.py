@@ -47,10 +47,16 @@ class MainWindowCtrl:
 
     def on_new_ingredient_clicked(self):
         """Handle the user clicking the New Ingredient button."""
+        # Turn off edit mode
+        self.ingredient_editor_ctrl.edit_mode = False
+        # Show the editor
         self.view.show_ingredient_editor()
 
     def on_edit_ingredient_clicked(self):
         """Handle the user clicking the Edit Ingredient button."""
+        # Turn on edit mode
+        self.ingredient_editor_ctrl.edit_mode = True
+        # Show the editor
         self.view.show_ingredient_search_popup()
 
     def on_delete_ingredient_clicked(self):
