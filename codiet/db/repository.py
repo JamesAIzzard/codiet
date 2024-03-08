@@ -103,6 +103,44 @@ class Repository:
             ),
         )
 
+    def delete_ingredient(self, ingredient_name: str) -> None:
+        """Deletes the given ingredient from the database."""
+        # Grab the ID of the ingredient
+        ingredient_id = self.get_ingredient_id(ingredient_name)
+
+        # Remove all entries against the ID from all ingredient tables
+        # which include ingredient_base, ingredient_bulk, ingredient_cost,
+        # ingredient_nutrient, and ingredient_flag.
+        queries = [
+            """
+            DELETE FROM ingredient_base
+            WHERE ingredient_id = ?;
+            """,
+            """
+            DELETE FROM ingredient_bulk
+            WHERE ingredient_id = ?;
+            """,
+            """
+            DELETE FROM ingredient_cost
+            WHERE ingredient_id = ?;
+            """,
+            """
+            DELETE FROM ingredient_nutrient
+            WHERE ingredient_id = ?;
+            """,
+            """
+            DELETE FROM ingredient_flags
+            WHERE ingredient_id = ?;
+            """
+        ]
+        try:
+            for query in queries:
+                self.db.execute(query, (ingredient_id,))
+                self.db.commit()
+        except Exception as e:
+            self.db.connection.rollback()
+            raise e
+
     def get_all_nutrient_names(self) -> list[str]:
         """Returns a list of all the nutrient names in the database."""
         rows = self.db.execute(

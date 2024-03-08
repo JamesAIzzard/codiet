@@ -48,7 +48,11 @@ class DatabaseService:
                 self.repo.db.connection.rollback()
                 # Re-raise any exceptions
                 raise e
-            
+
+    def delete_ingredient(self, ingredient_name:str):
+        """Deletes the given ingredient from the database."""
+        self.repo.delete_ingredient(ingredient_name)
+
     def get_all_flags(self):
         """Returns a list of all the flags in the database."""
         return self.repo.get_all_flags()

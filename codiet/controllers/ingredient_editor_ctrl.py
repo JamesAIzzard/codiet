@@ -34,6 +34,12 @@ class IngredientEditorCtrl:
         self.view.txt_ingredient_name.textChanged.connect(self.on_ingredient_name_changed)
         self.view.btn_save_ingredient.pressed.connect(self.on_save_ingredient_pressed)
 
+    def set_ingredient_instance(self, ingredient:Ingredient):
+        """Set the ingredient instance to edit."""
+        self.ingredient = ingredient
+        # Update the view
+        self.view.update()
+
     def on_ingredient_name_changed(self):
         """Handler for changes to the ingredient name."""
         # Update the ingredient name

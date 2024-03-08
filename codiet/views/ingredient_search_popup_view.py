@@ -1,5 +1,6 @@
-from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QListWidget, QPushButton
+from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QListWidget, QPushButton, QHBoxLayout
 from PyQt6.QtWidgets import QSizePolicy
+
 
 class IngredientSearchPopupView(QDialog):
     def __init__(self):
@@ -19,12 +20,22 @@ class IngredientSearchPopupView(QDialog):
         # Create a dropdown and add it to the layout
         self.lst_search_results = QListWidget()
         # Make the dropdown fill the space
-        self.lst_search_results.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.lst_search_results.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
         layout.addWidget(self.lst_search_results)
 
-        # Add a button to the bottom saying open
-        self.btn_select = QPushButton("Select")
-        layout.addWidget(self.btn_select)
+        # Add an HBox for the buttons
+        lyt_buttons = QHBoxLayout()
+        layout.addLayout(lyt_buttons)
+
+        # Add an edit button
+        self.btn_select = QPushButton("Edit")
+        lyt_buttons.addWidget(self.btn_select)
+
+        # Add a delete button
+        self.btn_delete = QPushButton("Delete")
+        lyt_buttons.addWidget(self.btn_delete)
 
     def update_ingredient_list(self, matching_ingredient_names: list[str]):
         self.lst_search_results.clear()
