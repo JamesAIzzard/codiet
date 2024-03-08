@@ -1,7 +1,10 @@
 from typing import Callable
 
+from PyQt6.QtWidgets import QDialog
+
 from codiet.db.database_service import DatabaseService
 from codiet.views.ingredient_search_popup_view import IngredientSearchPopupView
+from codiet.views.dialog_box_view import ConfirmDialogBoxView
 
 from codiet.models.ingredient import Ingredient
 
@@ -61,7 +64,17 @@ class IngredientSearchPopupCtrl:
         # Ignore if nothing selected
         if not self.ingredient_is_selected:
             return
-        # Delete the ingredient
+        
+        # Open a confirmation dialog
+        dialog = ConfirmDialogBoxView(
+            message=f"Are you sure you want to delete {self.selected_ingredient_name}?",
+            title="Confirm Delete",
+            parent=self.view,
+        )
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+
+        # Accepted, so delete the ingredient
         self.db_service.delete_ingredient(self.selected_ingredient_name)
         # Update the list of matching ingredients
         self.on_search_box_text_changed(self.view.txt_search.text())

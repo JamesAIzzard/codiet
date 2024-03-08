@@ -73,3 +73,11 @@ class ErrorDialogBoxView(DialogBoxView):
         self.set_icon('codiet/resources/icons/error-icon.png')
         self.set_text(message)
         self.setWindowTitle(title)
+
+class ConfirmDialogBoxView(DialogBoxView):
+    def __init__(self, message:str, title:str, parent=None):
+        super().__init__(parent)
+        self.set_button_configuration(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        self.set_icon('codiet/resources/icons/question-icon.png')
+        self.set_text(message)
+        self.setWindowTitle(title)
