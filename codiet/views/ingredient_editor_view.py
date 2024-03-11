@@ -109,8 +109,8 @@ class IngredientEditorView(QWidget):
         # Add a description field and multiline textbox
         label = QLabel("Description:")
         lyt_top_level.addWidget(label)
-        self.txt_ingredient_description = QTextEdit()
-        lyt_top_level.addWidget(self.txt_ingredient_description)
+        self.txt_description = QTextEdit()
+        lyt_top_level.addWidget(self.txt_description)
 
     def _build_cost_UI(self, container: QVBoxLayout):
         """Build the UI for the cost section of the ingredient editor page."""
@@ -140,11 +140,11 @@ class IngredientEditorView(QWidget):
         lyt_cost.addWidget(self.txt_cost_quantity)
 
         # Create a units dropdown
-        self.cmb_cost_unit = QComboBox()
+        self.cmb_cost_qty_unit = QComboBox()
         # Temporarily add units, these will get pulled from config file later
         # TODO - pull units from config file
-        self.cmb_cost_unit.addItems(["g", "kg", "ml", "l"])
-        lyt_cost.addWidget(self.cmb_cost_unit)   
+        self.cmb_cost_qty_unit.addItems(["g", "kg", "ml", "l"])
+        lyt_cost.addWidget(self.cmb_cost_qty_unit)   
 
     def _build_bulk_properties_UI(self, container: QVBoxLayout):
         """Build the UI for the bulk properties section of the ingredient editor page."""

@@ -4,11 +4,11 @@ from typing import Optional
 class Ingredient:
     def __init__(self, name: Optional[str] = None):
         self.name = name
-        self.id:int | None = None
-        self.cost_unit = None
-        self.cost_value = None
-        self.cost_qty_unit = None
-        self.cost_qty_value = None
+        self.id: int | None = None
+        self.description: str | None = None
+        self.cost_value: float | None = None
+        self.cost_qty_unit: str = 'g'
+        self.cost_qty_value: float | None = None
         self.density_mass_unit = None
         self.density_mass_value = None
         self.density_vol_unit = None

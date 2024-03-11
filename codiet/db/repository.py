@@ -9,7 +9,7 @@ class Repository:
     def __init__(self, db):
         self.db = db
 
-    def get_flag_id(self, name: str) -> int:
+    def fetch_flag_id(self, name: str) -> int:
         return self.db.execute(
             """
             SELECT flag_id FROM flag_list WHERE flag_name = ?;
@@ -17,7 +17,7 @@ class Repository:
             (name,),
         ).fetchone()[0]
 
-    def add_flag(self, name: str) -> int:
+    def insert_flag_into_database(self, name: str) -> int:
         cursor = self.db.execute(
             """
             INSERT INTO flag_list (flag_name) VALUES (?);
@@ -26,7 +26,7 @@ class Repository:
         )
         return cursor.lastrowid
 
-    def get_all_flags(self) -> list[str]:
+    def fetch_all_flags(self) -> list[str]:
         """Returns a list of all the flags in the database."""
         rows = self.db.execute(
             """
@@ -35,7 +35,7 @@ class Repository:
         ).fetchall()
         return [row[0] for row in rows]
 
-    def get_ingredient_id(self, name: str) -> int:
+    def fetch_ingredient_id(self, name: str) -> int:
         return self.db.execute(
             """
             SELECT ingredient_id FROM ingredient_base WHERE ingredient_name = ?;
@@ -43,7 +43,7 @@ class Repository:
             (name,),
         ).fetchone()[0]
 
-    def get_ingredient_names(self) -> list[str]:
+    def fetch_all_ingredient_names(self) -> list[str]:
         """Returns a list of all the ingredient names in the database."""
         rows = self.db.execute(
             """
@@ -52,7 +52,7 @@ class Repository:
         ).fetchall()
         return [row[0] for row in rows]
 
-    def add_ingredient_name(self, name: str):
+    def insert_ingredient_entry(self, name: str):
         """Adds an ingredient name to the database."""
         try:
             self.db.execute(
@@ -67,23 +67,23 @@ class Repository:
             else:
                 raise e
 
-    def set_ingredient_cost(
+    def insert_ingredient_cost(
         self,
         ingredient_id: int,
-        cost_unit: Optional[str],
         cost_value: Optional[float],
         qty_unit: Optional[str],
         qty_value: Optional[float],
     ) -> None:
+        """Sets the cost data for the given ingredient."""
         self.db.execute(
             """
             INSERT INTO ingredient_cost (ingredient_id, cost_unit, cost_value, qty_unit, qty_value)
-            VALUES (?, ?, ?, ?, ?);
+            VALUES (?, 'GBP', ?, ?, ?);
         """,
-            (ingredient_id, cost_unit, cost_value, qty_unit, qty_value),
+            (ingredient_id, cost_value, qty_unit, qty_value),
         )
 
-    def set_ingredient_density(
+    def insert_ingredient_density(
         self,
         ingredient_id: int,
         dens_mass_unit: Optional[str],
@@ -105,11 +105,11 @@ class Repository:
             ),
         )
 
-    def load_ingredient(self, name: str) -> Ingredient:
+    def fetch_ingredient(self, name: str) -> Ingredient:
         """Retrieves all the data for the named ingredient and
         returns a populated ingredient object."""
         # Grab the ID of the ingredient
-        ingredient_id = self.get_ingredient_id(name)
+        ingredient_id = self.fetch_ingredient_id(name)
 
         # Instantiate the ingredient
         ingredient = Ingredient(name=name)
@@ -130,17 +130,16 @@ class Repository:
         # Get the cost details
         cost_data = self.db.execute(
             """
-            SELECT cost_unit, cost_value, qty_unit, qty_value
+            SELECT cost_value, qty_unit, qty_value
             FROM ingredient_cost
             WHERE ingredient_id = ?;
         """,
             (ingredient_id,),
         ).fetchone()
         # Populate cost fields on ingredient
-        ingredient.cost_unit = cost_data[0]
-        ingredient.cost_value = cost_data[1]
-        ingredient.cost_qty_unit = cost_data[2]
-        ingredient.cost_qty_value = cost_data[3]
+        ingredient.cost_value = cost_data[0]
+        ingredient.cost_qty_unit = cost_data[1]
+        ingredient.cost_qty_value = cost_data[2]
 
         # Get the bulk details
         bulk_data = self.db.execute(
@@ -194,7 +193,7 @@ class Repository:
     def delete_ingredient(self, ingredient_name: str) -> None:
         """Deletes the given ingredient from the database."""
         # Grab the ID of the ingredient
-        ingredient_id = self.get_ingredient_id(ingredient_name)
+        ingredient_id = self.fetch_ingredient_id(ingredient_name)
 
         # Remove all entries against the ID from all ingredient tables
         # which include ingredient_base, ingredient_bulk, ingredient_cost,
@@ -229,7 +228,7 @@ class Repository:
             self.db.connection.rollback()
             raise e
 
-    def get_all_nutrient_names(self) -> list[str]:
+    def fetch_all_nutrient_names(self) -> list[str]:
         """Returns a list of all the nutrient names in the database."""
         rows = self.db.execute(
             """
@@ -238,7 +237,7 @@ class Repository:
         ).fetchall()
         return [row[0] for row in rows]
 
-    def add_nutrient(self, name: str, parent_id: Optional[int]) -> int:
+    def insert_nutrient(self, name: str, parent_id: Optional[int]) -> int:
         """Adds a nutrient to the database and returns the ID."""
         cursor = self.db.execute(
             """
@@ -248,7 +247,7 @@ class Repository:
         )
         return cursor.lastrowid
 
-    def add_nutrient_alias(self, alias: str, primary_nutrient_id: int) -> None:
+    def insert_nutrient_alias(self, alias: str, primary_nutrient_id: int) -> None:
         """Adds a nutrient alias to the database."""
         self.db.execute(
             """

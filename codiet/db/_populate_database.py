@@ -20,7 +20,7 @@ def _populate_flags(db_service: DatabaseService):
     ]
     # Add each flag to the database
     for flag in flags:
-        db_service.repo.add_flag(flag)
+        db_service.repo.insert_flag_into_database(flag)
 
 
 def _populate_ingredients(db_service: DatabaseService):
@@ -49,7 +49,7 @@ def _populate_ingredients(db_service: DatabaseService):
         ingredient.density_vol_value = data["bulk"]["density"]["vol_value"]
 
         # Save the ingredient
-        db_service.save_ingredient(ingredient)
+        db_service.create_ingredient(ingredient)
 
 def _populate_nutrients(db_service: DatabaseService):
     # Load the dict from the nutrient_data.json file
@@ -62,7 +62,7 @@ def _populate_nutrients(db_service: DatabaseService):
     # Create a function to recursively add nutrients
     def _add_nutrient(name: str, data: dict, parent_id: Optional[int]):
         # Add the nutrient to the database, stashing the id
-        nutrient_id = db_service.repo.add_nutrient(name, parent_id)
+        nutrient_id = db_service.repo.insert_nutrient(name, parent_id)
         # Stash the nutrients ID in the dict
         nutrient_ids[name] = nutrient_id
         # Grab the child elements
@@ -77,7 +77,7 @@ def _populate_nutrients(db_service: DatabaseService):
         aliases = data.get("aliases", [])
         # Add each alias
         for alias in aliases:
-            db_service.repo.add_nutrient_alias(alias, nutrient_id)
+            db_service.repo.insert_nutrient_alias(alias, nutrient_id)
 
     # Add each nutrient
     for nutrient_name, nutrient_data in data.items():
