@@ -4,12 +4,20 @@ from codiet.db.database_service import DatabaseService
 from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.views.dialog_box_view import OkDialogBoxView, ErrorDialogBoxView
 from codiet.controllers.flag_editor_ctrl import FlagEditorCtrl
-from codiet.controllers.ingredient_nutrients_editor_ctrl import IngredientNutrientsEditorCtrl
+from codiet.controllers.ingredient_nutrients_editor_ctrl import (
+    IngredientNutrientsEditorCtrl,
+)
 from codiet.models.ingredient import Ingredient
 from codiet.exceptions import ingredient_exceptions
 
+
 class IngredientEditorCtrl:
-    def __init__(self, view: IngredientEditorView, db_service:DatabaseService, ingredient:Optional[Ingredient]=None):
+    def __init__(
+        self,
+        view: IngredientEditorView,
+        db_service: DatabaseService,
+        ingredient: Optional[Ingredient] = None,
+    ):
         self.view = view
         self.db_service = db_service
 
@@ -34,14 +42,22 @@ class IngredientEditorCtrl:
         )
 
         # Connect the view signals to the controller methods
-        self.view.txt_ingredient_name.textChanged.connect(self.on_ingredient_name_changed)
-        self.view.txt_description.textChanged.connect(self.on_ingredient_description_changed)
+        self.view.txt_ingredient_name.textChanged.connect(
+            self.on_ingredient_name_changed
+        )
+        self.view.txt_description.textChanged.connect(
+            self.on_ingredient_description_changed
+        )
         self.view.txt_cost.textChanged.connect(self.on_ingredient_cost_value_changed)
-        self.view.txt_cost_quantity.textChanged.connect(self.on_ingredient_cost_quantity_changed)
-        self.view.cmb_cost_qty_unit.currentTextChanged.connect(self.on_ingredient_cost_qty_unit_changed)
+        self.view.txt_cost_quantity.textChanged.connect(
+            self.on_ingredient_cost_quantity_changed
+        )
+        self.view.cmb_cost_qty_unit.currentTextChanged.connect(
+            self.on_ingredient_cost_qty_unit_changed
+        )
         self.view.btn_save_ingredient.pressed.connect(self.on_save_ingredient_pressed)
 
-    def set_ingredient_instance(self, ingredient:Ingredient):
+    def set_ingredient_instance(self, ingredient: Ingredient):
         """Set the ingredient instance to edit."""
         # Update the stored instance
         self.ingredient = ingredient
@@ -53,10 +69,27 @@ class IngredientEditorCtrl:
         # Update description field
         # TODO: Populate description field
 
-        # Update the cost fields
-        self.view.txt_cost.setText(str(self.ingredient.cost_value))
-        self.view.txt_cost_quantity.setText(str(self.ingredient.cost_qty_value))
-        self.view.cmb_cost_qty_unit.setCurrentText(self.ingredient.cost_qty_unit)
+    def set_ingredient_cost(
+        self, 
+        cost_value: float | None, 
+        cost_qty_value: float | None, 
+        cost_qty_unit: str
+    ):
+        """Set the ingredient cost."""
+        # Set the actual cost value
+        if cost_value is not None:
+            self.view.txt_cost.setText(cost_value)
+        else:
+            self.view.txt_cost.clear()
+
+        # Set the cost quantity value
+        if cost_qty_value is not None:
+            self.view.txt_cost_quantity.setText(cost_qty_value)
+        else:
+            self.view.txt_cost_quantity.clear()
+
+        # Set the cost quantity unit
+        self.view.cmb_cost_qty_unit.setCurrentText(cost_qty_unit)
 
     def on_ingredient_name_changed(self):
         """Handler for changes to the ingredient name."""
@@ -71,12 +104,7 @@ class IngredientEditorCtrl:
     def on_ingredient_cost_value_changed(self):
         """Handler for changes to the ingredient cost."""
         # Update the ingredient cost
-        # If the cost field is empty, set the cost value to None
-        if self.view.txt_cost.text() == "":
-            self.ingredient.cost_value = None
-        # Otherwise, set the cost value to the value in the field
-        else:
-            self.ingredient.cost_value = float(self.view.txt_cost.text())
+        self.ingredient.cost_value = self.view.txt_cost.value
 
     def on_ingredient_cost_quantity_changed(self):
         """Handler for changes to the ingredient quantity associated with the cost data."""
@@ -98,17 +126,29 @@ class IngredientEditorCtrl:
                 self.db_service.create_ingredient(self.ingredient)
 
                 # Show confirm dialog box
-                dialog = OkDialogBoxView(message="Ingredient saved.", title="Ingredient Saved", parent=self.view)
+                dialog = OkDialogBoxView(
+                    message="Ingredient saved.",
+                    title="Ingredient Saved",
+                    parent=self.view,
+                )
                 _ = dialog.exec()
-            
+
             except ingredient_exceptions.IngredientNameExistsError as e:
                 # Create a generic error box
-                dialog = ErrorDialogBoxView(message=f'An ingredient called {e.ingredient_name} already exists.', title="Duplicate Ingredient Name", parent=self.view)
+                dialog = ErrorDialogBoxView(
+                    message=f"An ingredient called {e.ingredient_name} already exists.",
+                    title="Duplicate Ingredient Name",
+                    parent=self.view,
+                )
                 _ = dialog.exec()
 
             except Exception as e:
                 # Create a generic error box
-                dialog = ErrorDialogBoxView(message="An error occurred while saving the ingredient.", title="Error", parent=self.view)
+                dialog = ErrorDialogBoxView(
+                    message="An error occurred while saving the ingredient.",
+                    title="Error",
+                    parent=self.view,
+                )
                 _ = dialog.exec()
 
         # If this has been pressed from the 'Edit Ingredient' route,
@@ -120,10 +160,18 @@ class IngredientEditorCtrl:
                 self.db_service.update_ingredient(self.ingredient)
 
                 # Show confirm dialog box
-                dialog = OkDialogBoxView(message="Ingredient updated.", title="Ingredient Updated", parent=self.view)
+                dialog = OkDialogBoxView(
+                    message="Ingredient updated.",
+                    title="Ingredient Updated",
+                    parent=self.view,
+                )
                 _ = dialog.exec()
 
             except Exception as e:
                 # Create a generic error box
-                dialog = ErrorDialogBoxView(message="An error occurred while updating the ingredient.", title="Error", parent=self.view)
+                dialog = ErrorDialogBoxView(
+                    message="An error occurred while updating the ingredient.",
+                    title="Error",
+                    parent=self.view,
+                )
                 _ = dialog.exec()

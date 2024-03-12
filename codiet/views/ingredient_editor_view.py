@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QFont
 
+from codiet.views.custom_line_editors import NumericLineEdit
 from codiet.views.flag_editor_view import FlagEditorView
 from codiet.views.gi_editor_view import GIEditorView
 from codiet.views.ingredient_nutrients_editor_view import IngredientNutrientsEditorView
@@ -128,7 +129,7 @@ class IngredientEditorView(QWidget):
         lyt_cost.addWidget(label)
 
         # Create a textbox and add it to the layout
-        self.txt_cost = QLineEdit()
+        self.txt_cost = NumericLineEdit()
         lyt_cost.addWidget(self.txt_cost)
 
         # Create a second label
@@ -136,7 +137,7 @@ class IngredientEditorView(QWidget):
         lyt_cost.addWidget(label)
 
         # Create a textbox and add it to the layout
-        self.txt_cost_quantity = QLineEdit()
+        self.txt_cost_quantity = NumericLineEdit()
         lyt_cost.addWidget(self.txt_cost_quantity)
 
         # Create a units dropdown
