@@ -59,11 +59,11 @@ class IngredientEditorCtrl:
 
     def set_ingredient_instance(self, ingredient: Ingredient):
         """Set the ingredient instance to edit."""
-        # Update the stored instance
-        self.ingredient = ingredient
-
         # Clear all fields
         self.reset_all_fields()
+
+        # Update the stored instance
+        self.ingredient = ingredient
 
         # Update ingredient name field
         self.view.txt_ingredient_name.setText(self.ingredient.name)
