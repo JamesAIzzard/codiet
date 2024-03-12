@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QLineEdit
 from PyQt6.QtGui import QDoubleValidator
 
+
 class NumericLineEdit(QLineEdit):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -9,7 +10,7 @@ class NumericLineEdit(QLineEdit):
         # The QDoubleValidator takes the following parameters:
         # - bottom (float): The minimum value allowed.
         # - top (float): The maximum value allowed.
-        # - decimals (int): The number of decimal places allowed.        
+        # - decimals (int): The number of decimal places allowed.
         validator = QDoubleValidator(0.0, 99999999.99, 2)
         self.setValidator(validator)
 
@@ -20,8 +21,9 @@ class NumericLineEdit(QLineEdit):
         if self.text() == "":
             return None
         return float(self.text())
-    
-    def setText(self, value: float) -> None:  # Modified type hint
-        """Set the text of the line edit to the given value."""
-        super().setText(str(value))
-        
+
+    def setText(self, value: float, decimals: int = 1) -> None:
+        """Set the text of the line edit to the given value,
+        formatted to the specified number of decimal places."""
+        formatted_value = f"{value:.{decimals}f}"
+        super().setText(formatted_value)

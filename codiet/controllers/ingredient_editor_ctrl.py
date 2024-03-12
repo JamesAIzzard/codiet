@@ -87,7 +87,7 @@ class IngredientEditorCtrl:
         """Set the ingredient cost."""
         # Set the actual cost value
         if cost_value is not None:
-            self.view.txt_cost.setText(cost_value)
+            self.view.txt_cost.setText(cost_value, decimals=2)
         else:
             self.view.txt_cost.clear()
 
