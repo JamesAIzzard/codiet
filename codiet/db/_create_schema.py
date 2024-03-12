@@ -38,7 +38,7 @@ def _create_schema(cursor):
     """)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS ingredient_bulk (
-            ingredient_id INTEGER,
+            ingredient_id INTEGER PRIMARY KEY,
             density_mass_unit TEXT,
             density_mass_value REAL,
             density_vol_unit TEXT,
