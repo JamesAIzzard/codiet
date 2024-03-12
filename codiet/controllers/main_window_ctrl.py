@@ -3,7 +3,7 @@ from codiet.views.main_window_view import MainWindowView
 from codiet.controllers.ingredient_editor_ctrl import IngredientEditorCtrl
 from codiet.controllers.ingredient_search_popup_ctrl import IngredientSearchPopupCtrl
 from codiet.controllers.recipe_editor_ctrl import RecipeEditorCtrl
-
+from codiet.models.ingredient import Ingredient
 
 class MainWindowCtrl:
     def __init__(self, view: MainWindowView, db_service: DatabaseService):
@@ -49,6 +49,8 @@ class MainWindowCtrl:
         """Handle the user clicking the New Ingredient button."""
         # Turn off edit mode
         self.ingredient_editor_ctrl.edit_mode = False
+        # Put a new ingredient in the editor
+        self.ingredient_editor_ctrl.set_ingredient_instance(Ingredient())
         # Show the editor
         self.view.show_ingredient_editor()
 

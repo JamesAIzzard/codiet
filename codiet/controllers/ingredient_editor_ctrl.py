@@ -62,12 +62,21 @@ class IngredientEditorCtrl:
         # Update the stored instance
         self.ingredient = ingredient
 
-        # Update the view
+        # Clear all fields
+        self.reset_all_fields()
+
         # Update ingredient name field
         self.view.txt_ingredient_name.setText(self.ingredient.name)
 
         # Update description field
         # TODO: Populate description field
+
+        # Update cost fields
+        self.set_ingredient_cost(
+            self.ingredient.cost_value,
+            self.ingredient.cost_qty_value,
+            self.ingredient.cost_qty_unit,
+        )
 
     def set_ingredient_cost(
         self, 
@@ -91,6 +100,23 @@ class IngredientEditorCtrl:
         # Set the cost quantity unit
         self.view.cmb_cost_qty_unit.setCurrentText(cost_qty_unit)
 
+    def reset_all_fields(self):
+        """Reset all fields in the view."""
+        # Clear the ingredient name field
+        self.view.txt_ingredient_name.clear()
+
+        # Clear the description field
+        self.view.txt_description.clear()
+
+        # Clear the cost value field
+        self.view.txt_cost.clear()
+
+        # Clear the cost quantity field
+        self.view.txt_cost_quantity.clear()
+
+        # Clear the cost quantity unit field
+        self.view.cmb_cost_qty_unit.setCurrentText("g")
+
     def on_ingredient_name_changed(self):
         """Handler for changes to the ingredient name."""
         # Update the ingredient name
@@ -109,7 +135,7 @@ class IngredientEditorCtrl:
     def on_ingredient_cost_quantity_changed(self):
         """Handler for changes to the ingredient quantity associated with the cost data."""
         # Update the ingredient cost quantity
-        self.ingredient.cost_qty_value = float(self.view.txt_cost_quantity.text())
+        self.ingredient.cost_qty_value = self.view.txt_cost_quantity.value
 
     def on_ingredient_cost_qty_unit_changed(self):
         """Handler for changes to the ingredient cost unit."""

@@ -28,7 +28,7 @@ def _create_schema(cursor):
     """)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS ingredient_cost (
-            ingredient_id INTEGER,
+            ingredient_id INTEGER PRIMARY KEY,
             cost_unit TEXT,
             cost_value REAL,
             qty_unit TEXT,
@@ -47,7 +47,7 @@ def _create_schema(cursor):
             pc_mass_unit TEXT,
             pc_mass_value REAL,
             FOREIGN KEY (ingredient_id) REFERENCES ingredient_base(ingredient_id)
-        )           
+        )
     """)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS flag_list (

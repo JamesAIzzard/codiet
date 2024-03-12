@@ -65,7 +65,7 @@ class DatabaseService:
         with self.repo.db.connection:
             try:
                 # Update the ingredient cost data
-                self.repo.insert_ingredient_cost(
+                self.repo.update_ingredient_cost(
                     ingredient_id=ingredient.id,
                     cost_value=ingredient.cost_value,
                     qty_unit=ingredient.cost_qty_unit,
@@ -73,7 +73,7 @@ class DatabaseService:
                 )
 
                 # Update the ingredient density data
-                self.repo.insert_ingredient_density(
+                self.repo.update_ingredient_density(
                     ingredient_id=ingredient.id,
                     dens_mass_unit=ingredient.density_mass_unit,
                     dens_mass_value=ingredient.density_mass_value,

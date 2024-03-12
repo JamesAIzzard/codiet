@@ -83,13 +83,30 @@ class Repository:
             (ingredient_id, cost_value, qty_unit, qty_value),
         )
 
+    def update_ingredient_cost(
+        self,
+        ingredient_id: int,
+        cost_value: float | None,
+        qty_unit: str | None,
+        qty_value: float | None,
+    ) -> None:
+        """Updates the cost data for the given ingredient."""
+        self.db.execute(
+            """
+            UPDATE ingredient_cost
+            SET cost_value = ?, qty_unit = ?, qty_value = ?
+            WHERE ingredient_id = ?;
+        """,
+            (cost_value, qty_unit, qty_value, ingredient_id),
+        )
+
     def insert_ingredient_density(
         self,
         ingredient_id: int,
-        dens_mass_unit: Optional[str],
-        dens_mass_value: Optional[float],
-        dens_vol_unit: Optional[str],
-        dens_vol_value: Optional[float],
+        dens_mass_unit: str|None,
+        dens_mass_value: float|None,
+        dens_vol_unit: str|None,
+        dens_vol_value: float|None,
     ):
         self.db.execute(
             """
@@ -105,6 +122,30 @@ class Repository:
             ),
         )
 
+    def update_ingredient_density(
+        self,
+        ingredient_id: int,
+        dens_mass_unit: str|None,
+        dens_mass_value: float|None,
+        dens_vol_unit: str|None,
+        dens_vol_value: float|None,
+    ) -> None:
+        """Updates the density data for the given ingredient."""
+        self.db.execute(
+            """
+            UPDATE ingredient_bulk
+            SET density_mass_unit = ?, density_mass_value = ?, density_vol_unit = ?, density_vol_value = ?
+            WHERE ingredient_id = ?;
+        """,
+            (
+                dens_mass_unit,
+                dens_mass_value,
+                dens_vol_unit,
+                dens_vol_value,
+                ingredient_id,
+            ),
+        )
+
     def fetch_ingredient(self, name: str) -> Ingredient:
         """Retrieves all the data for the named ingredient and
         returns a populated ingredient object."""
@@ -114,7 +155,7 @@ class Repository:
         # Instantiate the ingredient
         ingredient = Ingredient(name=name)
 
-        # Populate the ingreident ID
+        # Populate the ingredient ID
         ingredient.id = ingredient_id
 
         # Fetch data from the base table

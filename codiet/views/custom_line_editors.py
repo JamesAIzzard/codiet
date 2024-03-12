@@ -21,7 +21,7 @@ class NumericLineEdit(QLineEdit):
             return None
         return float(self.text())
     
-    def setText(self, value: float | None) -> None:  # Modified type hint
+    def setText(self, value: float) -> None:  # Modified type hint
         """Set the text of the line edit to the given value."""
         super().setText(str(value))
         
