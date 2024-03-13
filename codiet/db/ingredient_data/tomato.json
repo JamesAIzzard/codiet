@@ -1,5 +1,6 @@
 {
     "name": "Whole Tomato",
+    "description": "",
     "cost": {
         "cost_unit": "GBP",
         "cost_value": 5.56,

@@ -75,6 +75,12 @@ class DatabaseService:
                     name=ingredient.name,
                 )
 
+                # Update the ingredient description
+                self.repo.update_ingredient_description(
+                    ingredient_id=ingredient.id,
+                    description=ingredient.description,
+                )
+
                 # Update the ingredient cost data
                 self.repo.update_ingredient_cost(
                     ingredient_id=ingredient.id,

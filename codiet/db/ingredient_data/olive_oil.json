@@ -1,5 +1,6 @@
 {
   "name": "Olive Oil",
+  "description": "",
   "cost": {
     "cost_unit": "GBP",
     "cost_value": 8.99,

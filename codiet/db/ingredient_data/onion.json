@@ -1,5 +1,6 @@
 {
     "name": "Onion",
+    "description": "",
     "cost": {
         "cost_unit": "GBP",
         "cost_value": 3.00,

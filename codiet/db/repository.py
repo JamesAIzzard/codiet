@@ -78,6 +78,19 @@ class Repository:
             (name, ingredient_id),
         )
 
+    def update_ingredient_description(
+        self, ingredient_id: int, description: str | None
+    ) -> None:
+        """Sets the description for the given ingredient."""
+        self.db.execute(
+            """
+            UPDATE ingredient_base
+            SET description = ?
+            WHERE ingredient_id = ?;
+            """,
+            (description, ingredient_id),
+        )
+
     def insert_ingredient_cost(
         self,
         ingredient_id: int,
@@ -114,10 +127,10 @@ class Repository:
     def insert_ingredient_density(
         self,
         ingredient_id: int,
-        dens_mass_unit: str|None,
-        dens_mass_value: float|None,
-        dens_vol_unit: str|None,
-        dens_vol_value: float|None,
+        dens_mass_unit: str | None,
+        dens_mass_value: float | None,
+        dens_vol_unit: str | None,
+        dens_vol_value: float | None,
     ):
         self.db.execute(
             """
@@ -136,10 +149,10 @@ class Repository:
     def update_ingredient_density(
         self,
         ingredient_id: int,
-        dens_mass_unit: str|None,
-        dens_mass_value: float|None,
-        dens_vol_unit: str|None,
-        dens_vol_value: float|None,
+        dens_mass_unit: str | None,
+        dens_mass_value: float | None,
+        dens_vol_unit: str | None,
+        dens_vol_value: float | None,
     ) -> None:
         """Updates the density data for the given ingredient."""
         self.db.execute(

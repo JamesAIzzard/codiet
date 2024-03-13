@@ -22,8 +22,8 @@ class NumericLineEdit(QLineEdit):
             return None
         return float(self.text())
 
-    def setText(self, value: float, decimals: int = 1) -> None:
+    def setText(self, value: float, pad_decimals: int = 1) -> None:
         """Set the text of the line edit to the given value,
         formatted to the specified number of decimal places."""
-        formatted_value = f"{value:.{decimals}f}"
+        formatted_value = f"{value:.{pad_decimals}f}"
         super().setText(formatted_value)

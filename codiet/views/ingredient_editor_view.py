@@ -165,31 +165,31 @@ class IngredientEditorView(QWidget):
         label = QLabel("Density:")
         lyt_density.addWidget(label)
 
-        # Create a textbox and add it to the layout
-        self.txt_density = QLineEdit()
-        lyt_density.addWidget(self.txt_density)
+        # Create the density volume textbox and add it to the layout
+        self.txt_dens_vol = NumericLineEdit()
+        lyt_density.addWidget(self.txt_dens_vol)
 
-        # Create a volume units dropdown and add it to the layout
-        self.cmb_vol_units = QComboBox()
+        # Create a density volume units dropdown and add it to the layout
+        self.cmb_dens_vol_unit = QComboBox()
         # Temporarily add units, these will get pulled from config file later
         # TODO - pull units from config file
-        self.cmb_vol_units.addItems(["ml", "l"])
-        lyt_density.addWidget(self.cmb_vol_units)
+        self.cmb_dens_vol_unit.addItems(["ml", "l"])
+        lyt_density.addWidget(self.cmb_dens_vol_unit)
 
         # Create another label and add it to the layout
         label = QLabel(" weighs ")
         lyt_density.addWidget(label)
 
         # Create a textbox and add it to the layout
-        self.txt_mass = QLineEdit()
-        lyt_density.addWidget(self.txt_mass)
+        self.txt_dens_mass = NumericLineEdit()
+        lyt_density.addWidget(self.txt_dens_mass)
 
         # Create a mass units dropdown and add it to the layout
-        self.cmb_mass_units = QComboBox()
+        self.cmb_pc_mass_unit = QComboBox()
         # Temporarily add units, these will get pulled from config file later
         # TODO - pull units from config file
-        self.cmb_mass_units.addItems(["g", "kg"])
-        lyt_density.addWidget(self.cmb_mass_units)
+        self.cmb_pc_mass_unit.addItems(["g", "kg"])
+        lyt_density.addWidget(self.cmb_pc_mass_unit)
         
         # Add a horizontal layout for the piece mass editor
         lyt_piece_mass = QHBoxLayout()
@@ -200,22 +200,22 @@ class IngredientEditorView(QWidget):
         lyt_piece_mass.addWidget(label)
 
         # Create a textbox and add it to the layout
-        self.txt_piece_qty = QLineEdit()
-        lyt_piece_mass.addWidget(self.txt_piece_qty)
+        self.txt_num_pieces = NumericLineEdit()
+        lyt_piece_mass.addWidget(self.txt_num_pieces)
 
         # Create another label
         label = QLabel(" piece(s) weighs ")
         lyt_piece_mass.addWidget(label)
 
         # Create a textbox and add it to the layout
-        self.txt_piece_mass = QLineEdit()
-        lyt_piece_mass.addWidget(self.txt_piece_mass)
+        self.txt_pc_mass_value = NumericLineEdit()
+        lyt_piece_mass.addWidget(self.txt_pc_mass_value)
 
         # Create a mass units dropdown and add it to the layout
-        self.cmb_mass_units = QComboBox()
+        self.cmb_pc_mass_unit = QComboBox()
         # Temporarily add units, these will get pulled from config file later
         # TODO - pull units from config file
-        self.cmb_mass_units.addItems(["g", "kg"])
-        lyt_piece_mass.addWidget(self.cmb_mass_units)
+        self.cmb_pc_mass_unit.addItems(["g", "kg"])
+        lyt_piece_mass.addWidget(self.cmb_pc_mass_unit)
 
 # EOF

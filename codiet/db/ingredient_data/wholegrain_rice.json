@@ -1,5 +1,6 @@
 {
     "name": "Wholegrain Rice",
+    "description": "",
     "cost": {
         "cost_unit": "GBP",
         "cost_value": 1.97,

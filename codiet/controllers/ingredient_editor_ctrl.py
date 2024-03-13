@@ -69,13 +69,28 @@ class IngredientEditorCtrl:
         self.view.txt_ingredient_name.setText(self.ingredient.name)
 
         # Update description field
-        # TODO: Populate description field
+        self.view.txt_description.setText(self.ingredient.description)
 
         # Update cost fields
         self.set_ingredient_cost(
             self.ingredient.cost_value,
             self.ingredient.cost_qty_value,
             self.ingredient.cost_qty_unit,
+        )
+
+        # Update the bulk properties fields
+        self.set_density_properties(
+            self.ingredient.density_vol_value,
+            self.ingredient.density_vol_unit,
+            self.ingredient.density_mass_value,
+            self.ingredient.density_mass_unit,
+        )
+
+        # Update the piece mass fields
+        self.set_piece_mass_properties(
+            self.ingredient.pc_qty,
+            self.ingredient.pc_mass_value,
+            self.ingredient.pc_mass_unit,
         )
 
     def set_ingredient_cost(
@@ -87,7 +102,7 @@ class IngredientEditorCtrl:
         """Set the ingredient cost."""
         # Set the actual cost value
         if cost_value is not None:
-            self.view.txt_cost.setText(cost_value, decimals=2)
+            self.view.txt_cost.setText(cost_value, pad_decimals=2)
         else:
             self.view.txt_cost.clear()
 
@@ -99,6 +114,54 @@ class IngredientEditorCtrl:
 
         # Set the cost quantity unit
         self.view.cmb_cost_qty_unit.setCurrentText(cost_qty_unit)
+
+    def set_density_properties(
+        self,
+        dens_vol_value: float | None,
+        dens_vol_unit: str,
+        dens_mass_value: float | None,
+        dens_mass_unit: str,
+    ):
+        """Updates the UI to show the density values provided."""
+        # Set the density volume value
+        if dens_vol_value is not None:
+            self.view.txt_dens_vol.setText(dens_vol_value)
+        else:
+            self.view.txt_dens_vol.clear()
+
+        # Set the density volume unit
+        self.view.cmb_dens_vol_unit.setCurrentText(dens_vol_unit)
+
+        # Set the density mass value
+        if dens_mass_value is not None:
+            self.view.txt_dens_mass.setText(dens_mass_value)
+        else:
+            self.view.txt_dens_mass.clear()
+
+        # Set the density mass unit
+        self.view.cmb_pc_mass_unit.setCurrentText(dens_mass_unit)
+
+    def set_piece_mass_properties(
+        self, 
+        pc_quantity: float | None, 
+        pc_mass_value: float | None,
+        pc_mass_unit: str
+    ):
+        """Updates the UI to show the piece mass values provided."""
+        # Set the piece count value
+        if pc_quantity is not None:
+            self.view.txt_num_pieces.setText(pc_quantity)
+        else:
+            self.view.txt_num_pieces.clear()
+
+        # Set the piece mass value
+        if pc_mass_value is not None:
+            self.view.txt_pc_mass_value.setText(pc_mass_value)
+        else:
+            self.view.txt_pc_mass_value.clear()
+
+        # Set the piece mass unit
+        self.view.cmb_pc_mass_unit.setCurrentText(pc_mass_unit)
 
     def reset_all_fields(self):
         """Reset all fields in the view."""
