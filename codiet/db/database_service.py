@@ -61,9 +61,20 @@ class DatabaseService:
         # If the ingredient ID is not present, raise an exception
         if ingredient.id is None:
             raise ValueError("Ingredient ID must be set.")
+        
+        # An ingredient cannot be edited to not have a name,
+        # so if the name is not set, raise an exception
+        if ingredient.name is None:
+            raise ValueError("Ingredient name must be set.")
 
         with self.repo.db.connection:
             try:
+                # Update the ingredient name
+                self.repo.update_ingredient_name(
+                    ingredient_id=ingredient.id,
+                    name=ingredient.name,
+                )
+
                 # Update the ingredient cost data
                 self.repo.update_ingredient_cost(
                     ingredient_id=ingredient.id,

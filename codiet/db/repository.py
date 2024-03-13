@@ -67,6 +67,17 @@ class Repository:
             else:
                 raise e
 
+    def update_ingredient_name(self, ingredient_id: int, name: str) -> None:
+        """Updates the name of the given ingredient."""
+        self.db.execute(
+            """
+            UPDATE ingredient_base
+            SET ingredient_name = ?
+            WHERE ingredient_id = ?;
+        """,
+            (name, ingredient_id),
+        )
+
     def insert_ingredient_cost(
         self,
         ingredient_id: int,

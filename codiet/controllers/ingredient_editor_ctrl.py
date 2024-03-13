@@ -160,7 +160,7 @@ class IngredientEditorCtrl:
                 _ = dialog.exec()
 
             except ingredient_exceptions.IngredientNameExistsError as e:
-                # Create a generic error box
+                # Create an error box for duplicate ingredient name
                 dialog = ErrorDialogBoxView(
                     message=f"An ingredient called {e.ingredient_name} already exists.",
                     title="Duplicate Ingredient Name",
