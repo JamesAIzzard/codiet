@@ -91,22 +91,6 @@ class Repository:
             (description, ingredient_id),
         )
 
-    def insert_ingredient_cost(
-        self,
-        ingredient_id: int,
-        cost_value: Optional[float],
-        qty_unit: Optional[str],
-        qty_value: Optional[float],
-    ) -> None:
-        """Sets the cost data for the given ingredient."""
-        self.db.execute(
-            """
-            INSERT INTO ingredient_cost (ingredient_id, cost_unit, cost_value, qty_unit, qty_value)
-            VALUES (?, 'GBP', ?, ?, ?);
-        """,
-            (ingredient_id, cost_value, qty_unit, qty_value),
-        )
-
     def update_ingredient_cost(
         self,
         ingredient_id: int,
@@ -117,33 +101,11 @@ class Repository:
         """Updates the cost data for the given ingredient."""
         self.db.execute(
             """
-            UPDATE ingredient_cost
+            UPDATE ingredient_base
             SET cost_value = ?, qty_unit = ?, qty_value = ?
             WHERE ingredient_id = ?;
         """,
             (cost_value, qty_unit, qty_value, ingredient_id),
-        )
-
-    def insert_ingredient_density(
-        self,
-        ingredient_id: int,
-        dens_mass_unit: str | None,
-        dens_mass_value: float | None,
-        dens_vol_unit: str | None,
-        dens_vol_value: float | None,
-    ):
-        self.db.execute(
-            """
-            INSERT INTO ingredient_bulk (ingredient_id, density_mass_unit, density_mass_value, density_vol_unit, density_vol_value)
-            VALUES (?, ?, ?, ?, ?);
-        """,
-            (
-                ingredient_id,
-                dens_mass_unit,
-                dens_mass_value,
-                dens_vol_unit,
-                dens_vol_value,
-            ),
         )
 
     def update_ingredient_density(
@@ -157,7 +119,7 @@ class Repository:
         """Updates the density data for the given ingredient."""
         self.db.execute(
             """
-            UPDATE ingredient_bulk
+            UPDATE ingredient_base
             SET density_mass_unit = ?, density_mass_value = ?, density_vol_unit = ?, density_vol_value = ?
             WHERE ingredient_id = ?;
         """,
@@ -168,6 +130,23 @@ class Repository:
                 dens_vol_value,
                 ingredient_id,
             ),
+        )
+
+    def update_ingredient_pc_mass(
+        self,
+        ingredient_id: int,
+        pc_qty: float | None,
+        pc_mass_unit: str | None,
+        pc_mass_value: float | None,
+    ) -> None:
+        """Updates the piece mass data for the given ingredient."""
+        self.db.execute(
+            """
+            UPDATE ingredient_base
+            SET pc_qty = ?, pc_mass_unit = ?, pc_mass_value = ?
+            WHERE ingredient_id = ?;
+        """,
+            (pc_qty, pc_mass_unit, pc_mass_value, ingredient_id),
         )
 
     def fetch_ingredient(self, name: str) -> Ingredient:
@@ -196,7 +175,7 @@ class Repository:
         cost_data = self.db.execute(
             """
             SELECT cost_value, qty_unit, qty_value
-            FROM ingredient_cost
+            FROM ingredient_base
             WHERE ingredient_id = ?;
         """,
             (ingredient_id,),
@@ -210,7 +189,7 @@ class Repository:
         bulk_data = self.db.execute(
             """
             SELECT density_mass_unit, density_mass_value, density_vol_unit, density_vol_value
-            FROM ingredient_bulk
+            FROM ingredient_base
             WHERE ingredient_id = ?;
         """,
             (ingredient_id,),
@@ -220,6 +199,20 @@ class Repository:
         ingredient.density_mass_value = bulk_data[1]
         ingredient.density_vol_unit = bulk_data[2]
         ingredient.density_vol_value = bulk_data[3]
+
+        # Get the piece mass details
+        pc_mass_data = self.db.execute(
+            """
+            SELECT pc_qty, pc_mass_unit, pc_mass_value
+            FROM ingredient_base
+            WHERE ingredient_id = ?;
+        """,
+            (ingredient_id,),
+        ).fetchone()
+        # Populate piece mass fields on ingredient
+        ingredient.pc_qty = pc_mass_data[0]
+        ingredient.pc_mass_unit = pc_mass_data[1]
+        ingredient.pc_mass_value = pc_mass_data[2]
 
         # Get the flags
         flag_data = self.db.execute(

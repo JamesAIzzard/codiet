@@ -23,30 +23,18 @@ def _create_schema(cursor):
             ingredient_id INTEGER PRIMARY KEY,
             ingredient_name TEXT NOT NULL UNIQUE,
             description TEXT,
-            gi REAL
-        )
-    """)
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS ingredient_cost (
-            ingredient_id INTEGER PRIMARY KEY,
+            gi REAL,
             cost_unit TEXT,
             cost_value REAL,
             qty_unit TEXT,
             qty_value REAL,
-            FOREIGN KEY (ingredient_id) REFERENCES ingredient_base(ingredient_id)
-        )
-    """)
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS ingredient_bulk (
-            ingredient_id INTEGER PRIMARY KEY,
             density_mass_unit TEXT,
             density_mass_value REAL,
             density_vol_unit TEXT,
             density_vol_value REAL,
             pc_qty REAL,
             pc_mass_unit TEXT,
-            pc_mass_value REAL,
-            FOREIGN KEY (ingredient_id) REFERENCES ingredient_base(ingredient_id)
+            pc_mass_value REAL
         )
     """)
     cursor.execute("""

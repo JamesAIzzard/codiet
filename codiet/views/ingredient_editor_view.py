@@ -185,11 +185,11 @@ class IngredientEditorView(QWidget):
         lyt_density.addWidget(self.txt_dens_mass)
 
         # Create a mass units dropdown and add it to the layout
-        self.cmb_pc_mass_unit = QComboBox()
+        self.cmb_dens_mass_unit = QComboBox()
         # Temporarily add units, these will get pulled from config file later
         # TODO - pull units from config file
-        self.cmb_pc_mass_unit.addItems(["g", "kg"])
-        lyt_density.addWidget(self.cmb_pc_mass_unit)
+        self.cmb_dens_mass_unit.addItems(["g", "kg"])
+        lyt_density.addWidget(self.cmb_dens_mass_unit)
         
         # Add a horizontal layout for the piece mass editor
         lyt_piece_mass = QHBoxLayout()

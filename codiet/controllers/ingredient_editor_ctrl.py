@@ -42,12 +42,18 @@ class IngredientEditorCtrl:
         )
 
         # Connect the view signals to the controller methods
+        
+        # Connect the name field
         self.view.txt_ingredient_name.textChanged.connect(
             self.on_ingredient_name_changed
         )
+
+        # Connect the description field
         self.view.txt_description.textChanged.connect(
             self.on_ingredient_description_changed
         )
+
+        # Connect the cost fields
         self.view.txt_cost.textChanged.connect(self.on_ingredient_cost_value_changed)
         self.view.txt_cost_quantity.textChanged.connect(
             self.on_ingredient_cost_quantity_changed
@@ -55,9 +61,36 @@ class IngredientEditorCtrl:
         self.view.cmb_cost_qty_unit.currentTextChanged.connect(
             self.on_ingredient_cost_qty_unit_changed
         )
+
+        # Connect the density fields
+        self.view.txt_dens_vol.textChanged.connect(
+            self.on_ingredient_density_vol_value_changed
+        )
+        self.view.cmb_dens_vol_unit.currentTextChanged.connect(
+            self.on_ingredient_density_vol_unit_changed
+        )
+        self.view.txt_dens_mass.textChanged.connect(
+            self.on_ingredient_density_mass_value_changed
+        )
+        self.view.cmb_dens_mass_unit.currentTextChanged.connect(
+            self.on_ingredient_density_mass_unit_changed
+        )
+
+        # Connect the piece mass fields
+        self.view.txt_num_pieces.textChanged.connect(
+            self.on_ingredient_num_pieces_changed
+        )
+        self.view.txt_pc_mass_value.textChanged.connect(
+            self.on_ingredient_pc_mass_value_changed
+        )
+        self.view.cmb_pc_mass_unit.currentTextChanged.connect(
+            self.on_ingredient_pc_mass_unit_changed
+        )
+        
+        # Connect the save button
         self.view.btn_save_ingredient.pressed.connect(self.on_save_ingredient_pressed)
 
-    def set_ingredient_instance(self, ingredient: Ingredient):
+    def load_ingredient_instance(self, ingredient: Ingredient):
         """Set the ingredient instance to edit."""
         # Clear all fields
         self.reset_all_fields()
@@ -180,6 +213,27 @@ class IngredientEditorCtrl:
         # Clear the cost quantity unit field
         self.view.cmb_cost_qty_unit.setCurrentText("g")
 
+        # Clear the density volume value field
+        self.view.txt_dens_vol.clear()
+
+        # Clear the density volume unit field
+        self.view.cmb_dens_vol_unit.setCurrentText("ml")
+
+        # Clear the density mass value field
+        self.view.txt_dens_mass.clear()
+
+        # Clear the density mass unit field
+        self.view.cmb_dens_mass_unit.setCurrentText("g")
+
+        # Clear the piece count field
+        self.view.txt_num_pieces.clear()
+
+        # Clear the piece mass value field
+        self.view.txt_pc_mass_value.clear()
+
+        # Clear the piece mass unit field
+        self.view.cmb_pc_mass_unit.setCurrentText("g")
+
     def on_ingredient_name_changed(self):
         """Handler for changes to the ingredient name."""
         # Update the ingredient name
@@ -204,6 +258,41 @@ class IngredientEditorCtrl:
         """Handler for changes to the ingredient cost unit."""
         # Update the ingredient cost unit
         self.ingredient.cost_qty_unit = self.view.cmb_cost_qty_unit.currentText()
+
+    def on_ingredient_density_vol_value_changed(self):
+        """Handler for changes to the ingredient density volume value."""
+        # Update the ingredient density volume value
+        self.ingredient.density_vol_value = self.view.txt_dens_vol.value
+
+    def on_ingredient_density_vol_unit_changed(self):
+        """Handler for changes to the ingredient density volume unit."""
+        # Update the ingredient density volume unit
+        self.ingredient.density_vol_unit = self.view.cmb_dens_vol_unit.currentText()
+
+    def on_ingredient_density_mass_value_changed(self):
+        """Handler for changes to the ingredient density mass value."""
+        # Update the ingredient density mass value
+        self.ingredient.density_mass_value = self.view.txt_dens_mass.value
+
+    def on_ingredient_density_mass_unit_changed(self):
+        """Handler for changes to the ingredient density mass unit."""
+        # Update the ingredient density mass unit
+        self.ingredient.density_mass_unit = self.view.cmb_dens_mass_unit.currentText()
+
+    def on_ingredient_num_pieces_changed(self):
+        """Handler for changes to the ingredient piece count."""
+        # Update the ingredient piece count
+        self.ingredient.pc_qty = self.view.txt_num_pieces.value
+
+    def on_ingredient_pc_mass_value_changed(self):
+        """Handler for changes to the ingredient piece mass value."""
+        # Update the ingredient piece mass value
+        self.ingredient.pc_mass_value = self.view.txt_pc_mass_value.value
+
+    def on_ingredient_pc_mass_unit_changed(self):
+        """Handler for changes to the ingredient piece mass unit."""
+        # Update the ingredient piece mass unit
+        self.ingredient.pc_mass_unit = self.view.cmb_pc_mass_unit.currentText()
 
     def on_save_ingredient_pressed(self):
         """Handler for the save ingredient button."""

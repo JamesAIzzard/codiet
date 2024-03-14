@@ -27,7 +27,7 @@ class DatabaseService:
                 ingredient_id = self.repo.fetch_ingredient_id(ingredient.name)
 
                 # Add the ingredient cost data
-                self.repo.insert_ingredient_cost(
+                self.repo.update_ingredient_cost(
                     ingredient_id=ingredient_id,
                     cost_value=ingredient.cost_value,
                     qty_unit=ingredient.cost_qty_unit,
@@ -35,7 +35,7 @@ class DatabaseService:
                 )
 
                 # Add the ingredient density data
-                self.repo.insert_ingredient_density(
+                self.repo.update_ingredient_density(
                     ingredient_id=ingredient_id,
                     dens_mass_unit=ingredient.density_mass_unit,
                     dens_mass_value=ingredient.density_mass_value,
@@ -96,6 +96,14 @@ class DatabaseService:
                     dens_mass_value=ingredient.density_mass_value,
                     dens_vol_unit=ingredient.density_vol_unit,
                     dens_vol_value=ingredient.density_vol_value,
+                )
+
+                # Update the ingredient piece mass data
+                self.repo.update_ingredient_pc_mass(
+                    ingredient_id=ingredient.id,
+                    pc_qty=ingredient.pc_qty,
+                    pc_mass_unit=ingredient.pc_mass_unit,
+                    pc_mass_value=ingredient.pc_mass_value,
                 )
 
                 # Commit the transaction

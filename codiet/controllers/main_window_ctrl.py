@@ -18,7 +18,7 @@ class MainWindowCtrl:
         self.ingredient_search_popup_ctrl = IngredientSearchPopupCtrl(
             self.view.ingredient_search_view,
             self.db_service,
-            self.ingredient_editor_ctrl.set_ingredient_instance,
+            self.ingredient_editor_ctrl.load_ingredient_instance,
         )
         # Instantiate the recipe editor controller
         self.recipe_editor_ctrl = RecipeEditorCtrl(
@@ -50,7 +50,7 @@ class MainWindowCtrl:
         # Turn off edit mode
         self.ingredient_editor_ctrl.edit_mode = False
         # Put a new ingredient in the editor
-        self.ingredient_editor_ctrl.set_ingredient_instance(Ingredient())
+        self.ingredient_editor_ctrl.load_ingredient_instance(Ingredient())
         # Show the editor
         self.view.show_ingredient_editor()
 
