@@ -48,6 +48,12 @@ def _populate_ingredients(db_service: DatabaseService):
         ingredient.density_vol_unit = data["bulk"]["density"]["vol_unit"]
         ingredient.density_vol_value = data["bulk"]["density"]["vol_value"]
 
+        # Add the flags
+        ingredient.flags = data["flags"]
+
+        # Add the nutrients
+        ingredient.nutrients = data["nutrients"]
+
         # Save the ingredient
         db_service.create_ingredient(ingredient)
 

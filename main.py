@@ -24,8 +24,8 @@ if __name__ == "__main__":
         repo = Repository(db)
         db_service = DatabaseService(repo)
         _populate_flags(db_service)
-        _populate_ingredients(db_service)
         _populate_nutrients(db_service)
+        _populate_ingredients(db_service)
     else:
         # Open the existing database
         db = Database(DB_PATH)

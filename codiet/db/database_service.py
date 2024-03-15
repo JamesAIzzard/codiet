@@ -43,6 +43,20 @@ class DatabaseService:
                     dens_vol_value=ingredient.density_vol_value,
                 )
 
+                # Add the ingredient piece mass data
+                self.repo.update_ingredient_pc_mass(
+                    ingredient_id=ingredient_id,
+                    pc_qty=ingredient.pc_qty,
+                    pc_mass_unit=ingredient.pc_mass_unit,
+                    pc_mass_value=ingredient.pc_mass_value,
+                )
+
+                # Add the flags
+                self.repo.update_ingredient_flags(ingredient_id, ingredient.flags)
+
+                # Add the nutrients
+                self.repo.update_ingredient_nutrients(ingredient_id, ingredient.nutrients)
+
                 # Commit the transaction
                 self.repo.db.connection.commit()
 

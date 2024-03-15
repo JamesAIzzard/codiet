@@ -1,8 +1,8 @@
-from typing import Optional
+from typing import List, Dict
 
 
 class Ingredient:
-    def __init__(self, name: Optional[str] = None):
+    def __init__(self, name: str | None = None):
         self.name = name
         self.id: int | None = None
         self.description: str | None = None
@@ -17,9 +17,9 @@ class Ingredient:
         self.pc_qty: float | None = None
         self.pc_mass_unit: str = "g"
         self.pc_mass_value: float | None = None
-        self.flags = []
-        self.gi = None
-        self.nutrients = {}
+        self.flags: List[str] = []
+        self.gi: float | None = None
+        self.nutrients: dict[str, dict[str, float|str]] = {}
 
     @property
     def populated_nutrients(self) -> list[str]:
@@ -33,15 +33,15 @@ class Ingredient:
     def add_nutrient_qty(
         self,
         nutrient_name: str,
-        ntr_qty: float,
+        ntr_qty_value: float,
         ntr_qty_unit: str,
-        ing_qty: float,
+        ing_qty_value: float,
         ing_qty_unit: str,
     ) -> None:
         """Adds a nutrient to the ingredient."""
         self.nutrients[nutrient_name] = {
-            "ntr_qty": ntr_qty,
+            "ntr_qty_value": ntr_qty_value, # nutrient quantity
             "ntr_qty_unit": ntr_qty_unit,
-            "ing_qty": ing_qty,
+            "ing_qty_value": ing_qty_value, # ingredient quantity
             "ing_qty_unit": ing_qty_unit,
         }

@@ -49,9 +49,9 @@ class TestIngredientAddNutrientQty(TestCase):
         ingredient = Ingredient(name="test")
         ingredient.add_nutrient_qty(
             nutrient_name="test_nutrient",
-            ntr_qty=1.0,
+            ntr_qty_value=1.0,
             ntr_qty_unit="g",
-            ing_qty=1.0,
+            ing_qty_value=1.0,
             ing_qty_unit="g",
         )
         self.assertEqual(

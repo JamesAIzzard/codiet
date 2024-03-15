@@ -149,6 +149,61 @@ class Repository:
             (pc_qty, pc_mass_unit, pc_mass_value, ingredient_id),
         )
 
+    def update_ingredient_flags(self, ingredient_id: int, flags: list[str]) -> None:
+        """Updates the flags for the given ingredient."""
+        # Clear the existing flags
+        self.db.execute(
+            """
+            DELETE FROM ingredient_flags WHERE ingredient_id = ?;
+        """,
+            (ingredient_id,),
+        )
+        # Add the new flags
+        for flag in flags:
+            flag_id = self.fetch_flag_id(flag)
+            self.db.execute(
+                """
+                INSERT INTO ingredient_flags (ingredient_id, flag_id) VALUES (?, ?);
+            """,
+                (ingredient_id, flag_id),
+            )
+
+    def update_ingredient_nutrients(
+        self, ingredient_id: int, nutrients: dict[str, dict[str, float|str]]
+    ) -> None:
+        """Updates the nutrients for the given ingredient."""
+        # Clear the existing nutrients
+        self.db.execute(
+            """
+            DELETE FROM ingredient_nutrient WHERE ingredient_id = ?;
+        """,
+            (ingredient_id,),
+        )
+        # Add the new nutrients
+        for nutrient, data in nutrients.items():
+            # Get the nutrient ID
+            nutrient_id = self.db.execute(
+                """
+                SELECT nutrient_id FROM nutrient_list WHERE nutrient_name = ?;
+            """,
+                (nutrient,),
+            ).fetchone()[0]
+            # Add the nutrient
+            self.db.execute(
+                """
+                INSERT INTO ingredient_nutrient (ingredient_id, nutrient_id, ntr_qty_unit, ntr_qty_value, ing_qty_unit, ing_qty_value)
+                VALUES (?, ?, ?, ?, ?, ?);
+            """,
+                (
+                    ingredient_id,
+                    nutrient_id,
+                    data["ntr_qty_unit"],
+                    data["ntr_qty_value"],
+                    data["ing_qty_unit"],
+                    data["ing_qty_value"],
+                ),
+            )
+
     def fetch_ingredient(self, name: str) -> Ingredient:
         """Retrieves all the data for the named ingredient and
         returns a populated ingredient object."""

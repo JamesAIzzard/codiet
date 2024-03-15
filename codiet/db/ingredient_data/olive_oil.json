@@ -32,74 +32,46 @@
   "GI": 0,
   "nutrients": {
     "protein": {
-      "quantity": {
-        "unit": "g",
-        "value": 0
-      },
-      "in_serving_size": {
-        "unit": "ml",
-        "value": 100
-      }
+      "ntr_qty_value": 0,
+      "ntr_qty_unit": "g",
+      "ing_qty_value": 100,
+      "ing_qty_unit": "ml"
     },
-    "trans_fat": {
-      "quantity": {
-        "unit": "g",
-        "value": 0
-      },
-      "in_serving_size": {
-        "unit": "ml",
-        "value": 100
-      }
+    "trans fat": {
+      "ntr_qty_value": 0,
+      "ntr_qty_unit": "g",
+      "ing_qty_value": 100,
+      "ing_qty_unit": "ml"
     },
-    "polyunsaturated_fat": {
-      "quantity": {
-        "unit": "g",
-        "value": 1.6
-      },
-      "in_serving_size": {
-        "unit": "ml",
-        "value": 100
-      }
+    "polyunsaturated fat": {
+      "ntr_qty_value": 1.6,
+      "ntr_qty_unit": "g",
+      "ing_qty_value": 100,
+      "ing_qty_unit": "ml"
     },
-    "monounsaturated_fat": {
-      "quantity": {
-        "unit": "g",
-        "value": 9.8
-      },
-      "in_serving_size": {
-        "unit": "ml",
-        "value": 100
-      }
+    "monounsaturated fat": {
+      "ntr_qty_value": 9.8,
+      "ntr_qty_unit": "g",
+      "ing_qty_value": 100,
+      "ing_qty_unit": "ml"
     },
-    "saturated_fat": {
-      "quantity": {
-        "unit": "g",
-        "value": 1.9
-      },
-      "in_serving_size": {
-        "unit": "ml",
-        "value": 100
-      }
+    "saturated fat": {
+      "ntr_qty_value": 1.9,
+      "ntr_qty_unit": "g",
+      "ing_qty_value": 100,
+      "ing_qty_unit": "ml"
     },
     "carbohydrate": {
-      "quantity": {
-        "unit": "g",
-        "value": 0
-      },
-      "in_serving_size": {
-        "unit": "ml",
-        "value": 100
-      }
+      "ntr_qty_value": 0,
+      "ntr_qty_unit": "g",
+      "ing_qty_value": 100,
+      "ing_qty_unit": "ml"
     },
     "sodium": {
-      "quantity": {
-        "unit": "mg",
-        "value": 0
-      },
-      "in_serving_size": {
-        "unit": "ml",
-        "value": 100
-      }
+      "ntr_qty_value": 0,
+      "ntr_qty_unit": "mg",
+      "ing_qty_value": 100,
+      "ing_qty_unit": "ml"
     }
   }
 }

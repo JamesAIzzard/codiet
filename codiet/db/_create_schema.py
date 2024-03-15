@@ -55,10 +55,10 @@ def _create_schema(cursor):
         CREATE TABLE IF NOT EXISTS ingredient_nutrient (
             ingredient_id INTEGER,
             nutrient_id INTEGER,
-            quantity_unit TEXT,
-            quantity_value REAL,
-            serving_size_unit TEXT,
-            serving_size_value REAL,
+            ntr_qty_unit TEXT,
+            ntr_qty_value REAL,
+            ing_qty_unit TEXT,
+            ing_qty_value REAL,
             FOREIGN KEY (ingredient_id) REFERENCES ingredient_base(ingredient_id),
             FOREIGN KEY (nutrient_id) REFERENCES nutrient_list(nutrient_id)
         )

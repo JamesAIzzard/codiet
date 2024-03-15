@@ -3,7 +3,7 @@
     "description": "",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 3.00,
+        "cost_value": 3.0,
         "qty_unit": "kg",
         "qty_value": 1
     },
@@ -32,74 +32,46 @@
     "GI": 10,
     "nutrients": {
         "protein": {
-            "quantity": {
-                "unit": "g",
-                "value": 1.1
-            },
-            "in_serving_size": {
-                "unit": "g",
-                "value": 100
-            }
+            "ntr_qty_value": 1.1,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 100,
+            "ing_qty_unit": "g"
         },
-        "trans_fat": {
-            "quantity": {
-                "unit": "g",
-                "value": 0
-            },
-            "in_serving_size": {
-                "unit": "g",
-                "value": 100
-            }
+        "trans fat": {
+            "ntr_qty_value": 0,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 100,
+            "ing_qty_unit": "g"
         },
-        "polyunsaturated_fat": {
-            "quantity": {
-                "unit": "g",
-                "value": 0.017
-            },
-            "in_serving_size": {
-                "unit": "g",
-                "value": 100
-            }
+        "polyunsaturated fat": {
+            "ntr_qty_value": 0.017,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 100,
+            "ing_qty_unit": "g"
         },
-        "monounsaturated_fat": {
-            "quantity": {
-                "unit": "g",
-                "value": 0.013
-            },
-            "in_serving_size": {
-                "unit": "g",
-                "value": 100
-            }
+        "monounsaturated fat": {
+            "ntr_qty_value": 0.013,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 100,
+            "ing_qty_unit": "g"
         },
-        "saturated_fat": {
-            "quantity": {
-                "unit": "g",
-                "value": 0.042
-            },
-            "in_serving_size": {
-                "unit": "g",
-                "value": 100
-            }
+        "saturated fat": {
+            "ntr_qty_value": 0.042,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 100,
+            "ing_qty_unit": "g"
         },
         "carbohydrate": {
-            "quantity": {
-                "unit": "g",
-                "value": 9.34
-            },
-            "in_serving_size": {
-                "unit": "g",
-                "value": 100
-            }
+            "ntr_qty_value": 9.34,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 100,
+            "ing_qty_unit": "g"
         },
         "sodium": {
-            "quantity": {
-                "unit": "mg",
-                "value": 4
-            },
-            "in_serving_size": {
-                "unit": "g",
-                "value": 100
-            }
+            "ntr_qty_value": 4,
+            "ntr_qty_unit": "mg",
+            "ing_qty_value": 100,
+            "ing_qty_unit": "g"
         }
     }
 }
