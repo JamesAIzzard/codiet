@@ -285,7 +285,7 @@ class Repository:
         # Get the nutrient data
         nutrient_data = self.db.execute(
             """
-            SELECT nutrient_name, quantity_unit, quantity_value, serving_size_unit, serving_size_value
+            SELECT nutrient_name, ntr_qty_unit, ntr_qty_value, ing_qty_unit, ing_qty_value
             FROM nutrient_list
             JOIN ingredient_nutrient ON nutrient_list.nutrient_id = ingredient_nutrient.nutrient_id
             WHERE ingredient_id = ?;
@@ -295,9 +295,9 @@ class Repository:
         # Populate nutrients on ingredient
         for row in nutrient_data:
             ingredient.nutrients[row[0]] = {
-                "ntr_qty": row[2],
+                "ntr_qty_value": row[2],
                 "ntr_qty_unit": row[1],
-                "ing_qty": row[4],
+                "ing_qty_value": row[4],
                 "ing_qty_unit": row[3],
             }
 
