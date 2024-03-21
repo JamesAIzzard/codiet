@@ -14,6 +14,14 @@ class FlagEditorView(QWidget):
     def __init__(self):
         super().__init__()
 
+        # Build the UI
+        self._build_ui()
+
+        # Create a dict of the flag ui elements
+        self.flags = {}
+
+    def _build_ui(self):
+        """Build the UI for the flag editor"""
         # Create a vertical layout for the widget
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -30,11 +38,11 @@ class FlagEditorView(QWidget):
         outer_group_box.setLayout(columns_layout)
 
         # Add a listbox of checkable items to the LHS column
-        self.listWidget = QListWidget()
+        self.lstFlagCheckboxes = QListWidget()
 
         # Reduce padding at the top of the group box
         columns_layout.setContentsMargins(5, 5, 5, 5)
-        columns_layout.addWidget(self.listWidget, 1)
+        columns_layout.addWidget(self.lstFlagCheckboxes, 1)
 
         # Create a vertical list of buttons in the RHS column
         buttons_layout = QVBoxLayout()
@@ -56,9 +64,6 @@ class FlagEditorView(QWidget):
         # Push the buttons to the top
         buttons_layout.addStretch()
 
-        # Create a dict of the flag ui elements
-        self.flags = {}
-
     def add_flag_to_list(self, flag_name) -> None:
         """Adds a flag to the list of checkable flags"""
         # Create the item
@@ -70,7 +75,7 @@ class FlagEditorView(QWidget):
         # Set the item as initially unchecked
         item.setCheckState(Qt.CheckState.Unchecked)
         # Add the item to the UI
-        self.listWidget.addItem(item)
+        self.lstFlagCheckboxes.addItem(item)
         # Add the item to the list in lowercase
         self.flags[flag_name.lower()] = item
 
@@ -81,6 +86,11 @@ class FlagEditorView(QWidget):
     def deselect_flag(self, flag: str):
         '''Update the flag to be deselected.'''
         self.flags[flag].setCheckState(Qt.CheckState.Unchecked)
+
+    def deselect_all_flags(self):
+        '''Deselect all flags.'''
+        for flag in self.flags:
+            self.flags[flag].setCheckState(Qt.CheckState.Unchecked)
 
     def invert_flag_selection(self, flag: str):
         '''Invert the selection of the flag.'''

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Dict
 import sqlite3
 
 from codiet.models.ingredient import Ingredient
@@ -26,7 +26,7 @@ class Repository:
         )
         return cursor.lastrowid
 
-    def fetch_all_flags(self) -> list[str]:
+    def fetch_all_flag_names(self) -> list[str]:
         """Returns a list of all the flags in the database."""
         rows = self.db.execute(
             """
@@ -149,7 +149,7 @@ class Repository:
             (pc_qty, pc_mass_unit, pc_mass_value, ingredient_id),
         )
 
-    def update_ingredient_flags(self, ingredient_id: int, flags: list[str]) -> None:
+    def update_ingredient_flags(self, ingredient_id: int, flags: Dict[str, bool]) -> None:
         """Updates the flags for the given ingredient."""
         # Clear the existing flags
         self.db.execute(
@@ -159,14 +159,15 @@ class Repository:
             (ingredient_id,),
         )
         # Add the new flags
-        for flag in flags:
+        for flag, value in flags.items():
             flag_id = self.fetch_flag_id(flag)
-            self.db.execute(
-                """
-                INSERT INTO ingredient_flags (ingredient_id, flag_id) VALUES (?, ?);
-            """,
-                (ingredient_id, flag_id),
-            )
+            if value:
+                self.db.execute(
+                    """
+                    INSERT INTO ingredient_flags (ingredient_id, flag_id) VALUES (?, ?);
+                """,
+                    (ingredient_id, flag_id),
+                )
 
     def update_ingredient_nutrients(
         self, ingredient_id: int, nutrients: dict[str, dict[str, float|str]]
@@ -210,8 +211,11 @@ class Repository:
         # Grab the ID of the ingredient
         ingredient_id = self.fetch_ingredient_id(name)
 
-        # Instantiate the ingredient
-        ingredient = Ingredient(name=name)
+        # Instantiate an ingredient instance
+        ingredient = Ingredient()
+
+        # Populate the ingredient name
+        ingredient.name = name
 
         # Populate the ingredient ID
         ingredient.id = ingredient_id
@@ -269,7 +273,9 @@ class Repository:
         ingredient.pc_mass_unit = pc_mass_data[1]
         ingredient.pc_mass_value = pc_mass_data[2]
 
-        # Get the flags
+        # Get a list of all the flags, init each as false
+        ingredient.set_flags({flag: False for flag in self.fetch_all_flag_names()})
+        # Get the flag data
         flag_data = self.db.execute(
             """
             SELECT flag_name
@@ -280,7 +286,7 @@ class Repository:
             (ingredient_id,),
         ).fetchall()
         # Populate flags on ingredient
-        ingredient.flags = [row[0] for row in flag_data]
+        ingredient.set_flags({row[0]: True for row in flag_data})
 
         # Get the nutrient data
         nutrient_data = self.db.execute(
@@ -350,7 +356,7 @@ class Repository:
         ).fetchall()
         return [row[0] for row in rows]
 
-    def insert_nutrient(self, name: str, parent_id: Optional[int]) -> int:
+    def insert_nutrient(self, name: str, parent_id: int | None) -> int:
         """Adds a nutrient to the database and returns the ID."""
         cursor = self.db.execute(
             """

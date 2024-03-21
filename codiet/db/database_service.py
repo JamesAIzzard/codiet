@@ -120,6 +120,9 @@ class DatabaseService:
                     pc_mass_value=ingredient.pc_mass_value,
                 )
 
+                # Update the flags
+                self.repo.update_ingredient_flags(ingredient.id, ingredient.flags)
+
                 # Commit the transaction
                 self.repo.db.connection.commit()
 
@@ -133,9 +136,9 @@ class DatabaseService:
         """Deletes the given ingredient from the database."""
         self.repo.delete_ingredient(ingredient_name)
 
-    def get_all_flags(self):
+    def fetch_flag_names(self) -> list[str]:
         """Returns a list of all the flags in the database."""
-        return self.repo.fetch_all_flags()
+        return self.repo.fetch_all_flag_names()
     
     def get_all_nutrient_names(self):
         """Returns a list of all the nutrients in the database."""

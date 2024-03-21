@@ -7,7 +7,7 @@ from codiet.controllers.flag_editor_ctrl import FlagEditorCtrl
 from codiet.controllers.ingredient_nutrients_editor_ctrl import (
     IngredientNutrientsEditorCtrl,
 )
-from codiet.models.ingredient import Ingredient
+from codiet.models.ingredient import Ingredient, create_ingredient
 from codiet.exceptions import ingredient_exceptions
 
 
@@ -26,14 +26,14 @@ class IngredientEditorCtrl:
 
         # Init an ingredient if not provided
         if ingredient is None:
-            self.ingredient = Ingredient()
+            self.ingredient = create_ingredient(db_service)
         # Otherwise, use the one you were given
         else:
             self.ingredient = ingredient
 
         # Instantiate the ingredient flag editor controller
         self.ingredient_flag_editor_ctrl = FlagEditorCtrl(
-            self.view.flag_editor_view, self.db_service
+            self.view.flag_editor_view, self.ingredient
         )
 
         # Instantiate the ingredient nutrient editor controller
@@ -42,7 +42,7 @@ class IngredientEditorCtrl:
         )
 
         # Connect the view signals to the controller methods
-        
+
         # Connect the name field
         self.view.txt_ingredient_name.textChanged.connect(
             self.on_ingredient_name_changed
@@ -86,7 +86,7 @@ class IngredientEditorCtrl:
         self.view.cmb_pc_mass_unit.currentTextChanged.connect(
             self.on_ingredient_pc_mass_unit_changed
         )
-        
+
         # Connect the save button
         self.view.btn_save_ingredient.pressed.connect(self.on_save_ingredient_pressed)
 
@@ -126,11 +126,11 @@ class IngredientEditorCtrl:
             self.ingredient.pc_mass_unit,
         )
 
+        # Update the instance on the flag editor
+        self.ingredient_flag_editor_ctrl.set_model(self.ingredient)
+
     def set_ingredient_cost(
-        self, 
-        cost_value: float | None, 
-        cost_qty_value: float | None, 
-        cost_qty_unit: str
+        self, cost_value: float | None, cost_qty_value: float | None, cost_qty_unit: str
     ):
         """Set the ingredient cost."""
         # Set the actual cost value
@@ -175,10 +175,7 @@ class IngredientEditorCtrl:
         self.view.cmb_pc_mass_unit.setCurrentText(dens_mass_unit)
 
     def set_piece_mass_properties(
-        self, 
-        pc_quantity: float | None, 
-        pc_mass_value: float | None,
-        pc_mass_unit: str
+        self, pc_quantity: float | None, pc_mass_value: float | None, pc_mass_unit: str
     ):
         """Updates the UI to show the piece mass values provided."""
         # Set the piece count value
@@ -233,6 +230,9 @@ class IngredientEditorCtrl:
 
         # Clear the piece mass unit field
         self.view.cmb_pc_mass_unit.setCurrentText("g")
+
+        # Clear the flags
+        self.ingredient_flag_editor_ctrl.deselect_all_flags()
 
     def on_ingredient_name_changed(self):
         """Handler for changes to the ingredient name."""
