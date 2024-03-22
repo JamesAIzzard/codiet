@@ -294,6 +294,11 @@ class IngredientEditorCtrl:
         # Update the ingredient piece mass unit
         self.ingredient.pc_mass_unit = self.view.cmb_pc_mass_unit.currentText()
 
+    def on_gi_value_changed(self):
+        """Handler for changes to the ingredient GI value."""
+        # Update the ingredient GI value
+        self.ingredient.gi = self.view.txt_gi.value
+
     def on_save_ingredient_pressed(self):
         """Handler for the save ingredient button."""
         # If this has been pressed from the 'Create Ingredient' route,

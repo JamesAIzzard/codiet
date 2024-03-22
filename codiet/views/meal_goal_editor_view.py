@@ -7,20 +7,24 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QGroupBox,
     QTextEdit,
-    QCheckBox
 )
 from PyQt6.QtGui import QFont
 
 from codiet.views.nutrient_targets_editor_view import NutrientTargetsEditorView
 from codiet.views.flag_editor_view import FlagEditorView
-from codiet.views.gi_editor_view import GIEditorView
 from codiet.views.recipe_type_selector_view import RecipeTypeSelectorView
+from codiet.views.custom_line_editors import NumericLineEdit
 
 class MealGoalEditorView(QWidget):
     """The UI element to allow the user to edit a meal goal."""
     def __init__(self):
         super().__init__()
 
+        # Build the UI
+        self._build_ui()
+
+    def _build_ui(self):
+        """Build the UI for the meal goal editor page."""
         # Create a vertical layout for the page
         lyt_top_level = QVBoxLayout()
         self.setLayout(lyt_top_level)
@@ -68,8 +72,7 @@ class MealGoalEditorView(QWidget):
         lyt_basic_info.addWidget(self.flag_editor_view)
 
         # Add a GI editor view
-        self.gi_editor_view = GIEditorView()
-        lyt_basic_info.addWidget(self.gi_editor_view)
+        self._build_gi_UI(lyt_basic_info)
 
         # Add the nutrient targets editor to the second column
         self.nutrient_targets_editor_view = NutrientTargetsEditorView()
@@ -85,4 +88,21 @@ class MealGoalEditorView(QWidget):
         self.btn_save_meal = QPushButton("Save Meal")
         self.btn_save_meal.setMaximumWidth(150)
         lyt_top_level.addWidget(self.btn_save_meal)
-        
+
+    def _build_gi_UI(self, container: QVBoxLayout):
+        """Build the UI for the GI section of the ingredient editor page."""
+        # Create the GI groupbox
+        gb_gi = QGroupBox("GI")
+        container.addWidget(gb_gi)
+
+        # Put a horizontal layout inside the group box
+        column_layout = QHBoxLayout()
+        gb_gi.setLayout(column_layout)
+
+        # Create a label and add it to the layout
+        label = QLabel("Glycemic Index (Carbohydrate Only):")
+        column_layout.addWidget(label)
+
+        # Create a line edit and add it to the layout
+        self.txt_gi = NumericLineEdit()
+        column_layout.addWidget(self.txt_gi)
