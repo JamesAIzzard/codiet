@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QFont
 
+from codiet.utils.pyqt import block_signals
 from codiet.views.custom_line_editors import NumericLineEdit
 from codiet.views.flag_editor_view import FlagEditorView
 from codiet.views.ingredient_nutrients_editor_view import IngredientNutrientsEditorView
@@ -22,6 +23,11 @@ class IngredientEditorView(QWidget):
 
         # Build the UI
         self._build_ui()
+
+    def set_gi(self, gi: int):
+        """Set the GI value in the GI textbox."""
+        with block_signals(self.txt_gi):
+            self.txt_gi.setText(gi)
 
     def _build_ui(self):
         """Build the UI for the ingredient editor page."""

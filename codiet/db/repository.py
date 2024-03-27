@@ -169,6 +169,17 @@ class Repository:
                     (ingredient_id, flag_id),
                 )
 
+    def update_ingredient_gi(self, ingredient_id: int, gi: float | None) -> None:
+        """Updates the GI for the given ingredient."""
+        self.db.execute(
+            """
+            UPDATE ingredient_base
+            SET gi = ?
+            WHERE ingredient_id = ?;
+        """,
+            (gi, ingredient_id),
+        )
+
     def update_ingredient_nutrients(
         self, ingredient_id: int, nutrients: dict[str, dict[str, float|str]]
     ) -> None:

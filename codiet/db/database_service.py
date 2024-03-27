@@ -54,6 +54,9 @@ class DatabaseService:
                 # Add the flags
                 self.repo.update_ingredient_flags(ingredient_id, ingredient.flags)
 
+                # Add the ingredient GI
+                self.repo.update_ingredient_gi(ingredient_id, ingredient.gi)
+
                 # Add the nutrients
                 self.repo.update_ingredient_nutrients(ingredient_id, ingredient.nutrients)
 
@@ -122,6 +125,9 @@ class DatabaseService:
 
                 # Update the flags
                 self.repo.update_ingredient_flags(ingredient.id, ingredient.flags)
+
+                # Update the ingredient GI
+                self.repo.update_ingredient_gi(ingredient.id, ingredient.gi)
 
                 # Commit the transaction
                 self.repo.db.connection.commit()

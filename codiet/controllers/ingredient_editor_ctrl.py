@@ -87,6 +87,9 @@ class IngredientEditorCtrl:
             self.on_ingredient_pc_mass_unit_changed
         )
 
+        # Connect the GI field
+        self.view.txt_gi.textChanged.connect(self.on_gi_value_changed)
+
         # Connect the save button
         self.view.btn_save_ingredient.pressed.connect(self.on_save_ingredient_pressed)
 
@@ -128,6 +131,9 @@ class IngredientEditorCtrl:
 
         # Update the instance on the flag editor
         self.ingredient_flag_editor_ctrl.set_model(self.ingredient)
+
+        # Update the GI field
+        self.set_gi_field(self.ingredient.gi)
 
     def set_ingredient_cost(
         self, cost_value: float | None, cost_qty_value: float | None, cost_qty_unit: str
@@ -193,6 +199,13 @@ class IngredientEditorCtrl:
         # Set the piece mass unit
         self.view.cmb_pc_mass_unit.setCurrentText(pc_mass_unit)
 
+    def set_gi_field(self, gi: float | None):
+        """Updates the GI field."""
+        if gi is not None:
+            self.view.txt_gi.setText(gi)
+        else:
+            self.view.txt_gi.clear()
+
     def reset_all_fields(self):
         """Reset all fields in the view."""
         # Clear the ingredient name field
@@ -233,6 +246,9 @@ class IngredientEditorCtrl:
 
         # Clear the flags
         self.ingredient_flag_editor_ctrl.deselect_all_flags()
+
+        # Clear the GI field
+        self.view.txt_gi.clear()
 
     def on_ingredient_name_changed(self):
         """Handler for changes to the ingredient name."""
