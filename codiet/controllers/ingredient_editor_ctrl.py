@@ -102,109 +102,32 @@ class IngredientEditorCtrl:
         self.ingredient = ingredient
 
         # Update ingredient name field
-        self.view.txt_ingredient_name.setText(self.ingredient.name)
+        self.view.set_name(self.ingredient.name)
 
         # Update description field
-        self.view.txt_description.setText(self.ingredient.description)
+        self.view.set_description(self.ingredient.description)
 
         # Update cost fields
-        self.set_ingredient_cost(
-            self.ingredient.cost_value,
-            self.ingredient.cost_qty_value,
-            self.ingredient.cost_qty_unit,
-        )
+        self.view.set_cost_value(self.ingredient.cost_value)
+        self.view.set_cost_qty_value(self.ingredient.cost_qty_value)
+        self.view.set_cost_qty_unit(self.ingredient.cost_qty_unit)
 
         # Update the bulk properties fields
-        self.set_density_properties(
-            self.ingredient.density_vol_value,
-            self.ingredient.density_vol_unit,
-            self.ingredient.density_mass_value,
-            self.ingredient.density_mass_unit,
-        )
+        self.view.set_density_vol_value(self.ingredient.density_vol_value)
+        self.view.set_density_vol_unit(self.ingredient.density_vol_unit)
+        self.view.set_density_mass_value(self.ingredient.density_mass_value)
+        self.view.set_density_mass_unit(self.ingredient.density_mass_unit)
 
         # Update the piece mass fields
-        self.set_piece_mass_properties(
-            self.ingredient.pc_qty,
-            self.ingredient.pc_mass_value,
-            self.ingredient.pc_mass_unit,
-        )
+        self.view.set_pc_qty_value(self.ingredient.pc_qty)
+        self.view.set_pc_mass_value(self.ingredient.pc_mass_value)
+        self.view.set_pc_mass_unit(self.ingredient.pc_mass_unit)
 
         # Update the instance on the flag editor
         self.ingredient_flag_editor_ctrl.set_model(self.ingredient)
 
         # Update the GI field
-        self.set_gi_field(self.ingredient.gi)
-
-    def set_ingredient_cost(
-        self, cost_value: float | None, cost_qty_value: float | None, cost_qty_unit: str
-    ):
-        """Set the ingredient cost."""
-        # Set the actual cost value
-        if cost_value is not None:
-            self.view.txt_cost.setText(cost_value, pad_decimals=2)
-        else:
-            self.view.txt_cost.clear()
-
-        # Set the cost quantity value
-        if cost_qty_value is not None:
-            self.view.txt_cost_quantity.setText(cost_qty_value)
-        else:
-            self.view.txt_cost_quantity.clear()
-
-        # Set the cost quantity unit
-        self.view.cmb_cost_qty_unit.setCurrentText(cost_qty_unit)
-
-    def set_density_properties(
-        self,
-        dens_vol_value: float | None,
-        dens_vol_unit: str,
-        dens_mass_value: float | None,
-        dens_mass_unit: str,
-    ):
-        """Updates the UI to show the density values provided."""
-        # Set the density volume value
-        if dens_vol_value is not None:
-            self.view.txt_dens_vol.setText(dens_vol_value)
-        else:
-            self.view.txt_dens_vol.clear()
-
-        # Set the density volume unit
-        self.view.cmb_dens_vol_unit.setCurrentText(dens_vol_unit)
-
-        # Set the density mass value
-        if dens_mass_value is not None:
-            self.view.txt_dens_mass.setText(dens_mass_value)
-        else:
-            self.view.txt_dens_mass.clear()
-
-        # Set the density mass unit
-        self.view.cmb_pc_mass_unit.setCurrentText(dens_mass_unit)
-
-    def set_piece_mass_properties(
-        self, pc_quantity: float | None, pc_mass_value: float | None, pc_mass_unit: str
-    ):
-        """Updates the UI to show the piece mass values provided."""
-        # Set the piece count value
-        if pc_quantity is not None:
-            self.view.txt_num_pieces.setText(pc_quantity)
-        else:
-            self.view.txt_num_pieces.clear()
-
-        # Set the piece mass value
-        if pc_mass_value is not None:
-            self.view.txt_pc_mass_value.setText(pc_mass_value)
-        else:
-            self.view.txt_pc_mass_value.clear()
-
-        # Set the piece mass unit
-        self.view.cmb_pc_mass_unit.setCurrentText(pc_mass_unit)
-
-    def set_gi_field(self, gi: float | None):
-        """Updates the GI field."""
-        if gi is not None:
-            self.view.txt_gi.setText(gi)
-        else:
-            self.view.txt_gi.clear()
+        self.view.set_gi(self.ingredient.gi)
 
     def reset_all_fields(self):
         """Reset all fields in the view."""

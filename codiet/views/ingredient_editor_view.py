@@ -24,10 +24,97 @@ class IngredientEditorView(QWidget):
         # Build the UI
         self._build_ui()
 
-    def set_gi(self, gi: int):
+    def set_name(self, name: str | None):
+        """Set the name of the ingredient."""
+        with block_signals(self.txt_ingredient_name):
+            if name is not None:
+                self.txt_ingredient_name.setText(name)
+            else:
+                self.txt_ingredient_name.clear()
+
+    def set_description(self, description: str | None):
+        """Set the description of the ingredient."""
+        with block_signals(self.txt_description):
+            if description is not None:
+                self.txt_description.setText(description)
+            else:
+                self.txt_description.clear()
+
+    def set_cost_value(self, cost: float | None):
+        """Set the cost value."""
+        with block_signals(self.txt_cost):
+            if cost is not None:
+                self.txt_cost.setText(cost)
+            else:
+                self.txt_cost.clear()
+
+    def set_cost_qty_value(self, cost_qty: float | None):
+        """Set the cost quantity value."""
+        with block_signals(self.txt_cost_quantity):
+            if cost_qty is not None:
+                self.txt_cost_quantity.setText(cost_qty)
+            else:
+                self.txt_cost_quantity.clear()
+
+    def set_cost_qty_unit(self, cost_qty_unit: str):
+        """Set the cost quantity unit."""
+        with block_signals(self.cmb_cost_qty_unit):
+            self.cmb_cost_qty_unit.setCurrentText(cost_qty_unit)
+
+    def set_density_vol_value(self, density_vol: float | None):
+        """Set the density volume value."""
+        with block_signals(self.txt_dens_vol):
+            if density_vol is not None:
+                self.txt_dens_vol.setText(density_vol)
+            else:
+                self.txt_dens_vol.clear()
+
+    def set_density_vol_unit(self, density_vol_unit: str):
+        """Set the density volume unit."""
+        with block_signals(self.cmb_dens_vol_unit):
+            self.cmb_dens_vol_unit.setCurrentText(density_vol_unit)
+
+    def set_density_mass_value(self, density_mass: float | None):
+        """Set the density mass value."""
+        with block_signals(self.txt_dens_mass):
+            if density_mass is not None:
+                self.txt_dens_mass.setText(density_mass)
+            else:
+                self.txt_dens_mass.clear()
+
+    def set_density_mass_unit(self, density_mass_unit: str):
+        """Set the density mass unit."""
+        with block_signals(self.cmb_dens_mass_unit):
+            self.cmb_dens_mass_unit.setCurrentText(density_mass_unit)
+
+    def set_pc_qty_value(self, num_pieces: float | None):
+        """Set the number of pieces value."""
+        with block_signals(self.txt_num_pieces):
+            if num_pieces is not None:
+                self.txt_num_pieces.setText(num_pieces)
+            else:
+                self.txt_num_pieces.clear()
+
+    def set_pc_mass_value(self, piece_mass: float | None):
+        """Set the piece mass value."""
+        with block_signals(self.txt_pc_mass_value):
+            if piece_mass is not None:
+                self.txt_pc_mass_value.setText(piece_mass)
+            else:
+                self.txt_pc_mass_value.clear()
+
+    def set_pc_mass_unit(self, piece_mass_unit: str):
+        """Set the piece mass unit."""
+        with block_signals(self.cmb_pc_mass_unit):
+            self.cmb_pc_mass_unit.setCurrentText(piece_mass_unit)
+
+    def set_gi(self, gi: float | None):
         """Set the GI value in the GI textbox."""
         with block_signals(self.txt_gi):
-            self.txt_gi.setText(gi)
+            if gi is None:
+                self.txt_gi.clear()
+            else:
+                self.txt_gi.setText(gi)
 
     def _build_ui(self):
         """Build the UI for the ingredient editor page."""
