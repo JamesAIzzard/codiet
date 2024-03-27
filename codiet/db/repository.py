@@ -234,12 +234,13 @@ class Repository:
         # Fetch data from the base table
         base_data = self.db.execute(
             """
-            SELECT gi FROM ingredient_base WHERE ingredient_id = ?;
+            SELECT description, gi FROM ingredient_base WHERE ingredient_id = ?;
         """,
             (ingredient_id,),
         ).fetchone()
         # Populate GI field on ingredient
-        ingredient.gi = base_data[0]
+        ingredient.description = base_data[0]
+        ingredient.gi = base_data[1]
 
         # Get the cost details
         cost_data = self.db.execute(

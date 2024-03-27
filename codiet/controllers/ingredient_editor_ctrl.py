@@ -131,47 +131,21 @@ class IngredientEditorCtrl:
 
     def reset_all_fields(self):
         """Reset all fields in the view."""
-        # Clear the ingredient name field
-        self.view.txt_ingredient_name.clear()
-
-        # Clear the description field
-        self.view.txt_description.clear()
-
-        # Clear the cost value field
-        self.view.txt_cost.clear()
-
-        # Clear the cost quantity field
-        self.view.txt_cost_quantity.clear()
-
-        # Clear the cost quantity unit field
-        self.view.cmb_cost_qty_unit.setCurrentText("g")
-
-        # Clear the density volume value field
-        self.view.txt_dens_vol.clear()
-
-        # Clear the density volume unit field
-        self.view.cmb_dens_vol_unit.setCurrentText("ml")
-
-        # Clear the density mass value field
-        self.view.txt_dens_mass.clear()
-
-        # Clear the density mass unit field
-        self.view.cmb_dens_mass_unit.setCurrentText("g")
-
-        # Clear the piece count field
-        self.view.txt_num_pieces.clear()
-
-        # Clear the piece mass value field
-        self.view.txt_pc_mass_value.clear()
-
-        # Clear the piece mass unit field
-        self.view.cmb_pc_mass_unit.setCurrentText("g")
-
-        # Clear the flags
+        # TODO: Use the setters to reset the fields
+        self.view.set_name(None)
+        self.view.set_description(None)
+        self.view.set_cost_value(None)
+        self.view.set_cost_qty_value(None)
+        self.view.set_cost_qty_unit("g")
+        self.view.set_density_vol_value(None)
+        self.view.set_density_vol_unit("ml")
+        self.view.set_density_mass_value(None)
+        self.view.set_density_mass_unit("g")
+        self.view.set_pc_qty_value(None)
+        self.view.set_pc_mass_value(None)
+        self.view.set_pc_mass_unit("g")
         self.ingredient_flag_editor_ctrl.deselect_all_flags()
-
-        # Clear the GI field
-        self.view.txt_gi.clear()
+        self.view.set_gi(None)
 
     def on_ingredient_name_changed(self):
         """Handler for changes to the ingredient name."""
