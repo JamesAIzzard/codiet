@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Union
 import sqlite3
 
 from codiet.models.ingredient import Ingredient
@@ -149,7 +149,9 @@ class Repository:
             (pc_qty, pc_mass_unit, pc_mass_value, ingredient_id),
         )
 
-    def update_ingredient_flags(self, ingredient_id: int, flags: Dict[str, bool]) -> None:
+    def update_ingredient_flags(
+        self, ingredient_id: int, flags: dict[str, bool]
+    ) -> None:
         """Updates the flags for the given ingredient."""
         # Clear the existing flags
         self.db.execute(
@@ -181,7 +183,9 @@ class Repository:
         )
 
     def update_ingredient_nutrients(
-        self, ingredient_id: int, nutrients: dict[str, dict[str, float|str]]
+        self,
+        ingredient_id: int,
+        nutrients: dict[str, dict[str, Union[None, float, str]]],
     ) -> None:
         """Updates the nutrients for the given ingredient."""
         # Clear the existing nutrients
@@ -193,6 +197,9 @@ class Repository:
         )
         # Add the new nutrients
         for nutrient, data in nutrients.items():
+            # Skip if nutrient is not populated
+            if not nutrient_is_populated(data):
+                continue
             # Get the nutrient ID
             nutrient_id = self.db.execute(
                 """
@@ -300,8 +307,27 @@ class Repository:
         # Populate flags on ingredient
         ingredient.set_flags({row[0]: True for row in flag_data})
 
-        # Get the nutrient data
-        nutrient_data = self.db.execute(
+        # Initialise nutrients with empty data
+        nutrient_names = self.fetch_all_nutrient_names()
+        ingredient.nutrients = {ntr: create_nutrient_dict() for ntr in nutrient_names}
+
+        # Fill in the data which has been populated
+        nutrient_data = self.fetch_ingredient_nutrients(ingredient_id)
+        for nutrient, data in nutrient_data.items():
+            ingredient.nutrients[nutrient] = create_nutrient_dict(
+                ntr_qty_value=data["ntr_qty_value"],
+                ntr_qty_unit=str(data["ntr_qty_unit"]),
+                ing_qty_value=data["ing_qty_value"],
+                ing_qty_unit=str(data["ing_qty_unit"]),
+            )
+
+        return ingredient
+
+    def fetch_ingredient_nutrients(
+        self, ingredient_id: int
+    ) -> dict[str, dict[str, float | str]]:
+        """Returns a dict of nutrients for the given ingredient ID."""
+        rows = self.db.execute(
             """
             SELECT nutrient_name, ntr_qty_unit, ntr_qty_value, ing_qty_unit, ing_qty_value
             FROM nutrient_list
@@ -310,16 +336,15 @@ class Repository:
         """,
             (ingredient_id,),
         ).fetchall()
-        # Populate nutrients on ingredient
-        for row in nutrient_data:
-            ingredient.nutrients[row[0]] = {
-                "ntr_qty_value": row[2],
+        return {
+            row[0]: {
                 "ntr_qty_unit": row[1],
-                "ing_qty_value": row[4],
+                "ntr_qty_value": row[2],
                 "ing_qty_unit": row[3],
+                "ing_qty_value": row[4],
             }
-
-        return ingredient
+            for row in rows
+        }
 
     def delete_ingredient(self, ingredient_name: str) -> None:
         """Deletes the given ingredient from the database."""
@@ -386,3 +411,23 @@ class Repository:
         """,
             (alias, primary_nutrient_id),
         )
+
+
+def create_nutrient_dict(
+    ntr_qty_value=None, ntr_qty_unit="g", ing_qty_value=None, ing_qty_unit="g"
+):
+    """
+    Create a nutrient dictionary with default or provided values.
+    """
+    return {
+        "ntr_qty_value": ntr_qty_value,
+        "ntr_qty_unit": ntr_qty_unit,
+        "ing_qty_value": ing_qty_value,
+        "ing_qty_unit": ing_qty_unit,
+    }
+
+
+def nutrient_is_populated(nutrient: dict[str, Union[None, float, str]]) -> bool:
+    """Returns True if the nutrient has been populated.
+    returns false if any of the value fields are None."""
+    return all(value is not None for value in nutrient.values())

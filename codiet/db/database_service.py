@@ -1,6 +1,7 @@
 from codiet.models.ingredient import Ingredient
 from codiet.db.repository import Repository
 from codiet.utils.search import filter_text
+from codiet.db.repository import create_nutrient_dict
 
 class DatabaseService:
     def __init__(self, repo: Repository):
@@ -10,6 +11,23 @@ class DatabaseService:
         """Returns a list of ingredient names that match the given name."""
         all_names = self.repo.fetch_all_ingredient_names()
         return filter_text(name, all_names, 10)
+
+    def load_empty_ingredient(self) -> Ingredient:
+        """Creates an ingredient."""
+        # Init the ingredient
+        ingredient = Ingredient()
+
+        # Populate the flag dict
+        flags = self.fetch_flag_names()
+        for flag in flags:
+            ingredient._flags[flag] = False
+
+        # Populate the nutrient dict
+        nutrients = self.repo.fetch_all_nutrient_names()
+        for nutrient in nutrients:
+            ingredient.nutrients[nutrient] = create_nutrient_dict()
+
+        return ingredient    
 
     def create_ingredient(self, ingredient: Ingredient):
         """Saves the given ingredient to the database."""

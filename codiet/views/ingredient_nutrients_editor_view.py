@@ -16,12 +16,12 @@ from codiet.views.ingredient_nutrient_editor_view import IngredientNutrientEdito
 class IngredientNutrientsEditorView(QWidget):
     def __init__(self):
         super().__init__()
-        self._init_ui()
+        self._build_ui()
 
         # Create a dict to store widgets by nutrient name
         self.nutrient_widgets = {}
 
-    def _init_ui(self):
+    def _build_ui(self):
         """Initializes the UI elements."""
         # Create vertical layout as the top level
         layout = QVBoxLayout()

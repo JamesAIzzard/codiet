@@ -1,5 +1,3 @@
-from typing import Optional
-
 from codiet.db.database_service import DatabaseService
 from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.views.dialog_box_view import OkDialogBoxView, ErrorDialogBoxView
@@ -7,7 +5,7 @@ from codiet.controllers.flag_editor_ctrl import FlagEditorCtrl
 from codiet.controllers.ingredient_nutrients_editor_ctrl import (
     IngredientNutrientsEditorCtrl,
 )
-from codiet.models.ingredient import Ingredient, create_ingredient
+from codiet.models.ingredient import Ingredient
 from codiet.exceptions import ingredient_exceptions
 
 
@@ -16,7 +14,7 @@ class IngredientEditorCtrl:
         self,
         view: IngredientEditorView,
         db_service: DatabaseService,
-        ingredient: Optional[Ingredient] = None,
+        ingredient: Ingredient | None = None,
     ):
         self.view = view
         self.db_service = db_service
@@ -26,7 +24,7 @@ class IngredientEditorCtrl:
 
         # Init an ingredient if not provided
         if ingredient is None:
-            self.ingredient = create_ingredient(db_service)
+            self.ingredient = self.db_service.load_empty_ingredient()
         # Otherwise, use the one you were given
         else:
             self.ingredient = ingredient
@@ -38,11 +36,13 @@ class IngredientEditorCtrl:
 
         # Instantiate the ingredient nutrient editor controller
         self.ingredient_nutrients_editor_ctrl = IngredientNutrientsEditorCtrl(
-            self.view.nutrient_editor_view, self.db_service
+            self.view.nutrient_editor_view
         )
 
-        # Connect the view signals to the controller methods
+        # Load the ingredient instance
+        self.load_ingredient_instance(self.ingredient)
 
+        # Connect the view signals to the controller methods
         # Connect the name field
         self.view.txt_ingredient_name.textChanged.connect(
             self.on_ingredient_name_changed
