@@ -96,9 +96,6 @@ class IngredientEditorCtrl:
     def load_ingredient_instance(self, ingredient: Ingredient):
         """Set the ingredient instance to edit."""
 
-        # Clear all fields on the view
-        self.view.clear_all_fields()
-
         # Update the stored instance
         self.ingredient = ingredient
 

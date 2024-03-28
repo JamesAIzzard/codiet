@@ -116,24 +116,6 @@ class IngredientEditorView(QWidget):
             else:
                 self.txt_gi.setText(gi)
 
-    def clear_all_fields(self):
-        """Clear all fields in the ingredient editor."""
-        self.set_name(None)
-        self.set_description(None)
-        self.set_cost_value(None)
-        self.set_cost_qty_value(None)
-        self.set_cost_qty_unit("g")
-        self.set_density_vol_value(None)
-        self.set_density_vol_unit("ml")
-        self.set_density_mass_value(None)
-        self.set_density_mass_unit("g")
-        self.set_pc_qty_value(None)
-        self.set_pc_mass_value(None)
-        self.set_pc_mass_unit("g")
-        self.flag_editor_view.deselect_all_flags()
-        self.set_gi(None)        
-        #  self.nutrients_editor_view.clear_all_nutrients()
-
     def _build_ui(self):
         """Build the UI for the ingredient editor page."""
         # Create a vertical layout for the page
