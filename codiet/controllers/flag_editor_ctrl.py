@@ -25,10 +25,10 @@ class FlagEditorCtrl:
             self.view.add_flag_to_list(flag)
 
         # Connect the buttons to the controller methods
-        self.view.btn_select_all.clicked.connect(self.select_all_flags)
-        self.view.btn_deselect_all.clicked.connect(self.deselect_all_flags)
-        self.view.btn_invert_selection.clicked.connect(self.invert_selection)
-        self.view.btn_clear_selection.clicked.connect(self.clear_selection)
+        self.view.btn_select_all.clicked.connect(self.on_select_all_clicked)
+        self.view.btn_deselect_all.clicked.connect(self.on_deselect_all_clicked)
+        self.view.btn_invert_selection.clicked.connect(self.on_invert_selection_clicked)
+        self.view.btn_clear_selection.clicked.connect(self.on_clear_selection)
         self.view.lstFlagCheckboxes.itemChanged.connect(self.on_flag_changed)
 
     @property
@@ -47,45 +47,40 @@ class FlagEditorCtrl:
             if value:
                 self.view.select_flag(flag)
 
-    def select_flag(self, flag: str) -> None:
-        """Update the flag to be selected."""
-        # Select the flag in the view
-        self.view.select_flag(flag)
-        # Select the flag in the model
-        self._model.set_flags({flag: True})
-
-    def deselect_flag(self, flag: str):
-        """Update the flag to be deselected."""
-        # Deselect the flag in the view
-        self.view.deselect_flag(flag)
-        # Deselect the flag in the model
-        self._model.set_flags({flag: False})
-
-    def select_all_flags(self):
-        """Select all flags."""
+    def on_select_all_clicked(self):
+        """Handle the user clicking the 'Select All' button."""
+        # Select all the flags on the model
+        self._model.set_flags({flag: True for flag in self.flag_names})
+        # Select all the flags on the view
         for flag in self.flag_names:
-            self.select_flag(flag)
+            self.view.select_flag(flag)
 
-    def deselect_all_flags(self):
-        """Deselect all flags."""
+    def on_deselect_all_clicked(self):
+        """Handle the user clicking the 'Deselect All' button."""
+        # Deselect all the flags on the model
+        self._model.set_flags({flag: False for flag in self.flag_names})
+        # Deselect all the flags on the view
         for flag in self.flag_names:
-            self.deselect_flag(flag)
+            self.view.deselect_flag(flag)
 
-    def invert_selection(self):
-        """Invert the selection of all flags."""
+    def on_invert_selection_clicked(self):
+        """Handle the user clicking the 'Invert Selection' button."""
         # Grab the flags from the model
         flags = self._model.flags
         for flag in flags.keys():
             # Invert the selection of the flag
+            self._model.set_flags({flag: not flags[flag]})
             if flags[flag]:
-                self.deselect_flag(flag)
+                self.view.deselect_flag(flag)
             else:
-                self.select_flag(flag)
+                self.view.select_flag(flag)
 
-    def clear_selection(self):
-        """Clear the selection of all flags."""
-        for flag in self.flag_names:
-            self.deselect_flag(flag)
+    def on_clear_selection(self):
+        """Handle the user clicking the 'Clear Selection' button."""
+        # Clear all the flags on the model
+        self._model.set_flags({flag: False for flag in self.flag_names})
+        # Deselect all the flags on the view
+        self.view.deselect_all_flags()
 
     def on_flag_changed(self, item: QListWidgetItem):
         """Handle the user changing the selection of a flag."""

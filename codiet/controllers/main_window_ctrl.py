@@ -51,8 +51,6 @@ class MainWindowCtrl:
         self.ingredient_editor_ctrl.edit_mode = False
         # Put a new ingredient in the editor
         self.ingredient_editor_ctrl.load_ingredient_instance(Ingredient())
-        # Clear the editor
-        self.ingredient_editor_ctrl.reset_all_fields()
         # Show the editor
         self.view.show_ingredient_editor()
 

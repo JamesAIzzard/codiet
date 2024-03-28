@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 
+from codiet.utils.pyqt import block_signals
 
 class FlagEditorView(QWidget):
     def __init__(self):
@@ -19,6 +20,45 @@ class FlagEditorView(QWidget):
 
         # Create a dict of the flag ui elements
         self.flags = {}
+
+    def add_flag_to_list(self, flag_name) -> None:
+        """Adds a flag to the list of checkable flags"""
+        # Create the item
+        item = QListWidgetItem(flag_name)
+        # Make the item checkable
+        item.setFlags(
+            item.flags() | Qt.ItemFlag.ItemIsUserCheckable
+        )
+        # Set the item as initially unchecked
+        item.setCheckState(Qt.CheckState.Unchecked)
+        # Add the item to the UI
+        self.lstFlagCheckboxes.addItem(item)
+        # Add the item to the list in lowercase
+        self.flags[flag_name.lower()] = item
+
+    def select_flag(self, flag: str):
+        '''Update the flag to be selected.'''
+        with block_signals(self.lstFlagCheckboxes):
+            self.flags[flag].setCheckState(Qt.CheckState.Checked)
+
+    def deselect_flag(self, flag: str):
+        '''Update the flag to be deselected.'''
+        with block_signals(self.lstFlagCheckboxes):
+            self.flags[flag].setCheckState(Qt.CheckState.Unchecked)
+
+    def deselect_all_flags(self):
+        '''Deselect all flags.'''
+        with block_signals(self.lstFlagCheckboxes):
+            for flag in self.flags:
+                self.flags[flag].setCheckState(Qt.CheckState.Unchecked)
+    
+    def get_selected_flags(self) -> list[str]:
+        '''Get a list of all the selected flags.'''
+        selected_flags = []
+        for flag in self.flags:
+            if self.flags[flag].checkState() == Qt.CheckState.Checked:
+                selected_flags.append(flag)
+        return selected_flags
 
     def _build_ui(self):
         """Build the UI for the flag editor"""
@@ -63,46 +103,3 @@ class FlagEditorView(QWidget):
         buttons_layout.addWidget(self.btn_clear_selection)
         # Push the buttons to the top
         buttons_layout.addStretch()
-
-    def add_flag_to_list(self, flag_name) -> None:
-        """Adds a flag to the list of checkable flags"""
-        # Create the item
-        item = QListWidgetItem(flag_name)
-        # Make the item checkable
-        item.setFlags(
-            item.flags() | Qt.ItemFlag.ItemIsUserCheckable
-        )
-        # Set the item as initially unchecked
-        item.setCheckState(Qt.CheckState.Unchecked)
-        # Add the item to the UI
-        self.lstFlagCheckboxes.addItem(item)
-        # Add the item to the list in lowercase
-        self.flags[flag_name.lower()] = item
-
-    def select_flag(self, flag: str):
-        '''Update the flag to be selected.'''
-        self.flags[flag].setCheckState(Qt.CheckState.Checked)
-
-    def deselect_flag(self, flag: str):
-        '''Update the flag to be deselected.'''
-        self.flags[flag].setCheckState(Qt.CheckState.Unchecked)
-
-    def deselect_all_flags(self):
-        '''Deselect all flags.'''
-        for flag in self.flags:
-            self.flags[flag].setCheckState(Qt.CheckState.Unchecked)
-
-    def invert_flag_selection(self, flag: str):
-        '''Invert the selection of the flag.'''
-        if self.flags[flag].checkState() == Qt.CheckState.Checked:
-            self.flags[flag].setCheckState(Qt.CheckState.Unchecked)
-        else:
-            self.flags[flag].setCheckState(Qt.CheckState.Checked)
-    
-    def get_selected_flags(self) -> list[str]:
-        '''Get a list of all the selected flags.'''
-        selected_flags = []
-        for flag in self.flags:
-            if self.flags[flag].checkState() == Qt.CheckState.Checked:
-                selected_flags.append(flag)
-        return selected_flags

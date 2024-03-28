@@ -9,9 +9,6 @@ class IngredientNutrientsEditorCtrl:
         self.view = view
         self.db_service = db_service
 
-        # Create an ingredient instance
-        self.ingredient = Ingredient() # TODO: ultimately needs to be passed in from parent.
-
         # Stash a list of all possible nutrient names
         self.all_nutrient_names = self.db_service.get_all_nutrient_names()
 
@@ -36,6 +33,10 @@ class IngredientNutrientsEditorCtrl:
         else:
             # Filter the nutrients
             return filter_text(search_term, self.all_nutrient_names, 3)
+
+    def set_model(self, ingredient: Ingredient) -> None:
+        """Sets the ingredient model."""
+        self.ingredient = ingredient
 
     def update_nutrient_visibility(self) -> None:
         """Updates the visibility of nutrients based on the filter and hide completed settings."""

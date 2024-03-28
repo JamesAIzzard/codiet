@@ -95,8 +95,9 @@ class IngredientEditorCtrl:
 
     def load_ingredient_instance(self, ingredient: Ingredient):
         """Set the ingredient instance to edit."""
-        # Clear all fields
-        self.reset_all_fields()
+
+        # Clear all fields on the view
+        self.view.clear_all_fields()
 
         # Update the stored instance
         self.ingredient = ingredient
@@ -126,26 +127,11 @@ class IngredientEditorCtrl:
         # Update the instance on the flag editor
         self.ingredient_flag_editor_ctrl.set_model(self.ingredient)
 
+        # Update the instance on the nutrient editor
+        self.ingredient_nutrients_editor_ctrl.set_model(self.ingredient)
+
         # Update the GI field
         self.view.set_gi(self.ingredient.gi)
-
-    def reset_all_fields(self):
-        """Reset all fields in the view."""
-        # TODO: Use the setters to reset the fields
-        self.view.set_name(None)
-        self.view.set_description(None)
-        self.view.set_cost_value(None)
-        self.view.set_cost_qty_value(None)
-        self.view.set_cost_qty_unit("g")
-        self.view.set_density_vol_value(None)
-        self.view.set_density_vol_unit("ml")
-        self.view.set_density_mass_value(None)
-        self.view.set_density_mass_unit("g")
-        self.view.set_pc_qty_value(None)
-        self.view.set_pc_mass_value(None)
-        self.view.set_pc_mass_unit("g")
-        self.ingredient_flag_editor_ctrl.deselect_all_flags()
-        self.view.set_gi(None)
 
     def on_ingredient_name_changed(self):
         """Handler for changes to the ingredient name."""
