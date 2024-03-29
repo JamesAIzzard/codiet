@@ -147,6 +147,9 @@ class DatabaseService:
                 # Update the ingredient GI
                 self.repo.update_ingredient_gi(ingredient.id, ingredient.gi)
 
+                # Update the nutrients
+                self.repo.update_ingredient_nutrients(ingredient.id, ingredient.nutrients)
+
                 # Commit the transaction
                 self.repo.db.connection.commit()
 

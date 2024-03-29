@@ -29,7 +29,7 @@ class Ingredient(HasSettableFlags):
     @property
     def populated_nutrients(self) -> list[str]:
         """Returns a list of nutrients that have been populated."""
-        return [ntr for ntr in self.nutrients if self.nutrients[ntr]]
+        return [ntr for ntr in self.nutrients if self.nutrient_is_populated(ntr)]
 
     @property
     def flags(self) -> dict[str, bool]:
@@ -43,20 +43,27 @@ class Ingredient(HasSettableFlags):
 
     def nutrient_is_populated(self, nutrient_name: str) -> bool:
         """Returns True if the nutrient has been populated."""
-        return nutrient_name in self.nutrients
+        if self.nutrients[nutrient_name]["ntr_qty_value"] is None:
+            return False
+        if self.nutrients[nutrient_name]["ntr_qty_unit"] is None:
+            return False
+        else:
+            return True
 
-    def add_nutrient_qty(
+    def update_nutrient_quantity(
         self,
         nutrient_name: str,
-        ntr_qty_value: float,
-        ntr_qty_unit: str,
-        ing_qty_value: float,
-        ing_qty_unit: str,
+        ntr_qty_value: float | None = None,
+        ntr_qty_unit: str | None = None,
+        ing_qty_value: float | None = None,
+        ing_qty_unit: str | None = None,
     ) -> None:
         """Adds a nutrient to the ingredient."""
-        self.nutrients[nutrient_name] = {
-            "ntr_qty_value": ntr_qty_value,  # nutrient quantity
-            "ntr_qty_unit": ntr_qty_unit,
-            "ing_qty_value": ing_qty_value,  # ingredient quantity
-            "ing_qty_unit": ing_qty_unit,
-        }
+        if ntr_qty_value is not None:
+            self.nutrients[nutrient_name]["ntr_qty_value"] = ntr_qty_value
+        if ntr_qty_unit is not None:
+            self.nutrients[nutrient_name]["ntr_qty_unit"] = ntr_qty_unit
+        if ing_qty_value is not None:
+            self.nutrients[nutrient_name]["ing_qty_value"] = ing_qty_value
+        if ing_qty_unit is not None:
+            self.nutrients[nutrient_name]["ing_qty_unit"] = ing_qty_unit

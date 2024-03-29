@@ -1,3 +1,5 @@
+from typing import Union
+
 from PyQt6.QtWidgets import QLineEdit
 from PyQt6.QtGui import QDoubleValidator
 
@@ -14,16 +16,20 @@ class NumericLineEdit(QLineEdit):
         validator = QDoubleValidator(0.0, 99999999.99, 2)
         self.setValidator(validator)
 
-    @property
-    def value(self) -> float | None:
-        """Return the value of the line edit as a float.
-        If the line edit is empty, return None."""
-        if self.text() == "":
+    def text(self) -> float | None:
+        """Return the text of the line edit."""
+        # Grab the text from super
+        text = super().text()
+        if text.strip() == "":
             return None
-        return float(self.text())
+        else:
+            return float(text)
 
-    def setText(self, value: float, pad_decimals: int = 1) -> None:
+    def setText(self, value: float | None, pad_decimals: int = 1) -> None:
         """Set the text of the line edit to the given value,
         formatted to the specified number of decimal places."""
-        formatted_value = f"{value:.{pad_decimals}f}"
-        super().setText(formatted_value)
+        if value is None:
+            super().setText("")
+        else:
+            formatted_value = f"{value:.{pad_decimals}f}"
+            super().setText(formatted_value)

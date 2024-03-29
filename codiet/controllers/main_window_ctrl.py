@@ -50,7 +50,7 @@ class MainWindowCtrl:
         # Turn off edit mode
         self.ingredient_editor_ctrl.edit_mode = False
         # Put a new ingredient in the editor
-        self.ingredient_editor_ctrl.load_ingredient_instance(Ingredient())
+        self.ingredient_editor_ctrl.load_ingredient_instance(self.db_service.load_empty_ingredient())
         # Show the editor
         self.view.show_ingredient_editor()
 

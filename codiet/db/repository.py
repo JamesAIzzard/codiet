@@ -1,4 +1,3 @@
-from typing import Union
 import sqlite3
 
 from codiet.models.ingredient import Ingredient
@@ -185,7 +184,7 @@ class Repository:
     def update_ingredient_nutrients(
         self,
         ingredient_id: int,
-        nutrients: dict[str, dict[str, Union[None, float, str]]],
+        nutrients: dict[str, dict],
     ) -> None:
         """Updates the nutrients for the given ingredient."""
         # Clear the existing nutrients
@@ -418,6 +417,7 @@ def create_nutrient_dict(
 ):
     """
     Create a nutrient dictionary with default or provided values.
+    TODO: Move to a nutrients model module.
     """
     return {
         "ntr_qty_value": ntr_qty_value,
@@ -427,7 +427,14 @@ def create_nutrient_dict(
     }
 
 
-def nutrient_is_populated(nutrient: dict[str, Union[None, float, str]]) -> bool:
+def nutrient_is_populated(nutrient: dict) -> bool:
     """Returns True if the nutrient has been populated.
-    returns false if any of the value fields are None."""
-    return all(value is not None for value in nutrient.values())
+    returns false if any of the value fields are None.
+    TODO: Move to a nutrients model module.
+    """
+    for value in nutrient.values():
+        if value is None:
+            return False
+        if isinstance(value, str) and value.strip() == "" :
+            return False
+    return True

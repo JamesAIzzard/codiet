@@ -34,7 +34,13 @@ def _populate_ingredients(db_service: DatabaseService):
         ingredient_name = data["name"]
 
         # Create an ingredient instance
-        ingredient = Ingredient(ingredient_name)
+        ingredient = db_service.load_empty_ingredient()
+
+        # Set the ingredient name
+        ingredient.name = ingredient_name
+
+        # Set the ingredient description
+        ingredient.description = data["description"]
 
         # Add the cost data
         ingredient.cost_unit = data["cost"]["cost_unit"]
@@ -49,7 +55,7 @@ def _populate_ingredients(db_service: DatabaseService):
         ingredient.density_vol_value = data["bulk"]["density"]["vol_value"]
 
         # Add the flags
-        ingredient.flags = data["flags"]
+        ingredient.set_flags(data["flags"])
 
         # Add the nutrients
         ingredient.nutrients = data["nutrients"]

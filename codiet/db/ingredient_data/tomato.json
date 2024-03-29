@@ -20,15 +20,15 @@
             "mass_value": 150
         }
     },
-    "flags": [
-        "alcohol free",
-        "caffeine free",
-        "gluten free",
-        "lactose free",
-        "nut free",
-        "vegan",
-        "vegetarian"
-    ],
+    "flags": {
+        "alcohol free": true,
+        "caffeine free": true,
+        "gluten free": true,
+        "lactose free": true,
+        "nut free": true,
+        "vegan": true,
+        "vegetarian": true
+    },
     "GI": 30,
     "nutrients": {
         "protein": {

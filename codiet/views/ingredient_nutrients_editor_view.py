@@ -16,6 +16,8 @@ from codiet.views.ingredient_nutrient_editor_view import IngredientNutrientEdito
 class IngredientNutrientsEditorView(QWidget):
     def __init__(self):
         super().__init__()
+
+        # Construct the UI
         self._build_ui()
 
         # Create a dict to store widgets by nutrient name
@@ -66,8 +68,10 @@ class IngredientNutrientsEditorView(QWidget):
         self.listWidget = QListWidget()
         lyt_top_level.addWidget(self.listWidget)
 
-    def add_nutrient(self, nutrient_name: str):
-        """Adds a new nutrient row to the list widget."""
+    def _add_nutrient(self, nutrient_name: str):
+        """Adds a new nutrient row to the list widget.
+        Use the controller method to also connect signals.
+        """
         # Add a new row to the list
         listItem = QListWidgetItem(self.listWidget)
         nutrient_widget = IngredientNutrientEditorView(nutrient_name)

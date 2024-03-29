@@ -43,23 +43,3 @@ class TestIngredientNutrientIsPopulated(TestCase):
     def test_ingredient_nutrient_is_populated_false(self):
         ingredient = Ingredient(name="test")
         self.assertFalse(ingredient.nutrient_is_populated("test_nutrient"))
-
-class TestIngredientAddNutrientQty(TestCase):
-    def test_ingredient_add_nutrient_qty(self):
-        ingredient = Ingredient(name="test")
-        ingredient.add_nutrient_qty(
-            nutrient_name="test_nutrient",
-            ntr_qty_value=1.0,
-            ntr_qty_unit="g",
-            ing_qty_value=1.0,
-            ing_qty_unit="g",
-        )
-        self.assertEqual(
-            ingredient.nutrients["test_nutrient"],
-            {
-                "ntr_qty": 1.0,
-                "ntr_qty_unit": "g",
-                "ing_qty": 1.0,
-                "ing_qty_unit": "g",
-            },
-        )
