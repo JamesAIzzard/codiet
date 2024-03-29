@@ -1,7 +1,6 @@
 from codiet.views.ingredient_nutrients_editor_view import IngredientNutrientsEditorView
 from codiet.models.ingredient import Ingredient
 from codiet.utils.search import filter_text
-from codiet.utils.pyqt import block_signals
 
 
 class IngredientNutrientsEditorCtrl:

@@ -1,6 +1,6 @@
 {
     "name": "Onion",
-    "description": "",
+    "description": "Onion is a staple cooking ingredient used globally, identifiable by its round shape, a thin skin that ranges in color from white to yellow or red, and its pungent smell. The inside flesh is usually white or cream in color and comprised of layered rings. When cooked, onions offer a sweet, rich, and slightly tangy flavor, while raw onions are known for their powerful, spicy kick. They are rich in antioxidants and vitamins, particularly Vitamin C, and come in various types, like red, white, yellow/brown, and green onions. They are commonly used in salads, soups, sauces, and a wide array of main dishes.",
     "cost": {
         "cost_unit": "GBP",
         "cost_value": 3.0,

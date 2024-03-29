@@ -1,6 +1,8 @@
 import os, json
 from typing import Optional
 
+from openai import OpenAI
+
 from codiet.models.nutrients import create_nutrient_dict
 from codiet.db.database_service import DatabaseService
 
@@ -8,7 +10,7 @@ INGREDIENT_DATA_DIR = os.path.join(os.path.dirname(__file__), "ingredient_data")
 NUTRIENT_DATA_PATH = os.path.join(os.path.dirname(__file__), "nutrient_data.json")
 
 
-def _populate_flags(db_service: DatabaseService):
+def _populate_flags_in_db(db_service: DatabaseService):
     # Define list of flags
     flags = [
         "alcohol free",
@@ -24,7 +26,8 @@ def _populate_flags(db_service: DatabaseService):
         db_service.repo.insert_flag_into_database(flag)
 
 
-def _populate_ingredients(db_service: DatabaseService):
+def _populate_ingredients_in_db(db_service: DatabaseService):
+    """Populate the database with ingredients from the ingredient_data directory."""
     # Work through each .json file in the ingredient_data directory
     for file in os.listdir(INGREDIENT_DATA_DIR):
         # Open the file and load the data
@@ -64,7 +67,7 @@ def _populate_ingredients(db_service: DatabaseService):
         # Save the ingredient
         db_service.create_ingredient(ingredient)
 
-def _populate_nutrients(db_service: DatabaseService):
+def _populate_nutrients_in_db(db_service: DatabaseService):
     # Load the dict from the nutrient_data.json file
     with open(NUTRIENT_DATA_PATH) as f:
         data = json.load(f)
@@ -124,7 +127,7 @@ def _find_leaf_nutrients(data, leaf_nutrients=None):
 
     return leaf_nutrients
 
-def _update_ingredient_files(db_service: DatabaseService):
+def _update_ingredient_files_structure(db_service: DatabaseService):
     """Work through each ingredient file in the ingredients data directory
     and make sure:
     - Its flags match those in the database
@@ -178,3 +181,45 @@ def _update_ingredient_files(db_service: DatabaseService):
         # Write the updated data back to the file
         with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
             json.dump(data, f, indent=4)
+
+def _populate_ingredient_files_data(db_service: DatabaseService):
+    """Work through each ingredient file in the ingredients data directory
+    and add the data to the database."""
+    # For each ingredient file in the directory
+    for file in os.listdir(INGREDIENT_DATA_DIR):
+        # Open the file and load the data
+        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
+            data = json.load(f)
+
+        # Grab the ingredient name
+        ingredient_name = data["name"]
+
+        # If the description isn't filled, use the openai API to get the description
+        if not data.get("description"):
+            print(f"Getting description for {ingredient_name}...")
+            description = _get_openai_ingredient_description(ingredient_name)
+
+            # Write the description back to the file
+            data["description"] = description
+
+            # Save the updated data back to the file
+            with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
+                json.dump(data, f, indent=4)
+
+def _get_openai_ingredient_description(ingredient_name: str) -> str:
+    """Use the OpenAI API to generate a description for an ingredient."""
+    # Initialize the OpenAI client
+    client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
+
+    # Set the prompt
+    prompt = f"Generate a single sentence description for the ingredient '{ingredient_name}'."
+
+    # Create a chat completion
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {"role": "user", "content": prompt},
+        ],
+        model="gpt-4",
+    )
+
+    return chat_completion.choices[0].message.content # type: ignore

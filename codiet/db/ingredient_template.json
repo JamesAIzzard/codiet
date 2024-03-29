@@ -1,0 +1,26 @@
+{
+    "name": "",
+    "description": "",
+    "cost": {
+        "cost_unit": "GBP",
+        "cost_value": null,
+        "qty_unit": "g",
+        "qty_value": null
+    },
+    "bulk": {
+        "density": {
+            "mass_unit": "g",
+            "mass_value": null,
+            "vol_unit": "l",
+            "vol_value": null
+        },
+        "piece_mass": {
+            "pc_qty": null,
+            "mass_unit": null,
+            "mass_value": null
+        }
+    },
+    "flags": {},
+    "GI": null,
+    "nutrients": {}
+}

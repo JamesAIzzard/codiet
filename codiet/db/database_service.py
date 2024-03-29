@@ -44,6 +44,12 @@ class DatabaseService:
                 # Get the ingredient ID from the database
                 ingredient_id = self.repo.fetch_ingredient_id(ingredient.name)
 
+                # Update the ingredient description
+                self.repo.update_ingredient_description(
+                    ingredient_id=ingredient_id,
+                    description=ingredient.description,
+                )
+
                 # Add the ingredient cost data
                 self.repo.update_ingredient_cost(
                     ingredient_id=ingredient_id,
