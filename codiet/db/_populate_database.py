@@ -1,6 +1,7 @@
 import os, json
 from typing import Optional
 
+from codiet.models.nutrients import create_nutrient_dict
 from codiet.db.database_service import DatabaseService
 
 INGREDIENT_DATA_DIR = os.path.join(os.path.dirname(__file__), "ingredient_data")
@@ -106,7 +107,6 @@ def _populate_nutrients(db_service: DatabaseService):
     # Commit the changes
     db_service.repo.db.commit()
 
-
 def _find_leaf_nutrients(data, leaf_nutrients=None):
     """Recursively find all leaf nutrients in a nested dictionary."""
     # Initialize the list of leaf nutrients on the first call
@@ -123,3 +123,58 @@ def _find_leaf_nutrients(data, leaf_nutrients=None):
             leaf_nutrients.append(key)
 
     return leaf_nutrients
+
+def _update_ingredient_files(db_service: DatabaseService):
+    """Work through each ingredient file in the ingredients data directory
+    and make sure:
+    - Its flags match those in the database
+    - Its nutrients match the leaf nutrients in the database
+    """
+    # Grab the list of flags from the database
+    flags_list = db_service.repo.fetch_all_flag_names()
+
+    # Grab the list of leaf nutrients from the database
+    leaf_nutrients_list = db_service.repo.fetch_all_leaf_nutrient_names()
+
+    # For each ingredient file in the directory
+    for file in os.listdir(INGREDIENT_DATA_DIR):
+        # Open the file and load the data
+        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
+            data = json.load(f)
+
+        print(f"Updating {file}...")
+
+        # Update the flags
+        # Create a fresh flag dict
+        updated_flags = {}
+        # Cycle through each flag from the database
+        for flag in flags_list:
+            # Try and read the data from the file
+            try:
+                # If the flag is in the file, add it to the updated flags dict
+                updated_flags[flag] = data["flags"][flag]
+            except KeyError:
+                # If the flag is not in the file, add it with a value of False
+                updated_flags[flag] = False
+        # Replace the old flags dict with the new
+        data["flags"] = updated_flags
+
+        # Update the nutrients
+        # Create a fresh nutrient dict
+        updated_nutrients = {}
+        # Cycle through each leaf nutrient from the database
+        for nutrient in leaf_nutrients_list:
+            # Try and read the data from the file
+            try:
+                # If the nutrient is in the file, add it to the updated nutrients dict
+                updated_nutrients[nutrient] = data["nutrients"][nutrient]
+            except KeyError:
+                # If the nutrient is not in the file, remove it
+                updated_nutrients[nutrient] = create_nutrient_dict()
+
+        # Replace the old nutrients dict with the new
+        data["nutrients"] = updated_nutrients
+
+        # Write the updated data back to the file
+        with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
+            json.dump(data, f, indent=4)

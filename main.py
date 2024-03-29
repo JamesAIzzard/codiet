@@ -7,7 +7,12 @@ from codiet.controllers.main_window_ctrl import MainWindowCtrl
 from codiet.db.database import Database
 from codiet.db.repository import Repository
 from codiet.db.database_service import DatabaseService
-from codiet.db._populate_database import _populate_ingredients, _populate_flags, _populate_nutrients
+from codiet.db._populate_database import (
+    _populate_ingredients,
+    _populate_flags,
+    _populate_nutrients,
+    _update_ingredient_files,
+)
 
 DB_PATH = os.path.join("codiet", "db", "codiet.db")
 RESET_DB = True
@@ -25,6 +30,7 @@ if __name__ == "__main__":
         db_service = DatabaseService(repo)
         _populate_flags(db_service)
         _populate_nutrients(db_service)
+        _update_ingredient_files(db_service)
         _populate_ingredients(db_service)
     else:
         # Open the existing database
