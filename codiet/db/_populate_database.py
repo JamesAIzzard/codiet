@@ -206,6 +206,20 @@ def _populate_ingredient_files_data(db_service: DatabaseService):
             with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
                 json.dump(data, f, indent=4)
 
+        # If the cost data isn't filled, use the openai API to get the cost data
+        if data["cost"]["cost_value"] is None:
+            print(f"Getting cost data for {ingredient_name}...")
+            cost_per_100_g = _get_openai_ingredient_cost_per_100g(ingredient_name)
+
+            # Write the cost data back to the file
+            data["cost"]["cost_value"] = float(cost_per_100_g)
+            data["cost"]["qty_unit"] = "g"
+            data["cost"]["qty_value"] = "100"
+
+            # Save the updated data back to the file
+            with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
+                json.dump(data, f, indent=4)
+
 def _get_openai_ingredient_description(ingredient_name: str) -> str:
     """Use the OpenAI API to generate a description for an ingredient."""
     # Initialize the OpenAI client
@@ -213,6 +227,24 @@ def _get_openai_ingredient_description(ingredient_name: str) -> str:
 
     # Set the prompt
     prompt = f"Generate a single sentence description for the ingredient '{ingredient_name}'."
+
+    # Create a chat completion
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {"role": "user", "content": prompt},
+        ],
+        model="gpt-4",
+    )
+
+    return chat_completion.choices[0].message.content # type: ignore
+
+def _get_openai_ingredient_cost_per_100g(ingredient_name: str) -> str:
+    """Use the OpenAI API to generate a description for an ingredient."""
+    # Initialize the OpenAI client
+    client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
+
+    # Set the prompt
+    prompt = f"By responding with a single decimal only, what is the approximate cost in GBP of 100g of '{ingredient_name}'? It is acceptable to guess, you don't need to access real time data."
 
     # Create a chat completion
     chat_completion = client.chat.completions.create(
