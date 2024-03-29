@@ -44,7 +44,7 @@ class IngredientSearchPopupCtrl:
     def on_search_box_text_changed(self, text: str):
         """Handle the user typing in the search box."""
         # Get the list of matching ingredient names
-        matching_names = self.db_service.load_matching_ingredient_names(text)
+        matching_names = self.db_service.fetch_matching_ingredient_names(text)
         # Update the list of matching ingredients
         self.view.update_ingredient_list(matching_names)
 
@@ -54,7 +54,7 @@ class IngredientSearchPopupCtrl:
         if not self.ingredient_is_selected:
             return
         # Load the ingredient details into the editor
-        ingredient = self.db_service.load_ingredient(self.selected_ingredient_name)
+        ingredient = self.db_service.fetch_ingredient(self.selected_ingredient_name)
         self.set_ingredient_instance(ingredient)
         # Close self
         self.view.close()

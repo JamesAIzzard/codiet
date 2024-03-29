@@ -34,7 +34,17 @@ class Repository:
         ).fetchall()
         return [row[0] for row in rows]
 
+    def fetch_ingredient_name(self, id:int) -> str:
+        """Returns the name of the given ingredient ID."""
+        return self.db.execute(
+            """
+            SELECT ingredient_name FROM ingredient_base WHERE ingredient_id = ?;
+        """,
+            (id,),
+        ).fetchone()[0]
+
     def fetch_ingredient_id(self, name: str) -> int:
+        """Returns the ID of the given ingredient name."""
         return self.db.execute(
             """
             SELECT ingredient_id FROM ingredient_base WHERE ingredient_name = ?;
@@ -190,7 +200,7 @@ class Repository:
         # Clear the existing nutrients
         self.db.execute(
             """
-            DELETE FROM ingredient_nutrient WHERE ingredient_id = ?;
+            DELETE FROM ingredient_nutrients WHERE ingredient_id = ?;
         """,
             (ingredient_id,),
         )
@@ -209,7 +219,7 @@ class Repository:
             # Add the nutrient
             self.db.execute(
                 """
-                INSERT INTO ingredient_nutrient (ingredient_id, nutrient_id, ntr_qty_unit, ntr_qty_value, ing_qty_unit, ing_qty_value)
+                INSERT INTO ingredient_nutrients (ingredient_id, nutrient_id, ntr_qty_unit, ntr_qty_value, ing_qty_unit, ing_qty_value)
                 VALUES (?, ?, ?, ?, ?, ?);
             """,
                 (
@@ -330,7 +340,7 @@ class Repository:
             """
             SELECT nutrient_name, ntr_qty_unit, ntr_qty_value, ing_qty_unit, ing_qty_value
             FROM nutrient_list
-            JOIN ingredient_nutrient ON nutrient_list.nutrient_id = ingredient_nutrient.nutrient_id
+            JOIN ingredient_nutrients ON nutrient_list.nutrient_id = ingredient_nutrients.nutrient_id
             WHERE ingredient_id = ?;
         """,
             (ingredient_id,),
@@ -350,24 +360,14 @@ class Repository:
         # Grab the ID of the ingredient
         ingredient_id = self.fetch_ingredient_id(ingredient_name)
 
-        # Remove all entries against the ID from all ingredient tables
-        # which include ingredient_base, ingredient_bulk, ingredient_cost,
-        # ingredient_nutrient, and ingredient_flag.
+        # Remove all entries against the ID from all ingredient tables.
         queries = [
             """
             DELETE FROM ingredient_base
             WHERE ingredient_id = ?;
             """,
             """
-            DELETE FROM ingredient_bulk
-            WHERE ingredient_id = ?;
-            """,
-            """
-            DELETE FROM ingredient_cost
-            WHERE ingredient_id = ?;
-            """,
-            """
-            DELETE FROM ingredient_nutrient
+            DELETE FROM ingredient_nutrients
             WHERE ingredient_id = ?;
             """,
             """

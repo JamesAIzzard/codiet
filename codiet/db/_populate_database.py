@@ -34,7 +34,7 @@ def _populate_ingredients(db_service: DatabaseService):
         ingredient_name = data["name"]
 
         # Create an ingredient instance
-        ingredient = db_service.load_empty_ingredient()
+        ingredient = db_service.create_empty_ingredient()
 
         # Set the ingredient name
         ingredient.name = ingredient_name

@@ -52,7 +52,7 @@ def _create_schema(cursor):
         )
     """)
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS ingredient_nutrient (
+        CREATE TABLE IF NOT EXISTS ingredient_nutrients (
             ingredient_id INTEGER,
             nutrient_id INTEGER,
             ntr_qty_unit TEXT,

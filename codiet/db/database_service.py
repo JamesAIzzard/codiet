@@ -7,12 +7,12 @@ class DatabaseService:
     def __init__(self, repo: Repository):
         self.repo = repo
 
-    def load_matching_ingredient_names(self, name: str) -> list[str]:
+    def fetch_matching_ingredient_names(self, name: str) -> list[str]:
         """Returns a list of ingredient names that match the given name."""
         all_names = self.repo.fetch_all_ingredient_names()
         return filter_text(name, all_names, 10)
 
-    def load_empty_ingredient(self) -> Ingredient:
+    def create_empty_ingredient(self) -> Ingredient:
         """Creates an ingredient."""
         # Init the ingredient
         ingredient = Ingredient()
@@ -90,9 +90,13 @@ class DatabaseService:
                 # Re-raise any exceptions
                 raise e
 
-    def load_ingredient(self, name: str) -> Ingredient:
+    def fetch_ingredient(self, name: str) -> Ingredient:
         """Returns the ingredient with the given name."""
         return self.repo.fetch_ingredient(name)
+
+    def fetch_ingredient_name(self, id:int) -> str:
+        """Returns the name of the ingredient with the given ID."""
+        return self.repo.fetch_ingredient_name(id)
 
     def update_ingredient(self, ingredient: Ingredient):
         """Updates the given ingredient in the database."""

@@ -24,7 +24,7 @@ class IngredientEditorCtrl:
 
         # Init an ingredient if not provided
         if ingredient is None:
-            self.ingredient = self.db_service.load_empty_ingredient()
+            self.ingredient = self.db_service.create_empty_ingredient()
         # Otherwise, use the one you were given
         else:
             self.ingredient = ingredient
@@ -239,8 +239,25 @@ class IngredientEditorCtrl:
         # If this has been pressed from the 'Edit Ingredient' route,
         # then the edit mode will be True and the ingredient will be updated.
         elif self.edit_mode is True:
+            # Raise an exception if the ingredient id is None
+            if self.ingredient.id is None:
+                raise ValueError("Ingredient ID must be set.")
+
             # Update the ingredient.
             try:
+                # Grab the name against this ingredient ID currently in the database
+                original_name = self.db_service.fetch_ingredient_name(self.ingredient.id)
+
+                # If the name has changed, ask if user is sure
+                if self.ingredient.name != original_name:
+                    dialog = OkDialogBoxView(
+                        message=f"Are you sure you want to rename the ingredient from '{original_name}' to '{self.ingredient.name}'?",
+                        title="Rename Ingredient",
+                        parent=self.view,
+                    )
+                    if dialog.exec() == 0:
+                        return
+
                 # Update the ingredient in the database
                 self.db_service.update_ingredient(self.ingredient)
 
