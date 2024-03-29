@@ -29,7 +29,7 @@ class DatabaseService:
 
         return ingredient    
 
-    def create_ingredient(self, ingredient: Ingredient):
+    def create_ingredient(self, ingredient: Ingredient) -> int:
         """Saves the given ingredient to the database."""
 
         # If the ingredient name is not set on the ingredient, raise an exception
@@ -80,6 +80,9 @@ class DatabaseService:
 
                 # Commit the transaction
                 self.repo.db.connection.commit()
+
+                # Return the ingredient ID
+                return ingredient_id
 
             except Exception as e:
                 # Roll back the transaction if an exception occurs

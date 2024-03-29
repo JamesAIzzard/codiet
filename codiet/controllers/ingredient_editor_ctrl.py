@@ -143,12 +143,12 @@ class IngredientEditorCtrl:
     def on_ingredient_cost_value_changed(self):
         """Handler for changes to the ingredient cost."""
         # Update the ingredient cost
-        self.ingredient.cost_value = self.view.txt_cost.value
+        self.ingredient.cost_value = self.view.txt_cost.text()
 
     def on_ingredient_cost_quantity_changed(self):
         """Handler for changes to the ingredient quantity associated with the cost data."""
         # Update the ingredient cost quantity
-        self.ingredient.cost_qty_value = self.view.txt_cost_quantity.value
+        self.ingredient.cost_qty_value = self.view.txt_cost_quantity.text()
 
     def on_ingredient_cost_qty_unit_changed(self):
         """Handler for changes to the ingredient cost unit."""
@@ -158,7 +158,7 @@ class IngredientEditorCtrl:
     def on_ingredient_density_vol_value_changed(self):
         """Handler for changes to the ingredient density volume value."""
         # Update the ingredient density volume value
-        self.ingredient.density_vol_value = self.view.txt_dens_vol.value
+        self.ingredient.density_vol_value = self.view.txt_dens_vol.text()
 
     def on_ingredient_density_vol_unit_changed(self):
         """Handler for changes to the ingredient density volume unit."""
@@ -168,7 +168,7 @@ class IngredientEditorCtrl:
     def on_ingredient_density_mass_value_changed(self):
         """Handler for changes to the ingredient density mass value."""
         # Update the ingredient density mass value
-        self.ingredient.density_mass_value = self.view.txt_dens_mass.value
+        self.ingredient.density_mass_value = self.view.txt_dens_mass.text()
 
     def on_ingredient_density_mass_unit_changed(self):
         """Handler for changes to the ingredient density mass unit."""
@@ -178,12 +178,12 @@ class IngredientEditorCtrl:
     def on_ingredient_num_pieces_changed(self):
         """Handler for changes to the ingredient piece count."""
         # Update the ingredient piece count
-        self.ingredient.pc_qty = self.view.txt_num_pieces.value
+        self.ingredient.pc_qty = self.view.txt_num_pieces.text()
 
     def on_ingredient_pc_mass_value_changed(self):
         """Handler for changes to the ingredient piece mass value."""
         # Update the ingredient piece mass value
-        self.ingredient.pc_mass_value = self.view.txt_pc_mass_value.value
+        self.ingredient.pc_mass_value = self.view.txt_pc_mass_value.text()
 
     def on_ingredient_pc_mass_unit_changed(self):
         """Handler for changes to the ingredient piece mass unit."""
@@ -193,7 +193,7 @@ class IngredientEditorCtrl:
     def on_gi_value_changed(self):
         """Handler for changes to the ingredient GI value."""
         # Update the ingredient GI value
-        self.ingredient.gi = self.view.txt_gi.value
+        self.ingredient.gi = self.view.txt_gi.text()
 
     def on_save_ingredient_pressed(self):
         """Handler for the save ingredient button."""
@@ -202,7 +202,7 @@ class IngredientEditorCtrl:
         if self.edit_mode is False:
             try:
                 # Save the ingredient to the database
-                self.db_service.create_ingredient(self.ingredient)
+                id = self.db_service.create_ingredient(self.ingredient)
 
                 # Show confirm dialog box
                 dialog = OkDialogBoxView(
@@ -211,6 +211,12 @@ class IngredientEditorCtrl:
                     parent=self.view,
                 )
                 _ = dialog.exec()
+
+                # Update the ingredient ID
+                self.ingredient.id = id
+
+                # Switch to edit mode
+                self.edit_mode = True
 
             except ingredient_exceptions.IngredientNameExistsError as e:
                 # Create an error box for duplicate ingredient name
