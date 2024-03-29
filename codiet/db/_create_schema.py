@@ -5,7 +5,8 @@ def _create_schema(cursor):
         CREATE TABLE IF NOT EXISTS nutrient_list (
             nutrient_id INTEGER PRIMARY KEY AUTOINCREMENT,
             nutrient_name TEXT NOT NULL UNIQUE,
-            parent_id INTEGER
+            parent_id INTEGER,
+            is_leaf BOOLEAN
         )
     """)
     # Build the list of nutrient aliases

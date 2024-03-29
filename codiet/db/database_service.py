@@ -23,7 +23,7 @@ class DatabaseService:
             ingredient._flags[flag] = False
 
         # Populate the nutrient dict
-        nutrients = self.repo.fetch_all_nutrient_names()
+        nutrients = self.repo.fetch_all_leaf_nutrient_names()
         for nutrient in nutrients:
             ingredient.nutrients[nutrient] = create_nutrient_dict()
 

@@ -1,10 +1,10 @@
 import os, json
 from typing import Optional
 
-from codiet.models.ingredient import Ingredient
 from codiet.db.database_service import DatabaseService
 
 INGREDIENT_DATA_DIR = os.path.join(os.path.dirname(__file__), "ingredient_data")
+NUTRIENT_DATA_PATH = os.path.join(os.path.dirname(__file__), "nutrient_data.json")
 
 
 def _populate_flags(db_service: DatabaseService):
@@ -65,16 +65,23 @@ def _populate_ingredients(db_service: DatabaseService):
 
 def _populate_nutrients(db_service: DatabaseService):
     # Load the dict from the nutrient_data.json file
-    with open(os.path.join(os.path.dirname(__file__), "nutrient_data.json")) as f:
+    with open(NUTRIENT_DATA_PATH) as f:
         data = json.load(f)
 
     # Create a dict to match nutrient names and ID's
     nutrient_ids = {}
 
+    # Create a list of nutrients which are leaves (have no children)
+    leaf_nutrients = _find_leaf_nutrients(data)
+
     # Create a function to recursively add nutrients
     def _add_nutrient(name: str, data: dict, parent_id: Optional[int]):
         # Add the nutrient to the database, stashing the id
-        nutrient_id = db_service.repo.insert_nutrient(name, parent_id)
+        nutrient_id = db_service.repo.insert_nutrient(
+            name, 
+            parent_id,
+            is_leaf=name in leaf_nutrients
+        )
         # Stash the nutrients ID in the dict
         nutrient_ids[name] = nutrient_id
         # Grab the child elements
@@ -98,3 +105,21 @@ def _populate_nutrients(db_service: DatabaseService):
 
     # Commit the changes
     db_service.repo.db.commit()
+
+
+def _find_leaf_nutrients(data, leaf_nutrients=None):
+    """Recursively find all leaf nutrients in a nested dictionary."""
+    # Initialize the list of leaf nutrients on the first call
+    if leaf_nutrients is None:
+        leaf_nutrients = []
+
+    for key, value in data.items():
+        # Check if the current item has children
+        if value.get('children'):
+            # Recursively call the function with the children
+            _find_leaf_nutrients(value['children'], leaf_nutrients)
+        else:
+            # If no children, add the nutrient to the leaf_nutrients list
+            leaf_nutrients.append(key)
+
+    return leaf_nutrients

@@ -392,13 +392,22 @@ class Repository:
         ).fetchall()
         return [row[0] for row in rows]
 
-    def insert_nutrient(self, name: str, parent_id: int | None) -> int:
+    def fetch_all_leaf_nutrient_names(self) -> list[str]:
+        """Returns a list of all the nutrient names which are leaves."""
+        rows = self.db.execute(
+            """
+            SELECT nutrient_name FROM nutrient_list WHERE is_leaf = True;
+        """
+        ).fetchall()
+        return [row[0] for row in rows]
+
+    def insert_nutrient(self, name: str, parent_id: int | None, is_leaf: bool) -> int:
         """Adds a nutrient to the database and returns the ID."""
         cursor = self.db.execute(
             """
-            INSERT INTO nutrient_list (nutrient_name, parent_id) VALUES (?, ?);
+            INSERT INTO nutrient_list (nutrient_name, parent_id, is_leaf) VALUES (?, ?, ?);
             """,
-            (name, parent_id),
+            (name, parent_id, is_leaf),
         )
         return cursor.lastrowid
 
