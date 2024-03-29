@@ -63,7 +63,7 @@ class IngredientNutrientEditorView(QWidget):
         # Add some mass units to the dropdown
         # These will utimately get pulled from a config
         # TODO - pull mass units from config
-        self.cmb_mass_units.addItems(["g", "mg", "µg"])
+        self.cmb_mass_units.addItems(["g", "mg", "ug"])
         layout.addWidget(self.cmb_mass_units)
 
         # Create a label

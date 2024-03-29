@@ -37,7 +37,7 @@ class NutrientTargetEditorView(QWidget):
         # Add some mass units to the dropdown
         # These will utimately get pulled from a config
         # TODO - pull mass units from config
-        self.cmbMassUnits.addItems(["g", "mg", "µg"])
+        self.cmbMassUnits.addItems(["g", "mg", "ug"])
         layout.addWidget(self.cmbMassUnits)
 
         # Add a little space at either end of the widget
