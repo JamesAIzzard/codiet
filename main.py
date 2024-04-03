@@ -8,11 +8,11 @@ from codiet.db.database import Database
 from codiet.db.repository import Repository
 from codiet.db.database_service import DatabaseService
 from codiet.db._populate_database import (
-    populate_ingredients_in_db,
-    populate_flags_in_db,
-    populate_nutrients_in_db,
-    init_ingredient_files,
-    populate_ingredient_files_data
+    push_ingredients_to_db,
+    push_flags_to_db,
+    push_nutrients_to_db,
+    init_ingredient_datafiles,
+    populate_ingredient_datafiles
 )
 
 DB_PATH = os.path.join("codiet", "db", "codiet.db")
@@ -29,11 +29,11 @@ if __name__ == "__main__":
         db = Database(DB_PATH)
         repo = Repository(db)
         db_service = DatabaseService(repo)
-        populate_flags_in_db(db_service)
-        populate_nutrients_in_db(db_service)
-        init_ingredient_files(db_service)
-        populate_ingredient_files_data(db_service)
-        populate_ingredients_in_db(db_service)
+        push_flags_to_db(db_service)
+        push_nutrients_to_db(db_service)
+        init_ingredient_datafiles(db_service)
+        populate_ingredient_datafiles(db_service)
+        push_ingredients_to_db(db_service)
     else:
         # Open the existing database
         db = Database(DB_PATH)

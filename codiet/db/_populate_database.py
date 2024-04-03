@@ -12,7 +12,7 @@ INGREDIENT_TEMPLATE = os.path.join(os.path.dirname(__file__), "ingredient_templa
 NUTRIENT_DATA_PATH = os.path.join(os.path.dirname(__file__), "nutrient_data.json")
 
 
-def populate_flags_in_db(db_service: DatabaseService):
+def push_flags_to_db(db_service: DatabaseService):
     # Define list of flags
     flags = [
         "alcohol free",
@@ -28,7 +28,7 @@ def populate_flags_in_db(db_service: DatabaseService):
         db_service.repo.insert_flag_into_database(flag)
 
 
-def populate_ingredients_in_db(db_service: DatabaseService):
+def push_ingredients_to_db(db_service: DatabaseService):
     """Populate the database with ingredients from the ingredient_data directory."""
     # Work through each .json file in the ingredient_data directory
     for file in os.listdir(INGREDIENT_DATA_DIR):
@@ -69,7 +69,7 @@ def populate_ingredients_in_db(db_service: DatabaseService):
         # Save the ingredient
         db_service.create_ingredient(ingredient)
 
-def populate_nutrients_in_db(db_service: DatabaseService):
+def push_nutrients_to_db(db_service: DatabaseService):
     """Populate the database with nutrients from the nutrient_data.json files."""
     # Load the dict from the nutrient_data.json file
     with open(NUTRIENT_DATA_PATH) as f:
@@ -113,7 +113,7 @@ def populate_nutrients_in_db(db_service: DatabaseService):
     # Commit the changes
     db_service.repo.db.commit()
 
-def init_ingredient_files(db_service: DatabaseService):
+def init_ingredient_datafiles(db_service: DatabaseService):
     """Work through the wishlist and initialise a corresponding ingredient .json file."""
     
     # Read the ingredient_wishlist.json file
@@ -145,9 +145,9 @@ def init_ingredient_files(db_service: DatabaseService):
         json.dump([], f)
 
 
-def populate_ingredient_files_data(db_service: DatabaseService):
+def populate_ingredient_datafiles(db_service: DatabaseService):
     """Work through each ingredient file in the ingredients data directory
-    and add the data to the database."""
+    and use the openai API to populate its data."""
     # For each ingredient file in the directory
     for file in os.listdir(INGREDIENT_DATA_DIR):
         # Open the file and load the data
@@ -157,11 +157,12 @@ def populate_ingredient_files_data(db_service: DatabaseService):
         # Grab the ingredient name
         ingredient_name = data["name"]
 
-        # If the description isn't filled, use the openai API to get the description
-        if not data.get("description"):
+        # If the description isn't filled
+        if not data.get("description").strip():
+            # Update the terminal
             print(f"Getting description for {ingredient_name}...")
+            # Use the openai API to get the description
             description = _get_openai_ingredient_description(ingredient_name)
-
             # Write the description back to the file
             data["description"] = description
 
@@ -186,10 +187,22 @@ def populate_ingredient_files_data(db_service: DatabaseService):
         # If the flag data isn't filled, use the openai API to get the flag data
         if len(data["flags"]) == 0:
             print(f"Getting flags for {ingredient_name}...")
-            flags = _get_openai_flags(ingredient_name, db_service.repo.fetch_all_flag_names())
+            flags = _get_openai_ingredient_flags(ingredient_name, db_service.repo.fetch_all_flag_names())
 
             # Write the flags back to the file
             data["flags"] = flags
+
+            # Save the updated data back to the file
+            with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
+                json.dump(data, f, indent=4)
+
+        # If the GI data isn't filled, use the openai API to get the GI data
+        if data.get("GI") is None:
+            print(f"Getting GI data for {ingredient_name}...")
+            gi = _get_openai_ingredient_gi(ingredient_name)
+
+            # Write the GI data back to the file
+            data["GI"] = gi
 
             # Save the updated data back to the file
             with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
@@ -248,7 +261,7 @@ def _get_openai_ingredient_cost_per_100g(ingredient_name: str) -> str:
 
     return chat_completion.choices[0].message.content # type: ignore
 
-def _get_openai_flags(ingredient_name: str, flag_list:list[str]) -> dict[str, bool]:
+def _get_openai_ingredient_flags(ingredient_name: str, flag_list:list[str]) -> dict[str, bool]:
     """Use the OpenAI API to generate a list of flags for an ingredient."""
     # Initialize the OpenAI client
     client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
@@ -274,3 +287,21 @@ def _get_openai_flags(ingredient_name: str, flag_list:list[str]) -> dict[str, bo
     flags_dict = json.loads(response) # type: ignore
 
     return flags_dict
+
+def _get_openai_ingredient_gi(ingredient_name: str) -> str:
+    """Use the OpenAI API to generate a description for an ingredient."""
+    # Initialize the OpenAI client
+    client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
+
+    # Set the prompt
+    prompt = f"By responding with a single decimal only, what is the approximate Glycemic Index (GI) of '{ingredient_name}'? It is acceptable to guess, you don't need to access real time data."
+
+    # Create a chat completion
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {"role": "user", "content": prompt},
+        ],
+        model="gpt-4",
+    )
+
+    return chat_completion.choices[0].message.content # type: ignore

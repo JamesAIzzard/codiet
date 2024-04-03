@@ -29,7 +29,7 @@
         "vegan": true,
         "vegetarian": true
     },
-    "GI": null,
+    "GI": "55.0",
     "nutrients": {
         "glucose": {
             "ntr_qty_value": null,
