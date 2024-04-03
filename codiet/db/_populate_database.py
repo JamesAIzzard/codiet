@@ -7,10 +7,12 @@ from codiet.models.nutrients import create_nutrient_dict
 from codiet.db.database_service import DatabaseService
 
 INGREDIENT_DATA_DIR = os.path.join(os.path.dirname(__file__), "ingredient_data")
+INGREDIENT_WISHLIST = os.path.join(os.path.dirname(__file__), "ingredient_wishlist.json")
+INGREDIENT_TEMPLATE = os.path.join(os.path.dirname(__file__), "ingredient_template.json")
 NUTRIENT_DATA_PATH = os.path.join(os.path.dirname(__file__), "nutrient_data.json")
 
 
-def _populate_flags_in_db(db_service: DatabaseService):
+def populate_flags_in_db(db_service: DatabaseService):
     # Define list of flags
     flags = [
         "alcohol free",
@@ -26,7 +28,7 @@ def _populate_flags_in_db(db_service: DatabaseService):
         db_service.repo.insert_flag_into_database(flag)
 
 
-def _populate_ingredients_in_db(db_service: DatabaseService):
+def populate_ingredients_in_db(db_service: DatabaseService):
     """Populate the database with ingredients from the ingredient_data directory."""
     # Work through each .json file in the ingredient_data directory
     for file in os.listdir(INGREDIENT_DATA_DIR):
@@ -67,7 +69,8 @@ def _populate_ingredients_in_db(db_service: DatabaseService):
         # Save the ingredient
         db_service.create_ingredient(ingredient)
 
-def _populate_nutrients_in_db(db_service: DatabaseService):
+def populate_nutrients_in_db(db_service: DatabaseService):
+    """Populate the database with nutrients from the nutrient_data.json files."""
     # Load the dict from the nutrient_data.json file
     with open(NUTRIENT_DATA_PATH) as f:
         data = json.load(f)
@@ -110,79 +113,39 @@ def _populate_nutrients_in_db(db_service: DatabaseService):
     # Commit the changes
     db_service.repo.db.commit()
 
-def _find_leaf_nutrients(data, leaf_nutrients=None):
-    """Recursively find all leaf nutrients in a nested dictionary."""
-    # Initialize the list of leaf nutrients on the first call
-    if leaf_nutrients is None:
-        leaf_nutrients = []
+def init_ingredient_files(db_service: DatabaseService):
+    """Work through the wishlist and initialise a corresponding ingredient .json file."""
+    
+    # Read the ingredient_wishlist.json file
+    with open(os.path.join(os.path.dirname(__file__), "ingredient_wishlist.json")) as f:
+        wishlist = json.load(f)
 
-    for key, value in data.items():
-        # Check if the current item has children
-        if value.get('children'):
-            # Recursively call the function with the children
-            _find_leaf_nutrients(value['children'], leaf_nutrients)
-        else:
-            # If no children, add the nutrient to the leaf_nutrients list
-            leaf_nutrients.append(key)
+    # Read the ingredient template file
+    with open(os.path.join(os.path.dirname(__file__), "ingredient_template.json")) as f:
+        template = json.load(f)
 
-    return leaf_nutrients
+    # For each ingredient in the wishlist
+    for ingredient in wishlist:
+        # Create the ingredient file name from the ingredient name
+        file_name = ingredient.replace(" ", "_").lower() + ".json"
 
-def _update_ingredient_files_structure(db_service: DatabaseService):
-    """Work through each ingredient file in the ingredients data directory
-    and make sure:
-    - Its flags match those in the database
-    - Its nutrients match the leaf nutrients in the database
-    """
-    # Grab the list of flags from the database
-    flags_list = db_service.repo.fetch_all_flag_names()
+        # Create a .json file with this name, overwriting if it already exists
+        with open(os.path.join(INGREDIENT_DATA_DIR, file_name), "w") as f:
+            # Make a copy of the entire template
+            template = template.copy()
 
-    # Grab the list of leaf nutrients from the database
-    leaf_nutrients_list = db_service.repo.fetch_all_leaf_nutrient_names()
+            # Set the name of the ingredient
+            template["name"] = ingredient
 
-    # For each ingredient file in the directory
-    for file in os.listdir(INGREDIENT_DATA_DIR):
-        # Open the file and load the data
-        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
-            data = json.load(f)
+            # Write the template data to the file
+            json.dump(template, f, indent=4)
 
-        print(f"Updating {file}...")
+    # Clear the ingredient wishlist
+    with open(os.path.join(os.path.dirname(__file__), "ingredient_wishlist.json"), "w") as f:
+        json.dump([], f)
 
-        # Update the flags
-        # Create a fresh flag dict
-        updated_flags = {}
-        # Cycle through each flag from the database
-        for flag in flags_list:
-            # Try and read the data from the file
-            try:
-                # If the flag is in the file, add it to the updated flags dict
-                updated_flags[flag] = data["flags"][flag]
-            except KeyError:
-                # If the flag is not in the file, add it with a value of False
-                updated_flags[flag] = False
-        # Replace the old flags dict with the new
-        data["flags"] = updated_flags
 
-        # Update the nutrients
-        # Create a fresh nutrient dict
-        updated_nutrients = {}
-        # Cycle through each leaf nutrient from the database
-        for nutrient in leaf_nutrients_list:
-            # Try and read the data from the file
-            try:
-                # If the nutrient is in the file, add it to the updated nutrients dict
-                updated_nutrients[nutrient] = data["nutrients"][nutrient]
-            except KeyError:
-                # If the nutrient is not in the file, remove it
-                updated_nutrients[nutrient] = create_nutrient_dict()
-
-        # Replace the old nutrients dict with the new
-        data["nutrients"] = updated_nutrients
-
-        # Write the updated data back to the file
-        with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-            json.dump(data, f, indent=4)
-
-def _populate_ingredient_files_data(db_service: DatabaseService):
+def populate_ingredient_files_data(db_service: DatabaseService):
     """Work through each ingredient file in the ingredients data directory
     and add the data to the database."""
     # For each ingredient file in the directory
@@ -220,6 +183,35 @@ def _populate_ingredient_files_data(db_service: DatabaseService):
             with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
                 json.dump(data, f, indent=4)
 
+        # If the flag data isn't filled, use the openai API to get the flag data
+        if len(data["flags"]) == 0:
+            print(f"Getting flags for {ingredient_name}...")
+            flags = _get_openai_flags(ingredient_name, db_service.repo.fetch_all_flag_names())
+
+            # Write the flags back to the file
+            data["flags"] = flags
+
+            # Save the updated data back to the file
+            with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
+                json.dump(data, f, indent=4)
+
+def _find_leaf_nutrients(data, leaf_nutrients=None):
+    """Recursively find all leaf nutrients in a nested dictionary."""
+    # Initialize the list of leaf nutrients on the first call
+    if leaf_nutrients is None:
+        leaf_nutrients = []
+
+    for key, value in data.items():
+        # Check if the current item has children
+        if value.get('children'):
+            # Recursively call the function with the children
+            _find_leaf_nutrients(value['children'], leaf_nutrients)
+        else:
+            # If no children, add the nutrient to the leaf_nutrients list
+            leaf_nutrients.append(key)
+
+    return leaf_nutrients
+
 def _get_openai_ingredient_description(ingredient_name: str) -> str:
     """Use the OpenAI API to generate a description for an ingredient."""
     # Initialize the OpenAI client
@@ -255,3 +247,30 @@ def _get_openai_ingredient_cost_per_100g(ingredient_name: str) -> str:
     )
 
     return chat_completion.choices[0].message.content # type: ignore
+
+def _get_openai_flags(ingredient_name: str, flag_list:list[str]) -> dict[str, bool]:
+    """Use the OpenAI API to generate a list of flags for an ingredient."""
+    # Initialize the OpenAI client
+    client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
+
+    # Construct the flag dict with False values
+    flags_dict = {flag: False for flag in flag_list}
+
+    # Set the prompt
+    prompt = f"Can you populate this list of flags for {ingredient_name}: {json.dumps(flags_dict, indent=4)}? If you are unsure, please leave the flag as False."
+    # prompt = f"Generate a list of flags for the ingredient '{ingredient_name}'."
+
+    # Create a chat completion
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {"role": "user", "content": prompt},
+        ],
+        model="gpt-4",
+    )
+
+    # Parse the response
+    response = chat_completion.choices[0].message.content # type: ignore
+    # Convert the response to a dict
+    flags_dict = json.loads(response) # type: ignore
+
+    return flags_dict

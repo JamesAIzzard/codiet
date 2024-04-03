@@ -21,13 +21,13 @@
         }
     },
     "flags": {
-        "alcohol free": false,
-        "caffeine free": false,
+        "alcohol free": true,
+        "caffeine free": true,
         "gluten free": false,
-        "lactose free": false,
-        "nut free": false,
-        "vegan": false,
-        "vegetarian": false
+        "lactose free": true,
+        "nut free": true,
+        "vegan": true,
+        "vegetarian": true
     },
     "GI": null,
     "nutrients": {
