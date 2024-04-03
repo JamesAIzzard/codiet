@@ -1,0 +1,34 @@
+{
+    "name": "White Rice",
+    "description": "White Rice is a type of refined, starchy grain typically used in a variety of dishes due to its tender, fluffy texture and neutral flavor that absorbs the flavors of the ingredients it's cooked with.",
+    "cost": {
+        "cost_unit": "GBP",
+        "cost_value": 0.5,
+        "qty_unit": "g",
+        "qty_value": "100"
+    },
+    "bulk": {
+        "density": {
+            "mass_unit": "g",
+            "mass_value": null,
+            "vol_unit": "l",
+            "vol_value": null
+        },
+        "piece_mass": {
+            "pc_qty": null,
+            "mass_unit": null,
+            "mass_value": null
+        }
+    },
+    "flags": {
+        "alcohol free": true,
+        "caffeine free": true,
+        "gluten free": true,
+        "lactose free": true,
+        "nut free": true,
+        "vegan": true,
+        "vegetarian": true
+    },
+    "GI": "73.0",
+    "nutrients": {}
+}
