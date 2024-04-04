@@ -1,0 +1,34 @@
+{
+    "name": "Vegetable Oil",
+    "description": "Vegetable oil is a clear, neutral-flavored oil extracted from various plants for use in cooking and baking.",
+    "cost": {
+        "cost_unit": "GBP",
+        "cost_value": 2.0,
+        "qty_unit": "g",
+        "qty_value": 1000
+    },
+    "bulk": {
+        "density": {
+            "mass_unit": "g",
+            "mass_value": null,
+            "vol_unit": "l",
+            "vol_value": null
+        },
+        "piece_mass": {
+            "pc_qty": null,
+            "mass_unit": null,
+            "mass_value": null
+        }
+    },
+    "flags": {
+        "alcohol free": true,
+        "caffeine free": true,
+        "gluten free": true,
+        "lactose free": true,
+        "nut free": true,
+        "vegan": true,
+        "vegetarian": true
+    },
+    "GI": "0",
+    "nutrients": {}
+}

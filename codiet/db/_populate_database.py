@@ -113,6 +113,29 @@ def push_nutrients_to_db(db_service: DatabaseService):
     # Commit the changes
     db_service.repo.db.commit()
 
+def remove_redundant_flags_from_datafiles(db_service: DatabaseService):
+    """Cycles through each ingredient file and checks it has the correct fields."""
+    print("Checking for redundant flags...")
+    # For each ingredient file in the directory
+    for file in os.listdir(INGREDIENT_DATA_DIR):
+        # Open the file and load the data
+        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
+            data = json.load(f)
+
+        # Grab all the flags from the database
+        official_flags = db_service.repo.fetch_all_flag_names()
+        # Take a copy of all of the keys in data["flags"]
+        file_flags = list(data["flags"].keys())
+        for flag in file_flags:
+            # Delete the flag from the datafile if it doesn't exist in the database
+            if flag not in official_flags:
+                del data["flags"][flag]
+                print(f"Deleting flag {flag} from {file}")
+
+        # Write the updated data back to the file
+        with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
+            json.dump(data, f, indent=4)
+
 def init_ingredient_datafiles(db_service: DatabaseService):
     """Work through the wishlist and initialise a corresponding ingredient .json file."""
     
@@ -170,27 +193,28 @@ def populate_ingredient_datafiles(db_service: DatabaseService):
             with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
                 json.dump(data, f, indent=4)
 
-        # If the cost data isn't filled, use the openai API to get the cost data
-        if data["cost"]["cost_value"] is None:
+        # If the cost data isn't filled
+        if data["cost"].get("cost_value") is None or data["cost"].get("qty_value") is None:
+            # Update the terminal
             print(f"Getting cost data for {ingredient_name}...")
-            cost_per_100_g = _get_openai_ingredient_cost_per_100g(ingredient_name)
+            # Use the openai API to get the cost data
+            cost_data = _get_openai_ingredient_cost(ingredient_name, data["cost"])
 
             # Write the cost data back to the file
-            data["cost"]["cost_value"] = float(cost_per_100_g)
-            data["cost"]["qty_unit"] = "g"
-            data["cost"]["qty_value"] = "100"
+            data["cost"] = cost_data
 
             # Save the updated data back to the file
             with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
                 json.dump(data, f, indent=4)
 
         # If the flag data isn't filled, use the openai API to get the flag data
+        # TODO: Update the code so 
         if len(data["flags"]) == 0:
             print(f"Getting flags for {ingredient_name}...")
-            flags = _get_openai_ingredient_flags(ingredient_name, db_service.repo.fetch_all_flag_names())
+            flags_data = _get_openai_ingredient_flags(ingredient_name, db_service.repo.fetch_all_flag_names())
 
             # Write the flags back to the file
-            data["flags"] = flags
+            data["flags"] = flags_data
 
             # Save the updated data back to the file
             with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
@@ -243,13 +267,13 @@ def _get_openai_ingredient_description(ingredient_name: str) -> str:
 
     return chat_completion.choices[0].message.content # type: ignore
 
-def _get_openai_ingredient_cost_per_100g(ingredient_name: str) -> str:
+def _get_openai_ingredient_cost(ingredient_name: str, cost_data:dict) -> dict[str, str|float]:
     """Use the OpenAI API to generate a description for an ingredient."""
     # Initialize the OpenAI client
     client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
 
     # Set the prompt
-    prompt = f"By responding with a single decimal only, what is the approximate cost in GBP of 100g of '{ingredient_name}'? It is acceptable to guess, you don't need to access real time data."
+    prompt = fprompt = f"Can you populate this cost data for {ingredient_name}: {json.dumps(cost_data, indent=4)}? It is OK to guess if you are unsure."
 
     # Create a chat completion
     chat_completion = client.chat.completions.create(
@@ -259,7 +283,11 @@ def _get_openai_ingredient_cost_per_100g(ingredient_name: str) -> str:
         model="gpt-4",
     )
 
-    return chat_completion.choices[0].message.content # type: ignore
+    # Parse the response
+    response = chat_completion.choices[0].message.content # type: ignore
+
+    # Convert the response to a dict
+    return json.loads(response) # type: ignore
 
 def _get_openai_ingredient_flags(ingredient_name: str, flag_list:list[str]) -> dict[str, bool]:
     """Use the OpenAI API to generate a list of flags for an ingredient."""

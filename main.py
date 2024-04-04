@@ -11,6 +11,7 @@ from codiet.db._populate_database import (
     push_ingredients_to_db,
     push_flags_to_db,
     push_nutrients_to_db,
+    remove_redundant_flags_from_datafiles,
     init_ingredient_datafiles,
     populate_ingredient_datafiles
 )
@@ -31,6 +32,7 @@ if __name__ == "__main__":
         db_service = DatabaseService(repo)
         push_flags_to_db(db_service)
         push_nutrients_to_db(db_service)
+        remove_redundant_flags_from_datafiles(db_service)
         init_ingredient_datafiles(db_service)
         populate_ingredient_datafiles(db_service)
         push_ingredients_to_db(db_service)
