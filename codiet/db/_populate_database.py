@@ -3,12 +3,16 @@ from typing import Optional
 
 from openai import OpenAI
 
-from codiet.models.nutrients import create_nutrient_dict
+from codiet.models.flags import get_missing_flags
 from codiet.db.database_service import DatabaseService
 
 INGREDIENT_DATA_DIR = os.path.join(os.path.dirname(__file__), "ingredient_data")
-INGREDIENT_WISHLIST = os.path.join(os.path.dirname(__file__), "ingredient_wishlist.json")
-INGREDIENT_TEMPLATE = os.path.join(os.path.dirname(__file__), "ingredient_template.json")
+INGREDIENT_WISHLIST = os.path.join(
+    os.path.dirname(__file__), "ingredient_wishlist.json"
+)
+INGREDIENT_TEMPLATE = os.path.join(
+    os.path.dirname(__file__), "ingredient_template.json"
+)
 NUTRIENT_DATA_PATH = os.path.join(os.path.dirname(__file__), "nutrient_data.json")
 
 
@@ -69,6 +73,7 @@ def push_ingredients_to_db(db_service: DatabaseService):
         # Save the ingredient
         db_service.create_ingredient(ingredient)
 
+
 def push_nutrients_to_db(db_service: DatabaseService):
     """Populate the database with nutrients from the nutrient_data.json files."""
     # Load the dict from the nutrient_data.json file
@@ -85,15 +90,13 @@ def push_nutrients_to_db(db_service: DatabaseService):
     def _add_nutrient(name: str, data: dict, parent_id: Optional[int]):
         # Add the nutrient to the database, stashing the id
         nutrient_id = db_service.repo.insert_nutrient(
-            name, 
-            parent_id,
-            is_leaf=name in leaf_nutrients
+            name, parent_id, is_leaf=name in leaf_nutrients
         )
         # Stash the nutrients ID in the dict
         nutrient_ids[name] = nutrient_id
         # Grab the child elements
         children = data["children"]
-        # Add each child   
+        # Add each child
         for nutrient_name, nutrient_data in children.items():
             # Get parent's ID
             parent_id = nutrient_ids[name]
@@ -112,6 +115,7 @@ def push_nutrients_to_db(db_service: DatabaseService):
 
     # Commit the changes
     db_service.repo.db.commit()
+
 
 def remove_redundant_flags_from_datafiles(db_service: DatabaseService):
     """Cycles through each ingredient file and checks it has the correct fields."""
@@ -136,6 +140,7 @@ def remove_redundant_flags_from_datafiles(db_service: DatabaseService):
         with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
             json.dump(data, f, indent=4)
 
+
 def remove_redundant_nutrients_from_datafiles(db_service: DatabaseService):
     """Cycles through each ingredient file and checks it has the correct fields."""
     print("Checking for redundant nutrients...")
@@ -159,9 +164,10 @@ def remove_redundant_nutrients_from_datafiles(db_service: DatabaseService):
         with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
             json.dump(data, f, indent=4)
 
+
 def init_ingredient_datafiles(db_service: DatabaseService):
     """Work through the wishlist and initialise a corresponding ingredient .json file."""
-    
+
     # Read the ingredient_wishlist.json file
     with open(os.path.join(os.path.dirname(__file__), "ingredient_wishlist.json")) as f:
         wishlist = json.load(f)
@@ -187,7 +193,9 @@ def init_ingredient_datafiles(db_service: DatabaseService):
             json.dump(template, f, indent=4)
 
     # Clear the ingredient wishlist
-    with open(os.path.join(os.path.dirname(__file__), "ingredient_wishlist.json"), "w") as f:
+    with open(
+        os.path.join(os.path.dirname(__file__), "ingredient_wishlist.json"), "w"
+    ) as f:
         json.dump([], f)
 
 
@@ -217,7 +225,10 @@ def populate_ingredient_datafiles(db_service: DatabaseService):
                 json.dump(data, f, indent=4)
 
         # If the cost data isn't filled
-        if data["cost"].get("cost_value") is None or data["cost"].get("qty_value") is None:
+        if (
+            data["cost"].get("cost_value") is None
+            or data["cost"].get("qty_value") is None
+        ):
             # Update the terminal
             print(f"Getting cost data for {ingredient_name}...")
             # Use the openai API to get the cost data
@@ -230,26 +241,16 @@ def populate_ingredient_datafiles(db_service: DatabaseService):
             with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
                 json.dump(data, f, indent=4)
 
-        # # While there are flags missing from the data
-        # while len(missing_flags(data["flags"].keys())) > 0:
-        #     # Update the terminal
-        #     print(f"Getting flags for {ingredient_name}...")
-        #     # Use the openai API to get the flags
-        #     flags_data = _get_openai_ingredient_flags(ingredient_name, missing_flags(data["flags"]))
-        #     # Add the flags_data into the data["flags"] dict
-        #     data["flags"].update(flags_data)
-        #     # Save the updated data back to the file
-        #     with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-        #         json.dump(data, f, indent=4)       
-
-        # If the flag data isn't filled, use the openai API to get the flag data
-        if len(data["flags"]) == 0:
+        # While there are flags missing from the data
+        while len(get_missing_flags(data["flags"].keys(), db_service)) > 0:
+            # Update the terminal
             print(f"Getting flags for {ingredient_name}...")
-            flags_data = _get_openai_ingredient_flags(ingredient_name, db_service.repo.fetch_all_flag_names())
-
-            # Write the flags back to the file
-            data["flags"] = flags_data
-
+            # Use the openai API to get the flags
+            flags_data = _get_openai_ingredient_flags(
+                ingredient_name, get_missing_flags(data["flags"], db_service)
+            )
+            # Add the flags_data into the data["flags"] dict
+            data["flags"].update(flags_data)
             # Save the updated data back to the file
             with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
                 json.dump(data, f, indent=4)
@@ -266,6 +267,7 @@ def populate_ingredient_datafiles(db_service: DatabaseService):
             with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
                 json.dump(data, f, indent=4)
 
+
 def _find_leaf_nutrients(data, leaf_nutrients=None):
     """Recursively find all leaf nutrients in a nested dictionary."""
     # Initialize the list of leaf nutrients on the first call
@@ -274,14 +276,15 @@ def _find_leaf_nutrients(data, leaf_nutrients=None):
 
     for key, value in data.items():
         # Check if the current item has children
-        if value.get('children'):
+        if value.get("children"):
             # Recursively call the function with the children
-            _find_leaf_nutrients(value['children'], leaf_nutrients)
+            _find_leaf_nutrients(value["children"], leaf_nutrients)
         else:
             # If no children, add the nutrient to the leaf_nutrients list
             leaf_nutrients.append(key)
 
     return leaf_nutrients
+
 
 def _get_openai_ingredient_description(ingredient_name: str) -> str:
     """Use the OpenAI API to generate a description for an ingredient."""
@@ -299,15 +302,20 @@ def _get_openai_ingredient_description(ingredient_name: str) -> str:
         model="gpt-4",
     )
 
-    return chat_completion.choices[0].message.content # type: ignore
+    return chat_completion.choices[0].message.content  # type: ignore
 
-def _get_openai_ingredient_cost(ingredient_name: str, cost_data:dict) -> dict[str, str|float]:
+
+def _get_openai_ingredient_cost(
+    ingredient_name: str, cost_data: dict
+) -> dict[str, str | float]:
     """Use the OpenAI API to generate a description for an ingredient."""
     # Initialize the OpenAI client
     client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
 
     # Set the prompt
-    prompt = fprompt = f"Can you populate this cost data for {ingredient_name}: {json.dumps(cost_data, indent=4)}? It is OK to guess if you are unsure."
+    prompt = fprompt = (
+        f"Can you populate this cost data for {ingredient_name}: {json.dumps(cost_data, indent=4)}? It is OK to guess if you are unsure."
+    )
 
     # Create a chat completion
     chat_completion = client.chat.completions.create(
@@ -318,12 +326,15 @@ def _get_openai_ingredient_cost(ingredient_name: str, cost_data:dict) -> dict[st
     )
 
     # Parse the response
-    response = chat_completion.choices[0].message.content # type: ignore
+    response = chat_completion.choices[0].message.content  # type: ignore
 
     # Convert the response to a dict
-    return json.loads(response) # type: ignore
+    return json.loads(response)  # type: ignore
 
-def _get_openai_ingredient_flags(ingredient_name: str, flag_list:list[str]) -> dict[str, bool]:
+
+def _get_openai_ingredient_flags(
+    ingredient_name: str, flag_list: list[str]
+) -> dict[str, bool]:
     """Use the OpenAI API to generate a list of flags for an ingredient."""
     # Initialize the OpenAI client
     client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
@@ -344,11 +355,12 @@ def _get_openai_ingredient_flags(ingredient_name: str, flag_list:list[str]) -> d
     )
 
     # Parse the response
-    response = chat_completion.choices[0].message.content # type: ignore
+    response = chat_completion.choices[0].message.content  # type: ignore
     # Convert the response to a dict
-    flags_dict = json.loads(response) # type: ignore
+    flags_dict = json.loads(response)  # type: ignore
 
     return flags_dict
+
 
 def _get_openai_ingredient_gi(ingredient_name: str) -> str:
     """Use the OpenAI API to generate a description for an ingredient."""
@@ -366,4 +378,4 @@ def _get_openai_ingredient_gi(ingredient_name: str) -> str:
         model="gpt-4",
     )
 
-    return chat_completion.choices[0].message.content # type: ignore
+    return chat_completion.choices[0].message.content  # type: ignore

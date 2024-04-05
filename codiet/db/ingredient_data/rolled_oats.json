@@ -22,12 +22,12 @@
     },
     "flags": {
         "alcohol free": true,
-        "caffeine free": true,
-        "gluten free": false,
         "lactose free": true,
         "nut free": true,
         "vegan": true,
-        "vegetarian": true
+        "vegetarian": true,
+        "caffeine free": true,
+        "gluten free": true
     },
     "GI": "55.0",
     "nutrients": {

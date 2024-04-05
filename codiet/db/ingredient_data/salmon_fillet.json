@@ -1,11 +1,11 @@
 {
-    "name": "Blueberries",
-    "description": "Blueberries are small, round berries known for their dark blue color, sweet-tart flavor, and high antioxidant content.",
+    "name": "Salmon Fillet",
+    "description": "A salmon fillet is a lean, tender cut of fish rich in omega-3 fatty acids and known for its delicate, slightly sweet flavour.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 1.5,
+        "cost_value": 25,
         "qty_unit": "g",
-        "qty_value": "100"
+        "qty_value": 500
     },
     "bulk": {
         "density": {
@@ -22,13 +22,13 @@
     },
     "flags": {
         "alcohol free": true,
+        "caffeine free": true,
+        "gluten free": true,
         "lactose free": true,
         "nut free": true,
-        "vegan": true,
-        "vegetarian": true,
-        "caffeine free": true,
-        "gluten free": true
+        "vegan": false,
+        "vegetarian": false
     },
-    "GI": "53.0",
+    "GI": "0",
     "nutrients": {}
 }
