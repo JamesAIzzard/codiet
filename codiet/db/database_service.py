@@ -183,3 +183,7 @@ class DatabaseService:
     def get_all_nutrient_names(self):
         """Returns a list of all the nutrients in the database."""
         return self.repo.fetch_all_nutrient_names()
+    
+    def fetch_leaf_nutrient_names(self) -> list[str]:
+        """Returns a list of all the leaf nutrients in the database."""
+        return self.repo.fetch_all_leaf_nutrient_names()

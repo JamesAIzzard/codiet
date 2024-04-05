@@ -1,9 +1,11 @@
 import os, json
 from typing import Optional
+from json.decoder import JSONDecodeError
 
 from openai import OpenAI
 
 from codiet.models.flags import get_missing_flags
+from codiet.models.nutrients import get_missing_leaf_nutrients
 from codiet.db.database_service import DatabaseService
 
 INGREDIENT_DATA_DIR = os.path.join(os.path.dirname(__file__), "ingredient_data")
@@ -14,7 +16,7 @@ INGREDIENT_TEMPLATE = os.path.join(
     os.path.dirname(__file__), "ingredient_template.json"
 )
 NUTRIENT_DATA_PATH = os.path.join(os.path.dirname(__file__), "nutrient_data.json")
-
+OPENAI_MODEL = "gpt-4"
 
 def push_flags_to_db(db_service: DatabaseService):
     # Define list of flags
@@ -66,6 +68,9 @@ def push_ingredients_to_db(db_service: DatabaseService):
 
         # Add the flags
         ingredient.set_flags(data["flags"])
+
+        # Add the GI
+        ingredient.gi = data["GI"]
 
         # Add the nutrients
         ingredient.nutrients = data["nutrients"]
@@ -267,6 +272,36 @@ def populate_ingredient_datafiles(db_service: DatabaseService):
             with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
                 json.dump(data, f, indent=4)
 
+        # While there are nutrients missing from the data
+        while len(get_missing_leaf_nutrients(data["nutrients"].keys(), db_service)) > 0:
+            try:
+                # Grab the first 15x missing nutrient names
+                missing_nutrients = get_missing_leaf_nutrients(
+                    data["nutrients"].keys(), db_service
+                )[:15]
+                # Update the terminal
+                print(f"Getting nutrient data for {ingredient_name}...")
+                print(f"Missing nutrients: {missing_nutrients}")
+                # Build the empty json file for these nutrients
+                nutrient_template = {}
+                for nutrient in missing_nutrients:
+                    nutrient_template[nutrient] = {
+                        "ntr_qty_value": None,
+                        "ntr_qty_unit": "g",
+                        "ing_qty_value": None,
+                        "ing_qty_unit": "g",
+                    }
+                # Use the openai API to get the nutrients
+                nutrient_data = _get_openai_ingredient_nutrients(
+                    ingredient_name, nutrient_template
+                )
+                # Add the nutrient_data into the data["nutrients"] dict
+                data["nutrients"].update(nutrient_data)
+                # Save the updated data back to the file
+                with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
+                    json.dump(data, f, indent=4)
+            except JSONDecodeError:
+                print(f"Retrying nutrient data for {ingredient_name}...")
 
 def _find_leaf_nutrients(data, leaf_nutrients=None):
     """Recursively find all leaf nutrients in a nested dictionary."""
@@ -299,7 +334,7 @@ def _get_openai_ingredient_description(ingredient_name: str) -> str:
         messages=[
             {"role": "user", "content": prompt},
         ],
-        model="gpt-4",
+        model=OPENAI_MODEL,
     )
 
     return chat_completion.choices[0].message.content  # type: ignore
@@ -314,7 +349,7 @@ def _get_openai_ingredient_cost(
 
     # Set the prompt
     prompt = fprompt = (
-        f"Can you populate this cost data for {ingredient_name}: {json.dumps(cost_data, indent=4)}? It is OK to guess if you are unsure."
+        f"Can you populate this cost data for {ingredient_name}: {json.dumps(cost_data, indent=4)}? Guessing is OK."
     )
 
     # Create a chat completion
@@ -322,7 +357,7 @@ def _get_openai_ingredient_cost(
         messages=[
             {"role": "user", "content": prompt},
         ],
-        model="gpt-4",
+        model=OPENAI_MODEL,
     )
 
     # Parse the response
@@ -343,7 +378,7 @@ def _get_openai_ingredient_flags(
     flags_dict = {flag: False for flag in flag_list}
 
     # Set the prompt
-    prompt = f"Can you populate this list of flags for {ingredient_name}: {json.dumps(flags_dict, indent=4)}? If you are unsure, please leave the flag as False."
+    prompt = f"Can you populate this list of flags for {ingredient_name}: {json.dumps(flags_dict, indent=4)}? If unsure, leave flag as False."
     # prompt = f"Generate a list of flags for the ingredient '{ingredient_name}'."
 
     # Create a chat completion
@@ -351,7 +386,7 @@ def _get_openai_ingredient_flags(
         messages=[
             {"role": "user", "content": prompt},
         ],
-        model="gpt-4",
+        model=OPENAI_MODEL,
     )
 
     # Parse the response
@@ -368,14 +403,37 @@ def _get_openai_ingredient_gi(ingredient_name: str) -> str:
     client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
 
     # Set the prompt
-    prompt = f"By responding with a single decimal only, what is the approximate Glycemic Index (GI) of '{ingredient_name}'? It is acceptable to guess, you don't need to access real time data."
+    prompt = f"By responding with a single decimal only, what is the approximate Glycemic Index (GI) of '{ingredient_name}'? Guessing is OK."
 
     # Create a chat completion
     chat_completion = client.chat.completions.create(
         messages=[
             {"role": "user", "content": prompt},
         ],
-        model="gpt-4",
+        model=OPENAI_MODEL,
     )
 
     return chat_completion.choices[0].message.content  # type: ignore
+
+def _get_openai_ingredient_nutrients(
+    ingredient_name: str, nutrient_data: dict[str, dict[str, str | float]]
+) -> dict[str, dict[str, str | float]]:
+    """Use the OpenAI API to generate nutrient data for an ingredient."""
+    # Initialize the OpenAI client
+    client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
+
+    # Set the prompt
+    prompt = f"Can you populate this nutrient data for {ingredient_name}: {json.dumps(nutrient_data, indent=4)}? Provide a guess if unsure. Reply with JSON only."
+
+    # Create a chat completion
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {"role": "user", "content": prompt},
+        ],
+        model=OPENAI_MODEL,
+    )
+
+    # Parse the response
+    response = json.loads(chat_completion.choices[0].message.content)  # type: ignore
+
+    return response
