@@ -136,6 +136,29 @@ def remove_redundant_flags_from_datafiles(db_service: DatabaseService):
         with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
             json.dump(data, f, indent=4)
 
+def remove_redundant_nutrients_from_datafiles(db_service: DatabaseService):
+    """Cycles through each ingredient file and checks it has the correct fields."""
+    print("Checking for redundant nutrients...")
+    # For each ingredient file in the directory
+    for file in os.listdir(INGREDIENT_DATA_DIR):
+        # Open the file and load the data
+        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
+            data = json.load(f)
+
+        # Grab all the nutrients from the database
+        official_nutrients = db_service.repo.fetch_all_leaf_nutrient_names()
+        # Take a copy of all of the keys in data["nutrients"]
+        file_nutrients = list(data["nutrients"].keys())
+        for nutrient in file_nutrients:
+            # Delete the nutrient from the datafile if it doesn't exist in the database
+            if nutrient not in official_nutrients:
+                del data["nutrients"][nutrient]
+                print(f"Deleting nutrient {nutrient} from {file}")
+
+        # Write the updated data back to the file
+        with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
+            json.dump(data, f, indent=4)
+
 def init_ingredient_datafiles(db_service: DatabaseService):
     """Work through the wishlist and initialise a corresponding ingredient .json file."""
     
