@@ -230,8 +230,19 @@ def populate_ingredient_datafiles(db_service: DatabaseService):
             with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
                 json.dump(data, f, indent=4)
 
+        # # While there are flags missing from the data
+        # while len(missing_flags(data["flags"].keys())) > 0:
+        #     # Update the terminal
+        #     print(f"Getting flags for {ingredient_name}...")
+        #     # Use the openai API to get the flags
+        #     flags_data = _get_openai_ingredient_flags(ingredient_name, missing_flags(data["flags"]))
+        #     # Add the flags_data into the data["flags"] dict
+        #     data["flags"].update(flags_data)
+        #     # Save the updated data back to the file
+        #     with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
+        #         json.dump(data, f, indent=4)       
+
         # If the flag data isn't filled, use the openai API to get the flag data
-        # TODO: Update the code so 
         if len(data["flags"]) == 0:
             print(f"Getting flags for {ingredient_name}...")
             flags_data = _get_openai_ingredient_flags(ingredient_name, db_service.repo.fetch_all_flag_names())

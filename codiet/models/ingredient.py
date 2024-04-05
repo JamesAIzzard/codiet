@@ -1,6 +1,6 @@
 from typing import Union, TYPE_CHECKING
 
-from codiet.models.has_flags import HasSettableFlags
+from codiet.models.flags import HasSettableFlags
 
 if TYPE_CHECKING:
     from codiet.db.database_service import DatabaseService

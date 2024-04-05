@@ -2,7 +2,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QListWidgetItem
 
 from codiet.views.flag_editor_view import FlagEditorView
-from codiet.models.has_flags import HasSettableFlags
+from codiet.models.flags import HasSettableFlags
 
 
 class FlagEditorCtrl:
