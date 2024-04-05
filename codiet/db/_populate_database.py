@@ -5,7 +5,7 @@ from json.decoder import JSONDecodeError
 from openai import OpenAI
 
 from codiet.models.flags import get_missing_flags
-from codiet.models.nutrients import get_missing_leaf_nutrients
+from codiet.models.nutrients import get_missing_leaf_nutrients, nutrient_is_populated
 from codiet.db.database_service import DatabaseService
 
 INGREDIENT_DATA_DIR = os.path.join(os.path.dirname(__file__), "ingredient_data")
@@ -16,7 +16,7 @@ INGREDIENT_TEMPLATE = os.path.join(
     os.path.dirname(__file__), "ingredient_template.json"
 )
 NUTRIENT_DATA_PATH = os.path.join(os.path.dirname(__file__), "nutrient_data.json")
-OPENAI_MODEL = "gpt-4"
+OPENAI_MODEL = "gpt-3.5-turbo"
 
 def push_flags_to_db(db_service: DatabaseService):
     # Define list of flags
@@ -186,7 +186,11 @@ def init_ingredient_datafiles(db_service: DatabaseService):
         # Create the ingredient file name from the ingredient name
         file_name = ingredient.replace(" ", "_").lower() + ".json"
 
-        # Create a .json file with this name, overwriting if it already exists
+        # If the file already exists, skip it
+        if os.path.exists(os.path.join(INGREDIENT_DATA_DIR, file_name)):
+            continue
+
+        # Create a .json file with this name
         with open(os.path.join(INGREDIENT_DATA_DIR, file_name), "w") as f:
             # Make a copy of the entire template
             template = template.copy()
@@ -272,6 +276,10 @@ def populate_ingredient_datafiles(db_service: DatabaseService):
             with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
                 json.dump(data, f, indent=4)
 
+        # Now remove all unpopulated nutrients from the data
+        for nutrient in list(data["nutrients"].keys()):
+            if not nutrient_is_populated(data["nutrients"][nutrient]):
+                del data["nutrients"][nutrient]
         # While there are nutrients missing from the data
         while len(get_missing_leaf_nutrients(data["nutrients"].keys(), db_service)) > 0:
             try:
@@ -297,11 +305,18 @@ def populate_ingredient_datafiles(db_service: DatabaseService):
                 )
                 # Add the nutrient_data into the data["nutrients"] dict
                 data["nutrients"].update(nutrient_data)
+                # Replace all instance of null with 0 in the dict
+                for nutrient in data["nutrients"]:
+                    for key in data["nutrients"][nutrient]:
+                        if data["nutrients"][nutrient][key] is None:
+                            data["nutrients"][nutrient][key] = 0
                 # Save the updated data back to the file
                 with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
                     json.dump(data, f, indent=4)
             except JSONDecodeError:
                 print(f"Retrying nutrient data for {ingredient_name}...")
+
+    print("All ingredient data files have been populated.")
 
 def _find_leaf_nutrients(data, leaf_nutrients=None):
     """Recursively find all leaf nutrients in a nested dictionary."""

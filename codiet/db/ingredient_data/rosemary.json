@@ -1,18 +1,18 @@
 {
-    "name": "Olive Oil",
-    "description": "Olive oil is a liquid fat obtained from olives, a traditional tree crop of the Mediterranean Basin. It is commonly used in cooking, baking, salad dressings, and may also be used for frying. Olive oil is revered for its health benefits, rich flavor, and its role in Mediterranean cuisine. It can range in color from a darker green to a lighter, golden yellow, depending on the olives and process used. Virgin and Extra Virgin are the highest quality types of olive oil, known for their rich, fruity taste. Olive oil is a key source of monounsaturated fat, which is heart-healthy and can lower bad cholesterol levels.",
+    "name": "Rosemary",
+    "description": "Rosemary is a fragrant and flavorful herb commonly used in Mediterranean cuisine.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 8.99,
-        "qty_unit": "l",
-        "qty_value": 1
+        "cost_value": 2,
+        "qty_unit": "g",
+        "qty_value": 50
     },
     "bulk": {
         "density": {
-            "mass_unit": "kg",
-            "mass_value": 0.92,
+            "mass_unit": "g",
+            "mass_value": null,
             "vol_unit": "l",
-            "vol_value": 1
+            "vol_value": null
         },
         "piece_mass": {
             "pc_qty": null,
@@ -21,372 +21,372 @@
         }
     },
     "flags": {
-        "alcohol free": true,
-        "caffeine free": true,
-        "gluten free": true,
-        "lactose free": true,
-        "nut free": true,
-        "vegan": true,
-        "vegetarian": true
+        "alcohol free": false,
+        "caffeine free": false,
+        "gluten free": false,
+        "lactose free": false,
+        "nut free": false,
+        "vegan": false,
+        "vegetarian": false
     },
-    "GI": 0,
+    "GI": "1.5",
     "nutrients": {
         "glucose": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.5,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "fructose": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.3,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "sucrose": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.2,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "lactose": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.1,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "starch": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.4,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "fiber": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 2.3,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "histidine": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.01,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "isoleucine": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.03,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "leucine": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.05,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "lysine": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.07,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "methionine": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.02,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "phenylalanine": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.04,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "threonine": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.06,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "tryptophan": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.008,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "valine": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.04,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "alanine": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.588,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "arginine": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.636,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "asparagine": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.678,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "aspartic acid": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.257,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "cysteine": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.034,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "glutamic acid": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.804,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "glutamine": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.171,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "glycine": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.388,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "proline": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.494,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "serine": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.229,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "tyrosine": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.152,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "saturated fat": {
-            "ntr_qty_value": 13.8,
+            "ntr_qty_value": 0.107,
             "ntr_qty_unit": "g",
-            "ing_qty_value": 13.8,
+            "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "monounsaturated fat": {
-            "ntr_qty_value": 73,
+            "ntr_qty_value": 0.009,
             "ntr_qty_unit": "g",
-            "ing_qty_value": 73,
+            "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "polyunsaturated fat": {
-            "ntr_qty_value": 10.5,
+            "ntr_qty_value": 0.336,
             "ntr_qty_unit": "g",
-            "ing_qty_value": 10.5,
+            "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "trans fat": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.0,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "water": {
-            "ntr_qty_value": 0.0,
+            "ntr_qty_value": 66.7,
             "ntr_qty_unit": "g",
-            "ing_qty_value": 0.0,
+            "ing_qty_value": 100,
             "ing_qty_unit": "g"
         },
         "alcohol": {
-            "ntr_qty_value": 0.0,
+            "ntr_qty_value": 0,
             "ntr_qty_unit": "g",
-            "ing_qty_value": 0.0,
+            "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "vitamin A": {
-            "ntr_qty_value": 0.0,
-            "ntr_qty_unit": "g",
-            "ing_qty_value": 0.0,
+            "ntr_qty_value": 15,
+            "ntr_qty_unit": "\u00b5g",
+            "ing_qty_value": 100,
             "ing_qty_unit": "g"
         },
         "vitamin B1": {
-            "ntr_qty_value": 0.0,
-            "ntr_qty_unit": "g",
-            "ing_qty_value": 0.0,
+            "ntr_qty_value": 0.04,
+            "ntr_qty_unit": "mg",
+            "ing_qty_value": 100,
             "ing_qty_unit": "g"
         },
         "vitamin B2": {
-            "ntr_qty_value": 0.0,
-            "ntr_qty_unit": "g",
-            "ing_qty_value": 0.0,
+            "ntr_qty_value": 0.15,
+            "ntr_qty_unit": "mg",
+            "ing_qty_value": 100,
             "ing_qty_unit": "g"
         },
         "vitamin B3": {
-            "ntr_qty_value": 0.0,
-            "ntr_qty_unit": "g",
-            "ing_qty_value": 0.0,
+            "ntr_qty_value": 1.34,
+            "ntr_qty_unit": "mg",
+            "ing_qty_value": 100,
             "ing_qty_unit": "g"
         },
         "vitamin B5": {
-            "ntr_qty_value": 0.0,
-            "ntr_qty_unit": "g",
-            "ing_qty_value": 0.0,
+            "ntr_qty_value": 0.4,
+            "ntr_qty_unit": "mg",
+            "ing_qty_value": 100,
             "ing_qty_unit": "g"
         },
         "vitamin B6": {
-            "ntr_qty_value": 0.0,
-            "ntr_qty_unit": "g",
-            "ing_qty_value": 0.0,
+            "ntr_qty_value": 0.34,
+            "ntr_qty_unit": "mg",
+            "ing_qty_value": 100,
             "ing_qty_unit": "g"
         },
         "vitamin B7": {
-            "ntr_qty_value": 0.0,
-            "ntr_qty_unit": "g",
-            "ing_qty_value": 0.0,
+            "ntr_qty_value": 0.42,
+            "ntr_qty_unit": "\u00b5g",
+            "ing_qty_value": 100,
             "ing_qty_unit": "g"
         },
         "vitamin B9": {
-            "ntr_qty_value": 0.0,
-            "ntr_qty_unit": "g",
-            "ing_qty_value": 0.0,
+            "ntr_qty_value": 307,
+            "ntr_qty_unit": "\u00b5g",
+            "ing_qty_value": 100,
             "ing_qty_unit": "g"
         },
         "vitamin B12": {
-            "ntr_qty_value": 0.0,
-            "ntr_qty_unit": "g",
-            "ing_qty_value": 0.0,
+            "ntr_qty_value": 0,
+            "ntr_qty_unit": "\u00b5g",
+            "ing_qty_value": 100,
             "ing_qty_unit": "g"
         },
         "vitamin C": {
-            "ntr_qty_value": 0.0,
-            "ntr_qty_unit": "g",
-            "ing_qty_value": 0.0,
+            "ntr_qty_value": 21,
+            "ntr_qty_unit": "mg",
+            "ing_qty_value": 100,
             "ing_qty_unit": "g"
         },
         "vitamin D": {
-            "ntr_qty_value": 0.0,
-            "ntr_qty_unit": "g",
-            "ing_qty_value": 0.0,
+            "ntr_qty_value": 0,
+            "ntr_qty_unit": "\u00b5g",
+            "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "vitamin E": {
-            "ntr_qty_value": 14.3,
-            "ntr_qty_unit": "g",
+            "ntr_qty_value": 5.24,
+            "ntr_qty_unit": "mg",
             "ing_qty_value": 100,
             "ing_qty_unit": "g"
         },
         "vitamin K": {
-            "ntr_qty_value": 60.2,
-            "ntr_qty_unit": "g",
+            "ntr_qty_value": 0.52,
+            "ntr_qty_unit": "\u00b5g",
             "ing_qty_value": 100,
             "ing_qty_unit": "g"
         },
         "calcium": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.1,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "chloride": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.2,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "chromium": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.001,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "copper": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.1,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "fluoride": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.001,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "iodine": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.002,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "iron": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 6.65,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "magnesium": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 1.65,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "manganese": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.33,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "molybdenum": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.001,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "phosphorus": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 3.81,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "potassium": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 6.04,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "selenium": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.0007,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "sodium": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.04,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
         },
         "zinc": {
-            "ntr_qty_value": 0,
+            "ntr_qty_value": 0.93,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
             "ing_qty_unit": "g"
