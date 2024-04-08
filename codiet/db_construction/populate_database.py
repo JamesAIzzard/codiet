@@ -1,14 +1,26 @@
 import os, json
 from json.decoder import JSONDecodeError
 
-from codiet.db_construction import INGREDIENT_DATA_DIR, INGREDIENT_WISHLIST_FILE, INGREDIENT_TEMPLATE_FILE
+from codiet.db_construction import (
+    INGREDIENT_DATA_DIR,
+    INGREDIENT_WISHLIST_FILE,
+    INGREDIENT_TEMPLATE_FILE,
+    openai,
+)
 from codiet.db.database_service import DatabaseService
+from codiet.models.nutrients import (
+    get_missing_leaf_nutrients,
+    nutrient_is_populated,
+)
+from codiet.models.flags import get_missing_flags
+
 
 def push_flags_to_db(flags: list[str], db_service: DatabaseService):
     """Push flags out of flag definition file into database."""
     # Add each flag to the database
     for flag in flags:
         db_service.insert_global_flag(flag)
+
 
 def push_nutrients_to_db(nutrient_data: dict, db_service: DatabaseService):
     """Populate the database with nutrient data."""
@@ -126,7 +138,7 @@ def remove_redundant_nutrients_from_datafiles(db_service: DatabaseService):
             json.dump(data, f, indent=4)
 
 
-def init_ingredient_datafiles(db_service: DatabaseService):
+def init_ingredient_datafiles():
     """Work through the wishlist and initialise a corresponding ingredient .json file."""
 
     # Read the ingredient_wishlist.json file
@@ -167,127 +179,112 @@ def init_ingredient_datafiles(db_service: DatabaseService):
 def populate_ingredient_datafiles(db_service: DatabaseService):
     """Work through each ingredient file in the ingredients data directory
     and use the openai API to populate its data."""
-    print("Skipping...")
-    # # For each ingredient file in the directory
-    # for file in os.listdir(INGREDIENT_DATA_DIR):
-    #     # Open the file and load the data
-    #     with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
-    #         data = json.load(f)
 
-    #     # Grab the ingredient name
-    #     ingredient_name = data["name"]
+    # For each ingredient file in the directory
+    for file in os.listdir(INGREDIENT_DATA_DIR):
+        # Open the file and load the data
+        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
+            data = json.load(f)
 
-    #     # If the description isn't filled
-    #     if not data.get("description").strip():
-    #         # Update the terminal
-    #         print(f"Getting description for {ingredient_name}...")
-    #         # Use the openai API to get the description
-    #         description = _get_openai_ingredient_description(ingredient_name)
-    #         # Write the description back to the file
-    #         data["description"] = description
+        # Grab the ingredient name
+        ingredient_name = data["name"]
 
-    #         # Save the updated data back to the file
-    #         with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-    #             json.dump(data, f, indent=4)
+        # If the description isn't filled
+        if not data.get("description").strip():
+            # Update the terminal
+            print(f"Getting description for {ingredient_name}...")
+            # Use the openai API to get the description
+            description = openai._get_openai_ingredient_description(ingredient_name)
+            # Write the description back to the file
+            data["description"] = description
 
-    #     # If the cost data isn't filled
-    #     if (
-    #         data["cost"].get("cost_value") is None
-    #         or data["cost"].get("qty_value") is None
-    #     ):
-    #         # Update the terminal
-    #         print(f"Getting cost data for {ingredient_name}...")
-    #         # Use the openai API to get the cost data
-    #         cost_data = _get_openai_ingredient_cost(ingredient_name, data["cost"])
+            # Save the updated data back to the file
+            with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
+                json.dump(data, f, indent=4)
 
-    #         # Write the cost data back to the file
-    #         data["cost"] = cost_data
+        # If the cost data isn't filled
+        if (
+            data["cost"].get("cost_value") is None
+            or data["cost"].get("qty_value") is None
+        ):
+            # Update the terminal
+            print(f"Getting cost data for {ingredient_name}...")
+            # Use the openai API to get the cost data
+            cost_data = openai._get_openai_ingredient_cost(
+                ingredient_name, data["cost"]
+            )
 
-    #         # Save the updated data back to the file
-    #         with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-    #             json.dump(data, f, indent=4)
+            # Write the cost data back to the file
+            data["cost"] = cost_data
 
-    #     # While there are flags missing from the data
-    #     while len(get_missing_flags(data["flags"].keys(), db_service)) > 0:
-    #         # Update the terminal
-    #         print(f"Getting flags for {ingredient_name}...")
-    #         # Use the openai API to get the flags
-    #         flags_data = _get_openai_ingredient_flags(
-    #             ingredient_name, get_missing_flags(data["flags"], db_service)
-    #         )
-    #         # Add the flags_data into the data["flags"] dict
-    #         data["flags"].update(flags_data)
-    #         # Save the updated data back to the file
-    #         with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-    #             json.dump(data, f, indent=4)
+            # Save the updated data back to the file
+            with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
+                json.dump(data, f, indent=4)
 
-    #     # If the GI data isn't filled, use the openai API to get the GI data
-    #     if data.get("GI") is None:
-    #         print(f"Getting GI data for {ingredient_name}...")
-    #         gi = _get_openai_ingredient_gi(ingredient_name)
+        # While there are flags missing from the data
+        while len(get_missing_flags(data["flags"].keys(), db_service)) > 0:
+            # Update the terminal
+            print(f"Getting flags for {ingredient_name}...")
+            # Use the openai API to get the flags
+            flags_data = openai._get_openai_ingredient_flags(
+                ingredient_name, get_missing_flags(data["flags"], db_service)
+            )
+            # Add the flags_data into the data["flags"] dict
+            data["flags"].update(flags_data)
+            # Save the updated data back to the file
+            with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
+                json.dump(data, f, indent=4)
 
-    #         # Write the GI data back to the file
-    #         data["GI"] = gi
+        # If the GI data isn't filled, use the openai API to get the GI data
+        if data.get("GI") is None:
+            print(f"Getting GI data for {ingredient_name}...")
+            gi = openai._get_openai_ingredient_gi(ingredient_name)
 
-    #         # Save the updated data back to the file
-    #         with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-    #             json.dump(data, f, indent=4)
+            # Write the GI data back to the file
+            data["GI"] = gi
 
-    #     # Now remove all unpopulated nutrients from the data
-    #     for nutrient in list(data["nutrients"].keys()):
-    #         if not nutrient_is_populated(data["nutrients"][nutrient]):
-    #             del data["nutrients"][nutrient]
-    #     # While there are nutrients missing from the data
-    #     while len(get_missing_leaf_nutrients(data["nutrients"].keys(), db_service)) > 0:
-    #         try:
-    #             # Grab the first 15x missing nutrient names
-    #             missing_nutrients = get_missing_leaf_nutrients(
-    #                 data["nutrients"].keys(), db_service
-    #             )[:15]
-    #             # Update the terminal
-    #             print(f"Getting nutrient data for {ingredient_name}...")
-    #             print(f"Missing nutrients: {missing_nutrients}")
-    #             # Build the empty json file for these nutrients
-    #             nutrient_template = {}
-    #             for nutrient in missing_nutrients:
-    #                 nutrient_template[nutrient] = {
-    #                     "ntr_qty_value": None,
-    #                     "ntr_qty_unit": "g",
-    #                     "ing_qty_value": None,
-    #                     "ing_qty_unit": "g",
-    #                 }
-    #             # Use the openai API to get the nutrients
-    #             nutrient_data = _get_openai_ingredient_nutrients(
-    #                 ingredient_name, nutrient_template
-    #             )
-    #             # Add the nutrient_data into the data["nutrients"] dict
-    #             data["nutrients"].update(nutrient_data)
-    #             # Replace all instance of null with 0 in the dict
-    #             for nutrient in data["nutrients"]:
-    #                 for key in data["nutrients"][nutrient]:
-    #                     if data["nutrients"][nutrient][key] is None:
-    #                         data["nutrients"][nutrient][key] = 0
-    #             # Save the updated data back to the file
-    #             with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-    #                 json.dump(data, f, indent=4)
-    #         except JSONDecodeError:
-    #             print(f"Retrying nutrient data for {ingredient_name}...")
+            # Save the updated data back to the file
+            with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
+                json.dump(data, f, indent=4)
 
-    # print("All ingredient data files have been populated.")
+        # Now remove all unpopulated nutrients from the data
+        for nutrient in list(data["nutrients"].keys()):
+            if not nutrient_is_populated(data["nutrients"][nutrient]):
+                del data["nutrients"][nutrient]
+        # While there are nutrients missing from the data
+        while len(get_missing_leaf_nutrients(data["nutrients"].keys(), db_service)) > 0:
+            try:
+                # Grab the first 15x missing nutrient names
+                missing_nutrients = get_missing_leaf_nutrients(
+                    data["nutrients"].keys(), db_service
+                )[:15]
+                # Update the terminal
+                print(f"Getting nutrient data for {ingredient_name}...")
+                print(f"Missing nutrients: {missing_nutrients}")
+                # Build the empty json file for these nutrients
+                nutrient_template = {}
+                for nutrient in missing_nutrients:
+                    nutrient_template[nutrient] = {
+                        "ntr_qty_value": None,
+                        "ntr_qty_unit": "g",
+                        "ing_qty_value": None,
+                        "ing_qty_unit": "g",
+                    }
+                # Use the openai API to get the nutrients
+                nutrient_data = openai._get_openai_ingredient_nutrients(
+                    ingredient_name, nutrient_template
+                )
+                # Add the nutrient_data into the data["nutrients"] dict
+                data["nutrients"].update(nutrient_data)
+                # Replace all instance of null with 0 in the dict
+                for nutrient in data["nutrients"]:
+                    for key in data["nutrients"][nutrient]:
+                        if data["nutrients"][nutrient][key] is None:
+                            data["nutrients"][nutrient][key] = 0
+                # Save the updated data back to the file
+                with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
+                    json.dump(data, f, indent=4)
+            except JSONDecodeError:
+                print(f"Retrying nutrient data for {ingredient_name}...")
 
-def _find_leaf_nutrients(data, leaf_nutrients=None) -> list[str]:
-    """Recursively find all leaf nutrients in a nested dictionary."""
-    # Initialize the list of leaf nutrients on the first call
-    if leaf_nutrients is None:
-        leaf_nutrients = []
-
-    for key, value in data.items():
-        # Check if the current item has children
-        if value.get("children"):
-            # Recursively call the function with the children
-            _find_leaf_nutrients(value["children"], leaf_nutrients)
-        else:
-            # If no children, add the nutrient to the leaf_nutrients list
-            leaf_nutrients.append(key)
-
-    return leaf_nutrients
+    print("All ingredient data files have been populated.")

@@ -1,7 +1,8 @@
 import json
+from json.decoder import JSONDecodeError
 import os
 
-import openai as OpenAI
+from openai import OpenAI
 
 OPENAI_MODEL = "gpt-3.5-turbo"
 
@@ -9,6 +10,9 @@ def _get_openai_ingredient_description(ingredient_name: str) -> str:
     """Use the OpenAI API to generate a description for an ingredient."""
     # Initialize the OpenAI client
     client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
+
+    # Print an update
+    print(f"Generating description for '{ingredient_name}'...")
 
     # Set the prompt
     prompt = f"Generate a single sentence description for the ingredient '{ingredient_name}'."

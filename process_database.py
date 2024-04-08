@@ -31,7 +31,7 @@ if __name__ == '__main__':
         populate_database.remove_redundant_nutrients_from_datafiles(db_service)
 
         # Initialise the ingredient datafiles from the wishlist and template
-        populate_database.init_ingredient_datafiles(db_service)
+        populate_database.init_ingredient_datafiles()
 
         # Use the OpenAI model to populate the ingredient datafiles
         populate_database.populate_ingredient_datafiles(db_service)

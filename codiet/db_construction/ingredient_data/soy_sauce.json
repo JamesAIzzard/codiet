@@ -384,6 +384,12 @@
             "ntr_qty_unit": "g",
             "ing_qty_value": 0.5,
             "ing_qty_unit": "g"
+        },
+        "fibre": {
+            "ntr_qty_value": 0.1,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 0.2,
+            "ing_qty_unit": "g"
         }
     }
 }
