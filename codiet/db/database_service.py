@@ -1,15 +1,49 @@
 from codiet.models.ingredient import Ingredient
+from codiet.models.nutrients import create_nutrient_dict
 from codiet.db.repository import Repository
 from codiet.utils.search import filter_text
-from codiet.db.repository import create_nutrient_dict
+from codiet.db import DB_PATH
+from codiet.db.database import Database
+from codiet.db.repository import Repository
 
 class DatabaseService:
-    def __init__(self, repo: Repository):
-        self.repo = repo
+    def __init__(self):
+        # Init the database
+        self._repo = Repository(Database(DB_PATH))
+
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._repo._db.connection.close()
+
+    def insert_global_flag(self, flag_name:str):
+        """Inserts a global flag into the database."""
+        self._repo.insert_global_flag(flag_name)
+
+    def fetch_all_global_flag_names(self) -> list[str]:
+        """Returns a list of all the flags in the database."""
+        return self._repo.fetch_all_global_flag_names()
+    
+    def fetch_all_leaf_nutrient_names(self) -> list[str]:
+        """Returns a list of all the leaf nutrients in the database."""
+        return self._repo.fetch_all_leaf_nutrient_names()
+
+    def fetch_all_group_nutrient_names(self) -> list[str]:
+        """Returns a list of all the group nutrients in the database."""
+        return self._repo.fetch_all_group_nutrient_names()
+
+    def insert_global_group_nutrient(self, nutrient_name:str, parent_id: int | None = None) -> int:
+        """Inserts a global group nutrient into the database."""
+        return self._repo.insert_global_group_nutrient(nutrient_name, parent_id)
+
+    def insert_global_leaf_nutrient(self, nutrient_name:str, parent_id: int | None = None) -> int:
+        """Inserts a global leaf nutrient into the database."""
+        return self._repo.insert_global_leaf_nutrient(nutrient_name, parent_id)
 
     def fetch_matching_ingredient_names(self, name: str) -> list[str]:
         """Returns a list of ingredient names that match the given name."""
-        all_names = self.repo.fetch_all_ingredient_names()
+        all_names = self._repo.fetch_all_ingredient_names()
         return filter_text(name, all_names, 10)
 
     def create_empty_ingredient(self) -> Ingredient:
@@ -18,40 +52,40 @@ class DatabaseService:
         ingredient = Ingredient()
 
         # Populate the flag dict
-        flags = self.fetch_flag_names()
+        flags = self._repo.fetch_all_global_flag_names()
         for flag in flags:
             ingredient._flags[flag] = False
 
         # Populate the nutrient dict
-        nutrients = self.repo.fetch_all_leaf_nutrient_names()
+        nutrients = self._repo.fetch_all_leaf_nutrient_names()
         for nutrient in nutrients:
             ingredient.nutrients[nutrient] = create_nutrient_dict()
 
         return ingredient    
 
-    def create_ingredient(self, ingredient: Ingredient) -> int:
+    def insert_new_ingredient(self, ingredient: Ingredient) -> int:
         """Saves the given ingredient to the database."""
 
         # If the ingredient name is not set on the ingredient, raise an exception
         if ingredient.name is None:
             raise ValueError("Ingredient name must be set.")
         
-        with self.repo.db.connection:
+        with self._repo._db.connection:
             try:
                 # Add the ingredient name to the database, getting primary key
-                self.repo.insert_ingredient_entry(ingredient.name)
+                self._repo.insert_ingredient_name(ingredient.name)
 
                 # Get the ingredient ID from the database
-                ingredient_id = self.repo.fetch_ingredient_id(ingredient.name)
+                ingredient_id = self._repo.fetch_ingredient_id(ingredient.name)
 
                 # Update the ingredient description
-                self.repo.update_ingredient_description(
+                self._repo.update_ingredient_description(
                     ingredient_id=ingredient_id,
                     description=ingredient.description,
                 )
 
                 # Add the ingredient cost data
-                self.repo.update_ingredient_cost(
+                self._repo.update_ingredient_cost(
                     ingredient_id=ingredient_id,
                     cost_value=ingredient.cost_value,
                     qty_unit=ingredient.cost_qty_unit,
@@ -59,7 +93,7 @@ class DatabaseService:
                 )
 
                 # Add the ingredient density data
-                self.repo.update_ingredient_density(
+                self._repo.update_ingredient_density(
                     ingredient_id=ingredient_id,
                     dens_mass_unit=ingredient.density_mass_unit,
                     dens_mass_value=ingredient.density_mass_value,
@@ -68,7 +102,7 @@ class DatabaseService:
                 )
 
                 # Add the ingredient piece mass data
-                self.repo.update_ingredient_pc_mass(
+                self._repo.update_ingredient_pc_mass(
                     ingredient_id=ingredient_id,
                     pc_qty=ingredient.pc_qty,
                     pc_mass_unit=ingredient.pc_mass_unit,
@@ -76,33 +110,74 @@ class DatabaseService:
                 )
 
                 # Add the flags
-                self.repo.update_ingredient_flags(ingredient_id, ingredient.flags)
+                self._repo.update_ingredient_flags(ingredient_id, ingredient.flags)
 
                 # Add the ingredient GI
-                self.repo.update_ingredient_gi(ingredient_id, ingredient.gi)
+                self._repo.update_ingredient_gi(ingredient_id, ingredient.gi)
 
                 # Add the nutrients
-                self.repo.update_ingredient_nutrients(ingredient_id, ingredient.nutrients)
+                self._repo.update_ingredient_nutrients(ingredient_id, ingredient.nutrients)
 
                 # Commit the transaction
-                self.repo.db.connection.commit()
+                self._repo._db.connection.commit()
 
                 # Return the ingredient ID
                 return ingredient_id
 
             except Exception as e:
                 # Roll back the transaction if an exception occurs
-                self.repo.db.connection.rollback()
+                self._repo._db.connection.rollback()
                 # Re-raise any exceptions
                 raise e
 
     def fetch_ingredient(self, name: str) -> Ingredient:
-        """Returns the ingredient with the given name."""
-        return self.repo.fetch_ingredient(name)
+        """Returns the ingredient with the given name."""    
+        # Init a fresh ingredient instance
+        ingredient = self.create_empty_ingredient()
+
+        # Grab the ID of the ingredient
+        ingredient.id = self._repo.fetch_ingredient_id(name)  
+
+        # Set the name
+        ingredient.name = name
+
+        # Fetch the description
+        ingredient.description = self._repo.fetch_ingredient_description(ingredient.id)
+
+        # Fetch the cost data
+        cost_data = self._repo.fetch_ingredient_cost(ingredient.id)
+        ingredient.cost_value = cost_data[0]
+        ingredient.cost_qty_unit = cost_data[1]
+        ingredient.cost_qty_value = cost_data[2]
+
+        # Fetch the density data
+        density_data = self._repo.fetch_ingredient_density(ingredient.id)
+        ingredient.density_mass_unit = density_data[0]
+        ingredient.density_mass_value = density_data[1]
+        ingredient.density_vol_unit = density_data[2]
+        ingredient.density_vol_value = density_data[3]
+
+        # Fetch the piece mass data
+        pc_mass_data = self._repo.fetch_ingredient_pc_mass(ingredient.id)
+        ingredient.pc_qty = pc_mass_data[0]
+        ingredient.pc_mass_unit = pc_mass_data[1]
+        ingredient.pc_mass_value = pc_mass_data[2]
+
+        # Fetch the flags
+        ingredient.set_flags(self._repo.fetch_ingredient_flags(ingredient.id))
+
+        # Fetch the GI
+        ingredient.gi = self._repo.fetch_ingredient_gi(ingredient.id)
+
+        # Fetch the nutrients
+        ingredient.nutrients = self._repo.fetch_ingredient_nutrients(ingredient.id)
+
+        return ingredient
+
 
     def fetch_ingredient_name(self, id:int) -> str:
         """Returns the name of the ingredient with the given ID."""
-        return self.repo.fetch_ingredient_name(id)
+        return self._repo.fetch_ingredient_name(id)
 
     def update_ingredient(self, ingredient: Ingredient):
         """Updates the given ingredient in the database."""
@@ -115,22 +190,22 @@ class DatabaseService:
         if ingredient.name is None:
             raise ValueError("Ingredient name must be set.")
 
-        with self.repo.db.connection:
+        with self._repo._db.connection:
             try:
                 # Update the ingredient name
-                self.repo.update_ingredient_name(
+                self._repo.update_ingredient_name(
                     ingredient_id=ingredient.id,
                     name=ingredient.name,
                 )
 
                 # Update the ingredient description
-                self.repo.update_ingredient_description(
+                self._repo.update_ingredient_description(
                     ingredient_id=ingredient.id,
                     description=ingredient.description,
                 )
 
                 # Update the ingredient cost data
-                self.repo.update_ingredient_cost(
+                self._repo.update_ingredient_cost(
                     ingredient_id=ingredient.id,
                     cost_value=ingredient.cost_value,
                     qty_unit=ingredient.cost_qty_unit,
@@ -138,7 +213,7 @@ class DatabaseService:
                 )
 
                 # Update the ingredient density data
-                self.repo.update_ingredient_density(
+                self._repo.update_ingredient_density(
                     ingredient_id=ingredient.id,
                     dens_mass_unit=ingredient.density_mass_unit,
                     dens_mass_value=ingredient.density_mass_value,
@@ -147,7 +222,7 @@ class DatabaseService:
                 )
 
                 # Update the ingredient piece mass data
-                self.repo.update_ingredient_pc_mass(
+                self._repo.update_ingredient_pc_mass(
                     ingredient_id=ingredient.id,
                     pc_qty=ingredient.pc_qty,
                     pc_mass_unit=ingredient.pc_mass_unit,
@@ -155,35 +230,23 @@ class DatabaseService:
                 )
 
                 # Update the flags
-                self.repo.update_ingredient_flags(ingredient.id, ingredient.flags)
+                self._repo.update_ingredient_flags(ingredient.id, ingredient.flags)
 
                 # Update the ingredient GI
-                self.repo.update_ingredient_gi(ingredient.id, ingredient.gi)
+                self._repo.update_ingredient_gi(ingredient.id, ingredient.gi)
 
                 # Update the nutrients
-                self.repo.update_ingredient_nutrients(ingredient.id, ingredient.nutrients)
+                self._repo.update_ingredient_nutrients(ingredient.id, ingredient.nutrients)
 
                 # Commit the transaction
-                self.repo.db.connection.commit()
+                self._repo._db.connection.commit()
 
             except Exception as e:
                 # Roll back the transaction if an exception occurs
-                self.repo.db.connection.rollback()
+                self._repo._db.connection.rollback()
                 # Re-raise any exceptions
                 raise e
 
     def delete_ingredient(self, ingredient_name:str):
         """Deletes the given ingredient from the database."""
-        self.repo.delete_ingredient(ingredient_name)
-
-    def fetch_flag_names(self) -> list[str]:
-        """Returns a list of all the flags in the database."""
-        return self.repo.fetch_all_flag_names()
-    
-    def get_all_nutrient_names(self):
-        """Returns a list of all the nutrients in the database."""
-        return self.repo.fetch_all_nutrient_names()
-    
-    def fetch_leaf_nutrient_names(self) -> list[str]:
-        """Returns a list of all the leaf nutrients in the database."""
-        return self.repo.fetch_all_leaf_nutrient_names()
+        self._repo.delete_ingredient(ingredient_name)

@@ -3,27 +3,23 @@ from codiet.views.main_window_view import MainWindowView
 from codiet.controllers.ingredient_editor_ctrl import IngredientEditorCtrl
 from codiet.controllers.ingredient_search_popup_ctrl import IngredientSearchPopupCtrl
 from codiet.controllers.recipe_editor_ctrl import RecipeEditorCtrl
-from codiet.models.ingredient import Ingredient
+
 
 class MainWindowCtrl:
-    def __init__(self, view: MainWindowView, db_service: DatabaseService):
+    def __init__(self, view: MainWindowView):
         self.view = view
-        self.db_service = db_service
 
         # Instantiate the ingredient editor controller
         self.ingredient_editor_ctrl = IngredientEditorCtrl(
-            self.view.ingredient_editor_view, self.db_service
+            self.view.ingredient_editor_view
         )
         # Instantiate the ingredient search popup controller
         self.ingredient_search_popup_ctrl = IngredientSearchPopupCtrl(
-            self.view.ingredient_search_view,
-            self.db_service,
-            self.ingredient_editor_ctrl.load_ingredient_instance,
+            view=self.view.ingredient_search_view,
+            edit_ingredient=self.ingredient_editor_ctrl.load_ingredient_instance,
         )
         # Instantiate the recipe editor controller
-        self.recipe_editor_ctrl = RecipeEditorCtrl(
-            self.view.recipe_editor_view, self.db_service
-        )
+        self.recipe_editor_ctrl = RecipeEditorCtrl(self.view.recipe_editor_view)
 
         # Connect the signals and slots
         self.view.new_ingredient_action.triggered.connect(
@@ -50,7 +46,10 @@ class MainWindowCtrl:
         # Turn off edit mode
         self.ingredient_editor_ctrl.edit_mode = False
         # Put a new ingredient in the editor
-        self.ingredient_editor_ctrl.load_ingredient_instance(self.db_service.create_empty_ingredient())
+        with DatabaseService() as db_service:
+            self.ingredient_editor_ctrl.load_ingredient_instance(
+                db_service.create_empty_ingredient()
+            )
         # Show the editor
         self.view.show_ingredient_editor()
 

@@ -13,18 +13,17 @@ class IngredientEditorCtrl:
     def __init__(
         self,
         view: IngredientEditorView,
-        db_service: DatabaseService,
         ingredient: Ingredient | None = None,
     ):
         self.view = view
-        self.db_service = db_service
 
         # Add a flag to track which mode editor is in
         self.edit_mode = False
 
         # Init an ingredient if not provided
         if ingredient is None:
-            self.ingredient = self.db_service.create_empty_ingredient()
+            with DatabaseService() as db_service:
+                self.ingredient = db_service.create_empty_ingredient()
         # Otherwise, use the one you were given
         else:
             self.ingredient = ingredient
@@ -199,81 +198,82 @@ class IngredientEditorCtrl:
         """Handler for the save ingredient button."""
         # If this has been pressed from the 'Create Ingredient' route,
         # then the edit mode will be False and the ingredient will be created.
-        if self.edit_mode is False:
-            try:
-                # Save the ingredient to the database
-                id = self.db_service.create_ingredient(self.ingredient)
+        with DatabaseService() as db_service:
+            if self.edit_mode is False:
+                try:
+                    # Save the ingredient to the database
+                    id = db_service.insert_new_ingredient(self.ingredient)
 
-                # Show confirm dialog box
-                dialog = OkDialogBoxView(
-                    message="Ingredient saved.",
-                    title="Ingredient Saved",
-                    parent=self.view,
-                )
-                _ = dialog.exec()
-
-                # Update the ingredient ID
-                self.ingredient.id = id
-
-                # Switch to edit mode
-                self.edit_mode = True
-
-            except ingredient_exceptions.IngredientNameExistsError as e:
-                # Create an error box for duplicate ingredient name
-                dialog = ErrorDialogBoxView(
-                    message=f"An ingredient called {e.ingredient_name} already exists.",
-                    title="Duplicate Ingredient Name",
-                    parent=self.view,
-                )
-                _ = dialog.exec()
-
-            except Exception as e:
-                # Create a generic error box
-                dialog = ErrorDialogBoxView(
-                    message="An error occurred while saving the ingredient.",
-                    title="Error",
-                    parent=self.view,
-                )
-                _ = dialog.exec()
-
-        # If this has been pressed from the 'Edit Ingredient' route,
-        # then the edit mode will be True and the ingredient will be updated.
-        elif self.edit_mode is True:
-            # Raise an exception if the ingredient id is None
-            if self.ingredient.id is None:
-                raise ValueError("Ingredient ID must be set.")
-
-            # Update the ingredient.
-            try:
-                # Grab the name against this ingredient ID currently in the database
-                original_name = self.db_service.fetch_ingredient_name(self.ingredient.id)
-
-                # If the name has changed, ask if user is sure
-                if self.ingredient.name != original_name:
+                    # Show confirm dialog box
                     dialog = OkDialogBoxView(
-                        message=f"Are you sure you want to rename the ingredient from '{original_name}' to '{self.ingredient.name}'?",
-                        title="Rename Ingredient",
+                        message="Ingredient saved.",
+                        title="Ingredient Saved",
                         parent=self.view,
                     )
-                    if dialog.exec() == 0:
-                        return
+                    _ = dialog.exec()
 
-                # Update the ingredient in the database
-                self.db_service.update_ingredient(self.ingredient)
+                    # Update the ingredient ID
+                    self.ingredient.id = id
 
-                # Show confirm dialog box
-                dialog = OkDialogBoxView(
-                    message="Ingredient updated.",
-                    title="Ingredient Updated",
-                    parent=self.view,
-                )
-                _ = dialog.exec()
+                    # Switch to edit mode
+                    self.edit_mode = True
 
-            except Exception as e:
-                # Create a generic error box
-                dialog = ErrorDialogBoxView(
-                    message="An error occurred while updating the ingredient.",
-                    title="Error",
-                    parent=self.view,
-                )
-                _ = dialog.exec()
+                except ingredient_exceptions.IngredientNameExistsError as e:
+                    # Create an error box for duplicate ingredient name
+                    dialog = ErrorDialogBoxView(
+                        message=f"An ingredient called {e.ingredient_name} already exists.",
+                        title="Duplicate Ingredient Name",
+                        parent=self.view,
+                    )
+                    _ = dialog.exec()
+
+                except Exception as e:
+                    # Create a generic error box
+                    dialog = ErrorDialogBoxView(
+                        message="An error occurred while saving the ingredient.",
+                        title="Error",
+                        parent=self.view,
+                    )
+                    _ = dialog.exec()
+
+            # If this has been pressed from the 'Edit Ingredient' route,
+            # then the edit mode will be True and the ingredient will be updated.
+            elif self.edit_mode is True:
+                # Raise an exception if the ingredient id is None
+                if self.ingredient.id is None:
+                    raise ValueError("Ingredient ID must be set.")
+
+                # Update the ingredient.
+                try:
+                    # Grab the name against this ingredient ID currently in the database
+                    original_name = db_service.fetch_ingredient_name(self.ingredient.id)
+
+                    # If the name has changed, ask if user is sure
+                    if self.ingredient.name != original_name:
+                        dialog = OkDialogBoxView(
+                            message=f"Are you sure you want to rename the ingredient from '{original_name}' to '{self.ingredient.name}'?",
+                            title="Rename Ingredient",
+                            parent=self.view,
+                        )
+                        if dialog.exec() == 0:
+                            return
+
+                    # Update the ingredient in the database
+                    db_service.update_ingredient(self.ingredient)
+
+                    # Show confirm dialog box
+                    dialog = OkDialogBoxView(
+                        message="Ingredient updated.",
+                        title="Ingredient Updated",
+                        parent=self.view,
+                    )
+                    _ = dialog.exec()
+
+                except Exception as e:
+                    # Create a generic error box
+                    dialog = ErrorDialogBoxView(
+                        message="An error occurred while updating the ingredient.",
+                        title="Error",
+                        parent=self.view,
+                    )
+                    _ = dialog.exec()

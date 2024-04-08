@@ -19,5 +19,5 @@ class HasSettableFlags(HasReadableFlags):
 
 def get_missing_flags(flags_list: list[str], db_service:'DatabaseService') -> list[str]:
     """Returns a list of flags that are missing from the flags list."""
-    all_flags = db_service.fetch_flag_names()
+    all_flags = db_service.fetch_all_global_flag_names()
     return [flag for flag in all_flags if flag not in flags_list]
