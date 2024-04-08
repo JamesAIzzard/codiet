@@ -24,7 +24,7 @@ class Ingredient(HasSettableFlags):
         self.pc_mass_value: float | None = None
         self._flags: dict[str, bool] = {}
         self.gi: float | None = None
-        self.nutrients: dict[str, dict[str, Union[float , str , None]]] = {}
+        self.nutrients: dict[str, dict] = {}
 
     @property
     def populated_nutrients(self) -> list[str]:
@@ -38,8 +38,7 @@ class Ingredient(HasSettableFlags):
 
     def set_flags(self, flags: dict[str, bool]) -> None:
         """Sets the flags."""
-        for flag in flags:
-            self._flags[flag] = flags[flag]
+        self._flags.update(flags)
 
     def nutrient_is_populated(self, nutrient_name: str) -> bool:
         """Returns True if the nutrient has been populated."""
@@ -53,10 +52,10 @@ class Ingredient(HasSettableFlags):
     def update_nutrient_quantity(
         self,
         nutrient_name: str,
+        ntr_qty_unit: str,
+        ing_qty_unit: str,
         ntr_qty_value: float | None = None,
-        ntr_qty_unit: str | None = None,
-        ing_qty_value: float | None = None,
-        ing_qty_unit: str | None = None,
+        ing_qty_value: float | None = None,        
     ) -> None:
         """Adds a nutrient to the ingredient."""
         if ntr_qty_value is not None:

@@ -30,5 +30,5 @@ def nutrient_is_populated(nutrient: dict) -> bool:
 
 def get_missing_leaf_nutrients(nutrient_list: list[str], db_service: 'DatabaseService') -> list[str]:
     """Returns a list of leaf nutrients that are missing from the leaf nutrients list."""
-    all_leaf_nutrients = db_service.fetch_leaf_nutrient_names()
+    all_leaf_nutrients = db_service.fetch_all_leaf_nutrient_names()
     return [leaf_nutrient for leaf_nutrient in all_leaf_nutrients if leaf_nutrient not in nutrient_list]

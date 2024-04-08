@@ -12,13 +12,11 @@ class IngredientSearchPopupCtrl:
     def __init__(
         self,
         view: IngredientSearchPopupView,
-        db_service: DatabaseService,
-        set_ingredient_instance: Callable[[Ingredient], None],
+        edit_ingredient: Callable[[Ingredient], None],
     ):
         # Stash the init params
         self.view = view
-        self.db_service = db_service
-        self.set_ingredient_instance = set_ingredient_instance
+        self.edit_ingredient = edit_ingredient
 
         # Connect the signals and slots
         self.view.txt_search.textChanged.connect(self.on_search_box_text_changed)
@@ -43,8 +41,9 @@ class IngredientSearchPopupCtrl:
 
     def on_search_box_text_changed(self, text: str):
         """Handle the user typing in the search box."""
-        # Get the list of matching ingredient names
-        matching_names = self.db_service.fetch_matching_ingredient_names(text)
+        with DatabaseService() as db_service:
+            # Get the list of matching ingredient names
+            matching_names = db_service.fetch_matching_ingredient_names(text)
         # Update the list of matching ingredients
         self.view.update_ingredient_list(matching_names)
 
@@ -54,8 +53,9 @@ class IngredientSearchPopupCtrl:
         if not self.ingredient_is_selected:
             return
         # Load the ingredient details into the editor
-        ingredient = self.db_service.fetch_ingredient(self.selected_ingredient_name)
-        self.set_ingredient_instance(ingredient)
+        with DatabaseService() as db_service:
+            ingredient = db_service.fetch_ingredient(self.selected_ingredient_name)
+        self.edit_ingredient(ingredient)
         # Close self
         self.view.close()
 
@@ -75,6 +75,7 @@ class IngredientSearchPopupCtrl:
             return
 
         # Accepted, so delete the ingredient
-        self.db_service.delete_ingredient(self.selected_ingredient_name)
+        with DatabaseService() as db_service:
+            db_service.delete_ingredient(self.selected_ingredient_name)
         # Update the list of matching ingredients
         self.on_search_box_text_changed(self.view.txt_search.text())

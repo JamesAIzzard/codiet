@@ -1,42 +1,98 @@
 import sqlite3
 
-from codiet.models.ingredient import Ingredient
-from codiet.models.nutrients import create_nutrient_dict, nutrient_is_populated
 from codiet.exceptions import ingredient_exceptions as ingredient_exceptions
 
 class Repository:
     def __init__(self, db):
-        self.db = db
+        self._db = db
 
     def fetch_flag_id(self, name: str) -> int:
-        return self.db.execute(
+        """Returns the ID of the given flag name."""
+        return self._db.execute(
             """
-            SELECT flag_id FROM flag_list WHERE flag_name = ?;
+            SELECT flag_id FROM global_flag_list WHERE flag_name = ?;
         """,
             (name,),
         ).fetchone()[0]
 
-    def insert_flag_into_database(self, name: str) -> int:
-        cursor = self.db.execute(
+    def insert_global_flag(self, name: str) -> int:
+        """Adds a flag to the global flag table and returns the ID."""
+        cursor = self._db.execute(
             """
-            INSERT INTO flag_list (flag_name) VALUES (?);
+            INSERT INTO global_flag_list (flag_name) VALUES (?);
         """,
             (name,),
         )
         return cursor.lastrowid
 
-    def fetch_all_flag_names(self) -> list[str]:
-        """Returns a list of all the flags in the database."""
-        rows = self.db.execute(
+    def fetch_all_global_flag_names(self) -> list[str]:
+        """Returns a list of all global flags in the database."""
+        rows = self._db.execute(
             """
-            SELECT flag_name FROM flag_list;
+            SELECT flag_name FROM global_flag_list;
         """
         ).fetchall()
         return [row[0] for row in rows]
 
+    def fetch_all_group_nutrient_names(self) -> list[str]:
+        """Returns all of the group nutrient (primary - not aliases) names in the database."""
+        rows = self._db.execute(
+            """
+            SELECT nutrient_name FROM global_group_nutrients;
+        """
+        ).fetchall()
+        return [row[0] for row in rows]
+
+    def fetch_all_leaf_nutrient_names(self) -> list[str]:
+        """Returns all of the leaf nutrient (primary - not aliases) names in the database."""
+        rows = self._db.execute(
+            """
+            SELECT nutrient_name FROM global_leaf_nutrients;
+        """
+        ).fetchall()
+        return [row[0] for row in rows]
+
+    def insert_global_leaf_nutrient(self, name: str, parent_id: int | None = None) -> int:
+        """Adds a nutrient to the global leaf nutrient table and returns the ID."""
+        cursor = self._db.execute(
+            """
+            INSERT INTO global_leaf_nutrients (nutrient_name, parent_id) VALUES (?, ?);
+            """,
+            (name, parent_id),
+        )
+        return cursor.lastrowid
+
+    def insert_global_group_nutrient(self, name: str, parent_id: int | None = None) -> int:
+        """Adds a nutrient to the global group nutrient table and returns the ID."""
+        cursor = self._db.execute(
+            """
+            INSERT INTO global_group_nutrients (nutrient_name, parent_id) VALUES (?, ?);
+            """,
+            (name, parent_id),
+        )
+        return cursor.lastrowid
+
+    def insert_global_group_nutrient_alias(self, alias: str, primary_nutrient_id: int) -> None:
+        """Adds an alias into the global group nutrient alias table."""
+        self._db.execute(
+            """
+            INSERT INTO nutrient_alias (nutrient_alias, primary_nutrient_id) VALUES (?, ?);
+        """,
+            (alias, primary_nutrient_id),
+        )
+
+    def insert_global_leaf_nutrient_alias(self, alias: str, primary_nutrient_id: int) -> None:
+        """Adds an alias into the global leaf nutrient alias table."""
+        self._db.execute(
+            """
+            INSERT INTO nutrient_alias (nutrient_alias, primary_nutrient_id) VALUES (?, ?);
+        """,
+            (alias, primary_nutrient_id),
+        )
+
     def fetch_ingredient_name(self, id:int) -> str:
-        """Returns the name of the given ingredient ID."""
-        return self.db.execute(
+        """Returns the name of the ingredient associated with the given ID."""
+        return self._db.execute(
             """
             SELECT ingredient_name FROM ingredient_base WHERE ingredient_id = ?;
         """,
@@ -44,8 +100,8 @@ class Repository:
         ).fetchone()[0]
 
     def fetch_ingredient_id(self, name: str) -> int:
-        """Returns the ID of the given ingredient name."""
-        return self.db.execute(
+        """Returns the ID of the ingredient associated with the given name."""
+        return self._db.execute(
             """
             SELECT ingredient_id FROM ingredient_base WHERE ingredient_name = ?;
         """,
@@ -54,17 +110,17 @@ class Repository:
 
     def fetch_all_ingredient_names(self) -> list[str]:
         """Returns a list of all the ingredient names in the database."""
-        rows = self.db.execute(
+        rows = self._db.execute(
             """
             SELECT ingredient_name FROM ingredient_base;
         """
         ).fetchall()
         return [row[0] for row in rows]
 
-    def insert_ingredient_entry(self, name: str):
+    def insert_ingredient_name(self, name: str):
         """Adds an ingredient name to the database."""
         try:
-            self.db.execute(
+            self._db.execute(
                 """
                 INSERT INTO ingredient_base (ingredient_name) VALUES (?);
             """,
@@ -77,8 +133,8 @@ class Repository:
                 raise e
 
     def update_ingredient_name(self, ingredient_id: int, name: str) -> None:
-        """Updates the name of the given ingredient."""
-        self.db.execute(
+        """Updates the name of the ingredient associated with the given ID."""
+        self._db.execute(
             """
             UPDATE ingredient_base
             SET ingredient_name = ?
@@ -87,11 +143,20 @@ class Repository:
             (name, ingredient_id),
         )
 
+    def fetch_ingredient_description(self, id: int) -> str | None:
+        """Returns the description of the ingredient associated with the given ID."""
+        return self._db.execute(
+            """
+            SELECT description FROM ingredient_base WHERE ingredient_id = ?;
+        """,
+            (id,),
+        ).fetchone()[0]
+
     def update_ingredient_description(
         self, ingredient_id: int, description: str | None
     ) -> None:
-        """Sets the description for the given ingredient."""
-        self.db.execute(
+        """Updates the description of the ingredient associated with the given ID."""
+        self._db.execute(
             """
             UPDATE ingredient_base
             SET description = ?
@@ -100,6 +165,17 @@ class Repository:
             (description, ingredient_id),
         )
 
+    def fetch_ingredient_cost(self, id: int) -> tuple[float | None, str, float | None]:
+        """Returns the cost data of the ingredient associated with the given ID."""
+        return self._db.execute(
+            """
+            SELECT cost_value, qty_unit, qty_value
+            FROM ingredient_base
+            WHERE ingredient_id = ?;
+        """,
+            (id,),
+        ).fetchone()
+
     def update_ingredient_cost(
         self,
         ingredient_id: int,
@@ -107,8 +183,8 @@ class Repository:
         qty_unit: str | None,
         qty_value: float | None,
     ) -> None:
-        """Updates the cost data for the given ingredient."""
-        self.db.execute(
+        """Updates the cost data of the ingredient associated with the given ID."""
+        self._db.execute(
             """
             UPDATE ingredient_base
             SET cost_value = ?, qty_unit = ?, qty_value = ?
@@ -117,16 +193,27 @@ class Repository:
             (cost_value, qty_unit, qty_value, ingredient_id),
         )
 
+    def fetch_ingredient_density(self, id: int) -> tuple[str, float | None, str, float | None]:
+        """Returns the density data of the ingredient associated with the given ID."""
+        return self._db.execute(
+            """
+            SELECT density_mass_unit, density_mass_value, density_vol_unit, density_vol_value
+            FROM ingredient_base
+            WHERE ingredient_id = ?;
+        """,
+            (id,),
+        ).fetchone()
+
     def update_ingredient_density(
         self,
         ingredient_id: int,
-        dens_mass_unit: str | None,
+        dens_mass_unit: str,
         dens_mass_value: float | None,
-        dens_vol_unit: str | None,
+        dens_vol_unit: str,
         dens_vol_value: float | None,
     ) -> None:
-        """Updates the density data for the given ingredient."""
-        self.db.execute(
+        """Updates the density data of the ingredient associated with the given ID."""
+        self._db.execute(
             """
             UPDATE ingredient_base
             SET density_mass_unit = ?, density_mass_value = ?, density_vol_unit = ?, density_vol_value = ?
@@ -141,6 +228,17 @@ class Repository:
             ),
         )
 
+    def fetch_ingredient_pc_mass(self, id: int) -> tuple[float | None, str, float | None]:
+        """Returns the piece mass data of the ingredient associated with the given ID."""
+        return self._db.execute(
+            """
+            SELECT pc_qty, pc_mass_unit, pc_mass_value
+            FROM ingredient_base
+            WHERE ingredient_id = ?;
+        """,
+            (id,),
+        ).fetchone()
+
     def update_ingredient_pc_mass(
         self,
         ingredient_id: int,
@@ -148,8 +246,8 @@ class Repository:
         pc_mass_unit: str | None,
         pc_mass_value: float | None,
     ) -> None:
-        """Updates the piece mass data for the given ingredient."""
-        self.db.execute(
+        """Updates the piece mass data of the ingredient associated with the given ID."""
+        self._db.execute(
             """
             UPDATE ingredient_base
             SET pc_qty = ?, pc_mass_unit = ?, pc_mass_value = ?
@@ -158,12 +256,25 @@ class Repository:
             (pc_qty, pc_mass_unit, pc_mass_value, ingredient_id),
         )
 
+    def fetch_ingredient_flags(self, id: int) -> dict[str, bool]:
+        """Returns the flags of the ingredient associated with the given ID."""
+        rows = self._db.execute(
+            """
+            SELECT flag_name, flag_value
+            FROM global_flag_list
+            JOIN ingredient_flags ON global_flag_list.flag_id = ingredient_flags.flag_id
+            WHERE ingredient_id = ?;
+        """,
+            (id,),
+        ).fetchall()
+        return {row[0]: row[1] for row in rows}
+
     def update_ingredient_flags(
         self, ingredient_id: int, flags: dict[str, bool]
     ) -> None:
-        """Updates the flags for the given ingredient."""
+        """Updates the flags for the ingredient associated with the given ID."""
         # Clear the existing flags
-        self.db.execute(
+        self._db.execute(
             """
             DELETE FROM ingredient_flags WHERE ingredient_id = ?;
         """,
@@ -172,17 +283,25 @@ class Repository:
         # Add the new flags
         for flag, value in flags.items():
             flag_id = self.fetch_flag_id(flag)
-            if value:
-                self.db.execute(
-                    """
-                    INSERT INTO ingredient_flags (ingredient_id, flag_id) VALUES (?, ?);
-                """,
-                    (ingredient_id, flag_id),
-                )
+            self._db.execute(
+                """
+                INSERT INTO ingredient_flags (ingredient_id, flag_id, flag_value) VALUES (?, ?, ?);
+            """,
+                (ingredient_id, flag_id, value),
+            )
+
+    def fetch_ingredient_gi(self, id: int) -> float | None:
+        """Returns the GI of the ingredient associated with the given ID."""
+        return self._db.execute(
+            """
+            SELECT gi FROM ingredient_base WHERE ingredient_id = ?;
+        """,
+            (id,),
+        ).fetchone()[0]
 
     def update_ingredient_gi(self, ingredient_id: int, gi: float | None) -> None:
-        """Updates the GI for the given ingredient."""
-        self.db.execute(
+        """Updates the GI of the ingredient associated with the given ID."""
+        self._db.execute(
             """
             UPDATE ingredient_base
             SET gi = ?
@@ -196,9 +315,9 @@ class Repository:
         ingredient_id: int,
         nutrients: dict[str, dict],
     ) -> None:
-        """Updates the nutrients for the given ingredient."""
+        """Updates the nutrients of the ingredient associated with the given ID."""
         # Clear the existing nutrients
-        self.db.execute(
+        self._db.execute(
             """
             DELETE FROM ingredient_nutrients WHERE ingredient_id = ?;
         """,
@@ -206,18 +325,15 @@ class Repository:
         )
         # Add the new nutrients
         for nutrient, data in nutrients.items():
-            # Skip if nutrient is not populated
-            if not nutrient_is_populated(data):
-                continue
             # Get the nutrient ID
-            nutrient_id = self.db.execute(
+            nutrient_id = self._db.execute(
                 """
-                SELECT nutrient_id FROM nutrient_list WHERE nutrient_name = ?;
+                SELECT nutrient_id FROM global_leaf_nutrients WHERE nutrient_name = ?;
             """,
                 (nutrient,),
             ).fetchone()[0]
             # Add the nutrient
-            self.db.execute(
+            self._db.execute(
                 """
                 INSERT INTO ingredient_nutrients (ingredient_id, nutrient_id, ntr_qty_unit, ntr_qty_value, ing_qty_unit, ing_qty_value)
                 VALUES (?, ?, ?, ?, ?, ?);
@@ -232,115 +348,15 @@ class Repository:
                 ),
             )
 
-    def fetch_ingredient(self, name: str) -> Ingredient:
-        """Retrieves all the data for the named ingredient and
-        returns a populated ingredient object."""
-        # Grab the ID of the ingredient
-        ingredient_id = self.fetch_ingredient_id(name)
-
-        # Instantiate an ingredient instance
-        ingredient = Ingredient()
-
-        # Populate the ingredient name
-        ingredient.name = name
-
-        # Populate the ingredient ID
-        ingredient.id = ingredient_id
-
-        # Fetch data from the base table
-        base_data = self.db.execute(
-            """
-            SELECT description, gi FROM ingredient_base WHERE ingredient_id = ?;
-        """,
-            (ingredient_id,),
-        ).fetchone()
-        # Populate GI field on ingredient
-        ingredient.description = base_data[0]
-        ingredient.gi = base_data[1]
-
-        # Get the cost details
-        cost_data = self.db.execute(
-            """
-            SELECT cost_value, qty_unit, qty_value
-            FROM ingredient_base
-            WHERE ingredient_id = ?;
-        """,
-            (ingredient_id,),
-        ).fetchone()
-        # Populate cost fields on ingredient
-        ingredient.cost_value = cost_data[0]
-        ingredient.cost_qty_unit = cost_data[1]
-        ingredient.cost_qty_value = cost_data[2]
-
-        # Get the bulk details
-        bulk_data = self.db.execute(
-            """
-            SELECT density_mass_unit, density_mass_value, density_vol_unit, density_vol_value
-            FROM ingredient_base
-            WHERE ingredient_id = ?;
-        """,
-            (ingredient_id,),
-        ).fetchone()
-        # Populate bulk fields on ingredient
-        ingredient.density_mass_unit = bulk_data[0]
-        ingredient.density_mass_value = bulk_data[1]
-        ingredient.density_vol_unit = bulk_data[2]
-        ingredient.density_vol_value = bulk_data[3]
-
-        # Get the piece mass details
-        pc_mass_data = self.db.execute(
-            """
-            SELECT pc_qty, pc_mass_unit, pc_mass_value
-            FROM ingredient_base
-            WHERE ingredient_id = ?;
-        """,
-            (ingredient_id,),
-        ).fetchone()
-        # Populate piece mass fields on ingredient
-        ingredient.pc_qty = pc_mass_data[0]
-        ingredient.pc_mass_unit = pc_mass_data[1]
-        ingredient.pc_mass_value = pc_mass_data[2]
-
-        # Get a list of all the flags, init each as false
-        ingredient.set_flags({flag: False for flag in self.fetch_all_flag_names()})
-        # Get the flag data
-        flag_data = self.db.execute(
-            """
-            SELECT flag_name
-            FROM flag_list
-            JOIN ingredient_flags ON flag_list.flag_id = ingredient_flags.flag_id
-            WHERE ingredient_id = ?;
-        """,
-            (ingredient_id,),
-        ).fetchall()
-        # Populate flags on ingredient
-        ingredient.set_flags({row[0]: True for row in flag_data})
-
-        # Initialise nutrients with empty data
-        nutrient_names = self.fetch_all_nutrient_names()
-        ingredient.nutrients = {ntr: create_nutrient_dict() for ntr in nutrient_names}
-
-        # Fill in the data which has been populated
-        nutrient_data = self.fetch_ingredient_nutrients(ingredient_id)
-        for nutrient, data in nutrient_data.items():
-            ingredient.nutrients[nutrient] = create_nutrient_dict(
-                ntr_qty_value=data["ntr_qty_value"],
-                ntr_qty_unit=str(data["ntr_qty_unit"]),
-                ing_qty_value=data["ing_qty_value"],
-                ing_qty_unit=str(data["ing_qty_unit"]),
-            )
-
-        return ingredient
-
     def fetch_ingredient_nutrients(
         self, ingredient_id: int
-    ) -> dict[str, dict[str, float | str]]:
+    ) -> dict[str, dict[str, dict]]:
         """Returns a dict of nutrients for the given ingredient ID."""
-        rows = self.db.execute(
+        rows = self._db.execute(
             """
             SELECT nutrient_name, ntr_qty_unit, ntr_qty_value, ing_qty_unit, ing_qty_value
-            FROM nutrient_list
-            JOIN ingredient_nutrients ON nutrient_list.nutrient_id = ingredient_nutrients.nutrient_id
+            FROM global_leaf_nutrients
+            JOIN ingredient_nutrients ON global_leaf_nutrients.nutrient_id = ingredient_nutrients.nutrient_id
             WHERE ingredient_id = ?;
         """,
             (ingredient_id,),
@@ -377,46 +393,8 @@ class Repository:
         ]
         try:
             for query in queries:
-                self.db.execute(query, (ingredient_id,))
-                self.db.commit()
+                self._db.execute(query, (ingredient_id,))
+                self._db.commit()
         except Exception as e:
-            self.db.connection.rollback()
+            self._db.connection.rollback()
             raise e
-
-    def fetch_all_nutrient_names(self) -> list[str]:
-        """Returns a list of all the nutrient names in the database."""
-        rows = self.db.execute(
-            """
-            SELECT nutrient_name FROM nutrient_list;
-        """
-        ).fetchall()
-        return [row[0] for row in rows]
-
-    def fetch_all_leaf_nutrient_names(self) -> list[str]:
-        """Returns a list of all the nutrient names which are leaves."""
-        rows = self.db.execute(
-            """
-            SELECT nutrient_name FROM nutrient_list WHERE is_leaf = True;
-        """
-        ).fetchall()
-        return [row[0] for row in rows]
-
-    def insert_nutrient(self, name: str, parent_id: int | None, is_leaf: bool) -> int:
-        """Adds a nutrient to the database and returns the ID."""
-        cursor = self.db.execute(
-            """
-            INSERT INTO nutrient_list (nutrient_name, parent_id, is_leaf) VALUES (?, ?, ?);
-            """,
-            (name, parent_id, is_leaf),
-        )
-        return cursor.lastrowid
-
-    def insert_nutrient_alias(self, alias: str, primary_nutrient_id: int) -> None:
-        """Adds a nutrient alias to the database."""
-        self.db.execute(
-            """
-            INSERT INTO nutrient_alias (nutrient_alias, primary_nutrient_id) VALUES (?, ?);
-        """,
-            (alias, primary_nutrient_id),
-        )
-
