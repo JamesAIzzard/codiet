@@ -22,14 +22,15 @@
     },
     "flags": {
         "alcohol free": true,
+        "caffeine free": true,
+        "gluten free": false,
         "lactose free": true,
         "nut free": true,
         "vegan": true,
         "vegetarian": true,
-        "caffeine free": true,
-        "gluten free": true
+        "pescatarian": true
     },
-    "GI": "55.0",
+    "GI": 55.5,
     "nutrients": {
         "serine": {
             "ntr_qty_value": 1.05,

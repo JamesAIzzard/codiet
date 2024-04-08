@@ -27,9 +27,10 @@
         "lactose free": true,
         "nut free": true,
         "vegan": true,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "40.0",
+    "GI": 40.0,
     "nutrients": {
         "water": {
             "ntr_qty_value": 91.0,

@@ -180,6 +180,7 @@ class Repository:
         self,
         ingredient_id: int,
         cost_value: float | None,
+        cost_unit: str | None,
         qty_unit: str | None,
         qty_value: float | None,
     ) -> None:
@@ -187,10 +188,10 @@ class Repository:
         self._db.execute(
             """
             UPDATE ingredient_base
-            SET cost_value = ?, qty_unit = ?, qty_value = ?
+            SET cost_value = ?, cost_unit = ?, qty_unit = ?, qty_value = ?
             WHERE ingredient_id = ?;
         """,
-            (cost_value, qty_unit, qty_value, ingredient_id),
+            (cost_value, cost_unit, qty_unit, qty_value, ingredient_id),
         )
 
     def fetch_ingredient_density(self, id: int) -> tuple[str, float | None, str, float | None]:

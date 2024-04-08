@@ -27,9 +27,10 @@
         "lactose free": true,
         "nut free": true,
         "vegan": true,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": false
     },
-    "GI": "64.0",
+    "GI": 64.5,
     "nutrients": {
         "glucose": {
             "ntr_qty_value": 33.8,

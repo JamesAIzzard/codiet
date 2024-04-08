@@ -1,5 +1,5 @@
 {
-    "name": "Acacia honey",
+    "name": "Acacia Honey",
     "description": "Acacia honey is a sweet and delicate honey with a light, floral flavor derived from the nectar of Acacia tree blossoms.",
     "cost": {
         "cost_unit": "GBP",
@@ -26,10 +26,11 @@
         "gluten free": true,
         "lactose free": true,
         "nut free": true,
-        "vegan": true,
-        "vegetarian": true
+        "vegan": false,
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "55.5",
+    "GI": 60.0,
     "nutrients": {
         "alanine": {
             "ntr_qty_value": 0.1,

@@ -1,5 +1,5 @@
 {
-    "name": "Avocado oil mayonnaise",
+    "name": "Avocado Oil Mayonnaise",
     "description": "Creamy and tangy mayo made with smooth and rich avocado oil.",
     "cost": {
         "cost_unit": "GBP",
@@ -26,10 +26,11 @@
         "gluten free": true,
         "lactose free": true,
         "nut free": true,
-        "vegan": true,
-        "vegetarian": true
+        "vegan": false,
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "38.5",
+    "GI": 4.5,
     "nutrients": {
         "alanine": {
             "ntr_qty_value": 0.1,

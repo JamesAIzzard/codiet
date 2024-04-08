@@ -1,5 +1,5 @@
 {
-    "name": "Ceylon cinnamon",
+    "name": "Ceylon Cinnamon",
     "description": "Ceylon cinnamon is a sweet and aromatic spice with a delicate flavor profile.",
     "cost": {
         "cost_unit": "GBP",
@@ -27,9 +27,10 @@
         "lactose free": true,
         "nut free": true,
         "vegan": true,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "1.5",
+    "GI": 1.5,
     "nutrients": {
         "alanine": {
             "ntr_qty_value": 0.02,

@@ -29,12 +29,16 @@ if __name__ == '__main__':
         # The following are only used for resetting datafiles when the autopopulate code
         # changes. They permanently erase data!
         # populate_database.erase_all_ingredient_cost_data()
+        # populate_database.erase_all_flag_data()
+        # populate_database.erase_all_gi_data()
 
         # The following four calls work together to bring all ingredient .json
         # fils up to date with the current flags and nutrients.
         # Work through the existing datafiles and remove any redundant flags and nutrients
         populate_database.remove_redundant_flags_from_datafiles(global_flags)
         populate_database.remove_redundant_nutrients_from_datafiles(db_service)
+        # Make sure all existing ingredients have title case names
+        # populate_database.title_case_ingredient_names()
         # Initialise the ingredient datafiles from the wishlist and template
         populate_database.init_ingredient_datafiles()
         # Use the OpenAI model to populate the ingredient datafiles

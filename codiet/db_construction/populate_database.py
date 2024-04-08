@@ -54,6 +54,35 @@ def erase_all_ingredient_cost_data():
         with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
             json.dump(data, f, indent=4)
 
+def erase_all_flag_data():
+    """Remove all flag data from the ingredient .json files."""
+    print("Erasing all flag data...")
+    for file in os.listdir(INGREDIENT_DATA_DIR):
+        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
+            data = json.load(f)
+        data["flags"] = {}
+        with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
+            json.dump(data, f, indent=4)
+
+def erase_all_gi_data():
+    """Remove all GI data from the ingredient .json files."""
+    print("Erasing all GI data...")
+    for file in os.listdir(INGREDIENT_DATA_DIR):
+        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
+            data = json.load(f)
+        data["GI"] = None
+        with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
+            json.dump(data, f, indent=4)
+
+def title_case_ingredient_names():
+    """Title case the names of all ingredient .json files."""
+    print("Title casing all ingredient names...")
+    for file in os.listdir(INGREDIENT_DATA_DIR):
+        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
+            data = json.load(f)
+        data["name"] = data["name"].title()
+        with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
+            json.dump(data, f, indent=4)
 
 def push_ingredients_to_db(db_service: DatabaseService):
     """Populate the database with ingredients from the ingredient_data directory."""
@@ -185,7 +214,7 @@ def init_ingredient_datafiles():
             template = template.copy()
 
             # Set the name of the ingredient
-            template["name"] = ingredient
+            template["name"] = ingredient.title()
 
             # Write the template data to the file
             json.dump(template, f, indent=4)
@@ -240,10 +269,8 @@ def populate_ingredient_datafiles(db_service: DatabaseService):
 
         # While there are flags missing from the data
         while len(get_missing_flags(data["flags"].keys(), db_service)) > 0:
-            # Update the terminal
-            print(f"Getting flags for {ingredient_name}...")
             # Use the openai API to get the flags
-            flags_data = openai._get_openai_ingredient_flags(
+            flags_data = openai.get_openai_ingredient_flags(
                 ingredient_name, get_missing_flags(data["flags"], db_service)
             )
             # Add the flags_data into the data["flags"] dict
@@ -254,8 +281,7 @@ def populate_ingredient_datafiles(db_service: DatabaseService):
 
         # If the GI data isn't filled, use the openai API to get the GI data
         if data.get("GI") is None:
-            print(f"Getting GI data for {ingredient_name}...")
-            gi = openai._get_openai_ingredient_gi(ingredient_name)
+            gi = openai.get_openai_ingredient_gi(ingredient_name)
 
             # Write the GI data back to the file
             data["GI"] = gi

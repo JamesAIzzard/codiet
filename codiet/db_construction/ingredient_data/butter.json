@@ -24,12 +24,13 @@
         "alcohol free": true,
         "caffeine free": true,
         "gluten free": true,
-        "lactose free": true,
+        "lactose free": false,
         "nut free": true,
         "vegan": false,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "0.5",
+    "GI": 0.5,
     "nutrients": {
         "alanine": {
             "ntr_qty_value": 0.03,

@@ -22,14 +22,15 @@
     },
     "flags": {
         "alcohol free": true,
-        "vegan": true,
-        "vegetarian": true,
         "caffeine free": true,
         "gluten free": true,
         "lactose free": true,
-        "nut free": true
+        "nut free": true,
+        "vegan": true,
+        "vegetarian": true,
+        "pescatarian": false
     },
-    "GI": 30,
+    "GI": 15.0,
     "nutrients": {
         "saturated fat": {
             "ntr_qty_value": 1.1,

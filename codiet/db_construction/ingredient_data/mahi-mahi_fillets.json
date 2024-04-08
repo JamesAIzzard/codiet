@@ -1,5 +1,5 @@
 {
-    "name": "Mahi-mahi fillets",
+    "name": "Mahi-Mahi Fillets",
     "description": "Mahi-mahi fillets are firm, white fish fillets with a mild and slightly sweet flavor, perfect for grilling or searing.",
     "cost": {
         "cost_unit": "GBP",
@@ -26,10 +26,11 @@
         "gluten free": true,
         "lactose free": true,
         "nut free": true,
-        "vegan": true,
-        "vegetarian": true
+        "vegan": false,
+        "vegetarian": false,
+        "pescatarian": true
     },
-    "GI": "0.5",
+    "GI": 0.0,
     "nutrients": {
         "alanine": {
             "ntr_qty_value": 1.5,

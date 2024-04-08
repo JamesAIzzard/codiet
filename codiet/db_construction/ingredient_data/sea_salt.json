@@ -27,9 +27,10 @@
         "lactose free": true,
         "nut free": true,
         "vegan": true,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "I'm sorry, but it is not possible to provide a single decimal approximation for the Glycemic Index of 'Sea Salt' as it is a mineral and does not contain carbohydrates. Glycemic Index is a measure of how quickly a food raises blood sugar levels, and since Sea Salt does not contain any sugar or carbohydrates, it would have a GI of 0.",
+    "GI": 0.0,
     "nutrients": {
         "glucose": {
             "ntr_qty_value": 0,

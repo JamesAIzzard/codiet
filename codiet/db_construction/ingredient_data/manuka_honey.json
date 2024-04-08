@@ -1,5 +1,5 @@
 {
-    "name": "Manuka honey",
+    "name": "Manuka Honey",
     "description": "Manuka honey is a unique and potent type of honey known for its antibacterial properties and health benefits.",
     "cost": {
         "cost_unit": "GBP",
@@ -26,10 +26,11 @@
         "gluten free": true,
         "lactose free": true,
         "nut free": true,
-        "vegan": true,
-        "vegetarian": true
+        "vegan": false,
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "Around 55.",
+    "GI": 60.0,
     "nutrients": {
         "alanine": {
             "ntr_qty_value": 0.01,

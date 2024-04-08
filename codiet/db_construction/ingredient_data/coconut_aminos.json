@@ -1,5 +1,5 @@
 {
-    "name": "Coconut aminos",
+    "name": "Coconut Aminos",
     "description": "Coconut aminos is a savory, umami-rich condiment made from the sap of coconut blossoms, popular as a soy sauce alternative for those with soy allergies or sensitivities.",
     "cost": {
         "cost_unit": "GBP",
@@ -27,9 +27,10 @@
         "lactose free": true,
         "nut free": true,
         "vegan": true,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "47.5",
+    "GI": 35.5,
     "nutrients": {
         "alanine": {
             "ntr_qty_value": 0.2,

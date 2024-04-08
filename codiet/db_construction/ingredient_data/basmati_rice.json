@@ -1,5 +1,5 @@
 {
-    "name": "Basmati rice",
+    "name": "Basmati Rice",
     "description": "Basmati rice is a aromatic and long-grain variety of rice known for its nutty flavor and fluffy texture when cooked.",
     "cost": {
         "cost_unit": "GBP",
@@ -27,9 +27,10 @@
         "lactose free": true,
         "nut free": true,
         "vegan": true,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "The approximate GI of Basmati rice is 58.",
+    "GI": 58.5,
     "nutrients": {
         "alanine": {
             "ntr_qty_value": 0.93,

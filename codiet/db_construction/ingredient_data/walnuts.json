@@ -25,11 +25,12 @@
         "caffeine free": true,
         "gluten free": true,
         "lactose free": true,
-        "nut free": true,
+        "nut free": false,
         "vegan": true,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "15.5",
+    "GI": 15.0,
     "nutrients": {
         "glucose": {
             "ntr_qty_value": 0.7,

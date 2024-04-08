@@ -1,5 +1,5 @@
 {
-    "name": "Cashew cream",
+    "name": "Cashew Cream",
     "description": "Cashew cream is a rich and creamy dairy alternative made from blended cashew nuts.",
     "cost": {
         "cost_unit": "GBP",
@@ -27,9 +27,10 @@
         "lactose free": true,
         "nut free": false,
         "vegan": true,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "33.5",
+    "GI": 2.5,
     "nutrients": {
         "alanine": {
             "ntr_qty_value": 0.5,

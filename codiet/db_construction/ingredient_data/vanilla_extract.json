@@ -1,5 +1,5 @@
 {
-    "name": "Vanilla extract",
+    "name": "Vanilla Extract",
     "description": "Vanilla extract is a concentrated liquid derived from vanilla beans, used to add a sweet and aromatic flavor to baked goods and desserts.",
     "cost": {
         "cost_unit": "GBP",
@@ -21,15 +21,16 @@
         }
     },
     "flags": {
-        "alcohol free": true,
+        "alcohol free": false,
         "caffeine free": true,
         "gluten free": true,
         "lactose free": true,
         "nut free": true,
         "vegan": true,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "0.7",
+    "GI": 0.0,
     "nutrients": {
         "alanine": {
             "ntr_qty_value": 0.01,

@@ -27,9 +27,10 @@
         "lactose free": true,
         "nut free": true,
         "vegan": true,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "10",
+    "GI": 11.0,
     "nutrients": {
         "saturated fat": {
             "ntr_qty_value": 0.042,

@@ -1,5 +1,5 @@
 {
-    "name": "Gouda cheese",
+    "name": "Gouda Cheese",
     "description": "Gouda cheese is a creamy, semi-hard yellow cheese hailing from the Netherlands with a rich, nutty flavor profile.",
     "cost": {
         "cost_unit": "GBP",
@@ -27,9 +27,10 @@
         "lactose free": false,
         "nut free": true,
         "vegan": false,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "0.1",
+    "GI": 0.0,
     "nutrients": {
         "alanine": {
             "ntr_qty_value": 2.5,

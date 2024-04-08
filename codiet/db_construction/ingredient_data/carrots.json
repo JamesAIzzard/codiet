@@ -21,15 +21,16 @@
         }
     },
     "flags": {
-        "alcohol free": false,
+        "alcohol free": true,
         "caffeine free": true,
         "gluten free": true,
         "lactose free": true,
         "nut free": true,
         "vegan": true,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "71.",
+    "GI": 40.0,
     "nutrients": {
         "glucose": {
             "ntr_qty_value": 1.9,
