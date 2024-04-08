@@ -52,8 +52,8 @@ class Ingredient(HasSettableFlags):
     def update_nutrient_quantity(
         self,
         nutrient_name: str,
-        ntr_qty_unit: str,
-        ing_qty_unit: str,
+        ntr_qty_unit: str | None = None,
+        ing_qty_unit: str | None = None,
         ntr_qty_value: float | None = None,
         ing_qty_value: float | None = None,        
     ) -> None:
