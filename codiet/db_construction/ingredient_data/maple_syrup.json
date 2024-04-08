@@ -3,9 +3,9 @@
     "description": "A sweet and rich liquid gold extracted from maple trees, perfect for drizzling over pancakes and waffles.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 5.0,
-        "qty_unit": "g",
-        "qty_value": 100
+        "cost_value": 5.99,
+        "qty_value": 250.0,
+        "qty_unit": "ml"
     },
     "bulk": {
         "density": {

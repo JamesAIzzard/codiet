@@ -3,9 +3,9 @@
     "description": "Ground black pepper is a pungent spice made from the dried berries of the Piper nigrum plant, commonly used to add flavor and a touch of heat to dishes.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 0.05,
-        "qty_unit": "g",
-        "qty_value": 1
+        "cost_value": 1.5,
+        "qty_value": 100.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {

@@ -3,9 +3,9 @@
     "description": "Fresh, aromatic herb commonly used in Mediterranean and Asian cuisines.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 1.5,
-        "qty_unit": "g",
-        "qty_value": 10
+        "cost_value": 0.5,
+        "qty_value": 10.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {

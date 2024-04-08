@@ -3,9 +3,9 @@
     "description": "Skimmed milk is a dairy product with all the fat removed, delivering a low-calorie, calcium-rich beverage.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 0.09,
-        "qty_unit": "g",
-        "qty_value": "100"
+        "cost_value": 0.5,
+        "qty_value": 1000.0,
+        "qty_unit": "ml"
     },
     "bulk": {
         "density": {

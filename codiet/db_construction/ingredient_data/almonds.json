@@ -3,9 +3,9 @@
     "description": "Almonds are tree nuts that have a mild, slightly sweet flavor and a crunchy texture.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 1.5,
-        "qty_unit": "g",
-        "qty_value": 100
+        "cost_value": 3.5,
+        "qty_value": 250.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {

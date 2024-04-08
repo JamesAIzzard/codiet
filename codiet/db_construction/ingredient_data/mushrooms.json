@@ -3,9 +3,9 @@
     "description": "Fleshy fungi known for their earthy flavor and diverse shapes, sizes, and colors, used in countless culinary creations.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 2.5,
-        "qty_unit": "g",
-        "qty_value": 100
+        "cost_value": 3.99,
+        "qty_value": 250.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {

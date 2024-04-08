@@ -43,6 +43,18 @@ def push_nutrients_to_db(nutrient_data: dict, db_service: DatabaseService):
     insert_nutrients(nutrient_data)
 
 
+def erase_all_ingredient_cost_data():
+    """Remove all cost data from the ingredient .json files."""
+    print("Erasing all ingredient cost data...")
+    for file in os.listdir(INGREDIENT_DATA_DIR):
+        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
+            data = json.load(f)
+        data["cost"]["cost_value"] = None
+        data["cost"]["qty_value"] = None
+        with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
+            json.dump(data, f, indent=4)
+
+
 def push_ingredients_to_db(db_service: DatabaseService):
     """Populate the database with ingredients from the ingredient_data directory."""
     # Work through each .json file in the ingredient_data directory
@@ -155,7 +167,16 @@ def init_ingredient_datafiles():
         file_name = ingredient.replace(" ", "_").lower() + ".json"
 
         # If the file already exists, skip it
-        if os.path.exists(os.path.join(INGREDIENT_DATA_DIR, file_name)):
+        if any(
+            file_name.lower() == existing_file.lower()
+            for existing_file in os.listdir(INGREDIENT_DATA_DIR)
+        ):
+            print(f"Skipping {ingredient} as it already exists.")
+            # Remove the ingredient from the wishlist
+            wishlist.remove(ingredient)
+            # Write the updated wishlist back to the file
+            with open(INGREDIENT_WISHLIST_FILE, "w") as f:
+                json.dump(wishlist, f)            
             continue
 
         # Create a .json file with this name
@@ -170,7 +191,7 @@ def init_ingredient_datafiles():
             json.dump(template, f, indent=4)
 
         # Remove the ingredient from the wishlist
-        wishlist.pop(ingredient)
+        wishlist.remove(ingredient)
         # Write the updated wishlist back to the file
         with open(INGREDIENT_WISHLIST_FILE, "w") as f:
             json.dump(wishlist, f)
@@ -207,12 +228,8 @@ def populate_ingredient_datafiles(db_service: DatabaseService):
             data["cost"].get("cost_value") is None
             or data["cost"].get("qty_value") is None
         ):
-            # Update the terminal
-            print(f"Getting cost data for {ingredient_name}...")
             # Use the openai API to get the cost data
-            cost_data = openai._get_openai_ingredient_cost(
-                ingredient_name, data["cost"]
-            )
+            cost_data = openai.get_openai_ingredient_cost(ingredient_name, data["cost"])
 
             # Write the cost data back to the file
             data["cost"] = cost_data
@@ -286,5 +303,3 @@ def populate_ingredient_datafiles(db_service: DatabaseService):
                     json.dump(data, f, indent=4)
             except JSONDecodeError:
                 print(f"Retrying nutrient data for {ingredient_name}...")
-
-    print("All ingredient data files have been populated.")

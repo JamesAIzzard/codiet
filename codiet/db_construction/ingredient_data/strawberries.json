@@ -3,9 +3,9 @@
     "description": "Strawberries are sweet, juicy fruits known for their bright red color, pleasant aroma, and rich source of vitamins and fiber.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 1.5,
-        "qty_unit": "g",
-        "qty_value": "100"
+        "cost_value": 2.5,
+        "qty_value": 250.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {

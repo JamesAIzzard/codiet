@@ -3,9 +3,9 @@
     "description": "Rolled oats are whole grain oats that have been flattened, steamed, and toasted, commonly used in breakfast cereals and baking.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 0.2,
-        "qty_unit": "g",
-        "qty_value": "100"
+        "cost_value": 2.5,
+        "qty_value": 500.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {

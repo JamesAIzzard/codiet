@@ -3,9 +3,9 @@
     "description": "A salmon fillet is a lean, tender cut of fish rich in omega-3 fatty acids and known for its delicate, slightly sweet flavour.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 25,
-        "qty_unit": "g",
-        "qty_value": 500
+        "cost_value": 5.99,
+        "qty_value": 200.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {

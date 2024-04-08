@@ -3,9 +3,9 @@
     "description": "Black beans are small, shiny, kidney-shaped legumes with a rich, earthy flavor commonly used in Latin American cuisine.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 0.5,
-        "qty_unit": "g",
-        "qty_value": 100
+        "cost_value": 1.5,
+        "qty_value": 500.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {

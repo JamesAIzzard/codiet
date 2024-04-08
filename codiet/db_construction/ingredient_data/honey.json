@@ -3,9 +3,9 @@
     "description": "Honey is a sweet, viscous substance produced by bees from the nectar of flowers, often used as a natural sweetener in various dishes and beverages.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 1.5,
-        "qty_unit": "g",
-        "qty_value": "100"
+        "cost_value": 5.0,
+        "qty_value": 250.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {

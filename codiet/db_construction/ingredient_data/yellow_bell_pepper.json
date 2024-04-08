@@ -3,9 +3,9 @@
     "description": "Yellow bell pepper is a sweet and vibrant colored vegetable that adds a pop of flavor to dishes.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 0.6,
-        "qty_unit": "g",
-        "qty_value": 100
+        "cost_value": 0.75,
+        "qty_value": 200.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {

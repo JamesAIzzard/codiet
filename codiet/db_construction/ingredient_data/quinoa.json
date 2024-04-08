@@ -4,8 +4,8 @@
     "cost": {
         "cost_unit": "GBP",
         "cost_value": 2.5,
-        "qty_unit": "g",
-        "qty_value": 100
+        "qty_value": 500.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {

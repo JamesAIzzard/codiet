@@ -3,9 +3,9 @@
     "description": "Feta cheese is a crumbly and tangy cheese made from sheep's milk that originated in Greece.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 2.5,
-        "qty_unit": "g",
-        "qty_value": 200
+        "cost_value": 3.5,
+        "qty_value": 200.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {

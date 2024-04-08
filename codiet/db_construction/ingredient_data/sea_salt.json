@@ -3,9 +3,9 @@
     "description": "Sea salt is a natural mineral extracted from evaporated seawater and is used as a seasoning in cooking and baking.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 5,
-        "qty_unit": "g",
-        "qty_value": 100
+        "cost_value": 1.5,
+        "qty_value": 250.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {

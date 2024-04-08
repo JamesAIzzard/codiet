@@ -3,9 +3,9 @@
     "description": "Red Wine Vinegar is a tangy and flavorful vinegar made from fermenting red wine.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 2.99,
-        "qty_unit": "g",
-        "qty_value": 500
+        "cost_value": 3.5,
+        "qty_value": 250.0,
+        "qty_unit": "ml"
     },
     "bulk": {
         "density": {

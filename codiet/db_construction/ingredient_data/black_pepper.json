@@ -3,9 +3,9 @@
     "description": "Black Pepper is a versatile and popular spice known for its bold, spicy flavor and aromatic qualities.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 2,
-        "qty_unit": "g",
-        "qty_value": 100
+        "cost_value": 0.5,
+        "qty_value": 50.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {

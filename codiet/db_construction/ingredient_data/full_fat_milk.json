@@ -3,9 +3,9 @@
     "description": "Full Fat Milk is a rich and creamy dairy product that contains all the natural fats from the cow's milk, offering a high level of nutrition.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 0.1,
-        "qty_unit": "g",
-        "qty_value": "100"
+        "cost_value": 2.5,
+        "qty_value": 1000.0,
+        "qty_unit": "ml"
     },
     "bulk": {
         "density": {

@@ -3,9 +3,9 @@
     "description": "Cucumber: A crisp and refreshing vegetable commonly used for its mild, hydrating flavor in salads and sandwiches.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 0.5,
-        "qty_unit": "g",
-        "qty_value": 100
+        "cost_value": 2.5,
+        "qty_value": 500.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {
