@@ -3,9 +3,9 @@
     "description": "Blueberries are small, round berries known for their dark blue color, sweet-tart flavor, and high antioxidant content.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 1.5,
-        "qty_unit": "g",
-        "qty_value": "100"
+        "cost_value": 3.0,
+        "qty_value": 250.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {
@@ -22,14 +22,15 @@
     },
     "flags": {
         "alcohol free": true,
+        "caffeine free": true,
+        "gluten free": true,
         "lactose free": true,
         "nut free": true,
         "vegan": true,
         "vegetarian": true,
-        "caffeine free": true,
-        "gluten free": true
+        "pescatarian": false
     },
-    "GI": "53.0",
+    "GI": 53.0,
     "nutrients": {
         "glucose": {
             "ntr_qty_value": 2.39,
@@ -381,6 +382,12 @@
         },
         "zinc": {
             "ntr_qty_value": 0.00017,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 100,
+            "ing_qty_unit": "g"
+        },
+        "fibre": {
+            "ntr_qty_value": 3.6,
             "ntr_qty_unit": "g",
             "ing_qty_value": 100,
             "ing_qty_unit": "g"

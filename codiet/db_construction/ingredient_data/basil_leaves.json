@@ -3,9 +3,9 @@
     "description": "Fresh, aromatic herb commonly used in Mediterranean and Asian cuisines.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 1.5,
-        "qty_unit": "g",
-        "qty_value": 10
+        "cost_value": 0.5,
+        "qty_value": 10.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {
@@ -27,9 +27,10 @@
         "lactose free": true,
         "nut free": true,
         "vegan": true,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "1.5",
+    "GI": 3.0,
     "nutrients": {
         "glucose": {
             "ntr_qty_value": 0.87,
@@ -383,6 +384,12 @@
             "ntr_qty_value": 0.81,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
+            "ing_qty_unit": "g"
+        },
+        "fibre": {
+            "ntr_qty_value": 2,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 2,
             "ing_qty_unit": "g"
         }
     }

@@ -3,9 +3,9 @@
     "description": "Red onion is a vibrant and pungent vegetable commonly used in salads and salsas for a burst of color and flavor.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 1.5,
-        "qty_unit": "g",
-        "qty_value": 100
+        "cost_value": 0.5,
+        "qty_value": 200.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {
@@ -21,15 +21,16 @@
         }
     },
     "flags": {
-        "alcohol free": false,
-        "caffeine free": false,
-        "gluten free": false,
-        "lactose free": false,
-        "nut free": false,
-        "vegan": false,
-        "vegetarian": true
+        "alcohol free": true,
+        "caffeine free": true,
+        "gluten free": true,
+        "lactose free": true,
+        "nut free": true,
+        "vegan": true,
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "10.5",
+    "GI": 10.5,
     "nutrients": {
         "glucose": {
             "ntr_qty_value": 0.9,
@@ -381,6 +382,12 @@
         },
         "zinc": {
             "ntr_qty_value": 0.17,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 100,
+            "ing_qty_unit": "g"
+        },
+        "fibre": {
+            "ntr_qty_value": 1.7,
             "ntr_qty_unit": "g",
             "ing_qty_value": 100,
             "ing_qty_unit": "g"

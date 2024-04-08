@@ -3,9 +3,9 @@
     "description": "A versatile and naturally sweet vegetable filled with tender kernels that add a pop of texture and flavor to a variety of dishes.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 0.5,
-        "qty_unit": "g",
-        "qty_value": 100
+        "cost_value": 1.5,
+        "qty_value": 200.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {
@@ -27,9 +27,10 @@
         "lactose free": true,
         "nut free": true,
         "vegan": true,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "60.",
+    "GI": 52.5,
     "nutrients": {
         "glucose": {
             "ntr_qty_value": 6,
@@ -383,6 +384,12 @@
             "ntr_qty_value": 0.001,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0.01,
+            "ing_qty_unit": "g"
+        },
+        "fibre": {
+            "ntr_qty_value": 2,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 3,
             "ing_qty_unit": "g"
         }
     }

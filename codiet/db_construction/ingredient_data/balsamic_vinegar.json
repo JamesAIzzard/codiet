@@ -3,9 +3,9 @@
     "description": "Balsamic vinegar is a sweet and tangy dark vinegar made from partially fermented grapes.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 5,
-        "qty_unit": "g",
-        "qty_value": 250
+        "cost_value": 5.0,
+        "qty_value": 250.0,
+        "qty_unit": "ml"
     },
     "bulk": {
         "density": {
@@ -27,9 +27,10 @@
         "lactose free": true,
         "nut free": true,
         "vegan": true,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "6.",
+    "GI": 4.0,
     "nutrients": {
         "glucose": {
             "ntr_qty_value": 0,
@@ -383,6 +384,12 @@
             "ntr_qty_value": 0.01,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
+            "ing_qty_unit": "g"
+        },
+        "fibre": {
+            "ntr_qty_value": 0.1,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 0.3,
             "ing_qty_unit": "g"
         }
     }

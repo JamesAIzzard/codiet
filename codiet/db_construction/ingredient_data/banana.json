@@ -3,9 +3,9 @@
     "description": "A sweet and creamy fruit with a distinctive yellow peel.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 0.15,
-        "qty_unit": "g",
-        "qty_value": 100
+        "cost_value": 0.5,
+        "qty_value": 150.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {
@@ -27,9 +27,10 @@
         "lactose free": true,
         "nut free": true,
         "vegan": true,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": false
     },
-    "GI": "52.5",
+    "GI": 52.5,
     "nutrients": {
         "glucose": {
             "ntr_qty_value": 5,
@@ -383,6 +384,12 @@
             "ntr_qty_value": 0.15,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
+            "ing_qty_unit": "g"
+        },
+        "fibre": {
+            "ntr_qty_value": 2.6,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 100,
             "ing_qty_unit": "g"
         }
     }

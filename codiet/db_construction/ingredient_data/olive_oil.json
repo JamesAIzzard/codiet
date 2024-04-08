@@ -3,9 +3,9 @@
     "description": "Olive oil is a liquid fat obtained from olives, a traditional tree crop of the Mediterranean Basin. It is commonly used in cooking, baking, salad dressings, and may also be used for frying. Olive oil is revered for its health benefits, rich flavor, and its role in Mediterranean cuisine. It can range in color from a darker green to a lighter, golden yellow, depending on the olives and process used. Virgin and Extra Virgin are the highest quality types of olive oil, known for their rich, fruity taste. Olive oil is a key source of monounsaturated fat, which is heart-healthy and can lower bad cholesterol levels.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 8.99,
-        "qty_unit": "l",
-        "qty_value": 1
+        "cost_value": 5.0,
+        "qty_value": 250.0,
+        "qty_unit": "ml"
     },
     "bulk": {
         "density": {
@@ -27,9 +27,10 @@
         "lactose free": true,
         "nut free": true,
         "vegan": true,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": 0,
+    "GI": 0.0,
     "nutrients": {
         "glucose": {
             "ntr_qty_value": 0,
@@ -380,6 +381,12 @@
             "ing_qty_unit": "g"
         },
         "zinc": {
+            "ntr_qty_value": 0,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 0,
+            "ing_qty_unit": "g"
+        },
+        "fibre": {
             "ntr_qty_value": 0,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,

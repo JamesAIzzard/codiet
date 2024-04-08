@@ -3,9 +3,9 @@
     "description": "Rolled oats are whole grain oats that have been flattened, steamed, and toasted, commonly used in breakfast cereals and baking.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 0.2,
-        "qty_unit": "g",
-        "qty_value": "100"
+        "cost_value": 2.5,
+        "qty_value": 500.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {
@@ -22,14 +22,15 @@
     },
     "flags": {
         "alcohol free": true,
+        "caffeine free": true,
+        "gluten free": false,
         "lactose free": true,
         "nut free": true,
         "vegan": true,
         "vegetarian": true,
-        "caffeine free": true,
-        "gluten free": true
+        "pescatarian": true
     },
-    "GI": "55.0",
+    "GI": 55.5,
     "nutrients": {
         "serine": {
             "ntr_qty_value": 1.05,
@@ -383,6 +384,12 @@
             "ntr_qty_value": 0.62,
             "ntr_qty_unit": "mg",
             "ing_qty_value": 0,
+            "ing_qty_unit": "g"
+        },
+        "fibre": {
+            "ntr_qty_value": 10,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 12,
             "ing_qty_unit": "g"
         }
     }

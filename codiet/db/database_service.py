@@ -88,6 +88,7 @@ class DatabaseService:
                 self._repo.update_ingredient_cost(
                     ingredient_id=ingredient_id,
                     cost_value=ingredient.cost_value,
+                    cost_unit=ingredient.cost_unit,
                     qty_unit=ingredient.cost_qty_unit,
                     qty_value=ingredient.cost_qty_value,
                 )
@@ -208,6 +209,7 @@ class DatabaseService:
                 self._repo.update_ingredient_cost(
                     ingredient_id=ingredient.id,
                     cost_value=ingredient.cost_value,
+                    cost_unit=ingredient.cost_unit,
                     qty_unit=ingredient.cost_qty_unit,
                     qty_value=ingredient.cost_qty_value,
                 )

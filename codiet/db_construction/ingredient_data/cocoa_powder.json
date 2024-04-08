@@ -3,9 +3,9 @@
     "description": "Cocoa powder is a rich and flavorful ingredient made from finely ground cocoa beans, often used in baking and cooking to add depth and chocolatey goodness to recipes.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 5.0,
-        "qty_unit": "g",
-        "qty_value": 100
+        "cost_value": 5.99,
+        "qty_value": 250.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {
@@ -22,14 +22,15 @@
     },
     "flags": {
         "alcohol free": true,
-        "caffeine free": true,
+        "caffeine free": false,
         "gluten free": true,
         "lactose free": true,
         "nut free": true,
         "vegan": true,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "21.",
+    "GI": 21.0,
     "nutrients": {
         "glucose": {
             "ntr_qty_value": 0.2,
@@ -383,6 +384,12 @@
             "ntr_qty_value": 1.1,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
+            "ing_qty_unit": "g"
+        },
+        "fibre": {
+            "ntr_qty_value": 33,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 40,
             "ing_qty_unit": "g"
         }
     }

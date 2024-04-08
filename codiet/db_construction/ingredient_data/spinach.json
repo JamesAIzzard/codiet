@@ -3,9 +3,9 @@
     "description": "Spinach is a leafy green vegetable with a mild, slightly sweet taste that is packed with vitamins and minerals.",
     "cost": {
         "cost_unit": "GBP",
-        "cost_value": 0.75,
-        "qty_unit": "g",
-        "qty_value": 100
+        "cost_value": 1.5,
+        "qty_value": 200.0,
+        "qty_unit": "g"
     },
     "bulk": {
         "density": {
@@ -27,9 +27,10 @@
         "lactose free": true,
         "nut free": true,
         "vegan": true,
-        "vegetarian": true
+        "vegetarian": true,
+        "pescatarian": true
     },
-    "GI": "2.5",
+    "GI": 0.1,
     "nutrients": {
         "glucose": {
             "ntr_qty_value": 0.8,
@@ -383,6 +384,12 @@
             "ntr_qty_value": 0.53,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
+            "ing_qty_unit": "g"
+        },
+        "fibre": {
+            "ntr_qty_value": 2.2,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 100,
             "ing_qty_unit": "g"
         }
     }
