@@ -42,7 +42,8 @@
             "ntr_qty_value": 0.0,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
-            "ing_qty_unit": "g"
+            "ing_qty_unit": "g",
+            "nutr_qty_value": 0
         },
         "arginine": {
             "ntr_qty_value": 0.025,
@@ -162,7 +163,8 @@
             "ntr_qty_value": 0,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
-            "ing_qty_unit": "g"
+            "ing_qty_unit": "g",
+            "nutr_qty_value": 0
         },
         "leucine": {
             "ntr_qty_value": 0.04,

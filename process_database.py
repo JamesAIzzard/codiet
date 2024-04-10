@@ -26,11 +26,11 @@ if __name__ == '__main__':
         nutrient_data = json.load(open(NUTRIENT_DATA_FILE))
         populate_database.push_nutrients_to_db(nutrient_data, db_service)
 
-        # The following are only used for resetting datafiles when the autopopulate code
-        # changes. They permanently erase data!
+        # DANGER ZONE: The following calls will erase all data from the database
         # populate_database.erase_all_ingredient_cost_data()
-        # populate_database.erase_all_flag_data()
-        # populate_database.erase_all_gi_data()
+        populate_database.erase_all_ingredient_density_data()
+        # populate_database.erase_all_ingredient_flag_data()
+        # populate_database.erase_all_ingredient_gi_data()
 
         # The following four calls work together to bring all ingredient .json
         # fils up to date with the current flags and nutrients.

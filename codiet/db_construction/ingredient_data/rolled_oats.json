@@ -66,7 +66,8 @@
             "ntr_qty_value": 0.0,
             "ntr_qty_unit": "g",
             "ing_qty_value": 0,
-            "ing_qty_unit": "g"
+            "ing_qty_unit": "g",
+            "nutr_qty_value": 0
         },
         "vitamin A": {
             "ntr_qty_value": 0.0,
@@ -168,7 +169,8 @@
             "ntr_qty_value": 0,
             "ntr_qty_unit": "g",
             "ing_qty_value": 1,
-            "ing_qty_unit": "cup"
+            "ing_qty_unit": "cup",
+            "nutr_qty_value": 0
         },
         "starch": {
             "ntr_qty_value": 12.5,

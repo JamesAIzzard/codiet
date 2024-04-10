@@ -91,6 +91,84 @@ def get_openai_ingredient_cost(
         completed = True
     return cost_data
 
+def get_openai_ingredient_density(ingredient_name: str) -> dict[str, str | float]:
+    """Use the OpenAI API to estimate the density of an ingredient."""
+
+    print(f"Getting density data for {ingredient_name}...")
+
+    # Initialize the OpenAI client
+    client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
+
+    prompt = f"""Can you respond to the prompt by filling in and returning the following dictionary of {ingredient_name}:
+        "density": {{
+            "mass_unit": "g", # units used to measure mass, can be [g, kg]
+            "mass_value": 100, # mass of the ingredient
+            "vol_unit": "ml", # units used to measure volume, can be [ml, l]
+            "vol_value": null, # volume of the ingredient
+        }}
+    You'll need to return valid JSON because I need to parse it. It is acceptable to guess if you are not sure."""
+
+    completed = False
+    while not completed:
+
+        # Create a chat completion
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "user", "content": prompt},
+            ],
+            model=OPENAI_MODEL,
+        )
+
+        # Grab the response
+        response = chat_completion.choices[0].message.content  # type: ignore
+
+        # Check the response and populate the output dict
+        try:
+            # Convert the response to a dict
+            raw_density_data = json.loads(response)  # type: ignore
+            # Init a processed density data dict
+            density_data = {}
+            # Check mass unit is on the approved list
+            if raw_density_data["density"]["mass_unit"] not in ["g", "kg"]:
+                raise ValueError
+            # Check mass value is a float
+            mass_value = float(raw_density_data["density"]["mass_value"])
+            # Check mass value is greater than zero
+            if mass_value <= 0:
+                raise ValueError
+            # Check volume unit is on the approved list
+            if raw_density_data["density"]["vol_unit"] not in ["ml", "l"]:
+                raise ValueError
+            # Check volume value is a float
+            volume_value = float(raw_density_data["density"]["vol_value"])
+            # Check volume value is greater than zero
+            if volume_value <= 0:
+                raise ValueError
+            # Populate the density data dict
+            density_data = {
+                "mass_unit": raw_density_data["density"]["mass_unit"],
+                "mass_value": mass_value,
+                "vol_unit": raw_density_data["density"]["vol_unit"],
+                "vol_value": volume_value,
+            }
+
+            # Check the density unit is on the approve list
+        except JSONDecodeError:
+            print(f"Retrying {ingredient_name} density due to JSONDecodeError")
+            continue
+        except KeyError:
+            print(f"Retrying {ingredient_name} density due to KeyError")
+            continue
+        except ValueError:
+            print(f"Retrying {ingredient_name} density due to ValueError")
+            continue
+        except TypeError:
+            print(f"Retrying {ingredient_name} density due to TypeError")
+            continue
+        
+        completed = True
+    
+    return density_data
 
 def get_openai_ingredient_flags(
     ingredient_name: str, flag_list: list[str]
