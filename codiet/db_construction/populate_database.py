@@ -303,9 +303,10 @@ def populate_ingredient_datafiles(db_service: DatabaseService):
         # If we found some nutrients to populate
         if len(nutrients_to_populate) > 0:
             # Split this list into chunks not longer than 10 items
+            chunk_length = 5
             nutrients_chunks = [
-                nutrients_to_populate[i : i + 10]
-                for i in range(0, len(nutrients_to_populate), 10)
+                nutrients_to_populate[i : i + chunk_length]
+                for i in range(0, len(nutrients_to_populate), chunk_length)
             ]
             # Cycle through each chunk and populate the nutrient data
             for chunk in nutrients_chunks:
@@ -316,9 +317,9 @@ def populate_ingredient_datafiles(db_service: DatabaseService):
                 # Add the nutrient_data into the data["nutrients"] dict
                 data["nutrients"].update(nutrient_data)
 
-            # Save the updated data back to the file
-            with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-                json.dump(data, f, indent=4)
+                # Save the updated data back to the file
+                with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
+                    json.dump(data, f, indent=4)
 
         # Now update some special nutrient cases based on the flags
         # If the alcohol free flag is present, set the alcohol nutrient to 0

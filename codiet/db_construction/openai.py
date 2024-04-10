@@ -273,11 +273,11 @@ def get_openai_ingredient_nutrients(
                 output_dict[nutrient]["ing_qty_value"] = float(output_dict[nutrient]["ing_qty_value"])
 
                 # Check the nutrient qty value is positive or zero
-                if output_dict[nutrient]["ntr_qty_value"] <= 0:
+                if output_dict[nutrient]["ntr_qty_value"] < 0:
                     raise ValueError
                 
                 # Check the ingredient qty value is positive or zero
-                if output_dict[nutrient]["ing_qty_value"] <= 0:
+                if output_dict[nutrient]["ing_qty_value"] < 0:
                     raise ValueError
                 
                 # If the ingredient qty is zero, check the nutrient qty is zero
@@ -293,6 +293,9 @@ def get_openai_ingredient_nutrients(
             continue
         except ValueError:
             print(f"Retrying {ingredient_name} nutrients due to ValueError")
+            continue
+        except TypeError:
+            print(f"Retrying {ingredient_name} nutrients due to TypeError")
             continue
 
         completed = True
