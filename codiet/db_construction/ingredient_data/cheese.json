@@ -32,30 +32,6 @@
     },
     "GI": 0.1,
     "nutrients": {
-        "alanine": {
-            "ntr_qty_value": 1.5,
-            "ntr_qty_unit": "g",
-            "ing_qty_value": 0,
-            "ing_qty_unit": "g"
-        },
-        "alcohol": {
-            "ntr_qty_value": 0,
-            "ntr_qty_unit": "g",
-            "ing_qty_value": 0,
-            "ing_qty_unit": "g"
-        },
-        "arginine": {
-            "ntr_qty_value": 0.9,
-            "ntr_qty_unit": "g",
-            "ing_qty_value": 0,
-            "ing_qty_unit": "g"
-        },
-        "asparagine": {
-            "ntr_qty_value": 1.2,
-            "ntr_qty_unit": "g",
-            "ing_qty_value": 0,
-            "ing_qty_unit": "g"
-        },
         "aspartic acid": {
             "ntr_qty_value": 2.7,
             "ntr_qty_unit": "g",
@@ -390,6 +366,30 @@
             "ntr_qty_value": 3,
             "ntr_qty_unit": "mg",
             "ing_qty_value": 28,
+            "ing_qty_unit": "g"
+        },
+        "alanine": {
+            "ntr_qty_value": 1.0,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 100.0,
+            "ing_qty_unit": "g"
+        },
+        "alcohol": {
+            "ntr_qty_value": 0.0,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 100.0,
+            "ing_qty_unit": "g"
+        },
+        "arginine": {
+            "ntr_qty_value": 0.5,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 100.0,
+            "ing_qty_unit": "g"
+        },
+        "asparagine": {
+            "ntr_qty_value": 0.3,
+            "ntr_qty_unit": "g",
+            "ing_qty_value": 100.0,
             "ing_qty_unit": "g"
         }
     }

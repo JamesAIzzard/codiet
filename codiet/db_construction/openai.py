@@ -204,6 +204,9 @@ def get_openai_ingredient_nutrients(
 ) -> dict[str, dict[str, str | float]]:
     """Use the OpenAI API to generate nutrient data for an ingredient."""
 
+    print(f"Getting nutrient data for {ingredient_name}...")
+    print(f"Nutrients: {nutrient_names}")
+
     # Define a nutrient dict template with comments to help the model
     nutrient_json_str = '''{
         "ntr_qty_value": null,  # quantity of the nutrient
@@ -269,17 +272,18 @@ def get_openai_ingredient_nutrients(
                 # Check the ingredient qty value is a float
                 output_dict[nutrient]["ing_qty_value"] = float(output_dict[nutrient]["ing_qty_value"])
 
-                # Check the nutrient qty value is positive
-                if output_dict[nutrient]["ntr_qty_value"] < 0:
+                # Check the nutrient qty value is positive or zero
+                if output_dict[nutrient]["ntr_qty_value"] <= 0:
                     raise ValueError
                 
-                # Check the ingredient qty value is positive
-                if output_dict[nutrient]["ing_qty_value"] < 0:
+                # Check the ingredient qty value is positive or zero
+                if output_dict[nutrient]["ing_qty_value"] <= 0:
                     raise ValueError
                 
-                # Check the nutrient qty value is not larger than the ingredient qty value
-                if output_dict[nutrient]["ntr_qty_value"] > output_dict[nutrient]["ing_qty_value"]:
+                # If the ingredient qty is zero, check the nutrient qty is zero
+                if output_dict[nutrient]["ing_qty_value"] == 0 and output_dict[nutrient]["ntr_qty_value"] != 0:
                     raise ValueError
+                
 
         except JSONDecodeError:
             print(f"Retrying {ingredient_name} nutrients due to JSONDecodeError")
