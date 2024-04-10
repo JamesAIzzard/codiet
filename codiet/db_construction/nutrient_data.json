@@ -2,7 +2,7 @@
     "carbohydrate": {
         "aliases": [],
         "children": {
-            "simple sugar" :{
+            "simple sugar": {
                 "aliases": [],
                 "children": {
                     "glucose": {
@@ -157,7 +157,7 @@
                 "aliases": [],
                 "children": {}
             }
-    }
+        }
     },
     "water": {
         "aliases": [],
@@ -178,35 +178,51 @@
                 "aliases": [],
                 "children": {
                     "vitamin B1": {
-                        "aliases": ["thiamine"],
+                        "aliases": [
+                            "thiamine"
+                        ],
                         "children": {}
                     },
                     "vitamin B2": {
-                        "aliases": ["riboflavin"],
+                        "aliases": [
+                            "riboflavin"
+                        ],
                         "children": {}
                     },
                     "vitamin B3": {
-                        "aliases": ["niacin"],
+                        "aliases": [
+                            "niacin"
+                        ],
                         "children": {}
                     },
                     "vitamin B5": {
-                        "aliases": ["pantothenic acid"],
+                        "aliases": [
+                            "pantothenic acid"
+                        ],
                         "children": {}
                     },
                     "vitamin B6": {
-                        "aliases": ["pyridoxine"],
+                        "aliases": [
+                            "pyridoxine"
+                        ],
                         "children": {}
                     },
                     "vitamin B7": {
-                        "aliases": ["biotin"],
+                        "aliases": [
+                            "biotin"
+                        ],
                         "children": {}
                     },
                     "vitamin B9": {
-                        "aliases": ["folate"],
+                        "aliases": [
+                            "folate"
+                        ],
                         "children": {}
                     },
                     "vitamin B12": {
-                        "aliases": ["cobalamin"],
+                        "aliases": [
+                            "cobalamin"
+                        ],
                         "children": {}
                     }
                 }
@@ -232,65 +248,75 @@
     "minerals": {
         "aliases": [],
         "children": {
-            "calcium": {
+            "macrominerals": {
                 "aliases": [],
-                "children": {}
+                "children": {
+                    "calcium": {
+                        "aliases": [],
+                        "children": {}
+                    },
+                    "chloride": {
+                        "aliases": [],
+                        "children": {}
+                    },
+                    "magnesium": {
+                        "aliases": [],
+                        "children": {}
+                    },
+                    "phosphorus": {
+                        "aliases": [],
+                        "children": {}
+                    },
+                    "potassium": {
+                        "aliases": [],
+                        "children": {}
+                    },
+                    "sodium": {
+                        "aliases": [],
+                        "children": {}
+                    }
+                }
             },
-            "chloride": {
+            "microminerals": {
                 "aliases": [],
-                "children": {}
-            },
-            "chromium": {
-                "aliases": [],
-                "children": {}
-            },
-            "copper": {
-                "aliases": [],
-                "children": {}
-            },
-            "fluoride": {
-                "aliases": [],
-                "children": {}
-            },
-            "iodine": {
-                "aliases": [],
-                "children": {}
-            },
-            "iron": {
-                "aliases": [],
-                "children": {}
-            },
-            "magnesium": {
-                "aliases": [],
-                "children": {}
-            },
-            "manganese": {
-                "aliases": [],
-                "children": {}
-            },
-            "molybdenum": {
-                "aliases": [],
-                "children": {}
-            },
-            "phosphorus": {
-                "aliases": [],
-                "children": {}
-            },
-            "potassium": {
-                "aliases": [],
-                "children": {}
-            },
-            "selenium": {
-                "aliases": [],
-                "children": {}
-            },
-            "sodium": {
-                "aliases": [],
-                "children": {}
-            },
-            "zinc": {
-                "aliases": [],
-                "children": {}
+                "children": {
+                    "chromium": {
+                        "aliases": [],
+                        "children": {}
+                    },
+                    "copper": {
+                        "aliases": [],
+                        "children": {}
+                    },
+                    "fluoride": {
+                        "aliases": [],
+                        "children": {}
+                    },
+                    "iodine": {
+                        "aliases": [],
+                        "children": {}
+                    },
+                    "iron": {
+                        "aliases": [],
+                        "children": {}
+                    },
+                    "manganese": {
+                        "aliases": [],
+                        "children": {}
+                    },
+                    "molybdenum": {
+                        "aliases": [],
+                        "children": {}
+                    },
+                    "selenium": {
+                        "aliases": [],
+                        "children": {}
+                    },
+                    "zinc": {
+                        "aliases": [],
+                        "children": {}
+                    }
+                }
             }
         }
     }

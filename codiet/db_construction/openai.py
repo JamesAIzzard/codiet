@@ -6,6 +6,7 @@ from openai import OpenAI
 
 OPENAI_MODEL = "gpt-3.5-turbo"
 
+
 def _get_openai_ingredient_description(ingredient_name: str) -> str:
     """Use the OpenAI API to generate a description for an ingredient."""
     # Initialize the OpenAI client
@@ -38,14 +39,14 @@ def get_openai_ingredient_cost(
     # Initialize the OpenAI client
     client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
 
-    prompt = f'''Can you respond to the prompt by filling in and returning the following dictionary of {ingredient_name}:
+    prompt = f"""Can you respond to the prompt by filling in and returning the following dictionary of {ingredient_name}:
         "cost": {{
             "cost_unit": "GBP", # currency of the cost estimate
             "cost_value": null, # cost of the ingredient quantity
             "qty_value": null, # quantity of the ingredient
             "qty_unit": "g", # units used to measure ingredient quantity
         }}
-    You'll need to return valid JSON because I need to parse it. It is acceptable to guess if you are not sure.'''
+    You'll need to return valid JSON because I need to parse it. It is acceptable to guess if you are not sure."""
 
     completed = False
     while not completed:
@@ -90,6 +91,7 @@ def get_openai_ingredient_cost(
         completed = True
     return cost_data
 
+
 def get_openai_ingredient_flags(
     ingredient_name: str, flag_list: list[str]
 ) -> dict[str, bool]:
@@ -128,17 +130,17 @@ def get_openai_ingredient_flags(
             # Check that there are the same number of fields in the response as in the flag list
             if len(flags_dict) != len(flag_list):
                 raise KeyError
-            
+
             # Check that each field in the response is in the flag list
             for flag in flags_dict:
                 if flag not in flag_list:
                     raise KeyError
-                
+
             # Check that each field in the response is a boolean
             for flag in flags_dict:
                 if not isinstance(flags_dict[flag], bool):
                     raise ValueError
-                
+
             # Populate the output dict
             output_dict = flags_dict
 
@@ -151,7 +153,7 @@ def get_openai_ingredient_flags(
         except KeyError:
             print(f"Retrying {ingredient_name} flags due to KeyError")
             continue
-        
+
         completed = True
 
     return output_dict
@@ -182,7 +184,7 @@ def get_openai_ingredient_gi(ingredient_name: str) -> float:
 
         try:
             # Check the response is a float
-            gi = float(response) # type: ignore
+            gi = float(response)  # type: ignore
 
             # Check the response is in the correct range
             if gi < 0 or gi > 100:
@@ -193,28 +195,102 @@ def get_openai_ingredient_gi(ingredient_name: str) -> float:
             continue
 
         completed = True
-    
+
     return gi
 
-def _get_openai_ingredient_nutrients(
-    ingredient_name: str, nutrient_data: dict[str, dict[str, str | float]]
+
+def get_openai_ingredient_nutrients(
+    ingredient_name: str, nutrient_names: list[str]
 ) -> dict[str, dict[str, str | float]]:
     """Use the OpenAI API to generate nutrient data for an ingredient."""
+
+    # Define a nutrient dict template with comments to help the model
+    nutrient_json_str = '''{
+        "ntr_qty_value": null,  # quantity of the nutrient
+        "ntr_qty_unit": "g",  # units used to measure nutrient quantity, must be a mass, can be [g, mg, ug]
+        "ing_qty_value": null,  # quantity of the ingredient
+        "ing_qty_unit": "g",  # units used to measure ingredient quantity, can be mass or vol [g, kg, ml, l]
+    }'''
+
+    # Create a string dict with the nutrient names as keys
+    # and the nutrient str dict as values
+    # First init the dict
+    nutrients_json_str = "{"
+    for nutrient in nutrient_names:
+        nutrients_json_str += f'"{nutrient}": {nutrient_json_str},'
+    nutrients_json_str += "}"
+
     # Initialize the OpenAI client
     client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
 
     # Set the prompt
-    prompt = f"Can you populate this nutrient data for {ingredient_name}: {json.dumps(nutrient_data, indent=4)}? Provide a guess if unsure. Reply with JSON only."
+    prompt = f"""Can you populate this nutrient data for {ingredient_name}: {nutrients_json_str}?
+        Provide a guess if unsure. Reply with JSON only."""
 
-    # Create a chat completion
-    chat_completion = client.chat.completions.create(
-        messages=[
-            {"role": "user", "content": prompt},
-        ],
-        model=OPENAI_MODEL,
-    )
+    completed = False
+    while not completed:
 
-    # Parse the response
-    response = json.loads(chat_completion.choices[0].message.content)  # type: ignore
+        # Create a chat completion
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "user", "content": prompt},
+            ],
+            model=OPENAI_MODEL,
+        )
 
-    return response
+        # Grab the response
+        response = chat_completion.choices[0].message.content
+
+        try:
+            # Parse the response
+            response_dict = json.loads(chat_completion.choices[0].message.content)  # type: ignore
+
+            # Check the response and populate the output dict
+            output_dict = {}
+            # For each nutrient in the response dict
+            for nutrient in response_dict:
+                # Check the nutrient was on the original list
+                if nutrient not in nutrient_names:
+                    raise KeyError
+                # Add the nutrient to the output dict
+                output_dict[nutrient] = response_dict[nutrient]
+
+                # Check the nutrient qty unit is on the approve list
+                if output_dict[nutrient]["ntr_qty_unit"] not in ["g", "mg", "ug"]:
+                    raise ValueError
+                
+                # Check the ingredient qty unit is on the approve list
+                if output_dict[nutrient]["ing_qty_unit"] not in ["g", "kg", "ml", "l"]:
+                    raise ValueError
+                
+                # Check the nutrient qty value is a float
+                output_dict[nutrient]["ntr_qty_value"] = float(output_dict[nutrient]["ntr_qty_value"])
+
+                # Check the ingredient qty value is a float
+                output_dict[nutrient]["ing_qty_value"] = float(output_dict[nutrient]["ing_qty_value"])
+
+                # Check the nutrient qty value is positive
+                if output_dict[nutrient]["ntr_qty_value"] < 0:
+                    raise ValueError
+                
+                # Check the ingredient qty value is positive
+                if output_dict[nutrient]["ing_qty_value"] < 0:
+                    raise ValueError
+                
+                # Check the nutrient qty value is not larger than the ingredient qty value
+                if output_dict[nutrient]["ntr_qty_value"] > output_dict[nutrient]["ing_qty_value"]:
+                    raise ValueError
+
+        except JSONDecodeError:
+            print(f"Retrying {ingredient_name} nutrients due to JSONDecodeError")
+            continue
+        except KeyError:
+            print(f"Retrying {ingredient_name} nutrients due to KeyError")
+            continue
+        except ValueError:
+            print(f"Retrying {ingredient_name} nutrients due to ValueError")
+            continue
+
+        completed = True
+
+    return output_dict

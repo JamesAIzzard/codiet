@@ -314,7 +314,7 @@ def populate_ingredient_datafiles(db_service: DatabaseService):
                         "ing_qty_unit": "g",
                     }
                 # Use the openai API to get the nutrients
-                nutrient_data = openai._get_openai_ingredient_nutrients(
+                nutrient_data = openai.get_openai_ingredient_nutrients(
                     ingredient_name, nutrient_template
                 )
                 # Add the nutrient_data into the data["nutrients"] dict
