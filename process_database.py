@@ -28,12 +28,13 @@ if __name__ == '__main__':
 
         # DANGER ZONE: The following calls will erase all data from the database
         # populate_database.erase_all_ingredient_cost_data()
-        populate_database.erase_all_ingredient_density_data()
+        # populate_database.erase_all_ingredient_density_data()
         # populate_database.erase_all_ingredient_flag_data()
         # populate_database.erase_all_ingredient_gi_data()
+        # populate_database.erase_all_ingredient_nutrient_data()
 
         # The following four calls work together to bring all ingredient .json
-        # fils up to date with the current flags and nutrients.
+        # files up to date with the current flags and nutrients.
         # Work through the existing datafiles and remove any redundant flags and nutrients
         populate_database.remove_redundant_flags_from_datafiles(global_flags)
         populate_database.remove_redundant_nutrients_from_datafiles(db_service)

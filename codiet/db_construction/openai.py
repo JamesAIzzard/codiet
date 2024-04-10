@@ -336,6 +336,10 @@ def get_openai_ingredient_nutrients(
                 # Add the nutrient to the output dict
                 output_dict[nutrient] = response_dict[nutrient]
 
+                # Check there are the correct number of fields in the response
+                if len(output_dict[nutrient]) != 4:
+                    raise KeyError
+
                 # Check the nutrient qty unit is on the approve list
                 if output_dict[nutrient]["ntr_qty_unit"] not in ["g", "mg", "ug"]:
                     raise ValueError
@@ -345,10 +349,10 @@ def get_openai_ingredient_nutrients(
                     raise ValueError
                 
                 # Check the nutrient qty value is a float
-                output_dict[nutrient]["ntr_qty_value"] = float(output_dict[nutrient]["ntr_qty_value"])
+                _ = float(output_dict[nutrient]["ntr_qty_value"])
 
                 # Check the ingredient qty value is a float
-                output_dict[nutrient]["ing_qty_value"] = float(output_dict[nutrient]["ing_qty_value"])
+                _ = float(output_dict[nutrient]["ing_qty_value"])
 
                 # Check the nutrient qty value is positive or zero
                 if output_dict[nutrient]["ntr_qty_value"] < 0:
@@ -361,6 +365,14 @@ def get_openai_ingredient_nutrients(
                 # If the ingredient qty is zero, check the nutrient qty is zero
                 if output_dict[nutrient]["ing_qty_value"] == 0 and output_dict[nutrient]["ntr_qty_value"] != 0:
                     raise ValueError
+                
+                # Populate the output dict
+                output_dict[nutrient] = {
+                    "ntr_qty_value": float(output_dict[nutrient]["ntr_qty_value"]),
+                    "ntr_qty_unit": output_dict[nutrient]["ntr_qty_unit"],
+                    "ing_qty_value": float(output_dict[nutrient]["ing_qty_value"]),
+                    "ing_qty_unit": output_dict[nutrient]["ing_qty_unit"],
+                }
                 
 
         except JSONDecodeError:
