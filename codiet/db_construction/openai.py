@@ -6,6 +6,7 @@ from openai import OpenAI
 
 OPENAI_MODEL = "gpt-3.5-turbo"
 
+
 def _get_openai_ingredient_description(ingredient_name: str) -> str:
     """Use the OpenAI API to generate a description for an ingredient."""
     # Initialize the OpenAI client
@@ -38,14 +39,14 @@ def get_openai_ingredient_cost(
     # Initialize the OpenAI client
     client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
 
-    prompt = f'''Can you respond to the prompt by filling in and returning the following dictionary of {ingredient_name}:
+    prompt = f"""Can you respond to the prompt by filling in and returning the following dictionary of {ingredient_name}:
         "cost": {{
             "cost_unit": "GBP", # currency of the cost estimate
             "cost_value": null, # cost of the ingredient quantity
             "qty_value": null, # quantity of the ingredient
             "qty_unit": "g", # units used to measure ingredient quantity
         }}
-    You'll need to return valid JSON because I need to parse it. It is acceptable to guess if you are not sure.'''
+    You'll need to return valid JSON because I need to parse it. It is acceptable to guess if you are not sure."""
 
     completed = False
     while not completed:
@@ -90,6 +91,85 @@ def get_openai_ingredient_cost(
         completed = True
     return cost_data
 
+def get_openai_ingredient_density(ingredient_name: str) -> dict[str, str | float]:
+    """Use the OpenAI API to estimate the density of an ingredient."""
+
+    print(f"Getting density data for {ingredient_name}...")
+
+    # Initialize the OpenAI client
+    client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
+
+    prompt = f"""Can you respond to the prompt by filling in and returning the following dictionary of {ingredient_name}:
+        "density": {{
+            "mass_unit": "g", # units used to measure mass, can be [g, kg]
+            "mass_value": 100, # mass of the ingredient
+            "vol_unit": "ml", # units used to measure volume, can be [ml, l]
+            "vol_value": null, # volume of the ingredient
+        }}
+    You'll need to return valid JSON because I need to parse it. It is acceptable to guess if you are not sure."""
+
+    completed = False
+    while not completed:
+
+        # Create a chat completion
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "user", "content": prompt},
+            ],
+            model=OPENAI_MODEL,
+        )
+
+        # Grab the response
+        response = chat_completion.choices[0].message.content  # type: ignore
+
+        # Check the response and populate the output dict
+        try:
+            # Convert the response to a dict
+            raw_density_data = json.loads(response)  # type: ignore
+            # Init a processed density data dict
+            density_data = {}
+            # Check mass unit is on the approved list
+            if raw_density_data["density"]["mass_unit"] not in ["g", "kg"]:
+                raise ValueError
+            # Check mass value is a float
+            mass_value = float(raw_density_data["density"]["mass_value"])
+            # Check mass value is greater than zero
+            if mass_value <= 0:
+                raise ValueError
+            # Check volume unit is on the approved list
+            if raw_density_data["density"]["vol_unit"] not in ["ml", "l"]:
+                raise ValueError
+            # Check volume value is a float
+            volume_value = float(raw_density_data["density"]["vol_value"])
+            # Check volume value is greater than zero
+            if volume_value <= 0:
+                raise ValueError
+            # Populate the density data dict
+            density_data = {
+                "mass_unit": raw_density_data["density"]["mass_unit"],
+                "mass_value": mass_value,
+                "vol_unit": raw_density_data["density"]["vol_unit"],
+                "vol_value": volume_value,
+            }
+
+            # Check the density unit is on the approve list
+        except JSONDecodeError:
+            print(f"Retrying {ingredient_name} density due to JSONDecodeError")
+            continue
+        except KeyError:
+            print(f"Retrying {ingredient_name} density due to KeyError")
+            continue
+        except ValueError:
+            print(f"Retrying {ingredient_name} density due to ValueError")
+            continue
+        except TypeError:
+            print(f"Retrying {ingredient_name} density due to TypeError")
+            continue
+        
+        completed = True
+    
+    return density_data
+
 def get_openai_ingredient_flags(
     ingredient_name: str, flag_list: list[str]
 ) -> dict[str, bool]:
@@ -128,17 +208,17 @@ def get_openai_ingredient_flags(
             # Check that there are the same number of fields in the response as in the flag list
             if len(flags_dict) != len(flag_list):
                 raise KeyError
-            
+
             # Check that each field in the response is in the flag list
             for flag in flags_dict:
                 if flag not in flag_list:
                     raise KeyError
-                
+
             # Check that each field in the response is a boolean
             for flag in flags_dict:
                 if not isinstance(flags_dict[flag], bool):
                     raise ValueError
-                
+
             # Populate the output dict
             output_dict = flags_dict
 
@@ -151,7 +231,7 @@ def get_openai_ingredient_flags(
         except KeyError:
             print(f"Retrying {ingredient_name} flags due to KeyError")
             continue
-        
+
         completed = True
 
     return output_dict
@@ -182,7 +262,7 @@ def get_openai_ingredient_gi(ingredient_name: str) -> float:
 
         try:
             # Check the response is a float
-            gi = float(response) # type: ignore
+            gi = float(response)  # type: ignore
 
             # Check the response is in the correct range
             if gi < 0 or gi > 100:
@@ -193,28 +273,121 @@ def get_openai_ingredient_gi(ingredient_name: str) -> float:
             continue
 
         completed = True
-    
+
     return gi
 
-def _get_openai_ingredient_nutrients(
-    ingredient_name: str, nutrient_data: dict[str, dict[str, str | float]]
+
+def get_openai_ingredient_nutrients(
+    ingredient_name: str, nutrient_names: list[str]
 ) -> dict[str, dict[str, str | float]]:
     """Use the OpenAI API to generate nutrient data for an ingredient."""
+
+    print(f"Getting nutrient data for {ingredient_name}...")
+    print(f"Nutrients: {nutrient_names}")
+
+    # Define a nutrient dict template with comments to help the model
+    nutrient_json_str = '''{
+        "ntr_qty_value": null,  # quantity of the nutrient
+        "ntr_qty_unit": "g",  # units used to measure nutrient quantity, must be a mass, can be [g, mg, ug]
+        "ing_qty_value": null,  # quantity of the ingredient
+        "ing_qty_unit": "g",  # units used to measure ingredient quantity, can be mass or vol [g, kg, ml, l]
+    }'''
+
+    # Create a string dict with the nutrient names as keys
+    # and the nutrient str dict as values
+    # First init the dict
+    nutrients_json_str = "{"
+    for nutrient in nutrient_names:
+        nutrients_json_str += f'"{nutrient}": {nutrient_json_str},'
+    nutrients_json_str += "}"
+
     # Initialize the OpenAI client
     client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
 
     # Set the prompt
-    prompt = f"Can you populate this nutrient data for {ingredient_name}: {json.dumps(nutrient_data, indent=4)}? Provide a guess if unsure. Reply with JSON only."
+    prompt = f"""Can you populate this nutrient data for {ingredient_name}: {nutrients_json_str}?
+        Provide a guess if unsure. Reply with JSON only."""
 
-    # Create a chat completion
-    chat_completion = client.chat.completions.create(
-        messages=[
-            {"role": "user", "content": prompt},
-        ],
-        model=OPENAI_MODEL,
-    )
+    completed = False
+    while not completed:
 
-    # Parse the response
-    response = json.loads(chat_completion.choices[0].message.content)  # type: ignore
+        # Create a chat completion
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "user", "content": prompt},
+            ],
+            model=OPENAI_MODEL,
+        )
 
-    return response
+        # Grab the response
+        response = chat_completion.choices[0].message.content
+
+        try:
+            # Parse the response
+            response_dict = json.loads(chat_completion.choices[0].message.content)  # type: ignore
+
+            # Check the response and populate the output dict
+            output_dict = {}
+            # For each nutrient in the response dict
+            for nutrient in response_dict:
+                # Check the nutrient was on the original list
+                if nutrient not in nutrient_names:
+                    raise KeyError
+                # Add the nutrient to the output dict
+                output_dict[nutrient] = response_dict[nutrient]
+
+                # Check there are the correct number of fields in the response
+                if len(output_dict[nutrient]) != 4:
+                    raise KeyError
+
+                # Check the nutrient qty unit is on the approve list
+                if output_dict[nutrient]["ntr_qty_unit"] not in ["g", "mg", "ug"]:
+                    raise ValueError
+                
+                # Check the ingredient qty unit is on the approve list
+                if output_dict[nutrient]["ing_qty_unit"] not in ["g", "kg", "ml", "l"]:
+                    raise ValueError
+                
+                # Check the nutrient qty value is a float
+                _ = float(output_dict[nutrient]["ntr_qty_value"])
+
+                # Check the ingredient qty value is a float
+                _ = float(output_dict[nutrient]["ing_qty_value"])
+
+                # Check the nutrient qty value is positive or zero
+                if output_dict[nutrient]["ntr_qty_value"] < 0:
+                    raise ValueError
+                
+                # Check the ingredient qty value is positive or zero
+                if output_dict[nutrient]["ing_qty_value"] < 0:
+                    raise ValueError
+                
+                # If the ingredient qty is zero, check the nutrient qty is zero
+                if output_dict[nutrient]["ing_qty_value"] == 0 and output_dict[nutrient]["ntr_qty_value"] != 0:
+                    raise ValueError
+                
+                # Populate the output dict
+                output_dict[nutrient] = {
+                    "ntr_qty_value": float(output_dict[nutrient]["ntr_qty_value"]),
+                    "ntr_qty_unit": output_dict[nutrient]["ntr_qty_unit"],
+                    "ing_qty_value": float(output_dict[nutrient]["ing_qty_value"]),
+                    "ing_qty_unit": output_dict[nutrient]["ing_qty_unit"],
+                }
+                
+
+        except JSONDecodeError:
+            print(f"Retrying {ingredient_name} nutrients due to JSONDecodeError")
+            continue
+        except KeyError:
+            print(f"Retrying {ingredient_name} nutrients due to KeyError")
+            continue
+        except ValueError:
+            print(f"Retrying {ingredient_name} nutrients due to ValueError")
+            continue
+        except TypeError:
+            print(f"Retrying {ingredient_name} nutrients due to TypeError")
+            continue
+
+        completed = True
+
+    return output_dict
