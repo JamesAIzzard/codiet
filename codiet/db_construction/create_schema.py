@@ -72,6 +72,8 @@ def create_schema():
             FOREIGN KEY (flag_id) REFERENCES flag_list(flag_id)
         )
     """)
+
+    # Create the ingredient nutrient table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS ingredient_nutrients (
             ingredient_id INTEGER,
@@ -85,11 +87,26 @@ def create_schema():
         )
     """)
 
-    # Create the recipe tables.
+    # Create the recipe table.
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS recipe_base (
             id INTEGER PRIMARY KEY,
-            name TEXT UNIQUE NOT NULL UNIQUE
+            name TEXT UNIQUE NOT NULL,
+            description TEXT
+        )
+    """)
+
+    # Create the recipe ingredient table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS recipe_ingredients (
+            recipe_id INTEGER,
+            ingredient_id INTEGER,
+            qty_unit TEXT,
+            qty_value REAL,
+            qty_tol_upper REAL,
+            qty_tol_lower REAL,
+            FOREIGN KEY (recipe_id) REFERENCES recipe_base(id),
+            FOREIGN KEY (ingredient_id) REFERENCES ingredient_base(ingredient_id)
         )
     """)
 

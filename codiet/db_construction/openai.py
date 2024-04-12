@@ -7,7 +7,7 @@ from openai import OpenAI
 OPENAI_MODEL = "gpt-3.5-turbo"
 
 
-def _get_openai_ingredient_description(ingredient_name: str) -> str:
+def get_openai_ingredient_description(ingredient_name: str) -> str:
     """Use the OpenAI API to generate a description for an ingredient."""
     # Initialize the OpenAI client
     client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))

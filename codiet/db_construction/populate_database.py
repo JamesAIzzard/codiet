@@ -268,7 +268,7 @@ def populate_ingredient_datafiles(db_service: DatabaseService):
             # Update the terminal
             print(f"Getting description for {ingredient_name}...")
             # Use the openai API to get the description
-            description = openai._get_openai_ingredient_description(ingredient_name)
+            description = openai.get_openai_ingredient_description(ingredient_name)
             # Write the description back to the file
             data["description"] = description
             # Save the updated data back to the file

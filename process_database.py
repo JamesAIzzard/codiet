@@ -44,7 +44,7 @@ if __name__ == '__main__':
         populate_database.init_ingredient_datafiles()
         # Use the OpenAI model to populate the ingredient datafiles
         populate_database.populate_ingredient_datafiles(db_service)
-
+        
         # Push all of the final data to the database
         populate_database.push_ingredients_to_db(db_service)
 
