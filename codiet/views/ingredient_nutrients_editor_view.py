@@ -39,16 +39,6 @@ class IngredientNutrientsEditorView(QWidget):
         lyt_top_level = QVBoxLayout()
         group_box.setLayout(lyt_top_level)
 
-        # Add an HBox layout for 'Hide Complete' control
-        lyt_hide_complete = QHBoxLayout()
-        lyt_top_level.addLayout(lyt_hide_complete)
-
-        # Add a checkbox to 'Hide Completed'
-        self.chk_hide_completed = QCheckBox("Hide Completed")
-        lyt_hide_complete.addWidget(self.chk_hide_completed)
-        # Add the label
-        self.lbl_hide_completed = QLabel("Hide Completed")
-
         # Add an HBox layout for the filter controls
         lyt_filter = QHBoxLayout()
         lyt_top_level.addLayout(lyt_filter)

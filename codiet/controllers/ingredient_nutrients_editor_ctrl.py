@@ -12,10 +12,6 @@ class IngredientNutrientsEditorCtrl:
         # Init the list of all nutrient names on the model
         self.all_nutrient_names: list[str] = []
 
-        # Connect signals
-        self.view.chk_hide_completed.stateChanged.connect(
-            self.on_hide_completed_changed
-        )
         self.view.txt_filter.textChanged.connect(self.on_nutrient_filter_changed)
         self.view.btn_clear_filter.clicked.connect(self.on_clear_filter_clicked)
 
@@ -101,16 +97,9 @@ class IngredientNutrientsEditorCtrl:
         self.view.remove_all_nutrients()
         # Grab the filtered nutrients
         filtered_nutrients = self.filtered_nutrients
-        # If 'Hide Completed' is not checked, show all filtered nutrients
-        if not self.view.chk_hide_completed.isChecked():
-            for nutrient in filtered_nutrients:
-                self.add_nutrient(nutrient)
-        # If 'Hide Completed' is checked, only show nutrients that are not populated
-        else:
-            # If nutrient is populated, hide it
-            for nutrient in filtered_nutrients:
-                if self.ingredient.nutrient_is_populated(nutrient):
-                    self.view.remove_nutrient(nutrient)
+        # Show all fitlered nutrients
+        for nutrient in filtered_nutrients:
+            self.add_nutrient(nutrient)
 
     def on_nutrient_mass_changed(self, nutrient_name: str, mass: float) -> None:
         """Updates the nutrient mass on the ingredient."""
