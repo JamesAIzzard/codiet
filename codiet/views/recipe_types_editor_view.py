@@ -5,9 +5,6 @@ from PyQt6.QtWidgets import (
     QLabel,
     QPushButton,
     QListWidget,
-    QLineEdit,
-    QGroupBox,
-    QTextEdit,
     QListWidgetItem,
 )
 from PyQt6.QtGui import QFont
@@ -15,7 +12,23 @@ from PyQt6.QtGui import QFont
 class RecipeTypesEditorView(QWidget):
     def __init__(self):
         super().__init__()
+        self._build_ui()
 
+        # Put some dummy recipe types in the editor for testing purposes
+        dummy_recipe_types = ["Breakfast", "Lunch", "Dinner", "Snack"]
+        self.update_recipe_types(dummy_recipe_types)
+
+    def update_recipe_types(self, recipe_types: list[str]) -> None:
+        """Update the recipe types in the editor."""
+        # Clear the current recipe types
+        self.listbox_recipe_types.clear()
+        # Loop through the recipe types
+        for recipe_type in recipe_types:
+            # Add a new row to the list
+            self.listbox_recipe_types.addItem(QListWidgetItem(recipe_type))
+
+    def _build_ui(self):
+        """Build the UI for the recipe types editor."""
         # Create a vertical layout for the page
         page_layout = QVBoxLayout()
         self.setLayout(page_layout)
@@ -42,12 +55,6 @@ class RecipeTypesEditorView(QWidget):
         # Underneath, add a listbox with recipe types inside
         self.listbox_recipe_types = QListWidget()
         column1_layout.addWidget(self.listbox_recipe_types)
-        # Add some recipe types for now.
-        # ultimately these will be loaded from the database
-        self.listbox_recipe_types.addItem(QListWidgetItem("Breakfast"))
-        self.listbox_recipe_types.addItem(QListWidgetItem("Lunch"))
-        self.listbox_recipe_types.addItem(QListWidgetItem("Dinner"))
-        self.listbox_recipe_types.addItem(QListWidgetItem("Snack"))
 
         # In the second column, add an 'Add Recipe Type' button
         button_add_recipe_type = QPushButton("Add Recipe Type")

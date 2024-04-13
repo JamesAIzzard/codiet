@@ -1,4 +1,5 @@
 from codiet.models.ingredient import Ingredient
+from codiet.models.recipe import Recipe
 from codiet.models.nutrients import create_nutrient_dict
 from codiet.db.repository import Repository
 from codiet.utils.search import filter_text
@@ -252,3 +253,10 @@ class DatabaseService:
     def delete_ingredient(self, ingredient_name:str):
         """Deletes the given ingredient from the database."""
         self._repo.delete_ingredient(ingredient_name)
+
+    def create_empty_recipe(self) -> Recipe:
+        """Creates an empty recipe."""
+        # Init the recipe
+        recipe = Recipe()
+
+        return recipe

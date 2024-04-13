@@ -13,7 +13,35 @@ from codiet.views.ingredient_quantity_editor_view import IngredientQuantityEdito
 class IngredientsEditorView(QWidget):
     def __init__(self):
         super().__init__()
+        self._build_ui()
 
+        # Put some dummy ingredients in the editor for testing purposes
+        dummy_ingredients = {
+            "Ingredient 1": {"qty": 100, "unit": "g"},
+            "Ingredient 2": {"qty": 100, "unit": "g"},
+            "Ingredient 3": {"qty": 100, "unit": "g"},
+        }
+        self.update_ingredients(dummy_ingredients)
+
+    def update_ingredients(self, ingredients: dict[str, dict]) -> None:
+        """Update the ingredients in the editor."""
+        # Clear the current ingredients
+        self.list_ingredients.clear()
+        # Loop through the ingredients
+        for ingredient_name, ingredient_data in ingredients.items():
+            # Add a new row to the list
+            listItem = QListWidgetItem(self.list_ingredients)
+            # Create a new instance of IngredientQuantityEditorView
+            ingredient = IngredientQuantityEditorView(ingredient_name)
+            # Set the size hint of the list item to the size hint of the ingredient editor
+            listItem.setSizeHint(ingredient.sizeHint())
+            # Add the list item to the list
+            self.list_ingredients.addItem(listItem)
+            # Set the widget of the list item to be the ingredient editor
+            self.list_ingredients.setItemWidget(listItem, ingredient)
+
+    def _build_ui(self):
+        """Build the UI for the ingredients editor."""
         # Create vertical layout as the top level
         lyt_top_level = QVBoxLayout()
         self.setLayout(lyt_top_level)
@@ -41,19 +69,3 @@ class IngredientsEditorView(QWidget):
         # Create a list widget to hold the ingredients
         self.list_ingredients = QListWidget()
         lyt_main.addWidget(self.list_ingredients)
-
-        # Add some dummy instances of IngredientQuantiyEditorView for now
-        # Create a list of dummy ingredient names
-        dummy_ingredient_names = ["Ingredient 1", "Ingredient 2", "Ingredient 3"]
-        # Loop through the dummy ingredient names
-        for ingredient_name in dummy_ingredient_names:
-            # Add a new row to the list
-            listItem = QListWidgetItem(self.list_ingredients)
-            # Create a new instance of IngredientQuantityEditorView
-            dummy_ingredient = IngredientQuantityEditorView(ingredient_name)
-            # Set the size hint of the list item to the size hint of the ingredient editor
-            listItem.setSizeHint(dummy_ingredient.sizeHint())
-            # Add the list item to the list
-            self.list_ingredients.addItem(listItem)
-            # Set the widget of the list item to be the ingredient editor
-            self.list_ingredients.setItemWidget(listItem, dummy_ingredient)

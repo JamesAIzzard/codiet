@@ -12,12 +12,45 @@ from PyQt6.QtGui import QFont
 
 from codiet.views.ingredients_editor_view import IngredientsEditorView
 from codiet.views.serve_time_intervals_editor_view import ServeTimeIntervalsEditorView
-from codiet.views.recipe_type_selector_view import RecipeTypeSelectorView
+from codiet.views.recipe_type_editor_view import RecipeTypeEditorView
 
 class RecipeEditorView(QWidget):
     def __init__(self):
         super().__init__()
+        self._build_ui()
 
+    def update_name(self, name: str | None) -> None:
+        """Set the recipe name."""
+        if name is None:
+            self.txt_recipe_name.clear()
+        elif name.strip() == "":
+            self.txt_recipe_name.clear()
+        else:
+            self.txt_recipe_name.setText(name)
+
+    def update_description(self, description: str | None) -> None:
+        """Set the recipe description."""
+        if description is None:
+            self.txt_recipe_description.clear()
+        elif description.strip() == "":
+            self.txt_recipe_description.clear()
+        else:
+            self.txt_recipe_description.setPlainText(description)
+
+    def update_instructions(self, instructions: list[str]) -> None:
+        """Update the recipe instructions."""
+        self.textbox_recipe_instructions.setPlainText("\n".join(instructions))
+
+    def update_ingredients(self, ingredients: dict[str, dict]) -> None:
+        """Update the ingredients."""
+        self.ingredients_editor.update_ingredients(ingredients)
+
+    def update_recipe_types(self, recipe_types: list[str]) -> None:
+        """Update the recipe types."""
+        self.recipe_type_editor_view.update_recipe_types(recipe_types)
+
+    def _build_ui(self):
+        """Build the UI for the recipe editor."""
         # Create a vertical layout for the page
         page_layout = QVBoxLayout()
         self.setLayout(page_layout)
@@ -49,16 +82,16 @@ class RecipeEditorView(QWidget):
         basic_info_layout.addLayout(recipe_name_layout)
         label = QLabel("Name: ")
         recipe_name_layout.addWidget(label)
-        self.textbox_recipe_name = QLineEdit()
-        recipe_name_layout.addWidget(self.textbox_recipe_name)
+        self.txt_recipe_name = QLineEdit()
+        recipe_name_layout.addWidget(self.txt_recipe_name)
 
         # Add a row containing the recipe description label and multiline textbox
         label = QLabel("Description:")
         basic_info_layout.addWidget(label)
-        self.textbox_recipe_description = QTextEdit()
-        basic_info_layout.addWidget(self.textbox_recipe_description)
+        self.txt_recipe_description = QTextEdit()
+        basic_info_layout.addWidget(self.txt_recipe_description)
         # Make the description box just three lines high
-        self.textbox_recipe_description.setFixedHeight(60)
+        self.txt_recipe_description.setFixedHeight(60)
 
         # Add a row containing the recipe instructions label and multiline textbox
         label = QLabel("Instructions:")
@@ -83,8 +116,8 @@ class RecipeEditorView(QWidget):
         lyt_col_3.addWidget(self.serve_time_intervals_editor_view)
 
         # Add the recipe type selector widget to the third col
-        self.recipe_type_selector_view = RecipeTypeSelectorView()
-        lyt_col_3.addWidget(self.recipe_type_selector_view)
+        self.recipe_type_editor_view = RecipeTypeEditorView()
+        lyt_col_3.addWidget(self.recipe_type_editor_view)
 
         # At the bottom of the page, put a 'Save Recipe' button
         self.btn_save_recipe = QPushButton("Save Recipe")

@@ -12,7 +12,10 @@ from codiet.views.time_interval_popup_view import TimeIntervalPopupView
 class ServeTimeIntervalsEditorView(QWidget):
     def __init__(self):
         super().__init__()
+        self._build_ui()
 
+    def _build_ui(self):
+        """Build the UI for the serve time intervals editor."""
         # Instantiate the popup for adding a time interval
         self.time_interval_popup = TimeIntervalPopupView(parent=self)
 
@@ -60,6 +63,14 @@ class ServeTimeIntervalsEditorView(QWidget):
     def selected_index(self) -> int:
         """Return the index of the selected time interval."""
         return self.lst_time_intervals.currentRow()
+
+    def update_serve_times(self, time_intervals: list[str]) -> None:
+        """Update the list of time intervals."""
+        # First clear the existing list
+        self.lst_time_intervals.clear()
+        # Add each time interval to the list
+        for time_interval in time_intervals:
+            self.add_time_interval(time_interval)
 
     def add_time_interval(self, time_interval: str):
         """Add a time interval to the list."""
