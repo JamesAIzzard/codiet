@@ -169,7 +169,7 @@ class Repository:
         """Returns the cost data of the ingredient associated with the given ID."""
         return self._db.execute(
             """
-            SELECT cost_value, qty_unit, qty_value
+            SELECT cost_value, cost_qty_unit, cost_qty_value
             FROM ingredient_base
             WHERE ingredient_id = ?;
         """,
@@ -188,7 +188,7 @@ class Repository:
         self._db.execute(
             """
             UPDATE ingredient_base
-            SET cost_value = ?, cost_unit = ?, qty_unit = ?, qty_value = ?
+            SET cost_value = ?, cost_unit = ?, cost_qty_unit = ?, cost_qty_value = ?
             WHERE ingredient_id = ?;
         """,
             (cost_value, cost_unit, qty_unit, qty_value, ingredient_id),
