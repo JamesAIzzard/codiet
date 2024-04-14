@@ -69,10 +69,14 @@ class RecipeEditorCtrl:
             # Save it
             with DatabaseService() as db_service:
                 self.recipe.id = self.recipe.id = db_service.insert_new_recipe(self.recipe)
+            # Open a popup to confirm the save
+            self.view.show_save_confirmation_popup()
         # Otherwise, update the existing recipe
         else:
             with DatabaseService() as db_service:
                 db_service.update_recipe(self.recipe)
+            # Open a popup to confirm the update
+            self.view.show_update_confirmation_popup()
 
     def _connect_signals_and_slots(self) -> None:
         """Connect the signals and slots for the recipe editor."""

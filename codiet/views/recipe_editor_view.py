@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QFont
 
+from codiet.views.dialog_box_view import OkDialogBoxView
 from codiet.views.ingredients_editor_view import IngredientsEditorView
 from codiet.views.serve_time_intervals_editor_view import ServeTimeIntervalsEditorView
 from codiet.views.recipe_type_editor_view import RecipeTypeEditorView
@@ -58,6 +59,26 @@ class RecipeEditorView(QWidget):
     def update_recipe_types(self, recipe_types: list[str]) -> None:
         """Update the recipe types."""
         self.recipe_type_editor_view.update_recipe_types(recipe_types)
+
+    def show_save_confirmation_popup(self) -> None:
+        """Show the save confirmation popup."""
+        # Show confirm dialog box
+        dialog = OkDialogBoxView(
+            message="Recipe saved.",
+            title="Recipe Saved",
+            parent=self,
+        )
+        _ = dialog.exec()
+
+    def show_update_confirmation_popup(self) -> None:    
+        """Show the update confirmation popup."""
+        # Show confirm dialog box
+        dialog = OkDialogBoxView(
+            message="Recipe updated.",
+            title="Recipe updated",
+            parent=self,
+        )
+        _ = dialog.exec()
 
     def _build_ui(self):
         """Build the UI for the recipe editor."""
