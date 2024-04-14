@@ -46,8 +46,8 @@ def create_schema():
         CREATE TABLE IF NOT EXISTS ingredient_base (
             ingredient_id INTEGER PRIMARY KEY,
             ingredient_name TEXT NOT NULL UNIQUE,
-            description TEXT,
-            gi REAL,
+            ingredient_description TEXT,
+            ingredient_gi REAL,
             cost_unit TEXT,
             cost_value REAL,
             cost_qty_unit TEXT,
@@ -90,10 +90,10 @@ def create_schema():
     # Create the recipe table.
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS recipe_base (
-            id INTEGER PRIMARY KEY,
-            name TEXT UNIQUE NOT NULL,
-            description TEXT,
-            instructions TEXT
+            recipe_id INTEGER PRIMARY KEY,
+            recipe_name TEXT UNIQUE NOT NULL,
+            recipe_description TEXT,
+            recipe_instructions TEXT
         )
     """)
 

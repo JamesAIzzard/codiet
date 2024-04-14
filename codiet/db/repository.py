@@ -147,7 +147,7 @@ class Repository:
         """Returns the description of the ingredient associated with the given ID."""
         return self._db.execute(
             """
-            SELECT description FROM ingredient_base WHERE ingredient_id = ?;
+            SELECT ingredient_description FROM ingredient_base WHERE ingredient_id = ?;
         """,
             (id,),
         ).fetchone()[0]
@@ -159,7 +159,7 @@ class Repository:
         self._db.execute(
             """
             UPDATE ingredient_base
-            SET description = ?
+            SET ingredient_description = ?
             WHERE ingredient_id = ?;
             """,
             (description, ingredient_id),
@@ -295,7 +295,7 @@ class Repository:
         """Returns the GI of the ingredient associated with the given ID."""
         return self._db.execute(
             """
-            SELECT gi FROM ingredient_base WHERE ingredient_id = ?;
+            SELECT ingredient_gi FROM ingredient_base WHERE ingredient_id = ?;
         """,
             (id,),
         ).fetchone()[0]
@@ -305,7 +305,7 @@ class Repository:
         self._db.execute(
             """
             UPDATE ingredient_base
-            SET gi = ?
+            SET ingredient_gi = ?
             WHERE ingredient_id = ?;
         """,
             (gi, ingredient_id),
@@ -404,7 +404,7 @@ class Repository:
         """Adds a recipe name to the database and returns the ID."""
         cursor = self._db.execute(
             """
-            INSERT INTO recipe_base (name) VALUES (?);
+            INSERT INTO recipe_base (recipe_name) VALUES (?);
         """,
             (name,),
         )
@@ -415,8 +415,8 @@ class Repository:
         self._db.execute(
             """
             UPDATE recipe_base
-            SET name = ?
-            WHERE id = ?;
+            SET recipe_name = ?
+            WHERE recipe_id = ?;
         """,
             (name, recipe_id),
         )
@@ -426,8 +426,8 @@ class Repository:
         self._db.execute(
             """
             UPDATE recipe_base
-            SET description = ?
-            WHERE id = ?;
+            SET recipe_description = ?
+            WHERE recipe_id = ?;
         """,
             (description, recipe_id),
         )
@@ -437,8 +437,8 @@ class Repository:
         self._db.execute(
             """
             UPDATE recipe_base
-            SET instructions = ?
-            WHERE id = ?;
+            SET recipe_instructions = ?
+            WHERE recipe_id = ?;
         """,
             (instructions, recipe_id),
         )
