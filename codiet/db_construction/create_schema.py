@@ -92,7 +92,8 @@ def create_schema():
         CREATE TABLE IF NOT EXISTS recipe_base (
             id INTEGER PRIMARY KEY,
             name TEXT UNIQUE NOT NULL,
-            description TEXT
+            description TEXT,
+            instructions TEXT
         )
     """)
 
