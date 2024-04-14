@@ -410,6 +410,15 @@ class Repository:
         )
         return cursor.lastrowid
     
+    def fetch_recipe_name(self, id: int) -> str:
+        """Returns the name of the recipe associated with the given ID."""
+        return self._db.execute(
+            """
+            SELECT recipe_name FROM recipe_base WHERE recipe_id = ?;
+        """,
+            (id,),
+        ).fetchone()[0]
+
     def update_recipe_name(self, recipe_id: int, name: str) -> None:
         """Updates the name of the recipe associated with the given ID."""
         self._db.execute(

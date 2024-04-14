@@ -318,3 +318,7 @@ class DatabaseService:
             self._repo._db.connection.rollback()
             # Re-raise any exceptions
             raise e
+        
+    def fetch_recipe_name(self, id:int) -> str:
+        """Returns the name of the recipe with the given ID."""
+        return self._repo.fetch_recipe_name(id)

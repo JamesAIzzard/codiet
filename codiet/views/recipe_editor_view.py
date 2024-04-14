@@ -9,8 +9,9 @@ from PyQt6.QtWidgets import (
     QTextEdit,
 )
 from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import QDialog
 
-from codiet.views.dialog_box_view import OkDialogBoxView
+from codiet.views.dialog_box_view import OkDialogBoxView, ConfirmDialogBoxView
 from codiet.views.ingredients_editor_view import IngredientsEditorView
 from codiet.views.serve_time_intervals_editor_view import ServeTimeIntervalsEditorView
 from codiet.views.recipe_type_editor_view import RecipeTypeEditorView
@@ -59,6 +60,26 @@ class RecipeEditorView(QWidget):
     def update_recipe_types(self, recipe_types: list[str]) -> None:
         """Update the recipe types."""
         self.recipe_type_editor_view.update_recipe_types(recipe_types)
+
+    def show_name_required_popup(self) -> None:
+        """Show the name required popup."""
+        # Show confirm dialog box
+        dialog = OkDialogBoxView(
+            message="Please enter a name for the recipe.",
+            title="Name Required",
+            parent=self,
+        )
+        _ = dialog.exec()
+
+    def show_name_change_confirmation_popup(self) -> bool:
+        """Show the name change confirmation popup."""
+        # Show confirm dialog box
+        dialog = ConfirmDialogBoxView(
+            message="Recipe name has changed. Are you sure you want to update the name?",
+            title="Recipe Name Change",
+            parent=self,
+        )
+        return dialog.exec() == QDialog.DialogCode.Accepted
 
     def show_save_confirmation_popup(self) -> None:
         """Show the save confirmation popup."""

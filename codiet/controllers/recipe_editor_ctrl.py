@@ -7,8 +7,6 @@ class RecipeEditorCtrl:
     def __init__(self, view: RecipeEditorView):
         # Stash a reference to the view
         self.view = view
-        # Store the state of the editor
-        self.edit_mode = False
         # Instantiate the time interval editor controller
         self.time_intervals_editor_ctrl = ServeTimeIntervalsEditorCtrl(
             self.view.serve_time_intervals_editor_view
@@ -64,19 +62,34 @@ class RecipeEditorCtrl:
 
     def on_save_button_pressed(self) -> None:
         """Handle the save button being pressed."""
-        # If we are saving a new recipe
+        # Open the 'name required' popup if the name is empty
+        if self.recipe.name is None or self.recipe.name.strip() == "":
+            self.view.show_name_required_popup()
+            return None
+        # If we are saving a new recipe (there is no ID yet)
         if self.recipe.id is None:
             # Save it
             with DatabaseService() as db_service:
                 self.recipe.id = self.recipe.id = db_service.insert_new_recipe(self.recipe)
             # Open a popup to confirm the save
             self.view.show_save_confirmation_popup()
-        # Otherwise, update the existing recipe
-        else:
-            with DatabaseService() as db_service:
-                db_service.update_recipe(self.recipe)
-            # Open a popup to confirm the update
-            self.view.show_update_confirmation_popup()
+            return None
+        # So the id is populated, this must be an update.
+        # First fetch the name from the database which corresponds to this id.
+        with DatabaseService() as db_service:
+            existing_name = db_service.fetch_recipe_name(self.recipe.id)
+        # If the name has changed
+        if existing_name != self.recipe.name:
+            # Open a yes/no popup to confirm the update
+            response = self.view.show_name_change_confirmation_popup()
+            # If the user clicked no, return
+            if response == False:
+                return None
+        # If the name has not changed, go ahead and update
+        with DatabaseService() as db_service:
+            db_service.update_recipe(self.recipe)
+        # Open a popup to confirm the update
+        self.view.show_update_confirmation_popup()
 
     def _connect_signals_and_slots(self) -> None:
         """Connect the signals and slots for the recipe editor."""

@@ -43,8 +43,6 @@ class MainWindowCtrl:
 
     def on_new_ingredient_clicked(self):
         """Handle the user clicking the New Ingredient button."""
-        # Turn off edit mode
-        self.ingredient_editor_ctrl.edit_mode = False
         # Put a new ingredient in the editor
         with DatabaseService() as db_service:
             self.ingredient_editor_ctrl.load_ingredient_instance(
@@ -55,8 +53,6 @@ class MainWindowCtrl:
 
     def on_edit_ingredient_clicked(self):
         """Handle the user clicking the Edit Ingredient button."""
-        # Turn on edit mode
-        self.ingredient_editor_ctrl.edit_mode = True
         # Show the editor
         self.view.show_ingredient_search_popup()
 
@@ -66,8 +62,6 @@ class MainWindowCtrl:
 
     def on_new_recipe_clicked(self):
         """Handle the user clicking the New Recipe button."""
-        # Turn off edit mode
-        self.recipe_editor_ctrl.edit_mode = False
         # Put a new recipe in the editor
         with DatabaseService() as db_service:
             self.recipe_editor_ctrl.load_recipe_instance(db_service.create_empty_recipe())

@@ -13,6 +13,7 @@ from PyQt6.QtGui import QFont
 
 from codiet.utils.pyqt import block_signals
 from codiet.views.custom_line_editors import NumericLineEdit
+from codiet.views.dialog_box_view import OkDialogBoxView
 from codiet.views.flag_editor_view import FlagEditorView
 from codiet.views.ingredient_nutrients_editor_view import IngredientNutrientsEditorView
 
@@ -115,6 +116,46 @@ class IngredientEditorView(QWidget):
                 self.txt_gi.clear()
             else:
                 self.txt_gi.setText(gi)
+
+    def show_name_required_popup(self) -> None:
+        """Show the name required popup."""
+        # Show confirm dialog box
+        dialog = OkDialogBoxView(
+            message="Ingredient name is required.",
+            title="Name Required",
+            parent=self,
+        )
+        _ = dialog.exec()
+
+    def show_name_change_confirmation_popup(self) -> bool:
+        """Show the name change confirmation popup."""
+        # Show confirm dialog box
+        dialog = OkDialogBoxView(
+            message="Ingredient name has changed. Are you sure you want to update the name?",
+            title="Name Change",
+            parent=self,
+        )
+        return dialog.exec() == 1
+
+    def show_save_confirmation_popup(self) -> None:
+        """Show the save confirmation popup."""
+        # Show confirm dialog box
+        dialog = OkDialogBoxView(
+            message="Ingredient saved.",
+            title="Ingredient Saved",
+            parent=self,
+        )
+        _ = dialog.exec()
+
+    def show_update_confirmation_popup(self) -> None:
+        """Show the update confirmation popup."""
+        # Show confirm dialog box
+        dialog = OkDialogBoxView(
+            message="Ingredient updated.",
+            title="Ingredient updated",
+            parent=self,
+        )
+        _ = dialog.exec()
 
     def _build_ui(self):
         """Build the UI for the ingredient editor page."""
