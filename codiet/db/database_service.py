@@ -71,66 +71,65 @@ class DatabaseService:
         if ingredient.name is None:
             raise ValueError("Ingredient name must be set.")
         
-        with self._repo._db.connection:
-            try:
-                # Add the ingredient name to the database, getting primary key
-                self._repo.insert_ingredient_name(ingredient.name)
+        try:
+            # Add the ingredient name to the database, getting primary key
+            self._repo.insert_ingredient_name(ingredient.name)
 
-                # Get the ingredient ID from the database
-                ingredient_id = self._repo.fetch_ingredient_id(ingredient.name)
+            # Get the ingredient ID from the database
+            ingredient_id = self._repo.fetch_ingredient_id(ingredient.name)
 
-                # Update the ingredient description
-                self._repo.update_ingredient_description(
-                    ingredient_id=ingredient_id,
-                    description=ingredient.description,
-                )
+            # Update the ingredient description
+            self._repo.update_ingredient_description(
+                ingredient_id=ingredient_id,
+                description=ingredient.description,
+            )
 
-                # Add the ingredient cost data
-                self._repo.update_ingredient_cost(
-                    ingredient_id=ingredient_id,
-                    cost_value=ingredient.cost_value,
-                    cost_unit=ingredient.cost_unit,
-                    qty_unit=ingredient.cost_qty_unit,
-                    qty_value=ingredient.cost_qty_value,
-                )
+            # Add the ingredient cost data
+            self._repo.update_ingredient_cost(
+                ingredient_id=ingredient_id,
+                cost_value=ingredient.cost_value,
+                cost_unit=ingredient.cost_unit,
+                qty_unit=ingredient.cost_qty_unit,
+                qty_value=ingredient.cost_qty_value,
+            )
 
-                # Add the ingredient density data
-                self._repo.update_ingredient_density(
-                    ingredient_id=ingredient_id,
-                    dens_mass_unit=ingredient.density_mass_unit,
-                    dens_mass_value=ingredient.density_mass_value,
-                    dens_vol_unit=ingredient.density_vol_unit,
-                    dens_vol_value=ingredient.density_vol_value,
-                )
+            # Add the ingredient density data
+            self._repo.update_ingredient_density(
+                ingredient_id=ingredient_id,
+                dens_mass_unit=ingredient.density_mass_unit,
+                dens_mass_value=ingredient.density_mass_value,
+                dens_vol_unit=ingredient.density_vol_unit,
+                dens_vol_value=ingredient.density_vol_value,
+            )
 
-                # Add the ingredient piece mass data
-                self._repo.update_ingredient_pc_mass(
-                    ingredient_id=ingredient_id,
-                    pc_qty=ingredient.pc_qty,
-                    pc_mass_unit=ingredient.pc_mass_unit,
-                    pc_mass_value=ingredient.pc_mass_value,
-                )
+            # Add the ingredient piece mass data
+            self._repo.update_ingredient_pc_mass(
+                ingredient_id=ingredient_id,
+                pc_qty=ingredient.pc_qty,
+                pc_mass_unit=ingredient.pc_mass_unit,
+                pc_mass_value=ingredient.pc_mass_value,
+            )
 
-                # Add the flags
-                self._repo.update_ingredient_flags(ingredient_id, ingredient.flags)
+            # Add the flags
+            self._repo.update_ingredient_flags(ingredient_id, ingredient.flags)
 
-                # Add the ingredient GI
-                self._repo.update_ingredient_gi(ingredient_id, ingredient.gi)
+            # Add the ingredient GI
+            self._repo.update_ingredient_gi(ingredient_id, ingredient.gi)
 
-                # Add the nutrients
-                self._repo.update_ingredient_nutrients(ingredient_id, ingredient.nutrients)
+            # Add the nutrients
+            self._repo.update_ingredient_nutrients(ingredient_id, ingredient.nutrients)
 
-                # Commit the transaction
-                self._repo._db.connection.commit()
+            # Commit the transaction
+            self._repo._db.connection.commit()
 
-                # Return the ingredient ID
-                return ingredient_id
+            # Return the ingredient ID
+            return ingredient_id
 
-            except Exception as e:
-                # Roll back the transaction if an exception occurs
-                self._repo._db.connection.rollback()
-                # Re-raise any exceptions
-                raise e
+        except Exception as e:
+            # Roll back the transaction if an exception occurs
+            self._repo._db.connection.rollback()
+            # Re-raise any exceptions
+            raise e
 
     def fetch_ingredient(self, name: str) -> Ingredient:
         """Returns the ingredient with the given name."""    
@@ -192,63 +191,62 @@ class DatabaseService:
         if ingredient.name is None:
             raise ValueError("Ingredient name must be set.")
 
-        with self._repo._db.connection:
-            try:
-                # Update the ingredient name
-                self._repo.update_ingredient_name(
-                    ingredient_id=ingredient.id,
-                    name=ingredient.name,
-                )
+        try:
+            # Update the ingredient name
+            self._repo.update_ingredient_name(
+                ingredient_id=ingredient.id,
+                name=ingredient.name,
+            )
 
-                # Update the ingredient description
-                self._repo.update_ingredient_description(
-                    ingredient_id=ingredient.id,
-                    description=ingredient.description,
-                )
+            # Update the ingredient description
+            self._repo.update_ingredient_description(
+                ingredient_id=ingredient.id,
+                description=ingredient.description,
+            )
 
-                # Update the ingredient cost data
-                self._repo.update_ingredient_cost(
-                    ingredient_id=ingredient.id,
-                    cost_value=ingredient.cost_value,
-                    cost_unit=ingredient.cost_unit,
-                    qty_unit=ingredient.cost_qty_unit,
-                    qty_value=ingredient.cost_qty_value,
-                )
+            # Update the ingredient cost data
+            self._repo.update_ingredient_cost(
+                ingredient_id=ingredient.id,
+                cost_value=ingredient.cost_value,
+                cost_unit=ingredient.cost_unit,
+                qty_unit=ingredient.cost_qty_unit,
+                qty_value=ingredient.cost_qty_value,
+            )
 
-                # Update the ingredient density data
-                self._repo.update_ingredient_density(
-                    ingredient_id=ingredient.id,
-                    dens_mass_unit=ingredient.density_mass_unit,
-                    dens_mass_value=ingredient.density_mass_value,
-                    dens_vol_unit=ingredient.density_vol_unit,
-                    dens_vol_value=ingredient.density_vol_value,
-                )
+            # Update the ingredient density data
+            self._repo.update_ingredient_density(
+                ingredient_id=ingredient.id,
+                dens_mass_unit=ingredient.density_mass_unit,
+                dens_mass_value=ingredient.density_mass_value,
+                dens_vol_unit=ingredient.density_vol_unit,
+                dens_vol_value=ingredient.density_vol_value,
+            )
 
-                # Update the ingredient piece mass data
-                self._repo.update_ingredient_pc_mass(
-                    ingredient_id=ingredient.id,
-                    pc_qty=ingredient.pc_qty,
-                    pc_mass_unit=ingredient.pc_mass_unit,
-                    pc_mass_value=ingredient.pc_mass_value,
-                )
+            # Update the ingredient piece mass data
+            self._repo.update_ingredient_pc_mass(
+                ingredient_id=ingredient.id,
+                pc_qty=ingredient.pc_qty,
+                pc_mass_unit=ingredient.pc_mass_unit,
+                pc_mass_value=ingredient.pc_mass_value,
+            )
 
-                # Update the flags
-                self._repo.update_ingredient_flags(ingredient.id, ingredient.flags)
+            # Update the flags
+            self._repo.update_ingredient_flags(ingredient.id, ingredient.flags)
 
-                # Update the ingredient GI
-                self._repo.update_ingredient_gi(ingredient.id, ingredient.gi)
+            # Update the ingredient GI
+            self._repo.update_ingredient_gi(ingredient.id, ingredient.gi)
 
-                # Update the nutrients
-                self._repo.update_ingredient_nutrients(ingredient.id, ingredient.nutrients)
+            # Update the nutrients
+            self._repo.update_ingredient_nutrients(ingredient.id, ingredient.nutrients)
 
-                # Commit the transaction
-                self._repo._db.connection.commit()
+            # Commit the transaction
+            self._repo._db.connection.commit()
 
-            except Exception as e:
-                # Roll back the transaction if an exception occurs
-                self._repo._db.connection.rollback()
-                # Re-raise any exceptions
-                raise e
+        except Exception as e:
+            # Roll back the transaction if an exception occurs
+            self._repo._db.connection.rollback()
+            # Re-raise any exceptions
+            raise e
 
     def delete_ingredient(self, ingredient_name:str):
         """Deletes the given ingredient from the database."""
@@ -260,3 +258,63 @@ class DatabaseService:
         recipe = Recipe()
 
         return recipe
+    
+    def insert_new_recipe(self, recipe: Recipe) -> int:
+        """Saves the given recipe to the database."""
+        # Check the recipe name is set, otherwise raise an exception
+        if recipe.name is None:
+            raise ValueError("Recipe name must be set.")
+        try:
+            # Add the recipe name to the database, getting primary key
+            id = self._repo.insert_recipe_name(recipe.name)
+            # Update the recipe description
+            self._repo.update_recipe_description(
+                recipe_id=id,
+                description=recipe.description,
+            )
+            # Update the recipe instructions
+            self._repo.update_recipe_instructions(
+                recipe_id=id,
+                instructions=recipe.instructions,
+            )
+            # Commit the transaction
+            self._repo._db.connection.commit()
+            # Return the recipe ID
+            return id
+        except Exception as e:
+            # Roll back the transaction if an exception occurs
+            self._repo._db.connection.rollback()
+            # Re-raise any exceptions
+            raise e
+        
+    def update_recipe(self, recipe: Recipe):
+        """Updates the given recipe in the database."""
+        # Check the recipe ID is set, otherwise raise an exception
+        if recipe.id is None:
+            raise ValueError("Recipe ID must be set.")
+        # Check the recipe name is set, otherwise raise an exception
+        if recipe.name is None or recipe.name.strip() == "":
+            raise ValueError("Recipe name must be set.")
+        try:
+            # Update the recipe name
+            self._repo.update_recipe_name(
+                recipe_id=recipe.id,
+                name=recipe.name,
+            )
+            # Update the recipe description
+            self._repo.update_recipe_description(
+                recipe_id=recipe.id,
+                description=recipe.description,
+            )
+            # Update the recipe instructions
+            self._repo.update_recipe_instructions(
+                recipe_id=recipe.id,
+                instructions=recipe.instructions,
+            )
+            # Commit the transaction
+            self._repo._db.connection.commit()
+        except Exception as e:
+            # Roll back the transaction if an exception occurs
+            self._repo._db.connection.rollback()
+            # Re-raise any exceptions
+            raise e

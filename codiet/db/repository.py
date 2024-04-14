@@ -399,3 +399,46 @@ class Repository:
         except Exception as e:
             self._db.connection.rollback()
             raise e
+        
+    def insert_recipe_name(self, name: str) -> int:
+        """Adds a recipe name to the database and returns the ID."""
+        cursor = self._db.execute(
+            """
+            INSERT INTO recipe_base (name) VALUES (?);
+        """,
+            (name,),
+        )
+        return cursor.lastrowid
+    
+    def update_recipe_name(self, recipe_id: int, name: str) -> None:
+        """Updates the name of the recipe associated with the given ID."""
+        self._db.execute(
+            """
+            UPDATE recipe_base
+            SET name = ?
+            WHERE id = ?;
+        """,
+            (name, recipe_id),
+        )
+
+    def update_recipe_description(self, recipe_id: int, description: str | None) -> None:
+        """Updates the description of the recipe associated with the given ID."""
+        self._db.execute(
+            """
+            UPDATE recipe_base
+            SET description = ?
+            WHERE id = ?;
+        """,
+            (description, recipe_id),
+        )
+
+    def update_recipe_instructions(self, recipe_id: int, instructions: str | None) -> None:
+        """Updates the instructions of the recipe associated with the given ID."""
+        self._db.execute(
+            """
+            UPDATE recipe_base
+            SET instructions = ?
+            WHERE id = ?;
+        """,
+            (instructions, recipe_id),
+        )

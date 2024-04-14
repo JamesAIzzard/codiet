@@ -13,6 +13,8 @@ from PyQt6.QtGui import QFont
 from codiet.views.ingredients_editor_view import IngredientsEditorView
 from codiet.views.serve_time_intervals_editor_view import ServeTimeIntervalsEditorView
 from codiet.views.recipe_type_editor_view import RecipeTypeEditorView
+from codiet.utils.pyqt import block_signals
+
 
 class RecipeEditorView(QWidget):
     def __init__(self):
@@ -21,25 +23,33 @@ class RecipeEditorView(QWidget):
 
     def update_name(self, name: str | None) -> None:
         """Set the recipe name."""
-        if name is None:
-            self.txt_recipe_name.clear()
-        elif name.strip() == "":
-            self.txt_recipe_name.clear()
-        else:
-            self.txt_recipe_name.setText(name)
+        with block_signals(self.txt_recipe_name):
+            if name is None:
+                self.txt_recipe_name.clear()
+            elif name.strip() == "":
+                self.txt_recipe_name.clear()
+            else:
+                self.txt_recipe_name.setText(name)
 
     def update_description(self, description: str | None) -> None:
         """Set the recipe description."""
-        if description is None:
-            self.txt_recipe_description.clear()
-        elif description.strip() == "":
-            self.txt_recipe_description.clear()
-        else:
-            self.txt_recipe_description.setPlainText(description)
+        with block_signals(self.txt_recipe_description):
+            if description is None:
+                self.txt_recipe_description.clear()
+            elif description.strip() == "":
+                self.txt_recipe_description.clear()
+            else:
+                self.txt_recipe_description.setPlainText(description)
 
-    def update_instructions(self, instructions: list[str]) -> None:
+    def update_instructions(self, instructions: str | None) -> None:
         """Update the recipe instructions."""
-        self.textbox_recipe_instructions.setPlainText("\n".join(instructions))
+        with block_signals(self.textbox_recipe_instructions):
+            if instructions is None:
+                self.textbox_recipe_instructions.clear()
+            elif instructions.strip() == "":
+                self.textbox_recipe_instructions.clear()
+            else:
+                self.textbox_recipe_instructions.setPlainText(instructions)
 
     def update_ingredients(self, ingredients: dict[str, dict]) -> None:
         """Update the ingredients."""
