@@ -12,16 +12,13 @@ class IngredientSearchPopupCtrl:
     def __init__(
         self,
         view: IngredientSearchPopupView,
-        edit_ingredient: Callable[[Ingredient], None],
+        on_result_click: Callable[[Ingredient], None],
     ):
         # Stash the init params
         self.view = view
-        self.edit_ingredient = edit_ingredient
-
+        self.on_result_click = on_result_click
         # Connect the signals and slots
-        self.view.txt_search.textChanged.connect(self.on_search_box_text_changed)
-        self.view.btn_edit.clicked.connect(self.on_edit_clicked)
-        self.view.btn_delete.clicked.connect(self.on_delete_clicked)
+        self._connect_signals_and_slots()
 
     @property
     def selected_ingredient_name(self) -> str:
@@ -39,43 +36,32 @@ class IngredientSearchPopupCtrl:
         """Return True if an ingredient is selected, False otherwise."""
         return self.selected_ingredient_name is not None
 
-    def on_search_box_text_changed(self, text: str):
+    def on_search_box_text_changed(self, text: str) -> None:
         """Handle the user typing in the search box."""
         with DatabaseService() as db_service:
             # Get the list of matching ingredient names
             matching_names = db_service.fetch_matching_ingredient_names(text)
         # Update the list of matching ingredients
-        self.view.update_ingredient_list(matching_names)
+        self.view.update_results_list(matching_names)
 
-    def on_edit_clicked(self):
-        """Handle the user clicking the Select button."""
+    def on_result_clicked(self):
+        """Handle the user clicking on a result.
+        Loads the ingredient corresponding to the selected result into the
+        handler function.
+        """
         # Ignore if nothing selected
         if not self.ingredient_is_selected:
-            return
+            return None
         # Load the ingredient details into the editor
         with DatabaseService() as db_service:
             ingredient = db_service.fetch_ingredient(self.selected_ingredient_name)
-        self.edit_ingredient(ingredient)
+        self.on_result_click(ingredient)
         # Close self
         self.view.close()
 
-    def on_delete_clicked(self):
-        """Handle the user clicking the Delete button."""
-        # Ignore if nothing selected
-        if not self.ingredient_is_selected:
-            return
-        
-        # Open a confirmation dialog
-        dialog = ConfirmDialogBoxView(
-            message=f"Are you sure you want to delete {self.selected_ingredient_name}?",
-            title="Confirm Delete",
-            parent=self.view,
-        )
-        if dialog.exec() != QDialog.DialogCode.Accepted:
-            return
-
-        # Accepted, so delete the ingredient
-        with DatabaseService() as db_service:
-            db_service.delete_ingredient(self.selected_ingredient_name)
-        # Update the list of matching ingredients
-        self.on_search_box_text_changed(self.view.txt_search.text())
+    def _connect_signals_and_slots(self):
+        """Connect the signals and slots."""
+        # Connect the search box text changed signal
+        self.view.txt_search.textChanged.connect(self.on_search_box_text_changed)
+        # Connect the result single click signal
+        self.view.lst_search_results.itemClicked.connect(self.on_result_clicked)

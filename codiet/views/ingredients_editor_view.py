@@ -9,19 +9,15 @@ from PyQt6.QtWidgets import (
 )
 
 from codiet.views.ingredient_quantity_editor_view import IngredientQuantityEditorView
+from codiet.views.ingredient_search_popup_view import IngredientSearchPopupView
 
 class IngredientsEditorView(QWidget):
     def __init__(self):
         super().__init__()
+        # Build the UI
         self._build_ui()
-
-        # Put some dummy ingredients in the editor for testing purposes
-        dummy_ingredients = {
-            "Ingredient 1": {"qty": 100, "unit": "g"},
-            "Ingredient 2": {"qty": 100, "unit": "g"},
-            "Ingredient 3": {"qty": 100, "unit": "g"},
-        }
-        self.update_ingredients(dummy_ingredients)
+        # Init the ingredients search popup
+        self.ingredient_search_popup = IngredientSearchPopupView()
 
     def update_ingredients(self, ingredients: dict[str, dict]) -> None:
         """Update the ingredients in the editor."""
@@ -39,6 +35,10 @@ class IngredientsEditorView(QWidget):
             self.list_ingredients.addItem(listItem)
             # Set the widget of the list item to be the ingredient editor
             self.list_ingredients.setItemWidget(listItem, ingredient)
+
+    def show_ingredient_search_popup(self) -> None:
+        """Show the ingredient search popup."""
+        self.ingredient_search_popup.show()
 
     def _build_ui(self):
         """Build the UI for the ingredients editor."""

@@ -16,7 +16,7 @@ class MainWindowCtrl:
         # Instantiate the ingredient search popup controller
         self.ingredient_search_popup_ctrl = IngredientSearchPopupCtrl(
             view=self.view.ingredient_search_view,
-            edit_ingredient=self.ingredient_editor_ctrl.load_ingredient_instance,
+            on_result_click=self.ingredient_editor_ctrl.load_ingredient_instance,
         )
         # Instantiate the recipe editor controller
         self.recipe_editor_ctrl = RecipeEditorCtrl(self.view.recipe_editor_view)

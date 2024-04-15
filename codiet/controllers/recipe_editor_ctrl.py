@@ -1,12 +1,21 @@
 from codiet.models.recipe import Recipe
 from codiet.views.recipe_editor_view import RecipeEditorView
 from codiet.controllers.serve_time_intervals_editor_ctrl import ServeTimeIntervalsEditorCtrl
+from codiet.controllers.ingredients_editor_ctrl import IngredientsEditorCtrl
 from codiet.db.database_service import DatabaseService
 
 class RecipeEditorCtrl:
     def __init__(self, view: RecipeEditorView):
         # Stash a reference to the view
         self.view = view
+        # Create an empty recipe instance
+        with DatabaseService() as db_service:
+            self.recipe = db_service.create_empty_recipe()
+        # Instantiate the ingredients editor controller
+        self.ingredients_editor_ctrl = IngredientsEditorCtrl(
+            view = self.view.ingredients_editor,
+            recipe = self.recipe
+        )
         # Instantiate the time interval editor controller
         self.time_intervals_editor_ctrl = ServeTimeIntervalsEditorCtrl(
             self.view.serve_time_intervals_editor_view
