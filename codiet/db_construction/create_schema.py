@@ -111,5 +111,32 @@ def create_schema():
         )
     """)
 
+    # Create the recipe serve times table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS recipe_serve_times (
+            recipe_id INTEGER,
+            serve_time_window TEXT,
+            FOREIGN KEY (recipe_id) REFERENCES recipe_base(id)
+        )
+    """)
+
+    # Create the global recipe type table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS global_recipe_types (
+            recipe_type_id INTEGER PRIMARY KEY,
+            recipe_type_name TEXT UNIQUE
+        )
+    """)
+
+    # Create the recipe types table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS recipe_types (
+            recipe_id INTEGER,
+            recipe_type_id INTEGER,
+            FOREIGN KEY (recipe_id) REFERENCES recipe_base(id),
+            FOREIGN KEY (recipe_type_id) REFERENCES global_recipe_types(recipe_type_id)
+        )
+    """)
+
     connection.commit()
     connection.close()

@@ -451,3 +451,83 @@ class Repository:
         """,
             (instructions, recipe_id),
         )
+
+    def update_recipe_ingredients(
+        self, recipe_id: int, ingredients: dict[str, dict]
+    ) -> None:
+        """Updates the ingredients of the recipe associated with the given ID."""
+        # Clear the existing ingredients
+        self._db.execute(
+            """
+            DELETE FROM recipe_ingredients WHERE recipe_id = ?;
+        """,
+            (recipe_id,),
+        )
+        # Add the new ingredients
+        for ingredient, data in ingredients.items():
+            # Get the ingredient ID
+            ingredient_id = self._db.execute(
+                """
+                SELECT ingredient_id FROM ingredient_base WHERE ingredient_name = ?;
+            """,
+                (ingredient,),
+            ).fetchone()[0]
+            # Add the ingredient
+            self._db.execute(
+                """
+                INSERT INTO recipe_ingredients (recipe_id, ingredient_id, qty, qty_unit, qty_utol, qty_ltol)
+                VALUES (?, ?, ?, ?, ?, ?);
+            """,
+                (
+                    recipe_id,
+                    ingredient_id,
+                    data["qty"],
+                    data["qty_unit"],
+                    data["qty_utol"],
+                    data["qty_ltol"],
+                ),
+            )
+
+    def update_recipe_serve_times(
+        self, recipe_id: int, serve_times: list[str]
+    ) -> None:
+        """Updates the serve times of the recipe associated with the given ID."""
+        # Clear the existing serve times
+        self._db.execute(
+            """
+            DELETE FROM recipe_serve_times WHERE recipe_id = ?;
+        """,
+            (recipe_id,),
+        )
+        # Add the new serve times
+        for serve_time in serve_times:
+            # Add the serve time
+            self._db.execute(
+                """
+                INSERT INTO recipe_serve_times (recipe_id, serve_time)
+                VALUES (?, ?);
+            """,
+                (recipe_id, serve_time),
+            )
+
+    def update_recipe_types(
+        self, recipe_id: int, recipe_types: list[str]
+    ) -> None:
+        """Updates the recipe types of the recipe associated with the given ID."""
+        # Clear the existing recipe types
+        self._db.execute(
+            """
+            DELETE FROM recipe_types WHERE recipe_id = ?;
+        """,
+            (recipe_id,),
+        )
+        # Add the new recipe types
+        for recipe_type in recipe_types:
+            # Add the recipe type
+            self._db.execute(
+                """
+                INSERT INTO recipe_types (recipe_id, recipe_type)
+                VALUES (?, ?);
+            """,
+                (recipe_id, recipe_type),
+            )

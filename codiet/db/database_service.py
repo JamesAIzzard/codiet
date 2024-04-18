@@ -259,7 +259,7 @@ class DatabaseService:
 
         return recipe
     
-    def insert_new_recipe(self, recipe: Recipe) -> int:
+    def insert_new_recipe(self, recipe: Recipe) -> None:
         """Saves the given recipe to the database."""
         # Check the recipe name is set, otherwise raise an exception
         if recipe.name is None:
@@ -267,20 +267,8 @@ class DatabaseService:
         try:
             # Add the recipe name to the database, getting primary key
             id = self._repo.insert_recipe_name(recipe.name)
-            # Update the recipe description
-            self._repo.update_recipe_description(
-                recipe_id=id,
-                description=recipe.description,
-            )
-            # Update the recipe instructions
-            self._repo.update_recipe_instructions(
-                recipe_id=id,
-                instructions=recipe.instructions,
-            )
-            # Commit the transaction
-            self._repo._db.connection.commit()
-            # Return the recipe ID
-            return id
+            # Now update the recipe as normal
+            self.update_recipe(recipe)
         except Exception as e:
             # Roll back the transaction if an exception occurs
             self._repo._db.connection.rollback()
@@ -310,6 +298,21 @@ class DatabaseService:
             self._repo.update_recipe_instructions(
                 recipe_id=recipe.id,
                 instructions=recipe.instructions,
+            )
+            # Update the recipe ingredients
+            self._repo.update_recipe_ingredients(
+                recipe_id=recipe.id,
+                ingredients=recipe.ingredients,
+            )
+            # Update the recipe serve times
+            self._repo.update_recipe_serve_times(
+                recipe_id=recipe.id,
+                serve_times=recipe.serve_times,
+            )
+            # Update the recipe types
+            self._repo.update_recipe_types(
+                recipe_id=recipe.id,
+                recipe_types=recipe.recipe_types,
             )
             # Commit the transaction
             self._repo._db.connection.commit()
