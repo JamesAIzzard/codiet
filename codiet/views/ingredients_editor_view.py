@@ -9,15 +9,36 @@ from PyQt6.QtWidgets import (
 )
 
 from codiet.views.ingredient_quantity_editor_view import IngredientQuantityEditorView
-from codiet.views.ingredient_search_popup_view import IngredientSearchPopupView
 
 class IngredientsEditorView(QWidget):
     def __init__(self):
         super().__init__()
         # Build the UI
         self._build_ui()
-        # Init the ingredients search popup
-        self.ingredient_search_popup = IngredientSearchPopupView()
+
+    @property
+    def selected_ingredient_widget(self) -> IngredientQuantityEditorView | None:
+        """Return the selected ingredient widget."""
+        # Get the selected list item
+        selected_item = self.list_ingredients.currentItem()
+        # If there is no selected item, return None
+        if selected_item is None:
+            return None
+        # Grab the widget from the item
+        selected_widget = self.list_ingredients.itemWidget(selected_item)
+        # Return the widget
+        return selected_widget # type: ignore
+
+    @property
+    def selected_ingredient_id(self) -> int | None:
+        """Return the selected ingredient."""
+        # First grab the widget
+        widget = self.selected_ingredient_widget
+        # If there is no widget, return None
+        if widget is None:
+            return None
+        # Return the ingredient ID
+        return widget.ingredient_id
 
     def update_ingredients(self, ingredients: dict[str, dict]) -> None:
         """Update the ingredients in the editor."""
@@ -25,20 +46,42 @@ class IngredientsEditorView(QWidget):
         self.list_ingredients.clear()
         # Loop through the ingredients
         for ingredient_name, ingredient_data in ingredients.items():
-            # Add a new row to the list
-            listItem = QListWidgetItem(self.list_ingredients)
-            # Create a new instance of IngredientQuantityEditorView
-            ingredient = IngredientQuantityEditorView(ingredient_name)
-            # Set the size hint of the list item to the size hint of the ingredient editor
-            listItem.setSizeHint(ingredient.sizeHint())
-            # Add the list item to the list
-            self.list_ingredients.addItem(listItem)
-            # Set the widget of the list item to be the ingredient editor
-            self.list_ingredients.setItemWidget(listItem, ingredient)
+            # Add the ingredient to the list
+            self.add_ingredient(
+                ingredient_name=ingredient_name,
+                ingredient_id=ingredient_data["id"],
+                ingredient_qty=ingredient_data["qty"],
+                ingredient_qty_unit=ingredient_data["qty_unit"],
+                ingredient_qty_utol=ingredient_data["qty_utol"],
+                ingredient_qty_ltol=ingredient_data["qty_ltol"]
+            )
 
-    def show_ingredient_search_popup(self) -> None:
-        """Show the ingredient search popup."""
-        self.ingredient_search_popup.show()
+    def add_ingredient(self, 
+            ingredient_name: str,
+            ingredient_id: int,
+            ingredient_qty: float | None = None,
+            ingredient_qty_unit: str = "g",
+            ingredient_qty_utol: float | None = None,
+            ingredient_qty_ltol: float | None = None
+        ) -> None:
+        """Add an ingredient to the list."""
+        # Create a new row in the list
+        listItem = QListWidgetItem(self.list_ingredients)
+        # Create a new instance of IngredientQuantityEditorView
+        ingredient = IngredientQuantityEditorView(
+            ingredient_name, 
+            ingredient_id,
+            ingredient_qty,
+            ingredient_qty_unit,
+            ingredient_qty_utol,
+            ingredient_qty_ltol
+        )
+        # Set the size hint of the list item to the size hint of the ingredient editor
+        listItem.setSizeHint(ingredient.sizeHint())
+        # Add the list item to the list
+        self.list_ingredients.addItem(listItem)
+        # Set the widget of the list item to be the ingredient editor
+        self.list_ingredients.setItemWidget(listItem, ingredient)
 
     def _build_ui(self):
         """Build the UI for the ingredients editor."""
