@@ -12,6 +12,14 @@ class Recipe:
         self.serve_times: list[tuple[datetime, datetime]] = []
         self.recipe_types: list[str] = []
 
+    @property
+    def serve_times_strings(self) -> list[str]:
+        """Return the serve times as strings."""
+        return [
+            f"{serve_time[0].strftime('%H:%M')} - {serve_time[1].strftime('%H:%M')}"
+            for serve_time in self.serve_times
+        ]
+
     def add_serve_time(self, serve_time: tuple[datetime, datetime]) -> None:
         """Add a serve time to the recipe."""
         # Add the serve time to the recipe

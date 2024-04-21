@@ -267,6 +267,8 @@ class DatabaseService:
         try:
             # Add the recipe name to the database, getting primary key
             id = self._repo.insert_recipe_name(recipe.name)
+            # Add the id to the recipe instance
+            recipe.id = id
             # Now update the recipe as normal
             self.update_recipe(recipe)
         except Exception as e:
@@ -307,7 +309,7 @@ class DatabaseService:
             # Update the recipe serve times
             self._repo.update_recipe_serve_times(
                 recipe_id=recipe.id,
-                serve_times=recipe.serve_times,
+                serve_times=recipe.serve_times_strings,
             )
             # Update the recipe types
             self._repo.update_recipe_types(

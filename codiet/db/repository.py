@@ -504,7 +504,7 @@ class Repository:
             # Add the serve time
             self._db.execute(
                 """
-                INSERT INTO recipe_serve_times (recipe_id, serve_time)
+                INSERT INTO recipe_serve_times (recipe_id, serve_time_window)
                 VALUES (?, ?);
             """,
                 (recipe_id, serve_time),
