@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -16,9 +18,6 @@ class ServeTimeIntervalsEditorView(QWidget):
 
     def _build_ui(self):
         """Build the UI for the serve time intervals editor."""
-        # Instantiate the popup for adding a time interval
-        self.time_interval_popup = TimeIntervalPopupView(parent=self)
-
         # Create vertical layout as the top level
         lyt_top_level = QVBoxLayout()
         self.setLayout(lyt_top_level)
@@ -54,10 +53,10 @@ class ServeTimeIntervalsEditorView(QWidget):
     def time_intervals(self) -> list[str]:
         """Return the list of time intervals."""
         intervals = []
-        if len(self.lst_time_intervals) > 0:
-            for i in range(len(self.lst_time_intervals)):
-                intervals.append(self.lst_time_intervals.item(i).text()) # type: ignore
-        return []
+        for i in range(self.lst_time_intervals.count()):
+            item = self.lst_time_intervals.item(i)
+            intervals.append(item.text()) # type: ignore
+        return intervals
 
     @property
     def selected_index(self) -> int:
@@ -74,7 +73,7 @@ class ServeTimeIntervalsEditorView(QWidget):
 
     def add_time_interval(self, time_interval: str):
         """Add a time interval to the list."""
-        # First check the string is not already in the list
+        # Check the string is not already in the list
         for i in range(len(self.lst_time_intervals)):
             if self.lst_time_intervals.item(i).text() == time_interval: # type: ignore
                 return
@@ -84,7 +83,3 @@ class ServeTimeIntervalsEditorView(QWidget):
     def remove_time_interval(self, index: int):
         """Remove a time interval from the list."""
         self.lst_time_intervals.takeItem(index)
-
-    def show_time_interval_popup(self):
-        """Show the popup for adding a time interval."""
-        self.time_interval_popup.show()

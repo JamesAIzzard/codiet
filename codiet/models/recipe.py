@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from codiet.models.ingredient import Ingredient
 
 class Recipe:
@@ -7,8 +9,18 @@ class Recipe:
         self.description: str | None = None
         self.instructions: str | None = None
         self.ingredients: dict[str, dict] = {}
-        self.serve_times: list[str] = []
+        self.serve_times: list[tuple[datetime, datetime]] = []
         self.recipe_types: list[str] = []
+
+    def add_serve_time(self, serve_time: tuple[datetime, datetime]) -> None:
+        """Add a serve time to the recipe."""
+        # Add the serve time to the recipe
+        self.serve_times.append(serve_time)
+
+    def remove_serve_time(self, serve_time: tuple[datetime, datetime]) -> None:
+        """Remove a serve time from the recipe."""
+        # Remove the serve time from the recipe
+        self.serve_times.remove(serve_time)
 
     def add_ingredient(
             self, 

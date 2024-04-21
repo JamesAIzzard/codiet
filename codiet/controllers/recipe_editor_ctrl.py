@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from codiet.models.recipe import Recipe
 from codiet.views.recipe_editor_view import RecipeEditorView
 from codiet.controllers.serve_time_intervals_editor_ctrl import ServeTimeIntervalsEditorCtrl
@@ -8,6 +10,9 @@ class RecipeEditorCtrl:
     def __init__(self, view: RecipeEditorView):
         # Stash a reference to the view
         self.view = view
+        # Init a recipe instance
+        with DatabaseService() as db_service:
+            self.recipe = db_service.create_empty_recipe()
         # Create an empty recipe instance
         with DatabaseService() as db_service:
             self.recipe = db_service.create_empty_recipe()
@@ -18,7 +23,9 @@ class RecipeEditorCtrl:
         )
         # Instantiate the time interval editor controller
         self.time_intervals_editor_ctrl = ServeTimeIntervalsEditorCtrl(
-            self.view.serve_time_intervals_editor_view
+            view = self.view.serve_time_intervals_editor_view,
+            on_add_time_interval=self.on_add_serve_time,
+            on_remove_time_interval=self.on_remove_serve_time
         )
         # Connect the signals and slots
         self._connect_signals_and_slots()
@@ -68,6 +75,14 @@ class RecipeEditorCtrl:
         # Otherwise, set the instructions
         else:
             self.recipe.instructions = instructions
+
+    def on_add_serve_time(self, serve_time: tuple[datetime, datetime]) -> None:
+        """Handle the addition of a serve time."""
+        self.recipe.add_serve_time(serve_time)
+
+    def on_remove_serve_time(self, serve_time: tuple[datetime, datetime]) -> None:
+        """Handle the removal of a serve time."""
+        self.recipe.remove_serve_time(serve_time)
 
     def on_save_button_pressed(self) -> None:
         """Handle the save button being pressed."""

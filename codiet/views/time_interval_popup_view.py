@@ -1,5 +1,3 @@
-from typing import TYPE_CHECKING
-
 from PyQt6.QtWidgets import (
     QDialog,
     QLabel,
@@ -9,18 +7,15 @@ from PyQt6.QtWidgets import (
     QPushButton,
 )
 
-if TYPE_CHECKING:
-    from codiet.views.serve_time_intervals_editor_view import ServeTimeIntervalsEditorView
-
 class TimeIntervalPopupView(QDialog):
-    def __init__(self, parent:'ServeTimeIntervalsEditorView'):
+    def __init__(self):
         super().__init__()
+        self._build_ui()
 
-        # Stash the parent view instance
-        self.serve_time_intervals_editor_view = parent
 
-        self.setWindowTitle("Time Interval")
-        # self.resize(400, 300)
+    def _build_ui(self):
+        """Build the user interface."""
+        self.setWindowTitle("Enter Time Interval")
 
         # Create a layout for the dialog
         lyt_top_level = QVBoxLayout()
@@ -45,18 +40,17 @@ class TimeIntervalPopupView(QDialog):
         # Add the add button
         self.btn_add = QPushButton("Add")
         lyt_top_level.addWidget(self.btn_add)
-
-        # Connect the add button to the on_add_clicked method
-        self.btn_add.clicked.connect(self.on_add_clicked)
-
+    
     @property
-    def time_interval_string(self) -> str:
-        """Return the string representing the time interval."""
-        return f"{self.txt_start_time.text()} - {self.txt_end_time.text()}"
-
-    def on_add_clicked(self):
-        """Handle the user clicking the add button."""
-        self.serve_time_intervals_editor_view.add_time_interval(self.time_interval_string)
+    def start_time(self) -> str:
+        """Return the start time."""
+        return self.txt_start_time.text()
+    
+    @property
+    def end_time(self) -> str:
+        """Return the end time."""
+        return self.txt_end_time.text()
 
     def show(self):
+        """Show the dialog."""
         self.exec()
