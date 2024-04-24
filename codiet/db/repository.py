@@ -531,3 +531,13 @@ class Repository:
             """,
                 (recipe_id, recipe_type),
             )
+
+    def insert_global_recipe_type(self, name: str) -> int:
+        """Adds a recipe type to the global recipe type table and returns the ID."""
+        cursor = self._db.execute(
+            """
+            INSERT INTO global_recipe_types (recipe_type_name) VALUES (?);
+        """,
+            (name,),
+        )
+        return cursor.lastrowid

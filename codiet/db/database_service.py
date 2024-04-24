@@ -327,3 +327,12 @@ class DatabaseService:
     def fetch_recipe_name(self, id:int) -> str:
         """Returns the name of the recipe with the given ID."""
         return self._repo.fetch_recipe_name(id)
+    
+    def insert_global_recipe_type(self, recipe_type_name:str) -> int:
+        """Inserts a global recipe type into the database."""
+        # Action the insertion
+        id = self._repo.insert_global_recipe_type(recipe_type_name)
+        # Commit the transaction
+        self._repo._db.connection.commit()
+        # Return the ID
+        return id

@@ -2,7 +2,7 @@ import os
 import json
 
 from codiet.db import DB_PATH
-from codiet.db_construction import FLAG_DATA_FILE, NUTRIENT_DATA_FILE
+from codiet.db_construction import FLAG_DATA_FILE, NUTRIENT_DATA_FILE, RECIPE_TYPE_DATA_FILE
 from codiet.db.database_service import DatabaseService
 from codiet.db_construction import populate_database
 from codiet.db_construction.create_schema import create_schema
@@ -47,5 +47,9 @@ if __name__ == '__main__':
         
         # Push all of the final data to the database
         populate_database.push_ingredients_to_db(db_service)
+
+        # Push the global recipe types to the database
+        global_recipe_types = json.load(open(RECIPE_TYPE_DATA_FILE))
+        populate_database.push_global_recipe_types_to_db(global_recipe_types, db_service)
 
         print("Database processing complete.")

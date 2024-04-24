@@ -364,3 +364,10 @@ def populate_ingredient_datafiles(db_service: DatabaseService):
             # Save the updated data back to the file
             with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
                 json.dump(data, f, indent=4)
+
+def push_global_recipe_types_to_db(global_recipe_types:list[str], db_service: DatabaseService):
+    """Push the global recipe types to the database."""
+    # Add each recipe type to the database
+    for recipe_type in global_recipe_types:
+        db_service.insert_global_recipe_type(recipe_type)
+    print("Global recipe types pushed to the database.")

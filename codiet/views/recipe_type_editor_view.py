@@ -2,6 +2,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
+    QHBoxLayout,
     QGroupBox,
     QListWidget,
     QWidget,
@@ -9,6 +10,7 @@ from PyQt6.QtWidgets import (
     QGroupBox,
     QListWidget,
     QListWidgetItem,
+    QPushButton
 )
 
 class RecipeTypeEditorView(QWidget):
@@ -36,7 +38,7 @@ class RecipeTypeEditorView(QWidget):
             self.update_recipe_type_selection(recipe_type, selected)
 
     def update_recipe_type_selection(self, recipe_type: str, selected: bool) -> None:
-        """Update the selection of a recipe type."""
+        """Update the selection of a single recipe type."""
         # Fetch the recipe type matching the name
         item = self._fetch_recipe_type_item(recipe_type)
         # Set the checked status
@@ -56,6 +58,16 @@ class RecipeTypeEditorView(QWidget):
         lyt_recipe_types = QVBoxLayout()
         gb_recipe_types.setLayout(lyt_recipe_types)
         lyt_recipe_types.setContentsMargins(5, 5, 5, 5)
+
+        # Add a horizontal layout for buttons to add/remove recipe types
+        lyt_buttons = QHBoxLayout()
+        lyt_recipe_types.addLayout(lyt_buttons)
+        # Add an 'Add' button
+        btn_add = QPushButton("Add")
+        lyt_buttons.addWidget(btn_add)
+        # Add a 'Remove' button
+        btn_remove = QPushButton("Remove")
+        lyt_buttons.addWidget(btn_remove)
 
         # Add a listbox for the recipe types
         self.lst_recipe_types = QListWidget()
