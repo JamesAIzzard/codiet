@@ -1,4 +1,9 @@
-from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QListWidget, QPushButton, QHBoxLayout
+from PyQt6.QtWidgets import (
+    QDialog,
+    QVBoxLayout,
+    QLineEdit,
+    QListWidget
+)
 from PyQt6.QtWidgets import QSizePolicy
 
 

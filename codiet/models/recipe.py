@@ -65,3 +65,19 @@ class Recipe:
                 return
         # Raise a value error if the ingredient is not in the recipe
         raise ValueError("Ingredient not in recipe")
+    
+    def add_recipe_type(self, recipe_type: str) -> None:
+        """Add a recipe type to the recipe."""
+        # Check if the recipe type is already in the recipe
+        if recipe_type in self.recipe_types:
+            return None
+        # Add the recipe type to the recipe
+        self.recipe_types.append(recipe_type)
+
+    def remove_recipe_type(self, recipe_type: str) -> None:
+        """Remove a recipe type from the recipe."""
+        # Check if the recipe type is in the recipe
+        if recipe_type not in self.recipe_types:
+            return None
+        # Remove the recipe type from the recipe
+        self.recipe_types.remove(recipe_type)

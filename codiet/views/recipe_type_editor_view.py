@@ -1,4 +1,4 @@
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -14,10 +14,44 @@ from PyQt6.QtWidgets import (
 )
 
 class RecipeTypeEditorView(QWidget):
+    # Define signals
+    addRecipeTypeClicked = pyqtSignal()
+    removeRecipeTypeClicked = pyqtSignal()
+
+
     """UI element to allow the user to select/deselect recipe types."""
     def __init__(self):
         super().__init__()
         self._build_ui()
+
+        # Emit the button press signals
+        self.btn_add.clicked.connect(self.addRecipeTypeClicked.emit)
+        self.btn_remove.clicked.connect(self.removeRecipeTypeClicked.emit)
+
+    @property
+    def selected_recipe_type(self) -> str | None:
+        """Return the selected recipe type."""
+        current_item = self.lst_recipe_types.currentItem()
+        if current_item is not None:
+            return current_item.text()
+        return None
+    
+    def recipe_type_in_list(self, recipe_type: str) -> bool:
+        """Check if a recipe type is in the list."""
+        try:
+            self._fetch_recipe_type_item(recipe_type)
+            return True
+        except ValueError:
+            return False
+
+    def add_recipe_type(self, recipe_type: str) -> None:
+        """Add a recipe type to the list."""
+        self.lst_recipe_types.addItem(recipe_type)
+
+    def remove_recipe_type(self, recipe_type: str) -> None:
+        """Remove a recipe type from the list."""
+        item = self._fetch_recipe_type_item(recipe_type)
+        self.lst_recipe_types.takeItem(self.lst_recipe_types.row(item))
 
     def update_recipe_types(self, recipe_types: list[str]) -> None:
         """Update the recipe types available in the editor."""
@@ -25,24 +59,8 @@ class RecipeTypeEditorView(QWidget):
         self.lst_recipe_types.clear()
         # Add the new recipe types
         for recipe_type in recipe_types:
-            item = QListWidgetItem(recipe_type)
-            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
-            item.setCheckState(Qt.CheckState.Checked)
-            self.lst_recipe_types.addItem(item)
-
-    def update_recipe_types_selection(self, selected_recipe_types: dict[str, bool]) -> None:
-        """Update the recipe types which are selected in the editor."""
-        # Iterate through the selected recipe types
-        for recipe_type, selected in selected_recipe_types.items():
-            # Update the selection of the recipe type
-            self.update_recipe_type_selection(recipe_type, selected)
-
-    def update_recipe_type_selection(self, recipe_type: str, selected: bool) -> None:
-        """Update the selection of a single recipe type."""
-        # Fetch the recipe type matching the name
-        item = self._fetch_recipe_type_item(recipe_type)
-        # Set the checked status
-        item.setCheckState(Qt.CheckState.Checked if selected else Qt.CheckState.Unchecked)
+            if not self.recipe_type_in_list(recipe_type):
+                self.add_recipe_type(recipe_type)
 
     def _build_ui(self):
         """Build the UI for the recipe type editor."""
@@ -63,11 +81,11 @@ class RecipeTypeEditorView(QWidget):
         lyt_buttons = QHBoxLayout()
         lyt_recipe_types.addLayout(lyt_buttons)
         # Add an 'Add' button
-        btn_add = QPushButton("Add")
-        lyt_buttons.addWidget(btn_add)
+        self.btn_add = QPushButton("Add")
+        lyt_buttons.addWidget(self.btn_add)
         # Add a 'Remove' button
-        btn_remove = QPushButton("Remove")
-        lyt_buttons.addWidget(btn_remove)
+        self.btn_remove = QPushButton("Remove")
+        lyt_buttons.addWidget(self.btn_remove)
 
         # Add a listbox for the recipe types
         self.lst_recipe_types = QListWidget()

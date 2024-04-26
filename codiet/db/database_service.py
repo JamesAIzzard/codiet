@@ -336,3 +336,7 @@ class DatabaseService:
         self._repo._db.connection.commit()
         # Return the ID
         return id
+    
+    def fetch_all_global_recipe_types(self) -> list[str]:
+        """Returns a list of all the recipe types in the database."""
+        return self._repo.fetch_all_global_recipe_types()

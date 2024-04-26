@@ -1,0 +1,73 @@
+{
+    "recipe_types": [
+      {
+        "name": "meal",
+        "subtypes": [
+          "breakfast",
+          "lunch",
+          "dinner",
+          "snack"
+        ]
+      },
+      {
+        "name": "course",
+        "subtypes": [
+          "starter",
+          "main",
+          "side",
+          "dessert"
+        ]
+      },
+      {
+        "name": "drink",
+        "subtypes": [
+          {
+            "name": "cocktail",
+            "subtypes": [
+              "alcoholic",
+              "non-alcoholic"
+            ]
+          },
+          "smoothie",
+          "juice",
+          "tea",
+          "coffee",
+          "hot chocolate",
+          "milkshake"
+        ]
+      },
+      {
+        "name": "soup",
+        "subtypes": [
+          "clear",
+          "cream",
+          "bisque",
+          "chowder"
+        ]
+      },
+      "salad",
+      {
+        "name": "sauce",
+        "subtypes": [
+          "pasta sauce",
+          "gravy",
+          "stir-fry sauce",
+          "dipping sauce"
+        ]
+      },
+      "condiment",
+      "marinade",
+      "dressing",
+      {
+        "name": "baked goods",
+        "subtypes": [
+          "bread",
+          "muffin",
+          "pastry",
+          "cookie",
+          "cake",
+          "pie"
+        ]
+      }
+    ]
+  }

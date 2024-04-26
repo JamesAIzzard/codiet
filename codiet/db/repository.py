@@ -541,3 +541,12 @@ class Repository:
             (name,),
         )
         return cursor.lastrowid
+    
+    def fetch_all_global_recipe_types(self) -> list[str]:
+        """Returns a list of all global recipe types in the database."""
+        rows = self._db.execute(
+            """
+            SELECT recipe_type_name FROM global_recipe_types;
+        """
+        ).fetchall()
+        return [row[0] for row in rows]
