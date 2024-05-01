@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from codiet.models.ingredient import Ingredient
+from codiet.models.ingredients import Ingredient
 
 class TestIngredientInstantiation(TestCase):
     def test_ingredient_instantiation(self):
@@ -11,7 +11,7 @@ class TestIngredientPopulatedNutrients(TestCase):
     def test_ingredient_populated_nutrients(self):
         # Create an ingredient
         ingredient = Ingredient(name="test")
-        ingredient.nutrients = {
+        ingredient._nutrients = {
             "test_nutrient": {
                 "ntr_qty": 1.0,
                 "ntr_qty_unit": "g",
@@ -30,7 +30,7 @@ class TestIngredientPopulatedNutrients(TestCase):
 class TestIngredientNutrientIsPopulated(TestCase):
     def test_ingredient_nutrient_is_populated_true(self):
         ingredient = Ingredient(name="test")
-        ingredient.nutrients = {
+        ingredient._nutrients = {
             "test_nutrient": {
                 "ntr_qty": 1.0,
                 "ntr_qty_unit": "g",

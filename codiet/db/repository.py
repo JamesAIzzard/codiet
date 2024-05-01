@@ -351,7 +351,7 @@ class Repository:
 
     def fetch_ingredient_nutrients(
         self, ingredient_id: int
-    ) -> dict[str, dict[str, dict]]:
+    ) -> dict[str, dict]:
         """Returns a dict of nutrients for the given ingredient ID."""
         rows = self._db.execute(
             """
@@ -419,6 +419,24 @@ class Repository:
             (id,),
         ).fetchone()[0]
 
+    def fetch_recipe_id(self, name: str) -> int:
+        """Returns the ID of the recipe associated with the given name."""
+        return self._db.execute(
+            """
+            SELECT recipe_id FROM recipe_base WHERE recipe_name = ?;
+        """,
+            (name,),
+        ).fetchone()[0]
+
+    def fetch_all_recipe_names(self) -> list[str]:
+        """Returns a list of all the recipe names in the database."""
+        rows = self._db.execute(
+            """
+            SELECT recipe_name FROM recipe_base;
+        """
+        ).fetchall()
+        return [row[0] for row in rows]
+
     def update_recipe_name(self, recipe_id: int, name: str) -> None:
         """Updates the name of the recipe associated with the given ID."""
         self._db.execute(
@@ -429,6 +447,15 @@ class Repository:
         """,
             (name, recipe_id),
         )
+
+    def fetch_recipe_description(self, id: int) -> str | None:
+        """Returns the description of the recipe associated with the given ID."""
+        return self._db.execute(
+            """
+            SELECT recipe_description FROM recipe_base WHERE recipe_id = ?;
+        """,
+            (id,),
+        ).fetchone()[0]
 
     def update_recipe_description(self, recipe_id: int, description: str | None) -> None:
         """Updates the description of the recipe associated with the given ID."""
@@ -441,6 +468,15 @@ class Repository:
             (description, recipe_id),
         )
 
+    def fetch_recipe_instructions(self, id: int) -> str | None:
+        """Returns the instructions of the recipe associated with the given ID."""
+        return self._db.execute(
+            """
+            SELECT recipe_instructions FROM recipe_base WHERE recipe_id = ?;
+        """,
+            (id,),
+        ).fetchone()[0]
+
     def update_recipe_instructions(self, recipe_id: int, instructions: str | None) -> None:
         """Updates the instructions of the recipe associated with the given ID."""
         self._db.execute(
@@ -451,6 +487,27 @@ class Repository:
         """,
             (instructions, recipe_id),
         )
+
+    def fetch_recipe_ingredients(self, id: int) -> dict[str, dict]:
+        """Returns the ingredients of the recipe associated with the given ID."""
+        rows = self._db.execute(
+            """
+            SELECT ingredient_name, qty, qty_unit, qty_utol, qty_ltol
+            FROM ingredient_base
+            JOIN recipe_ingredients ON ingredient_base.ingredient_id = recipe_ingredients.ingredient_id
+            WHERE recipe_id = ?;
+        """,
+            (id,),
+        ).fetchall()
+        return {
+            row[0]: {
+                "qty": row[1],
+                "qty_unit": row[2],
+                "qty_utol": row[3],
+                "qty_ltol": row[4],
+            }
+            for row in rows
+        }
 
     def update_recipe_ingredients(
         self, recipe_id: int, ingredients: dict[str, dict]
@@ -465,7 +522,7 @@ class Repository:
         )
         # Add the new ingredients
         for ingredient, data in ingredients.items():
-            # Get the ingredient ID
+            # Get the ingredient ID from the name
             ingredient_id = self._db.execute(
                 """
                 SELECT ingredient_id FROM ingredient_base WHERE ingredient_name = ?;
@@ -487,6 +544,16 @@ class Repository:
                     data["qty_ltol"],
                 ),
             )
+
+    def fetch_recipe_serve_times(self, id: int) -> list[str]:
+        """Returns the serve times of the recipe associated with the given ID."""
+        rows = self._db.execute(
+            """
+            SELECT serve_time_window FROM recipe_serve_times WHERE recipe_id = ?;
+        """,
+            (id,),
+        ).fetchall()
+        return [row[0] for row in rows]
 
     def update_recipe_serve_times(
         self, recipe_id: int, serve_times: list[str]
@@ -548,5 +615,18 @@ class Repository:
             """
             SELECT recipe_type_name FROM global_recipe_types;
         """
+        ).fetchall()
+        return [row[0] for row in rows]
+    
+    def fetch_recipe_types_for_recipe(self, recipe_id: int) -> list[str]:
+        """Returns a list of all recipe types for the given recipe ID."""
+        rows = self._db.execute(
+            """
+            SELECT recipe_type_name
+            FROM global_recipe_types
+            JOIN recipe_types ON global_recipe_types.recipe_type_id = recipe_types.recipe_type_id
+            WHERE recipe_id = ?;
+        """,
+            (recipe_id,),
         ).fetchall()
         return [row[0] for row in rows]

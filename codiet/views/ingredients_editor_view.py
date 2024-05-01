@@ -1,3 +1,4 @@
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -8,13 +9,24 @@ from PyQt6.QtWidgets import (
     QListWidgetItem,
 )
 
+from codiet.models.ingredients import IngredientQuantity
 from codiet.views.ingredient_quantity_editor_view import IngredientQuantityEditorView
 
 class IngredientsEditorView(QWidget):
+    """UI element to allow the user to edit ingredients."""
+
+    # Define signals
+    addIngredientClicked = pyqtSignal()
+    removeIngredientClicked = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         # Build the UI
         self._build_ui()
+
+        # Emit the button press signals
+        self.btn_add_ingredient.clicked.connect(self.addIngredientClicked.emit)
+        self.btn_remove_ingredient.clicked.connect(self.removeIngredientClicked.emit)
 
     @property
     def selected_ingredient_widget(self) -> IngredientQuantityEditorView | None:
@@ -31,7 +43,7 @@ class IngredientsEditorView(QWidget):
 
     @property
     def selected_ingredient_id(self) -> int | None:
-        """Return the selected ingredient."""
+        """Return the selected ingredient id."""
         # First grab the widget
         widget = self.selected_ingredient_widget
         # If there is no widget, return None
@@ -40,41 +52,29 @@ class IngredientsEditorView(QWidget):
         # Return the ingredient ID
         return widget.ingredient_id
 
-    def update_ingredients(self, ingredients: dict[str, dict]) -> None:
+    def update_ingredients(self, ingredient_quantities: dict[str, IngredientQuantity]) -> None:
         """Update the ingredients in the editor."""
         # Clear the current ingredients
-        self.list_ingredients.clear()
+        self.clear()
         # Loop through the ingredients
-        for ingredient_name, ingredient_data in ingredients.items():
-            # Add the ingredient to the list
-            self.add_ingredient(
-                ingredient_name=ingredient_name,
-                ingredient_id=ingredient_data["id"],
-                ingredient_qty=ingredient_data["qty"],
-                ingredient_qty_unit=ingredient_data["qty_unit"],
-                ingredient_qty_utol=ingredient_data["qty_utol"],
-                ingredient_qty_ltol=ingredient_data["qty_ltol"]
-            )
+        for ingredient in ingredient_quantities.values():
+            self.add_ingredient(ingredient)
 
-    def add_ingredient(self, 
-            ingredient_name: str,
-            ingredient_id: int,
-            ingredient_qty: float | None = None,
-            ingredient_qty_unit: str = "g",
-            ingredient_qty_utol: float | None = None,
-            ingredient_qty_ltol: float | None = None
-        ) -> None:
+    def add_ingredient(self, ingredient_quantity: IngredientQuantity) -> None:
         """Add an ingredient to the list."""
         # Create a new row in the list
         listItem = QListWidgetItem(self.list_ingredients)
+        # If the ingredient name or id are not populated, raise exception
+        if ingredient_quantity.ingredient.name is None or ingredient_quantity.ingredient.id is None:
+            raise ValueError("Cannot add ingredient with no name or id")
         # Create a new instance of IngredientQuantityEditorView
         ingredient = IngredientQuantityEditorView(
-            ingredient_name, 
-            ingredient_id,
-            ingredient_qty,
-            ingredient_qty_unit,
-            ingredient_qty_utol,
-            ingredient_qty_ltol
+            ingredient_name = ingredient_quantity.ingredient.name,
+            ingredient_id = ingredient_quantity.ingredient.id,
+            ingredient_qty = ingredient_quantity.qty_value,
+            ingredient_qty_unit = ingredient_quantity.qty_unit,
+            ingredient_qty_utol = ingredient_quantity.upper_tol,
+            ingredient_qty_ltol = ingredient_quantity.lower_tol
         )
         # Set the size hint of the list item to the size hint of the ingredient editor
         listItem.setSizeHint(ingredient.sizeHint())
@@ -82,6 +82,10 @@ class IngredientsEditorView(QWidget):
         self.list_ingredients.addItem(listItem)
         # Set the widget of the list item to be the ingredient editor
         self.list_ingredients.setItemWidget(listItem, ingredient)
+
+    def clear(self) -> None:
+        """Clear all the ingredients from the list."""
+        self.list_ingredients.clear()
 
     def _build_ui(self):
         """Build the UI for the ingredients editor."""

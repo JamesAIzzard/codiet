@@ -32,7 +32,9 @@ class DialogBoxView(QDialog):
         # Add the text
         self.lbl_message = QLabel(self)
         self.lbl_message.setWordWrap(True)
-        self.lbl_message.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.lbl_message.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
         self.lyt_icon_and_label.addWidget(self.lbl_message)
 
         # Add the buttons
@@ -48,9 +50,11 @@ class DialogBoxView(QDialog):
         # Create the pixmap to display the icon
         pixmap = QPixmap(icon_path)
         # Set the pixmap to the label
-        self.lbl_icon.setPixmap(pixmap.scaled(20, 20, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio))
+        self.lbl_icon.setPixmap(
+            pixmap.scaled(20, 20, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
+        )
 
-    def set_text(self, text: str):
+    def set_message(self, text: str):
         """Set the text for the dialog box."""
         self.lbl_message.setText(text)
 
@@ -58,26 +62,33 @@ class DialogBoxView(QDialog):
         """Set the buttons to display on the dialog box."""
         self.button_box.setStandardButtons(buttons)
 
+
 class OkDialogBoxView(DialogBoxView):
-    def __init__(self, message:str, title:str, parent=None):
+    def __init__(self, message: str, title: str, parent=None):
         super().__init__(parent)
         self.set_button_configuration(QDialogButtonBox.StandardButton.Ok)
-        self.set_icon('codiet/resources/icons/ok-icon.png')
-        self.set_text(message)
+        self.set_icon("codiet/resources/icons/ok-icon.png")
+        self.set_message(message)
         self.setWindowTitle(title)
+
 
 class ErrorDialogBoxView(DialogBoxView):
-    def __init__(self, message:str, title:str, parent=None):
+    def __init__(
+        self, message: str = "An error occurred.", title: str = "Error", parent=None
+    ):
         super().__init__(parent)
         self.set_button_configuration(QDialogButtonBox.StandardButton.Ok)
-        self.set_icon('codiet/resources/icons/error-icon.png')
-        self.set_text(message)
+        self.set_icon("codiet/resources/icons/error-icon.png")
+        self.set_message(message)
         self.setWindowTitle(title)
 
+
 class ConfirmDialogBoxView(DialogBoxView):
-    def __init__(self, message:str, title:str, parent=None):
+    def __init__(self, message: str, title: str, parent=None):
         super().__init__(parent)
-        self.set_button_configuration(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
-        self.set_icon('codiet/resources/icons/question-icon.png')
-        self.set_text(message)
+        self.set_button_configuration(
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        )
+        self.set_icon("codiet/resources/icons/question-icon.png")
+        self.set_message(message)
         self.setWindowTitle(title)

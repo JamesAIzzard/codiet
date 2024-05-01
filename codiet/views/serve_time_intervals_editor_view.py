@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -8,10 +6,14 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QListWidget,
 )
-
-from codiet.views.time_interval_popup_view import TimeIntervalPopupView
+from PyQt6.QtCore import pyqtSignal
 
 class ServeTimeIntervalsEditorView(QWidget):
+    """UI element to allow the user to edit the serve time intervals."""
+    # Define signals
+    addTimeClicked = pyqtSignal()
+    removeTimeClicked = pyqtSignal(int)
+
     def __init__(self):
         super().__init__()
         self._build_ui()

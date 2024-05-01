@@ -7,11 +7,20 @@ from PyQt6.QtWidgets import (
     QListWidgetItem,
     QPushButton
 )
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal
 
 from codiet.utils.pyqt import block_signals
 
 class FlagEditorView(QWidget):
+    """The UI element to allow the user to edit flags."""
+
+    # Define signals
+    onFlagChanged = pyqtSignal(str, bool)
+    onSelectAllFlagsClicked = pyqtSignal()
+    onDeselectAllFlagsClicked = pyqtSignal()
+    onInvertSelectionFlagsClicked = pyqtSignal()
+    onClearSelectionFlagsClicked = pyqtSignal()
+
     def __init__(self):
         super().__init__()
 
@@ -36,21 +45,28 @@ class FlagEditorView(QWidget):
         # Add the item to the list in lowercase
         self.flags[flag_name.lower()] = item
 
-    def select_flag(self, flag: str):
-        '''Update the flag to be selected.'''
-        with block_signals(self.lstFlagCheckboxes):
+    def set_flag(self, flag: str, value: bool) -> None:
+        """Set the value of a flag."""
+        # Update the flag in the UI
+        if value is True:
             self.flags[flag].setCheckState(Qt.CheckState.Checked)
-
-    def deselect_flag(self, flag: str):
-        '''Update the flag to be deselected.'''
-        with block_signals(self.lstFlagCheckboxes):
+        else:
             self.flags[flag].setCheckState(Qt.CheckState.Unchecked)
+
+    def update_flags(self, flags: dict[str, bool]) -> None:
+        """Update the flags in the UI."""
+        for flag_name, flag_value in flags.items(): # Don't need to block, set_flag blocks.
+            self.set_flag(flag_name, flag_value)
+
+    def select_all_flags(self):
+        '''Select all flags.'''
+        for flag in self.flags: # Don't need to block, set_flag blocks.
+            self.set_flag(flag, True) 
 
     def deselect_all_flags(self):
         '''Deselect all flags.'''
-        with block_signals(self.lstFlagCheckboxes):
-            for flag in self.flags:
-                self.flags[flag].setCheckState(Qt.CheckState.Unchecked)
+        for flag in self.flags: # Don't need to block, set_flag blocks.
+            self.set_flag(flag, False)
     
     def get_selected_flags(self) -> list[str]:
         '''Get a list of all the selected flags.'''
@@ -59,6 +75,10 @@ class FlagEditorView(QWidget):
             if self.flags[flag].checkState() == Qt.CheckState.Checked:
                 selected_flags.append(flag)
         return selected_flags
+    
+    def get_flag_value(self, flag: str) -> bool:
+        '''Get the value of a flag.'''
+        return self.flags[flag].checkState() == Qt.CheckState.Checked
 
     def _build_ui(self):
         """Build the UI for the flag editor"""

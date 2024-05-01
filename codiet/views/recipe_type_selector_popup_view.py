@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QListWidget
 from PyQt6.QtCore import pyqtSignal
 
-from codiet.views.search_box_view import SearchBoxView
+from codiet.views.search_views import SearchTermView
 
 class RecipeTypeSelectorPopupView(QDialog):
     # Define signals
@@ -67,7 +67,7 @@ class RecipeTypeSelectorPopupView(QDialog):
         self.setLayout(layout)
 
         # Create a search box and add it to the layout
-        self.search_box = SearchBoxView()
+        self.search_box = SearchTermView()
         layout.addWidget(self.search_box)
 
         # Create a listbox and add it to the layout

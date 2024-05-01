@@ -12,7 +12,7 @@ from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QDialog
 
 from codiet.views.dialog_box_view import OkDialogBoxView, ConfirmDialogBoxView
-from codiet.views.ingredient_search_popup_view import IngredientSearchPopupView
+from codiet.views.search_views import SearchPopupView
 from codiet.views.ingredients_editor_view import IngredientsEditorView
 from codiet.views.serve_time_intervals_editor_view import ServeTimeIntervalsEditorView
 from codiet.views.recipe_type_editor_view import RecipeTypeEditorView
@@ -25,7 +25,7 @@ class RecipeEditorView(QWidget):
         # Build the user interface
         self._build_ui()
         # Init the ingredient search popup
-        self.ingredient_search_popup = IngredientSearchPopupView()
+        self.ingredient_search_popup = SearchPopupView()
 
 
     def update_name(self, name: str | None) -> None:
@@ -57,10 +57,6 @@ class RecipeEditorView(QWidget):
                 self.textbox_recipe_instructions.clear()
             else:
                 self.textbox_recipe_instructions.setPlainText(instructions)
-
-    def update_ingredients(self, ingredients: dict[str, dict]) -> None:
-        """Update the ingredients."""
-        self.ingredients_editor.update_ingredients(ingredients)
 
     def update_recipe_types(self, recipe_types: list[str]) -> None:
         """Update the recipe types."""

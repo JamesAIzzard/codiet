@@ -1,39 +1,43 @@
 from datetime import datetime
 
 from codiet.utils.search import filter_text
-from codiet.models.recipe import Recipe
+from codiet.models.recipes import Recipe
 from codiet.views.recipe_editor_view import RecipeEditorView
-from codiet.controllers.serve_time_intervals_editor_ctrl import ServeTimeIntervalsEditorCtrl
+from codiet.views.search_views import SearchPopupView
+from codiet.views.dialog_box_view import ErrorDialogBoxView
+from codiet.views.time_interval_popup_view import TimeIntervalPopupView
 from codiet.views.recipe_type_selector_popup_view import RecipeTypeSelectorPopupView
-from codiet.controllers.ingredients_editor_ctrl import IngredientsEditorCtrl
 from codiet.db.database_service import DatabaseService
+
 
 class RecipeEditorCtrl:
     def __init__(self, view: RecipeEditorView):
         # Stash a reference to the view
         self.view = view
-        # Init a recipe instance
-        with DatabaseService() as db_service:
-            self.recipe = db_service.create_empty_recipe()
-        # Instantiate the ingredients editor controller
-        self.ingredients_editor_ctrl = IngredientsEditorCtrl(
-            view = self.view.ingredients_editor,
-            recipe = self.recipe
+
+        # Init ancillairy views
+        self.ingredients_editor_popup = SearchPopupView()
+        self.serve_time_popup = TimeIntervalPopupView()
+        self.recipe_type_selector_popup = RecipeTypeSelectorPopupView()
+        self.error_popup = ErrorDialogBoxView(
+            message="", title="", parent=self.view
         )
-        # Instantiate the time interval editor controller
-        self.time_intervals_editor_ctrl = ServeTimeIntervalsEditorCtrl(
-            view = self.view.serve_time_intervals_editor_view,
-            on_add_time_interval=self._on_add_serve_time,
-            on_remove_time_interval=self._on_remove_serve_time
-        )
-        # Build the recipe type selector popup
-        self._setup_recipe_type_views()
+
+        # Init a cache of ingredient names
+        self.ingredient_names = []
+
+        # Connect the ingredient editor views
+        self._connect_ingredients_editor()
+        # Connect the serve time views
+        self._connect_serve_time_editor()
+        # Connect the recipe type views
+        self._config_recipe_type_editor()
         # Connect the signals and slots
         # TODO: Update this to use better organised setup methods as
         # done with the recipe types stuff.
         self._connect_signals_and_slots()
 
-    def load_recipe_instance(self, recipe:Recipe) -> None:
+    def load_recipe_instance(self, recipe: Recipe) -> None:
         """Load a recipe instance into the editor."""
         # Update the stored instance
         self.recipe = recipe
@@ -44,11 +48,13 @@ class RecipeEditorCtrl:
         # Update the instructions field
         self.view.update_instructions(recipe.instructions)
         # Update the ingredients fields
-        self.view.update_ingredients(recipe.ingredients)
+        self.view.ingredients_editor.update_ingredients(recipe.ingredients)
         # Update the time intervals field
-        self.view.serve_time_intervals_editor_view.update_serve_times(recipe.serve_times_strings)
-        # Update the recipe type field 
-        self.view.update_recipe_types(recipe.recipe_types)
+        self.view.serve_time_intervals_editor_view.update_serve_times(
+            recipe.serve_times
+        )
+        # Update the recipe type field
+        self.view.update_recipe_types(recipe._recipe_types)
 
     def _on_recipe_name_changed(self, name: str) -> None:
         """Handle the recipe name being changed."""
@@ -79,13 +85,84 @@ class RecipeEditorCtrl:
         else:
             self.recipe.instructions = instructions
 
-    def _on_add_serve_time(self, serve_time: tuple[datetime, datetime]) -> None:
-        """Handle the addition of a serve time."""
-        self.recipe.add_serve_time(serve_time)
+    def _on_add_ingredient_clicked(self) -> None:
+        """Handle the add ingredient button being clicked."""
+        # Cache the current list of ingredient names
+        with DatabaseService() as db_service:
+            self.ingredient_names = db_service.fetch_all_ingredient_names()
+        # Show the ingredient search popup
+        self.ingredients_editor_popup.show()
 
-    def _on_remove_serve_time(self, serve_time: tuple[datetime, datetime]) -> None:
+    def _on_remove_ingredient_clicked(self) -> None:
+        """Handle the remove ingredient button being clicked."""
+        # Get the selected ingredient id
+        ingredient_id = self.view.ingredients_editor.selected_ingredient_id
+        # If there is no selected ingredient, return
+        if ingredient_id is None:
+            return None
+        # Remove the ingredient from the recipe
+        self.recipe.remove_ingredient(ingredient_id)
+        # Update the ingredients in the view
+        self.view.ingredients_editor.update_ingredients(self.recipe._ingredients)
+
+    def _on_ingredient_search_term_changed(self, search_term: str) -> None:
+        """Handle the ingredient search term being changed."""
+        # If the search term is empty, return
+        if search_term.strip() == "":
+            return None
+        # Filter the ingredients
+        filtered_ingredient_names = filter_text(search_term, self.ingredient_names, 5)
+        # Update the ingredients in the popup
+        self.ingredients_editor_popup.update_results_list(filtered_ingredient_names)
+
+    def _on_ingredient_search_cancelled(self) -> None:
+        """Handle the ingredient search being cancelled."""
+        # Clear the contents of the search term textbox
+        self.ingredients_editor_popup.search_term_textbox.clear()
+
+    def _on_ingredient_selected(self, ingredient_name: str) -> None:
+        """Handle an ingredient being selected."""
+        # Fetch the ingredient data from the database
+        with DatabaseService() as db_service:
+            ingredient = db_service.fetch_ingredient_by_name(ingredient_name)
+        # Add the ingredient to the recipe
+        self.recipe.add_ingredient(ingredient)
+        # Update the ingredients in the view
+        self.view.ingredients_editor.update_ingredients(self.recipe._ingredients)
+        # Hide the popup
+        self.ingredients_editor_popup.hide()
+
+    def _on_add_serve_time(self) -> None:
+        """Handle the addition of a serve time."""
+        # Show the popup
+        self.serve_time_popup.show()
+
+    def _on_remove_serve_time(self, index: int) -> None:
         """Handle the removal of a serve time."""
-        self.recipe.remove_serve_time(serve_time)
+        self.view.serve_time_intervals_editor_view.remove_time_interval(index)
+
+    def _on_serve_time_provided(self, start_time: str, end_time: str) -> None:
+        """Handle a serve time being provided."""
+        # Validate the strings as times
+        try:
+            # Convert the strings to datetime objects
+            dt_start = datetime.strptime(start_time, "%H:%M")
+            dt_end = datetime.strptime(end_time, "%H:%M")
+        except ValueError:
+            # Configure the error popup
+            self.error_popup.setWindowTitle("Invalid Time")
+            self.error_popup.set_message("Please enter a valid time.")
+            # Show the error popup
+            self.error_popup.show()
+            return None
+        # Add the time interval to the recipe
+        self.recipe.add_serve_time((dt_start, dt_end))
+        # Update the serve times in the view
+        self.view.serve_time_intervals_editor_view.update_serve_times(
+            self.recipe.serve_times_strings
+        )
+        # Hide the popup
+        self.serve_time_popup.hide()
 
     def _on_add_recipe_type_clicked(self) -> None:
         """Handle the add recipe type button being clicked."""
@@ -129,19 +206,6 @@ class RecipeEditorCtrl:
             # Update the recipe types in the popup
             self.recipe_type_selector_popup.update_recipe_types(filtered_recipe_types)
 
-    def _setup_recipe_type_views(self) -> None:
-        """Initialize the recipe type selector popup."""
-        # Connect the add recipe type button to the recipe type popup
-        self.view.recipe_type_editor_view.addRecipeTypeClicked.connect(self._on_add_recipe_type_clicked)
-        # Connect the remove recipe type button to the recipe type popup
-        self.view.recipe_type_editor_view.removeRecipeTypeClicked.connect(self._on_remove_recipe_type_clicked)
-        # Init the popup
-        self.recipe_type_selector_popup = RecipeTypeSelectorPopupView()
-        # Connect the recipe type selected signal
-        self.recipe_type_selector_popup.recipeTypeSelected.connect(self._on_recipe_type_selected)
-        # Connect the search term changed signal
-        self.recipe_type_selector_popup.searchTermChanged.connect(self._on_recipe_type_search_term_changed)
-
     def _on_save_button_pressed(self) -> None:
         """Handle the save button being pressed."""
         # Open the 'name required' popup if the name is empty
@@ -152,14 +216,16 @@ class RecipeEditorCtrl:
         if self.recipe.id is None:
             # Save it
             with DatabaseService() as db_service:
-                self.recipe.id = self.recipe.id = db_service.insert_new_recipe(self.recipe)
+                self.recipe.id = self.recipe.id = db_service.insert_new_recipe(
+                    self.recipe
+                )
             # Open a popup to confirm the save
             self.view.show_save_confirmation_popup()
             return None
         # So the id is populated, this must be an update.
         # First fetch the name from the database which corresponds to this id.
         with DatabaseService() as db_service:
-            existing_name = db_service.fetch_recipe_name(self.recipe.id)
+            existing_name = db_service.fetch_recipe_name_using_id(self.recipe.id)
         # If the name has changed
         if existing_name != self.recipe.name:
             # Open a yes/no popup to confirm the update
@@ -173,13 +239,60 @@ class RecipeEditorCtrl:
         # Open a popup to confirm the update
         self.view.show_update_confirmation_popup()
 
+    def _connect_ingredients_editor(self) -> None:
+        """Initialise the ingredients editor views."""
+        self.view.ingredients_editor.addIngredientClicked.connect(
+            self._on_add_ingredient_clicked
+        )
+        self.view.ingredients_editor.removeIngredientClicked.connect(
+            self._on_remove_ingredient_clicked
+        )
+        self.ingredients_editor_popup.search_term_textbox.searchTermChanged.connect(
+            self._on_ingredient_search_term_changed
+        )
+        self.ingredients_editor_popup.search_term_textbox.cancelClicked.connect(
+            self._on_ingredient_search_cancelled
+        )
+        self.ingredients_editor_popup.resultSelected.connect(
+            self._on_ingredient_selected
+        )
+
+    def _connect_serve_time_editor(self) -> None:
+        """Initialise the serve time editor views."""
+        self.view.serve_time_intervals_editor_view.addTimeClicked.connect(
+            self._on_add_serve_time
+        )
+        self.view.serve_time_intervals_editor_view.removeTimeClicked.connect(
+            self._on_remove_serve_time
+        )
+        self.serve_time_popup.addClicked.connect(self._on_serve_time_provided)
+
+    def _config_recipe_type_editor(self) -> None:
+        """Initialise the recipe type selector popup."""
+        self.view.recipe_type_editor_view.addRecipeTypeClicked.connect(
+            self._on_add_recipe_type_clicked
+        )
+        self.view.recipe_type_editor_view.removeRecipeTypeClicked.connect(
+            self._on_remove_recipe_type_clicked
+        )
+        self.recipe_type_selector_popup.recipeTypeSelected.connect(
+            self._on_recipe_type_selected
+        )
+        self.recipe_type_selector_popup.searchTermChanged.connect(
+            self._on_recipe_type_search_term_changed
+        )
+
     def _connect_signals_and_slots(self) -> None:
         """Connect the signals and slots for the recipe editor."""
         # Connect the recipe name changed signal
         self.view.txt_recipe_name.textChanged.connect(self._on_recipe_name_changed)
         # Connect the recipe description changed signal
-        self.view.txt_recipe_description.textChanged.connect(self._on_recipe_description_changed)
+        self.view.txt_recipe_description.textChanged.connect(
+            self._on_recipe_description_changed
+        )
         # Connect the recipe instructions changed signal
-        self.view.textbox_recipe_instructions.textChanged.connect(self._on_recipe_instructions_changed)
+        self.view.textbox_recipe_instructions.textChanged.connect(
+            self._on_recipe_instructions_changed
+        )
         # Connect the save button
         self.view.btn_save_recipe.clicked.connect(self._on_save_button_pressed)

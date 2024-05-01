@@ -4,20 +4,50 @@ from PyQt6.QtWidgets import (
     QLabel,
     QComboBox,
 )
+from PyQt6.QtCore import pyqtSignal
 
 from codiet.utils.pyqt import block_signals
 from codiet.views.custom_line_editors import NumericLineEdit
 
+
 class IngredientNutrientEditorView(QWidget):
+    """UI element for quantity of a nutrient in an ingredient."""
+
+    # Define signals
+    onNutrientMassChanged = pyqtSignal(str, float)
+    onNutrientMassUnitsChanged = pyqtSignal(str, str)
+    onIngredientMassChanged = pyqtSignal(str, float)
+    onIngredientMassUnitsChanged = pyqtSignal(str, str)
+
     def __init__(self, nutrient_name: str):
         super().__init__()
-        
+
         self.nutrient_name = nutrient_name
 
         # Construct the UI
         self._build_ui()
 
-    def update_nutrient_mass(self, mass: float):
+    @property
+    def nutrient_mass(self) -> float | None:
+        """Returns the nutrient mass."""
+        return self.txt_nutrient_mass.text()
+
+    @property
+    def nutrient_mass_units(self) -> str:
+        """Returns the nutrient mass units."""
+        return self.cmb_mass_units.currentText()
+
+    @property
+    def ingredient_mass(self) -> float | None:
+        """Returns the ingredient mass."""
+        return self.txt_ingredient_mass.text()
+
+    @property
+    def ingredient_mass_units(self) -> str:
+        """Returns the ingredient mass units."""
+        return self.cmb_ingredient_mass_units.currentText()
+
+    def update_nutrient_mass(self, mass: float | None):
         """Updates the nutrient mass."""
         with block_signals(self.txt_nutrient_mass):
             self.txt_nutrient_mass.setText(mass)
@@ -27,7 +57,7 @@ class IngredientNutrientEditorView(QWidget):
         with block_signals(self.cmb_mass_units):
             self.cmb_mass_units.setCurrentText(units)
 
-    def update_ingredient_mass(self, mass: float):
+    def update_ingredient_mass(self, mass: float | None):
         """Updates the ingredient mass."""
         with block_signals(self.txt_ingredient_mass):
             self.txt_ingredient_mass.setText(mass)
@@ -46,7 +76,7 @@ class IngredientNutrientEditorView(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         # Create a label and add it to the layout
-        label = QLabel(self.nutrient_name + ":") 
+        label = QLabel(self.nutrient_name + ":")
         layout.addWidget(label)
 
         # Add a stretch
@@ -75,7 +105,7 @@ class IngredientNutrientEditorView(QWidget):
         # Set the max width of the textbox
         self.txt_ingredient_mass.setMaximumWidth(60)
         layout.addWidget(self.txt_ingredient_mass)
-        
+
         # Create a dropdown for mass units
         self.cmb_ingredient_mass_units = QComboBox()
         # Add some mass units to the dropdown

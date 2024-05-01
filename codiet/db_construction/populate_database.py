@@ -147,7 +147,7 @@ def push_ingredients_to_db(db_service: DatabaseService):
         ingredient.gi = data["GI"]
 
         # Add the nutrients
-        ingredient.nutrients = data["nutrients"]
+        ingredient._nutrients = data["nutrients"]
 
         # Save the ingredient
         db_service.insert_new_ingredient(ingredient)

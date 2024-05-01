@@ -6,11 +6,18 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QPushButton,
 )
+from PyQt6.QtCore import pyqtSignal
 
 class TimeIntervalPopupView(QDialog):
+    # Define signals
+    addClicked = pyqtSignal(str, str)
+
     def __init__(self):
         super().__init__()
         self._build_ui()
+
+        # Connect the add button to the addClicked signal
+        self.btn_add.clicked.connect(self._on_add_clicked)
 
 
     def _build_ui(self):
@@ -54,3 +61,7 @@ class TimeIntervalPopupView(QDialog):
     def show(self):
         """Show the dialog."""
         self.exec()
+
+    def _on_add_clicked(self):
+        """Emit the addClicked signal."""
+        self.addClicked.emit(self.start_time, self.end_time)
