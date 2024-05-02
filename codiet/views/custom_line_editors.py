@@ -1,10 +1,13 @@
-from typing import Union
-
 from PyQt6.QtWidgets import QLineEdit
 from PyQt6.QtGui import QDoubleValidator
-
+from PyQt6.QtCore import pyqtSignal
 
 class NumericLineEdit(QLineEdit):
+    """A QLineEdit widget that only accepts numeric input."""
+    # Define the signals
+    valueChanged = pyqtSignal(float)
+    valueCleared = pyqtSignal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -15,6 +18,9 @@ class NumericLineEdit(QLineEdit):
         # - decimals (int): The number of decimal places allowed.
         validator = QDoubleValidator(0.0, 99999999.99, 2)
         self.setValidator(validator)
+
+        # Connect the textChanged signal to the on_text_changed method.
+        self.textChanged.connect(self.on_text_changed)
 
     def text(self) -> float | None:
         """Return the text of the line edit."""
@@ -33,3 +39,10 @@ class NumericLineEdit(QLineEdit):
         else:
             formatted_value = f"{value:.{pad_decimals}f}"
             super().setText(formatted_value)
+
+    def on_text_changed(self, text: str) -> None:
+        """Emit the valueChanged signal when the text changes."""
+        if text.strip() == "":
+            self.valueCleared.emit()
+        else:
+            self.valueChanged.emit(float(text))

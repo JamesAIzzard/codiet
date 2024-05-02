@@ -18,12 +18,14 @@ class IngredientNutrientsEditorView(QWidget):
     """The UI element to allow the user to edit the nutrients of an ingredient."""
     
     # Define signals
-    onNutrientFilterChanged = pyqtSignal(str)
-    onNutrientFilterCleared = pyqtSignal()
-    onNutrientMassChanged = pyqtSignal(str, float|None)
-    onNutrientMassUnitsChanged = pyqtSignal(str, str)
-    onIngredientQtyChanged = pyqtSignal(str, float|None)
-    onIngredientQtyUnitsChanged = pyqtSignal(str, str)
+    nutrientFilterChanged = pyqtSignal(str)
+    nutrientFilterCleared = pyqtSignal()
+    nutrientMassChanged = pyqtSignal(str, float)
+    nutrientMassCleared = pyqtSignal(str)
+    nutrientMassUnitsChanged = pyqtSignal(str, str)
+    ingredientQtyChanged = pyqtSignal(str, float)
+    ingredientQtyCleared = pyqtSignal(str)
+    ingredientQtyUnitsChanged = pyqtSignal(str, str)
 
     def __init__(self):
         super().__init__()
@@ -38,21 +40,30 @@ class IngredientNutrientsEditorView(QWidget):
         """Adds a new nutrient row to the list widget.
         Use the controller method to also connect signals.
         """
+        # If the nutrient is in the list already, raise an exception
+        if nutrient_name in self.nutrient_widgets:
+            raise ValueError(f"Nutrient '{nutrient_name}' is already in the list.")
         # Add a new row to the list
         listItem = QListWidgetItem(self.listWidget)
         nutrient_widget = IngredientNutrientEditorView(nutrient_name)
         # Connect signals
-        nutrient_widget.onNutrientMassChanged.connect(
-            lambda qty: self.onNutrientMassChanged.emit(nutrient_name, qty)
+        nutrient_widget.nutrientMassChanged.connect(
+            lambda qty: self.nutrientMassChanged.emit(nutrient_name, qty)
         )
-        nutrient_widget.onNutrientMassUnitsChanged.connect(
-            lambda units: self.onNutrientMassUnitsChanged.emit(nutrient_name, units)
+        nutrient_widget.nutrientMassCleared.connect(
+            lambda: self.nutrientMassCleared.emit(nutrient_name)
         )
-        nutrient_widget.onIngredientMassChanged.connect(
-            lambda qty: self.onIngredientQtyChanged.emit(nutrient_name, qty)
+        nutrient_widget.nutrientMassUnitsChanged.connect(
+            lambda units: self.nutrientMassUnitsChanged.emit(nutrient_name, units)
         )
-        nutrient_widget.onIngredientMassUnitsChanged.connect(
-            lambda units: self.onIngredientQtyUnitsChanged.emit(nutrient_name, units)
+        nutrient_widget.ingredientMassChanged.connect(
+            lambda qty: self.ingredientQtyChanged.emit(nutrient_name, qty)
+        )
+        nutrient_widget.ingredientMassCleared.connect(
+            lambda: self.ingredientQtyCleared.emit(nutrient_name)
+        )
+        nutrient_widget.ingredientMassUnitsChanged.connect(
+            lambda units: self.ingredientQtyUnitsChanged.emit(nutrient_name, units)
         )
         # Set the size hint
         listItem.setSizeHint(nutrient_widget.sizeHint())

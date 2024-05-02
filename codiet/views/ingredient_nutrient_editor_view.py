@@ -14,10 +14,12 @@ class IngredientNutrientEditorView(QWidget):
     """UI element for quantity of a nutrient in an ingredient."""
 
     # Define signals
-    onNutrientMassChanged = pyqtSignal(str, float)
-    onNutrientMassUnitsChanged = pyqtSignal(str, str)
-    onIngredientMassChanged = pyqtSignal(str, float)
-    onIngredientMassUnitsChanged = pyqtSignal(str, str)
+    nutrientMassChanged = pyqtSignal(str, float)
+    nutrientMassCleared = pyqtSignal(str)
+    nutrientMassUnitsChanged = pyqtSignal(str, str)
+    ingredientMassChanged = pyqtSignal(str, float)
+    ingredientMassCleared = pyqtSignal(str)
+    ingredientMassUnitsChanged = pyqtSignal(str, str)
 
     def __init__(self, nutrient_name: str):
         super().__init__()
@@ -87,6 +89,14 @@ class IngredientNutrientEditorView(QWidget):
         # Limit the textbox to 10 chars
         self.txt_nutrient_mass.setMaximumWidth(60)
         layout.addWidget(self.txt_nutrient_mass)
+        # Connect the valueChanged signal to the nutrientMassChanged signal
+        self.txt_nutrient_mass.valueChanged.connect(
+            lambda value: self.nutrientMassChanged.emit(self.nutrient_name, value)
+        )
+        # Connect the valueCleared signal to the nutrientMassCleared signal
+        self.txt_nutrient_mass.valueCleared.connect(
+            lambda: self.nutrientMassCleared.emit(self.nutrient_name)
+        )
 
         # Create a dropdown for mass units
         self.cmb_mass_units = QComboBox()
@@ -95,6 +105,10 @@ class IngredientNutrientEditorView(QWidget):
         # TODO - pull mass units from config
         self.cmb_mass_units.addItems(["g", "mg", "ug"])
         layout.addWidget(self.cmb_mass_units)
+        # Connect the currentTextChanged signal to the nutrientMassUnitsChanged signal
+        self.cmb_mass_units.currentTextChanged.connect(
+            lambda units: self.nutrientMassUnitsChanged.emit(self.nutrient_name, units)
+        )
 
         # Create a label
         label = QLabel(" per ")
@@ -105,6 +119,14 @@ class IngredientNutrientEditorView(QWidget):
         # Set the max width of the textbox
         self.txt_ingredient_mass.setMaximumWidth(60)
         layout.addWidget(self.txt_ingredient_mass)
+        # Connect the valueChanged signal to the ingredientMassChanged signal
+        self.txt_ingredient_mass.valueChanged.connect(
+            lambda value: self.ingredientMassChanged.emit(self.nutrient_name, value)
+        )
+        # Connect the valueCleared signal to the ingredientMassCleared signal
+        self.txt_ingredient_mass.valueCleared.connect(
+            lambda: self.ingredientMassCleared.emit(self.nutrient_name)
+        )
 
         # Create a dropdown for mass units
         self.cmb_ingredient_mass_units = QComboBox()
@@ -113,6 +135,10 @@ class IngredientNutrientEditorView(QWidget):
         # TODO - pull mass units from config
         self.cmb_ingredient_mass_units.addItems(["g", "kg"])
         layout.addWidget(self.cmb_ingredient_mass_units)
+        # Connect the currentTextChanged signal to the ingredientMassUnitsChanged signal
+        self.cmb_ingredient_mass_units.currentTextChanged.connect(
+            lambda units: self.ingredientMassUnitsChanged.emit(self.nutrient_name, units)
+        )
 
         # Add a little space at either end of the widget
         layout.setContentsMargins(5, 0, 5, 0)

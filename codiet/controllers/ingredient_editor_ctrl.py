@@ -315,21 +315,21 @@ class IngredientEditorCtrl:
 
     def _connect_nutrient_editor(self):
         """Connect the signals for the nutrient editor."""
-        self.view.nutrient_editor.onNutrientFilterChanged.connect(
+        self.view.nutrient_editor.nutrientFilterChanged.connect(
             self._on_nutrient_filter_changed
         )
-        self.view.nutrient_editor.onNutrientFilterCleared.connect(
+        self.view.nutrient_editor.nutrientFilterCleared.connect(
             self._on_nutrient_filter_cleared
         )
-        self.view.nutrient_editor.onNutrientMassChanged.connect(
+        self.view.nutrient_editor.nutrientMassChanged.connect(
             self._on_nutrient_mass_changed
         )
-        self.view.nutrient_editor.onNutrientMassUnitsChanged.connect(
+        self.view.nutrient_editor.nutrientMassUnitsChanged.connect(
             self._on_nutrient_mass_units_changed
         )
-        self.view.nutrient_editor.onIngredientQtyChanged.connect(
+        self.view.nutrient_editor.ingredientQtyChanged.connect(
             self._on_nutrient_ingredient_qty_changed
         )
-        self.view.nutrient_editor.onIngredientQtyUnitsChanged.connect(
+        self.view.nutrient_editor.ingredientQtyUnitsChanged.connect(
             self._on_nutrient_ingredient_qty_units_changed
         )
