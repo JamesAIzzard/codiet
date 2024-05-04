@@ -32,6 +32,9 @@ class FlagEditorView(QWidget):
 
     def add_flag_to_list(self, flag_name) -> None:
         """Adds a flag to the list of checkable flags"""
+        # If the flag is already in the list, raise an exception
+        if flag_name.lower() in self.flags:
+            raise ValueError(f"Flag '{flag_name}' is already in the list.")
         # Create the item
         item = QListWidgetItem(flag_name)
         # Make the item checkable
@@ -45,6 +48,16 @@ class FlagEditorView(QWidget):
         # Add the item to the list in lowercase
         self.flags[flag_name.lower()] = item
 
+    def add_flags_to_list(self, flags: list[str]) -> None:
+        """Add a list of flags to the list of checkable flags"""
+        for flag in flags:
+            self.add_flag_to_list(flag)
+
+    def remove_all_flags_from_list(self) -> None:
+        """Remove all flags from the list of checkable flags"""
+        self.lstFlagCheckboxes.clear()
+        self.flags.clear()
+
     def set_flag(self, flag: str, value: bool) -> None:
         """Set the value of a flag."""
         # Update the flag in the UI
@@ -53,10 +66,10 @@ class FlagEditorView(QWidget):
         else:
             self.flags[flag].setCheckState(Qt.CheckState.Unchecked)
 
-    def update_flags(self, flags: dict[str, bool]) -> None:
+    def update_flag_selections(self, flags: dict[str, bool]) -> None:
         """Update the flags in the UI."""
         for flag_name, flag_value in flags.items(): # Don't need to block, set_flag blocks.
-            self.set_flag(flag_name, flag_value)
+           self.set_flag(flag_name, flag_value)
 
     def select_all_flags(self):
         '''Select all flags.'''

@@ -25,6 +25,9 @@ class DatabaseService:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        # Rollback any unsaved changes
+        self._repo._db.connection.rollback()
+        # Close the connection
         self._repo._db.connection.close()
 
     def insert_global_flag(self, flag_name: str):
@@ -89,11 +92,11 @@ class DatabaseService:
             # Add the ingredient name to the database, getting primary key
             self._repo.insert_ingredient_name(ingredient.name)
             # Get the ingredient ID from the database and set it on the ingredient
-            ingredient_id = self._repo.fetch_ingredient_id(ingredient.name)
+            ingredient.id = self._repo.fetch_ingredient_id(ingredient.name)
             # Now we can use the update method, becuase the ID is set.
             self.update_ingredient(ingredient)
             # Return the ID
-            return ingredient_id
+            return ingredient.id            
         except Exception as e:
             # Roll back the transaction if an exception occurs
             self._repo._db.connection.rollback()
@@ -144,9 +147,13 @@ class DatabaseService:
         # Return the completed ingredient
         return ingredient
 
-    def fetch_ingredient_name(self, id: int) -> str:
+    def fetch_ingredient_name_by_id(self, id: int) -> str:
         """Returns the name of the ingredient with the given ID."""
         return self._repo.fetch_ingredient_name(id)
+
+    def fetch_ingredient_id_by_name(self, name: str) -> int:
+        """Returns the ID of the ingredient with the given name."""
+        return self._repo.fetch_ingredient_id(name)
 
     def update_ingredient(self, ingredient: Ingredient):
         """Updates the given ingredient in the database."""
@@ -206,8 +213,6 @@ class DatabaseService:
                     "ing_qty_value": nutrient.ingredient_quantity_unit,
                 }
             self._repo.update_ingredient_nutrients(ingredient.id, nutr_data)
-            # Commit the transaction
-            self._repo._db.connection.commit()
 
         except Exception as e:
             # Roll back the transaction if an exception occurs
@@ -301,8 +306,6 @@ class DatabaseService:
                 recipe_id=recipe.id,
                 recipe_types=recipe._recipe_types,
             )
-            # Commit the transaction
-            self._repo._db.connection.commit()
         except Exception as e:
             # Roll back the transaction if an exception occurs
             self._repo._db.connection.rollback()
@@ -371,11 +374,13 @@ class DatabaseService:
         """Inserts a global recipe type into the database."""
         # Action the insertion
         id = self._repo.insert_global_recipe_type(recipe_type_name)
-        # Commit the transaction
-        self._repo._db.connection.commit()
         # Return the ID
         return id
 
     def fetch_all_global_recipe_types(self) -> list[str]:
         """Returns a list of all the recipe types in the database."""
         return self._repo.fetch_all_global_recipe_types()
+    
+    def commit(self):
+        """Commits the current transaction."""
+        self._repo._db.connection.commit()

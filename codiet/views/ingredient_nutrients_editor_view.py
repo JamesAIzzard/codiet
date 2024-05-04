@@ -87,6 +87,7 @@ class IngredientNutrientsEditorView(QWidget):
 
     def update_nutrient(self, nutrient_name: str, nutrient: IngredientNutrientQuantity):
         """Updates the values of a nutrient row in the list widget."""
+        # This will raise a KeyError if the nutrient is not in the list
         self.nutrient_widgets[nutrient_name].update_nutrient_mass(nutrient.nutrient_mass)
         self.nutrient_widgets[nutrient_name].update_nutrient_mass_units(nutrient.nutrient_mass_unit)
         self.nutrient_widgets[nutrient_name].update_ingredient_mass(nutrient.ingredient_quantity)
@@ -99,10 +100,13 @@ class IngredientNutrientsEditorView(QWidget):
 
     def remove_nutrient(self, nutrient_name: str) -> None:
         """Removes a nutrient row from the list widget."""
+        # Remove nutrient from the UI list
         nutrient_widget = self.nutrient_widgets.pop(nutrient_name)
         self.listWidget.takeItem(self.listWidget.row(nutrient_widget)) # type: ignore
+        # Remove nutrient from the dict
+        self.nutrient_widgets.pop(nutrient_name)
 
-    def remove_nutrients(self):
+    def remove_all_nutrients(self):
         """Removes all nutrient rows from the list widget."""
         self.listWidget.clear()
         self.nutrient_widgets.clear()

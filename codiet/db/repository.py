@@ -117,7 +117,7 @@ class Repository:
         ).fetchall()
         return [row[0] for row in rows]
 
-    def insert_ingredient_name(self, name: str):
+    def insert_ingredient_name(self, name: str) -> None:
         """Adds an ingredient name to the database."""
         try:
             self._db.execute(

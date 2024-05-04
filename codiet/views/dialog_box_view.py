@@ -45,6 +45,22 @@ class DialogBoxView(QDialog):
         self.button_box.rejected.connect(self.reject)
         lyt_top_level.addWidget(self.button_box)
 
+    @property
+    def title(self):
+        return self.windowTitle()
+
+    @title.setter
+    def title(self, title: str):
+        self.setWindowTitle(title)
+
+    @property
+    def message(self):
+        return self.lbl_message.text()
+
+    @message.setter
+    def message(self, message: str):
+        self.lbl_message.setText(message)
+
     def set_icon(self, icon_path: str):
         """Set the icon for the dialog box."""
         # Create the pixmap to display the icon
@@ -54,41 +70,62 @@ class DialogBoxView(QDialog):
             pixmap.scaled(20, 20, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
         )
 
-    def set_message(self, text: str):
-        """Set the text for the dialog box."""
-        self.lbl_message.setText(text)
-
     def set_button_configuration(self, buttons):
         """Set the buttons to display on the dialog box."""
         self.button_box.setStandardButtons(buttons)
 
 
 class OkDialogBoxView(DialogBoxView):
-    def __init__(self, message: str, title: str, parent=None):
+    """A simple dialog box with an OK button."""
+
+    def __init__(
+        self, message: str = "Complete", title: str = "Action Complete", parent=None
+    ):
         super().__init__(parent)
         self.set_button_configuration(QDialogButtonBox.StandardButton.Ok)
         self.set_icon("codiet/resources/icons/ok-icon.png")
-        self.set_message(message)
-        self.setWindowTitle(title)
+        self.message = message
+        self.title = title
 
 
 class ErrorDialogBoxView(DialogBoxView):
+    """A dialog box to display an error message."""
+
     def __init__(
         self, message: str = "An error occurred.", title: str = "Error", parent=None
     ):
         super().__init__(parent)
         self.set_button_configuration(QDialogButtonBox.StandardButton.Ok)
         self.set_icon("codiet/resources/icons/error-icon.png")
-        self.set_message(message)
-        self.setWindowTitle(title)
+        self.message = message
+        self.title = title
 
 
 class ConfirmDialogBoxView(DialogBoxView):
-    def __init__(self, message: str, title: str, parent=None):
+    """A dialog box to confirm an action."""
+
+    def __init__(
+        self, message: str = "Are you sure?", title: str = "Confirm", parent=None
+    ):
         super().__init__(parent)
         self.set_button_configuration(
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         )
         self.set_icon("codiet/resources/icons/question-icon.png")
-        self.set_message(message)
-        self.setWindowTitle(title)
+        self.message = message
+        self.title = title
+
+
+class YesNoDialogBoxView(DialogBoxView):
+    """A dialog box to make a Yes/No decision."""
+
+    def __init__(
+        self, message: str = "Are you sure?", title: str = "Confirm", parent=None
+    ):
+        super().__init__(parent)
+        self.set_button_configuration(
+            QDialogButtonBox.StandardButton.Yes | QDialogButtonBox.StandardButton.No
+        )
+        self.set_icon("codiet/resources/icons/question-icon.png")
+        self.message = message
+        self.title = title
