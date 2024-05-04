@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import pyqtSignal
 
+from codiet.utils.pyqt import block_signals
 
 class SearchTermView(QWidget):
     # Define singals
@@ -35,7 +36,8 @@ class SearchTermView(QWidget):
     
     def clear(self) -> None:
         """Clear the search box."""
-        self.txt_search.clear()
+        with block_signals(self.txt_search):
+            self.txt_search.clear()
 
     def _build_ui(self):
         """Build the user interface."""
@@ -55,13 +57,20 @@ class SearchPopupView(QDialog):
     """UI element to allow the user to search for ingredients."""
     # Define signals
     resultSelected = pyqtSignal(str)
+    searchTermChanged = pyqtSignal(str)
+    searchTermCleared = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, title="Search"):
         super().__init__()
+
+        self.setWindowTitle(title)
+
         self._build_ui()
 
-        # Emit the signals
-        self.lst_search_results.itemClicked.connect(self.resultSelected.emit)
+        # Connect signal emissions
+        self.lst_search_results.itemClicked.connect(self._on_result_selected)
+        self.search_term_textbox.searchTermChanged.connect(self.searchTermChanged.emit)
+        self.search_term_textbox.cancelClicked.connect(self.searchTermCleared.emit)
 
     def update_results_list(self, matching_ingredient_names: list[str]):
         """Update the list of ingredients."""
@@ -71,9 +80,18 @@ class SearchPopupView(QDialog):
         for ingredient_name in matching_ingredient_names:
             self.lst_search_results.addItem(ingredient_name)
 
-    def show(self):
-        """Show the dialog."""
-        self.exec()
+    def clear_results_list(self):
+        """Clear the search results."""
+        self.lst_search_results.clear()
+
+    def clear_search_term(self):
+        """Clear the search term."""
+        self.search_term_textbox.clear()
+
+    def _on_result_selected(self, item):
+        """Handle the user selecting an ingredient to edit."""
+        # Emit a signal with the selected text
+        self.resultSelected.emit(item.text())
 
     def _build_ui(self):
         """Build the user interface."""
