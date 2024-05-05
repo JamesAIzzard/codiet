@@ -88,7 +88,7 @@ class IngredientEditorCtrl:
         # Show the name already exists popup
         response = self.yes_no_popup.exec()
         # If the user clicked yes
-        if response == QMessageBox.StandardButton.Yes:
+        if response == 1:
             # Fetch the id for the existing version
             with DatabaseService() as db_service:
                 existing_id = db_service.fetch_ingredient_id_by_name(self.ingredient.name)
@@ -103,7 +103,7 @@ class IngredientEditorCtrl:
             self._show_save_confirmation_popup()
             return None
         # If the user clicked no
-        elif response == QMessageBox.StandardButton.No:
+        elif response == 0:
             # Do nothing
             return None
 
