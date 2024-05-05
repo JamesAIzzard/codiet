@@ -63,7 +63,7 @@ class IngredientEditorCtrl:
         # Add the new flags
         self.view.flag_editor.add_flags_to_list(list(self.ingredient.flags.keys()))
         # Update the flag selections
-        self.view.flag_editor.update_flag_selections(self.ingredient.flags)
+        self.view.flag_editor.update_flags(self.ingredient.flags)
 
         # Update the GI field
         self.view.update_gi(self.ingredient.gi)
@@ -220,7 +220,7 @@ class IngredientEditorCtrl:
             # Invert the flag on the ingredient
             self.ingredient.set_flag(flag, not self.ingredient.flags[flag])
             # Invert on the view
-            self.view.flag_editor.set_flag(flag, not self.ingredient.flags[flag])
+            self.view.flag_editor.update_flag(flag, not self.ingredient.flags[flag])
 
     def _on_clear_selection_flags_clicked(self):
         """Handler for clearing the selected flags."""

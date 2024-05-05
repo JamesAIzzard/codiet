@@ -58,7 +58,7 @@ class FlagEditorView(QWidget):
         self.lstFlagCheckboxes.clear()
         self.flags.clear()
 
-    def set_flag(self, flag: str, value: bool) -> None:
+    def update_flag(self, flag: str, value: bool) -> None:
         """Set the value of a flag."""
         # Update the flag in the UI
         if value is True:
@@ -66,20 +66,20 @@ class FlagEditorView(QWidget):
         else:
             self.flags[flag].setCheckState(Qt.CheckState.Unchecked)
 
-    def update_flag_selections(self, flags: dict[str, bool]) -> None:
+    def update_flags(self, flags: dict[str, bool]) -> None:
         """Update the flags in the UI."""
         for flag_name, flag_value in flags.items(): # Don't need to block, set_flag blocks.
-           self.set_flag(flag_name, flag_value)
+           self.update_flag(flag_name, flag_value)
 
     def select_all_flags(self):
         '''Select all flags.'''
         for flag in self.flags: # Don't need to block, set_flag blocks.
-            self.set_flag(flag, True) 
+            self.update_flag(flag, True) 
 
     def deselect_all_flags(self):
         '''Deselect all flags.'''
         for flag in self.flags: # Don't need to block, set_flag blocks.
-            self.set_flag(flag, False)
+            self.update_flag(flag, False)
     
     def get_selected_flags(self) -> list[str]:
         '''Get a list of all the selected flags.'''

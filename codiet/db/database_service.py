@@ -96,7 +96,7 @@ class DatabaseService:
             # Now we can use the update method, becuase the ID is set.
             self.update_ingredient(ingredient)
             # Return the ID
-            return ingredient.id            
+            return ingredient.id
         except Exception as e:
             # Roll back the transaction if an exception occurs
             self._repo._db.connection.rollback()
@@ -130,7 +130,7 @@ class DatabaseService:
         ingredient.pc_mass_unit = pc_mass_data[1]
         ingredient.pc_mass_value = pc_mass_data[2]
         # Fetch the flags
-        ingredient.set_flags(self._repo.fetch_ingredient_flags(ingredient.id))
+        ingredient.set_flags(self.fetch_ingredient_flags(ingredient_id=ingredient.id))
         # Fetch the GI
         ingredient.gi = self._repo.fetch_ingredient_gi(ingredient.id)
         # Fetch the nutrients
@@ -156,6 +156,27 @@ class DatabaseService:
     def fetch_ingredient_id_by_name(self, name: str) -> int:
         """Returns the ID of the ingredient with the given name."""
         return self._repo.fetch_ingredient_id_by_name(name)
+
+    def fetch_ingredient_flags(
+        self, ingredient_name: str | None = None, ingredient_id: int | None = None
+    ) -> dict[str, bool]:
+        """Returns the flags for the given ingredient."""
+        # Check one of the parameters is set
+        if ingredient_name is None and ingredient_id is None:
+            raise ValueError("Either ingredient_name or ingredient_id must be set.")
+        # Grab the flags using the id
+        if ingredient_id is None and ingredient_name is not None:
+            id = self._repo.fetch_ingredient_id_by_name(ingredient_name)
+        elif ingredient_id is not None:
+            id = ingredient_id
+        # Grab the flags
+        flags_data = self._repo.fetch_ingredient_flags(id)
+        # Convert the flags from binary to boolean
+        flags = {}
+        for flag_name, flag_value in flags_data.items():
+            flags[flag_name] = bool(flag_value)
+        return flags
+
 
     def update_ingredient(self, ingredient: Ingredient):
         """Updates the given ingredient in the database."""
@@ -338,7 +359,7 @@ class DatabaseService:
         # First grab the raw data from the repo
         raw_ingredients = self._repo.fetch_recipe_ingredients(recipe.id)
         # Init a list to hold the ingredient quantities
-        ingredient_quantities:dict[str, IngredientQuantity] = {}
+        ingredient_quantities: dict[str, IngredientQuantity] = {}
         # Cycle through the raw data
         for ingredient_name, data in raw_ingredients.items():
             # Grab the ingredient
@@ -382,7 +403,7 @@ class DatabaseService:
     def fetch_all_global_recipe_types(self) -> list[str]:
         """Returns a list of all the recipe types in the database."""
         return self._repo.fetch_all_global_recipe_types()
-    
+
     def commit(self):
         """Commits the current transaction."""
         self._repo._db.connection.commit()

@@ -257,8 +257,10 @@ class Repository:
             (pc_qty, pc_mass_unit, pc_mass_value, ingredient_id),
         )
 
-    def fetch_ingredient_flags(self, id: int) -> dict[str, bool]:
-        """Returns the flags of the ingredient associated with the given ID."""
+    def fetch_ingredient_flags(self, id: int) -> dict[str, int]:
+        """Returns the flags of the ingredient associated with the given ID.
+        SQLite stores flags as integers, where 0 is False and 1 is True.
+        """
         rows = self._db.execute(
             """
             SELECT flag_name, flag_value
