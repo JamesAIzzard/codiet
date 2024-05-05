@@ -93,6 +93,8 @@ class MainWindowCtrl:
         self.ingredient_editor_ctrl.load_ingredient_instance(ingredient)
         # Show the editor
         self.view.show_page("ingredient-editor")
+        # Close the search popup
+        self.ingredient_search_popup.close()
 
     def _on_delete_ingredient_clicked(self):
         """Handle the user clicking the Delete Ingredient button."""

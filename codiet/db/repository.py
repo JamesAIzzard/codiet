@@ -99,7 +99,7 @@ class Repository:
             (id,),
         ).fetchone()[0]
 
-    def fetch_ingredient_id(self, name: str) -> int:
+    def fetch_ingredient_id_by_name(self, name: str) -> int:
         """Returns the ID of the ingredient associated with the given name."""
         return self._db.execute(
             """
@@ -375,7 +375,7 @@ class Repository:
     def delete_ingredient(self, ingredient_name: str) -> None:
         """Deletes the given ingredient from the database."""
         # Grab the ID of the ingredient
-        ingredient_id = self.fetch_ingredient_id(ingredient_name)
+        ingredient_id = self.fetch_ingredient_id_by_name(ingredient_name)
 
         # Remove all entries against the ID from all ingredient tables.
         queries = [

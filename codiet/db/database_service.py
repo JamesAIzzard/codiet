@@ -92,7 +92,7 @@ class DatabaseService:
             # Add the ingredient name to the database, getting primary key
             self._repo.insert_ingredient_name(ingredient.name)
             # Get the ingredient ID from the database and set it on the ingredient
-            ingredient.id = self._repo.fetch_ingredient_id(ingredient.name)
+            ingredient.id = self._repo.fetch_ingredient_id_by_name(ingredient.name)
             # Now we can use the update method, becuase the ID is set.
             self.update_ingredient(ingredient)
             # Return the ID
@@ -110,7 +110,7 @@ class DatabaseService:
         # Set the name
         ingredient.name = name
         # Set the ID
-        ingredient.id = self._repo.fetch_ingredient_id(name)
+        ingredient.id = self._repo.fetch_ingredient_id_by_name(name)
         # Fetch the description
         ingredient.description = self._repo.fetch_ingredient_description(ingredient.id)
         # Fetch the cost data
@@ -139,11 +139,13 @@ class DatabaseService:
             # Create a new nutrient quantity
             nutrient_quantity = IngredientNutrientQuantity(
                 name=name,
-                ntr_mass_value=data[0],
-                ntr_mass_unit=data[1],
-                ing_qty_value=data[2],
-                ing_qty_unit=data[3],
+                ntr_mass_value=data["ntr_qty_value"],
+                ntr_mass_unit=data["ntr_qty_unit"],
+                ing_qty_value=data["ing_qty_value"],
+                ing_qty_unit=data["ing_qty_unit"],
             )
+            # Add to the ingredient
+            ingredient.add_nutrient_quantity(nutrient_quantity)
         # Return the completed ingredient
         return ingredient
 
@@ -153,7 +155,7 @@ class DatabaseService:
 
     def fetch_ingredient_id_by_name(self, name: str) -> int:
         """Returns the ID of the ingredient with the given name."""
-        return self._repo.fetch_ingredient_id(name)
+        return self._repo.fetch_ingredient_id_by_name(name)
 
     def update_ingredient(self, ingredient: Ingredient):
         """Updates the given ingredient in the database."""
