@@ -1,373 +1,121 @@
+"""
+Module containing functions to push the source data .json files
+into the database.
+"""
+
 import os, json
 
 from codiet.db_construction import (
     INGREDIENT_DATA_DIR,
-    INGREDIENT_WISHLIST_FILE,
-    INGREDIENT_TEMPLATE_FILE,
-    openai,
+    FLAG_DATA_FILEPATH,
+    NUTRIENT_DATA_FILEPATH,
+    RECIPE_TYPE_DATA_FILE
 )
+from codiet.models.ingredients import Ingredient, IngredientNutrientQuantity
 from codiet.db.database_service import DatabaseService
-from codiet.models.nutrients import (
-    get_missing_leaf_nutrients,
-    nutrient_is_populated,
+from codiet.utils.nutrients import (
+    get_missing_leaf_nutrient_names,
+    ingredient_nutrient_data_is_complete
 )
-from codiet.models.flags import get_missing_flags
+from codiet.utils.flags import get_missing_flags
 
+def push_flags_to_db():
+    """Populate the flags table in the database using the 
+    .json flag list file."""
+    # Read the flags from the list
+    with open(FLAG_DATA_FILEPATH) as file:
+        flags = json.load(file)
+    with DatabaseService() as db_service:
+        db_service.insert_global_flags(flags)
+        # Save changes
+        db_service.commit()
 
-def push_flags_to_db(flags: list[str], db_service: DatabaseService):
-    """Push flags out of flag definition file into database."""
-    # Add each flag to the database
-    for flag in flags:
-        db_service.insert_global_flag(flag)
-
-
-def push_nutrients_to_db(nutrient_data: dict, db_service: DatabaseService):
+def push_nutrients_to_db():
     """Populate the database with nutrient data."""
-
+    # Read the nutrient data from the file
+    with open(NUTRIENT_DATA_FILEPATH) as file:
+        nutrient_data = json.load(file)
     # Define a recursive function to insert either a leaf or a group nutrient
-    def insert_nutrients(data, parent_id=None):
-        for name, details in data.items():
+    def insert_nutrients(nutrient_data:dict, db_service:DatabaseService, parent_id:int|None=None):
+        """Recursively insert the nutrient data into the database."""
+        for nutrient_name, data in nutrient_data.items():
             # Check if the current item is a group (has children) or a leaf (no children)
-            if details["children"]:
+            if data["children"]:
                 # It's a group nutrient, insert it using the group nutrient method
                 # This method returns a unique ID which will be used as the parent ID for its children
-                new_parent_id = db_service.insert_global_group_nutrient(name, parent_id)
+                new_parent_id = db_service.insert_global_group_nutrient(nutrient_name, parent_id)
                 # Recursively insert the children
-                insert_nutrients(details["children"], new_parent_id)
+                insert_nutrients(data["children"], db_service, new_parent_id)
             else:
                 # It's a leaf nutrient, insert it using the leaf nutrient method
-                db_service.insert_global_leaf_nutrient(name, parent_id)
-
+                db_service.insert_global_leaf_nutrient(nutrient_name, parent_id)
     # Call the recursive function
-    insert_nutrients(nutrient_data)
+    with DatabaseService() as db_service:
+        insert_nutrients(nutrient_data, db_service)
+        # Save changes
+        db_service.commit()
+
+def push_ingredients_to_db():
+    """Populate the database with ingredients from the .json ingredient files."""
+    with DatabaseService() as db_service:
+        # Work through each .json file in the ingredient_data directory
+        for file in os.listdir(INGREDIENT_DATA_DIR):
+            # Open the file and load the data
+            with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
+                data = json.load(f)
+            # Convert the data into an ingredient instance
+            ingredient = _load_ingredient_from_json(data)
+            # Save the ingredient to the database
+            db_service.insert_new_ingredient(ingredient)
+            # Save changes
+            db_service.commit()
 
 
-def erase_all_ingredient_cost_data():
-    """Remove all cost data from the ingredient .json files."""
-    print("Erasing all ingredient cost data...")
-    for file in os.listdir(INGREDIENT_DATA_DIR):
-        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
-            data = json.load(f)
-        data["cost"]["cost_value"] = None
-        data["cost"]["qty_value"] = None
-        with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-            json.dump(data, f, indent=4)
-
-def erase_all_ingredient_density_data():
-    """Remove all density data from the ingredient .json files."""
-    print("Erasing all density data...")
-    for file in os.listdir(INGREDIENT_DATA_DIR):
-        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
-            data = json.load(f)
-        data["bulk"]["density"] = {
-            "mass_unit": "g",
-            "mass_value": None,
-            "vol_unit": "l",
-            "vol_value": None
-        }
-        with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-            json.dump(data, f, indent=4)
-
-def erase_all_ingredient_flag_data():
-    """Remove all flag data from the ingredient .json files."""
-    print("Erasing all flag data...")
-    for file in os.listdir(INGREDIENT_DATA_DIR):
-        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
-            data = json.load(f)
-        data["flags"] = {}
-        with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-            json.dump(data, f, indent=4)
-
-def erase_all_ingredient_gi_data():
-    """Remove all GI data from the ingredient .json files."""
-    print("Erasing all GI data...")
-    for file in os.listdir(INGREDIENT_DATA_DIR):
-        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
-            data = json.load(f)
-        data["GI"] = None
-        with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-            json.dump(data, f, indent=4)
-
-def erase_all_ingredient_nutrient_data():
-    """Remove all nutrient data from the ingredient .json files."""
-    print("Erasing all nutrient data...")
-    for file in os.listdir(INGREDIENT_DATA_DIR):
-        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
-            data = json.load(f)
-        data["nutrients"] = {}
-        with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-            json.dump(data, f, indent=4)
-
-def title_case_ingredient_names():
-    """Title case the names of all ingredient .json files."""
-    print("Title casing all ingredient names...")
-    for file in os.listdir(INGREDIENT_DATA_DIR):
-        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
-            data = json.load(f)
-        data["name"] = data["name"].title()
-        with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-            json.dump(data, f, indent=4)
-
-def push_ingredients_to_db(db_service: DatabaseService):
-    """Populate the database with ingredients from the ingredient_data directory."""
-    # Work through each .json file in the ingredient_data directory
-    for file in os.listdir(INGREDIENT_DATA_DIR):
-        # Open the file and load the data
-        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
-            data = json.load(f)
-
-        # Grab the ingredient name
-        ingredient_name = data["name"]
-
-        # Create an ingredient instance
-        ingredient = db_service.create_empty_ingredient()
-
-        # Set the ingredient name
-        ingredient.name = ingredient_name
-
-        # Set the ingredient description
-        ingredient.description = data["description"]
-
-        # Add the cost data
-        ingredient.cost_unit = data["cost"]["cost_unit"]
-        ingredient.cost_value = data["cost"]["cost_value"]
-        ingredient.cost_qty_unit = data["cost"]["qty_unit"]
-        ingredient.cost_qty_value = data["cost"]["qty_value"]
-
-        # Add the density data
-        ingredient.density_mass_unit = data["bulk"]["density"]["mass_unit"]
-        ingredient.density_mass_value = data["bulk"]["density"]["mass_value"]
-        ingredient.density_vol_unit = data["bulk"]["density"]["vol_unit"]
-        ingredient.density_vol_value = data["bulk"]["density"]["vol_value"]
-
-        # Add the flags
-        ingredient.set_flags(data["flags"])
-
-        # Add the GI
-        ingredient.gi = data["GI"]
-
-        # Add the nutrients
-        ingredient._nutrients = data["nutrients"]
-
-        # Save the ingredient
-        db_service.insert_new_ingredient(ingredient)
-
-
-def remove_redundant_flags_from_datafiles(global_flags: list[str]):
-    """Cycles through each ingredient file and checks it has the correct fields."""
-    print("Checking for redundant flags...")
-    # For each ingredient file in the directory
-    for file in os.listdir(INGREDIENT_DATA_DIR):
-        # Open the file and load the data
-        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
-            data = json.load(f)
-
-        # Take a copy of all of the keys in data["flags"]
-        file_flags = list(data["flags"].keys())
-        for flag in file_flags:
-            # Delete the flag from the datafile if it doesn't exist in the database
-            if flag not in global_flags:
-                del data["flags"][flag]
-                print(f"Deleting flag {flag} from {file}")
-
-        # Write the updated data back to the file
-        with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-            json.dump(data, f, indent=4)
-
-
-def remove_redundant_nutrients_from_datafiles(db_service: DatabaseService):
-    """Cycles through each ingredient file and removes any redundant leaf nutrients.
-    IMPORTANT: Only leaf nutrients are stored in the ingredient datafiles. All group
-    nutrient data is calculated from the leaf nutrient data.
-    """
-    print("Checking for redundant leaf nutrients...")
-    # Grab the leaf nutrients from the database
-    global_leaf_nutrients = db_service.fetch_all_leaf_nutrient_names()
-    # For each ingredient file in the directory
-    for file in os.listdir(INGREDIENT_DATA_DIR):
-        # Open the file and load the data
-        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
-            data = json.load(f)
-
-        # Take a copy of all of the keys in data["nutrients"]
-        file_nutrients = list(data["nutrients"].keys())
-        # Cycle through all of the leaf nutrients in the file
-        for nutrient in file_nutrients:
-            # Delete the nutrient from the datafile if it doesn't exist in the global list
-            if nutrient not in global_leaf_nutrients:
-                del data["nutrients"][nutrient]
-                print(f"Deleting nutrient {nutrient} from {file}")
-
-        # Write the updated data back to the file
-        with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-            json.dump(data, f, indent=4)
-
-
-def init_ingredient_datafiles():
-    """Work through the wishlist and initialise a corresponding ingredient .json file."""
-
-    # Read the ingredient_wishlist.json file
-    with open(INGREDIENT_WISHLIST_FILE) as f:
-        wishlist = json.load(f)
-
-    # Read the ingredient template file
-    with open(INGREDIENT_TEMPLATE_FILE) as f:
-        template = json.load(f)
-
-    # For each ingredient in the wishlist
-    for ingredient in wishlist:
-        # Create the ingredient file name from the ingredient name
-        file_name = ingredient.replace(" ", "_").lower() + ".json"
-
-        # If the file already exists, skip it
-        if any(
-            file_name.lower() == existing_file.lower()
-            for existing_file in os.listdir(INGREDIENT_DATA_DIR)
-        ):
-            print(f"Skipping {ingredient} as it already exists.")
-            # Remove the ingredient from the wishlist
-            wishlist.remove(ingredient)
-            # Write the updated wishlist back to the file
-            with open(INGREDIENT_WISHLIST_FILE, "w") as f:
-                json.dump(wishlist, f)            
-            continue
-
-        # Create a .json file with this name
-        with open(os.path.join(INGREDIENT_DATA_DIR, file_name), "w") as f:
-            # Make a copy of the entire template
-            template = template.copy()
-
-            # Set the name of the ingredient
-            template["name"] = ingredient.title()
-
-            # Write the template data to the file
-            json.dump(template, f, indent=4)
-        # Remove the ingredient from the wishlist
-        wishlist.remove(ingredient)
-
-        # Write the updated wishlist back to the file
-        with open(INGREDIENT_WISHLIST_FILE, "w") as f:
-            json.dump(wishlist, f)
-
-
-def populate_ingredient_datafiles(db_service: DatabaseService):
-    """Work through each ingredient file in the ingredients data directory
-    and use the openai API to populate its data."""
-
-    # For each ingredient file in the directory
-    for file in os.listdir(INGREDIENT_DATA_DIR):
-        # Open the file and load the data
-        with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
-            data = json.load(f)
-
-        # Grab the ingredient name
-        ingredient_name = data["name"]
-
-        # If the description isn't filled
-        if not data.get("description").strip():
-            # Update the terminal
-            print(f"Getting description for {ingredient_name}...")
-            # Use the openai API to get the description
-            description = openai.get_openai_ingredient_description(ingredient_name)
-            # Write the description back to the file
-            data["description"] = description
-            # Save the updated data back to the file
-            with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-                json.dump(data, f, indent=4)
-
-        # If the cost data isn't filled
-        if (
-            data["cost"].get("cost_value") is None
-            or data["cost"].get("qty_value") is None
-        ):
-            # Use the openai API to get the cost data
-            cost_data = openai.get_openai_ingredient_cost(ingredient_name, data["cost"])
-            # Write the cost data back to the file
-            data["cost"] = cost_data
-            # Save the updated data back to the file
-            with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-                json.dump(data, f, indent=4)
-
-        # While there are flags missing from the data
-        while len(get_missing_flags(data["flags"].keys(), db_service)) > 0:
-            # Use the openai API to get the flags
-            flags_data = openai.get_openai_ingredient_flags(
-                ingredient_name, get_missing_flags(data["flags"], db_service)
-            )
-            # Add the flags_data into the data["flags"] dict
-            data["flags"].update(flags_data)
-            # Save the updated data back to the file
-            with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-                json.dump(data, f, indent=4)
-
-        # If the GI data isn't filled, use the openai API to get the GI data
-        if data.get("GI") is None:
-            gi = openai.get_openai_ingredient_gi(ingredient_name)
-            # Write the GI data back to the file
-            data["GI"] = gi
-            # Save the updated data back to the file
-            with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-                json.dump(data, f, indent=4)
-
-        # Get a list of all unpopulated nutrients
-        nutrients_to_populate = []
-        # Add any missing leaf nutrients
-        missing_leaf_nutrients = get_missing_leaf_nutrients(data["nutrients"].keys(), db_service)
-        for nutrient_name in missing_leaf_nutrients:
-            nutrients_to_populate.append(nutrient_name)
-        # Add any incomplete nutrients from the original dict
-        for nutrient_name in data["nutrients"]:
-            if not nutrient_is_populated(data["nutrients"][nutrient_name]):
-                nutrients_to_populate.append(nutrient_name)
-        # If we found some nutrients to populate
-        if len(nutrients_to_populate) > 0:
-            # Split this list into chunks not longer than 10 items
-            chunk_length = 5
-            nutrients_chunks = [
-                nutrients_to_populate[i : i + chunk_length]
-                for i in range(0, len(nutrients_to_populate), chunk_length)
-            ]
-            # Cycle through each chunk and populate the nutrient data
-            for chunk in nutrients_chunks:
-                # Use the openai API to get the nutrient data
-                nutrient_data = openai.get_openai_ingredient_nutrients(
-                    ingredient_name, chunk
-                )
-                # Add the nutrient_data into the data["nutrients"] dict
-                data["nutrients"].update(nutrient_data)
-
-                # Save the updated data back to the file
-                with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-                    json.dump(data, f, indent=4)
-
-        # Now update some special nutrient cases based on the flags
-        # If the alcohol free flag is present, set the alcohol nutrient to 0
-        if "alcohol free" in data["flags"]:
-            data["nutrients"]["alcohol"]["nutr_qty_value"] = 0
-        # If lactose free flag is present, set the lactose nutrient to 0
-        if "lactose free" in data["flags"]:
-            data["nutrients"]["lactose"]["nutr_qty_value"] = 0
-
-        # If the density data is not populated
-        if data["bulk"]["density"]["mass_value"] is None or \
-            data["bulk"]["density"]["vol_value"] is None:
-            # Do any of the nutrients or cost have a volume unit?
-            volumes_used = False
-            if data["cost"]["qty_unit"] in ["ml"]:
-                volumes_used = True
-            for nutrient in data["nutrients"]:
-                if data["nutrients"][nutrient]["ing_qty_unit"] in ["ml"]:
-                    volumes_used = True
-            # If volumes are used, get the density data
-            if volumes_used:
-                data["bulk"]["density"] = openai.get_openai_ingredient_density(ingredient_name)
-            # Save the updated data back to the file
-            with open(os.path.join(INGREDIENT_DATA_DIR, file), "w") as f:
-                json.dump(data, f, indent=4)
-
-def push_global_recipe_types_to_db(global_recipe_types:list[str], db_service: DatabaseService):
+def push_global_recipe_types_to_db():
     """Push the global recipe types to the database."""
+    # Read the global recipe types from the file
+    with open(RECIPE_TYPE_DATA_FILE) as file:
+        global_recipe_types = json.load(file)
     # Add each recipe type to the database
-    for recipe_type in global_recipe_types:
-        db_service.insert_global_recipe_type(recipe_type)
+    with DatabaseService() as db_service:
+        for recipe_type in global_recipe_types:
+            db_service.insert_global_recipe_type(recipe_type)
+    # Save changes
+    db_service.commit()
     print("Global recipe types pushed to the database.")
+
+def _load_ingredient_from_json(json_data) -> Ingredient:
+    """Load an ingredient object from a json data dict."""
+    # Create the ingredient instance
+    with DatabaseService() as db_service:
+        ingredient = db_service.create_empty_ingredient()
+    # Move the ingredient data into the instance
+    ingredient.name = json_data["name"]
+    ingredient.description = json_data["description"]
+    ingredient.cost_unit = json_data["cost"]["cost_unit"]
+    ingredient.cost_value = json_data["cost"]["cost_value"]
+    ingredient.cost_qty_unit = json_data["cost"]["qty_unit"]
+    ingredient.cost_qty_value = json_data["cost"]["qty_value"]
+    ingredient.density_mass_unit = json_data["bulk"]["density"]["mass_unit"]
+    ingredient.density_mass_value = json_data["bulk"]["density"]["mass_value"]
+    ingredient.density_vol_unit = json_data["bulk"]["density"]["vol_unit"]
+    ingredient.density_vol_value = json_data["bulk"]["density"]["vol_value"]
+    ingredient.set_flags(json_data["flags"])
+    # For each of the nutrient dicts, create an IngredientNutrientQuantity
+    # instance and add it to the ingredient
+    for nutrient_name, nutrient_data in json_data["nutrients"].items():
+        nutrient_qty = _load_ingredient_nutrient_qty_from_json(nutrient_name, nutrient_data)
+        ingredient.update_nutrient_quantity(nutrient_qty)
+    return ingredient
+
+def _load_ingredient_nutrient_qty_from_json(nutrient_name:str, nutrient_data:dict) -> IngredientNutrientQuantity:
+    """Load an ingredient nutrient quantity object from a json data dict."""
+    # Create the ingredient nutrient quantity instance
+    nutrient_qty = IngredientNutrientQuantity(
+        name=nutrient_name,
+        ntr_mass_value=nutrient_data["ntr_qty_value"],
+        ntr_mass_unit=nutrient_data["ntr_qty_unit"],
+        ing_qty_value=nutrient_data["ing_qty_value"],
+        ing_qty_unit=nutrient_data["ing_qty_unit"]
+    )
+    return nutrient_qty

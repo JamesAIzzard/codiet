@@ -75,15 +75,12 @@ class IngredientNutrientsEditorView(QWidget):
         self.nutrient_widgets[nutrient_name] = nutrient_widget
 
     def add_nutrients(self, nutrient_names: dict[str, IngredientNutrientQuantity]):
-        """Adds multiple nutrient rows to the list widget."""
+        """Adds multiple nutrient rows to the list widget.
+        Use update_nutrient to set the values.
+        """
         for nutrient_name, nutrient in nutrient_names.items():
             # Add the widget
             self.add_nutrient(nutrient_name)
-            # Set the values
-            self.nutrient_widgets[nutrient_name].update_nutrient_mass(nutrient.nutrient_mass)
-            self.nutrient_widgets[nutrient_name].update_nutrient_mass_units(nutrient.nutrient_mass_unit)
-            self.nutrient_widgets[nutrient_name].update_ingredient_mass(nutrient.ingredient_quantity)
-            self.nutrient_widgets[nutrient_name].update_ingredient_mass_units(nutrient.ingredient_quantity_unit)
 
     def update_nutrient(self, nutrient_name: str, nutrient: IngredientNutrientQuantity):
         """Updates the values of a nutrient row in the list widget."""

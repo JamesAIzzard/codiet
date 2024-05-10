@@ -35,7 +35,7 @@ class NumericLineEdit(QLineEdit):
         """Set the text of the line edit to the given value,
         formatted to the specified number of decimal places."""
         if value is None:
-            super().setText("")
+            super().clear()
         else:
             formatted_value = f"{value:.{pad_decimals}f}"
             super().setText(formatted_value)

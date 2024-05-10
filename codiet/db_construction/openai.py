@@ -174,14 +174,13 @@ def get_openai_ingredient_flags(
     ingredient_name: str, flag_list: list[str]
 ) -> dict[str, bool]:
     """Use the OpenAI API to generate a list of flags for an ingredient."""
+    # Update the console
     print(f"Getting flags for {ingredient_name}...")
-
+    print(f"Flags: {flag_list}")
     # Initialize the OpenAI client
     client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
-
     # Construct the flag dict with False values
     flags_dict = {flag: None for flag in flag_list}
-
     # Set the prompt
     prompt = f"Can you set each of these flags to True of False for {ingredient_name}: {json.dumps(flags_dict, indent=4)}? If unsure, choose False. Reply with JSON only"
 

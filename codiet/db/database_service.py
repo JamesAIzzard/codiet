@@ -34,6 +34,56 @@ class DatabaseService:
         """Inserts a global flag into the database."""
         self._repo.insert_global_flag(flag_name)
 
+    def insert_global_flags(self, flags: list[str]):
+        """Inserts a list of global flags into the database."""
+        for flag in flags:
+            self.insert_global_flag(flag)
+
+    def insert_new_ingredient(self, ingredient: Ingredient) -> int:
+        """Saves the given ingredient to the database."""
+        # If the ingredient name is not set on the ingredient, raise an exception
+        if ingredient.name is None:
+            raise ValueError("Ingredient name must be set.")
+        try:
+            # Add the ingredient name to the database, getting primary key
+            self._repo.insert_ingredient_name(ingredient.name)
+            # Get the ingredient ID from the database and set it on the ingredient
+            ingredient.id = self._repo.fetch_ingredient_id_by_name(ingredient.name)
+            # Now we can use the update method, becuase the ID is set.
+            self.update_ingredient(ingredient)
+            # Return the ID
+            return ingredient.id
+        except Exception as e:
+            # Roll back the transaction if an exception occurs
+            self._repo._db.connection.rollback()
+            # Re-raise any exceptions
+            raise e
+
+    def insert_new_recipe(self, recipe: Recipe) -> None:
+        """Saves the given recipe to the database."""
+        # Check the recipe name is set, otherwise raise an exception
+        if recipe.name is None:
+            raise ValueError("Recipe name must be set.")
+        try:
+            # Add the recipe name to the database, getting primary key
+            id = self._repo.insert_recipe_name(recipe.name)
+            # Add the id to the recipe instance
+            recipe.id = id
+            # Now update the recipe as normal
+            self.update_recipe(recipe)
+        except Exception as e:
+            # Roll back the transaction if an exception occurs
+            self._repo._db.connection.rollback()
+            # Re-raise any exceptions
+            raise e
+
+    def insert_global_recipe_type(self, recipe_type_name: str) -> int:
+        """Inserts a global recipe type into the database."""
+        # Action the insertion
+        id = self._repo.insert_global_recipe_type(recipe_type_name)
+        # Return the ID
+        return id
+
     def fetch_all_global_flag_names(self) -> list[str]:
         """Returns a list of all the flags in the database."""
         return self._repo.fetch_all_global_flag_names()
@@ -83,26 +133,6 @@ class DatabaseService:
         # Return the ingredient
         return ingredient
 
-    def insert_new_ingredient(self, ingredient: Ingredient) -> int:
-        """Saves the given ingredient to the database."""
-        # If the ingredient name is not set on the ingredient, raise an exception
-        if ingredient.name is None:
-            raise ValueError("Ingredient name must be set.")
-        try:
-            # Add the ingredient name to the database, getting primary key
-            self._repo.insert_ingredient_name(ingredient.name)
-            # Get the ingredient ID from the database and set it on the ingredient
-            ingredient.id = self._repo.fetch_ingredient_id_by_name(ingredient.name)
-            # Now we can use the update method, becuase the ID is set.
-            self.update_ingredient(ingredient)
-            # Return the ID
-            return ingredient.id
-        except Exception as e:
-            # Roll back the transaction if an exception occurs
-            self._repo._db.connection.rollback()
-            # Re-raise any exceptions
-            raise e
-
     def fetch_ingredient_by_name(self, name: str) -> Ingredient:
         """Returns the ingredient with the given name."""
         # Init a fresh ingredient instance
@@ -145,7 +175,7 @@ class DatabaseService:
                 ing_qty_unit=data["ing_qty_unit"],
             )
             # Add to the ingredient
-            ingredient.add_nutrient_quantity(nutrient_quantity)
+            ingredient.update_nutrient_quantity(nutrient_quantity)
         # Return the completed ingredient
         return ingredient
 
@@ -230,10 +260,10 @@ class DatabaseService:
             nutr_data = {}
             for name, nutrient in ingredient.nutrient_quantities.items():
                 nutr_data[name] = {
-                    "ntr_qty_unit": nutrient.nutrient_mass,
+                    "ntr_qty_unit": nutrient.nutrient_mass_unit,
                     "ntr_qty_value": nutrient.nutrient_mass,
-                    "ing_qty_unit": nutrient.ingredient_quantity,
-                    "ing_qty_value": nutrient.ingredient_quantity_unit,
+                    "ing_qty_unit": nutrient.ingredient_quantity_unit,
+                    "ing_qty_value": nutrient.ingredient_quantity,
                 }
             self._repo.update_ingredient_nutrients(ingredient.id, nutr_data)
 
@@ -253,24 +283,6 @@ class DatabaseService:
         recipe = Recipe()
 
         return recipe
-
-    def insert_new_recipe(self, recipe: Recipe) -> None:
-        """Saves the given recipe to the database."""
-        # Check the recipe name is set, otherwise raise an exception
-        if recipe.name is None:
-            raise ValueError("Recipe name must be set.")
-        try:
-            # Add the recipe name to the database, getting primary key
-            id = self._repo.insert_recipe_name(recipe.name)
-            # Add the id to the recipe instance
-            recipe.id = id
-            # Now update the recipe as normal
-            self.update_recipe(recipe)
-        except Exception as e:
-            # Roll back the transaction if an exception occurs
-            self._repo._db.connection.rollback()
-            # Re-raise any exceptions
-            raise e
 
     def update_recipe(self, recipe: Recipe):
         """Updates the given recipe in the database."""
@@ -393,17 +405,10 @@ class DatabaseService:
 
         return recipe
 
-    def insert_global_recipe_type(self, recipe_type_name: str) -> int:
-        """Inserts a global recipe type into the database."""
-        # Action the insertion
-        id = self._repo.insert_global_recipe_type(recipe_type_name)
-        # Return the ID
-        return id
-
     def fetch_all_global_recipe_types(self) -> list[str]:
         """Returns a list of all the recipe types in the database."""
         return self._repo.fetch_all_global_recipe_types()
 
     def commit(self):
         """Commits the current transaction."""
-        self._repo._db.connection.commit()
+        self._repo.connection.commit()

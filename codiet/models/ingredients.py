@@ -56,7 +56,7 @@ class Ingredient:
         for flag in self._flags:
             self.set_flag(flag, False)
 
-    def add_nutrient_quantity(
+    def update_nutrient_quantity(
         self, ingredient_nutrient: IngredientNutrientQuantity
     ) -> None:
         """Adds a nutrient to the ingredient."""

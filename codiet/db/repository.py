@@ -6,6 +6,11 @@ class Repository:
     def __init__(self, db):
         self._db = db
 
+    @property
+    def connection(self) -> sqlite3.Connection:
+        """Returns the connection to the database."""
+        return self._db.connection
+
     def fetch_flag_id(self, name: str) -> int:
         """Returns the ID of the given flag name."""
         return self._db.execute(
