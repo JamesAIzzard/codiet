@@ -13,7 +13,7 @@ def get_openai_ingredient_description(ingredient_name: str) -> str:
     client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
 
     # Print an update
-    print(f"Generating description for '{ingredient_name}'...")
+    print(f"Generating description for {ingredient_name}...")
 
     # Set the prompt
     prompt = f"Generate a single sentence description for the ingredient '{ingredient_name}'."

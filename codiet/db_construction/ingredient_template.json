@@ -1,6 +1,6 @@
 {
-    "name": "",
-    "description": "",
+    "name": null,
+    "description": null,
     "cost": {
         "cost_unit": "GBP",
         "cost_value": null,

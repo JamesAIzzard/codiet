@@ -10,6 +10,11 @@ class Repository:
     def connection(self) -> sqlite3.Connection:
         """Returns the connection to the database."""
         return self._db.connection
+    
+    @property
+    def cursor(self) -> sqlite3.Cursor:
+        """Returns the cursor for the database."""
+        return self._db.cursor
 
     def fetch_flag_id(self, name: str) -> int:
         """Returns the ID of the given flag name."""

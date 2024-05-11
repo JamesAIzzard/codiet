@@ -13,18 +13,14 @@ from codiet.db_construction import (
 )
 from codiet.models.ingredients import Ingredient, IngredientNutrientQuantity
 from codiet.db.database_service import DatabaseService
-from codiet.utils.nutrients import (
-    get_missing_leaf_nutrient_names,
-    ingredient_nutrient_data_is_complete
-)
-from codiet.utils.flags import get_missing_flags
 
 def push_flags_to_db():
     """Populate the flags table in the database using the 
     .json flag list file."""
-    # Read the flags from the list
+    # Read the flags from the datafile
     with open(FLAG_DATA_FILEPATH) as file:
         flags = json.load(file)
+    # Push the flags to the database
     with DatabaseService() as db_service:
         db_service.insert_global_flags(flags)
         # Save changes
@@ -80,8 +76,8 @@ def push_global_recipe_types_to_db():
     with DatabaseService() as db_service:
         for recipe_type in global_recipe_types:
             db_service.insert_global_recipe_type(recipe_type)
-    # Save changes
-    db_service.commit()
+        # Save changes
+        db_service.commit()
     print("Global recipe types pushed to the database.")
 
 def _load_ingredient_from_json(json_data) -> Ingredient:

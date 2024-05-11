@@ -12,8 +12,8 @@ def ingredient_nutrient_data_is_complete(ingredient_nutrient_data: dict) -> bool
 def get_missing_leaf_nutrient_names(nutrient_names: list[str], global_leaf_nutrient_names: list[str]) -> list[str]:
     """Returns a list of leaf nutrients that are missing from the leaf nutrients list."""
     missing_leaf_nutrients = []
-    for nutrient in nutrient_names:
-        if nutrient not in global_leaf_nutrient_names:
+    for nutrient in global_leaf_nutrient_names:
+        if nutrient not in nutrient_names:
             missing_leaf_nutrients.append(nutrient)
     return missing_leaf_nutrients
 

@@ -89,54 +89,40 @@ def get_leaf_nutrient_names() -> list[str]:
     # Return the cached leaf nutrient names
     return _cached_leaf_nutrient_names  # type: ignore
 
-def erase_ingredient_cost_data(ingredient_data:dict) -> None:
+def reset_ingredient_cost_data(ingredient_data:dict) -> None:
     """Remove the cost data from an ingredient .json file."""
-    # Update the console
-    print(f"Erasing cost data from {ingredient_data['name']}...")
     # Reset the cost data to the template
     ingredient_data["cost"] = get_ingredient_template()["cost"]
 
-def erase_ingredient_density_data(ingredient_data:dict) -> None:
+def reset_ingredient_density_data(ingredient_data:dict) -> None:
     """Remove the density data from an ingredient .json file."""
-    # Update the console
-    print(f"Erasing density data from {ingredient_data['name']}...")
     # Reset the density data to the template
     ingredient_data["bulk"]["density"] = get_ingredient_template()["bulk"][
         "density"
     ]
 
-def erase_ingredient_flag_data(ingredient_data:dict) -> None:
+def reset_ingredient_flag_data(ingredient_data:dict) -> None:
     """Remove all flag data from the ingredient .json file."""
-    # Update the console
-    print(f"Erasing flags from {ingredient_data['name']}...")
     # Reset the flag data to an empty dict
     ingredient_data["flags"] = get_ingredient_template()["flags"]
 
-def erase_ingredient_gi_data(ingredient_data:dict) -> None:
+def reset_ingredient_gi_data(ingredient_data:dict) -> None:
     """Remove all GI data from the ingredient .json file."""
-    # Update the console
-    print(f"Erasing GI data from {ingredient_data['name']}...")
     # Reset the GI data to None
     ingredient_data["GI"] = get_ingredient_template()["GI"]
 
-def erase_ingredient_nutrient_data(ingredient_data:dict) -> None:
+def reset_ingredient_nutrient_data(ingredient_data:dict) -> None:
     """Remove all nutrient data from the ingredient .json file."""
-    # Update the console
-    print(f"Erasing nutrient data from {ingredient_data['name']}...")
     # Reset the nutrient data to an empty dict
     ingredient_data["nutrients"] = get_ingredient_template()["nutrients"]
 
 def title_case_ingredient_name(ingredient_data: dict) -> None:
     """Title case the ingredient name in the .json file."""
-    # Update the console
-    print(f"Title casing {ingredient_data['name']}...")
     # Title case the name of the ingredient
     ingredient_data["name"] = ingredient_data["name"].title()
 
 def remove_redundant_flags_from_datafile(ingredient_data: dict) -> None:
     """Removes any redundant flags from the ingredient data."""
-    # Update the console
-    print(f"Checking for redundant flags in {ingredient_data['name']}...")
     # Take a copy of all of the keys in data["flags"]
     ingredient_flags = list(ingredient_data["flags"].keys())
     for flag in ingredient_flags:
@@ -150,8 +136,6 @@ def remove_redundant_nutrients_from_ingredient_datafile(ingredient_data: dict) -
     IMPORTANT: Only leaf nutrients are stored in the ingredient datafiles. All group
     nutrient data is calculated from the leaf nutrient data.
     """
-    # Update the console
-    print(f"Checking for redundant nutrients in {ingredient_data['name']}...")
     # Take a copy of all of the nutrient names in the ingredient's nutrient data
     ingredient_nutrient_names = list(ingredient_data["nutrients"].keys())
     # Cycle through all of the leaf nutrients in the file
@@ -226,8 +210,6 @@ def populate_ingredient_datafiles():
         For example, if the flags are done before nutrients, the flags can be used
         to imply certain nutrient values.
     """
-    # Update the console
-    print("Populating ingredient datafiles...")
     # Populate the datafiles
     for_all_ingredients(populate_ingredient_datafile_description)
     for_all_ingredients(populate_ingredient_datafile_cost)
@@ -239,14 +221,10 @@ def populate_ingredient_datafiles():
 
 def populate_ingredient_datafile_description(ingredient_data: dict) -> None:
     """Populates the description in the ingredient datafile."""
-    # Update the console
-    print(f"Populating description in {ingredient_data['name']}...")
     # Grab the ingredient name
     ingredient_name = ingredient_data["name"]
-    # If the description isn't filled
+    # If the description data isn't filled
     if ingredient_data.get("description") is None:
-        # Update the terminal
-        print(f"Getting description for {ingredient_name}...")
         # Use the openai API to get the description
         description = openai.get_openai_ingredient_description(ingredient_name)
         # Write the description back to the file
@@ -255,12 +233,8 @@ def populate_ingredient_datafile_description(ingredient_data: dict) -> None:
 
 def populate_ingredient_datafile_cost(ingredient_data: dict) -> None:
     """Populate the cost data in the ingredient datafile."""
-    # Update the console
-    print(f"Populating cost in {ingredient_data['name']}...")
     # Grab the ingredient name
     ingredient_name = ingredient_data["name"]
-    # Update the console
-    print(f"Getting cost for {ingredient_name}...")
     # If the cost data isn't filled
     if (
         ingredient_data["cost"].get("cost_value") is None
@@ -275,16 +249,12 @@ def populate_ingredient_datafile_cost(ingredient_data: dict) -> None:
 
 def populate_ingredient_datafile_flags(ingredient_data: dict) -> None:
     """Populate the flags in the ingredient datafile."""
-    # Update the console
-    print(f"Populating flags in {ingredient_data['name']}...")
     # Grab the ingredient name
     ingredient_name = ingredient_data["name"]
     # Get a list of any missing flags
-    missing_flag_names = get_missing_flags(ingredient_data["flags"].keys(), get_global_flag_names())
+    missing_flag_names = get_missing_flags(list(ingredient_data["flags"].keys()), get_global_flag_names())
     # If we are missing some flags
     if len(missing_flag_names) > 0:
-        # Update the console
-        print(f"Getting flags for {ingredient_name}...")
         # Use the openai API to get the flags
         flags_data = openai.get_openai_ingredient_flags(ingredient_name, missing_flag_names)
         # Add the flags_data into the data["flags"] dict

@@ -1,12 +1,40 @@
+"""Consctruction script to create the database schema."""
+
 import sqlite3
 from codiet.db import DB_PATH
 
-def create_schema():
-    """Create the database schema."""
-    connection = sqlite3.connect(DB_PATH)
-    cursor = connection.cursor()
+def create_schema() -> None:
+    """
+    This module contains a script for creating the database schema.
 
-    # Create the global flag table
+    Note:
+        This code is not included in the repository or database service, 
+        hence it has been moved to a separate script.
+    """
+    # Connect to the database
+    connection = sqlite3.connect(DB_PATH)
+    # Grab the cursor
+    cursor = connection.cursor()
+    # Create the tables
+    create_global_flag_table(cursor)
+    create_global_leaf_nutrient_table(cursor)
+    create_global_group_nutrient_table(cursor)
+    create_nutrient_alias_table(cursor)
+    create_ingredient_base_table(cursor)
+    create_ingredient_flag_table(cursor)
+    create_ingredient_nutrient_table(cursor)
+    create_recipe_base_table(cursor)
+    create_recipe_ingredient_table(cursor)
+    create_recipe_serve_times_table(cursor)
+    create_global_recipe_types_table(cursor)
+    create_recipe_types_table(cursor)
+    # Commit the changes
+    connection.commit()
+    # Close the connection
+    connection.close()
+
+def create_global_flag_table(cursor:sqlite3.Cursor) -> None:
+    """Create the global flag table in the database."""
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS global_flag_list (
             flag_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -14,8 +42,8 @@ def create_schema():
         )
     """)
 
-    # Create the nutrient tables
-    # Build the global table of leaf nutrients
+def create_global_leaf_nutrient_table(cursor:sqlite3.Cursor) -> None:
+    """Create the leaf nutrient table in the database."""
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS global_leaf_nutrients (
             nutrient_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -24,7 +52,9 @@ def create_schema():
             FOREIGN KEY (parent_id) REFERENCES global_group_nutrients(nutrient_id)
         )
     """)
-    # Build the global table of group nutrients
+
+def create_global_group_nutrient_table(cursor:sqlite3.Cursor) -> None:
+    """Create the group nutrient table in the database."""
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS global_group_nutrients (
             nutrient_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,7 +62,9 @@ def create_schema():
             parent_id INTEGER
         )
     """)
-    # Build the list of nutrient aliases
+
+def create_nutrient_alias_table(cursor:sqlite3.Cursor) -> None:
+    """Create the nutrient alias table in the database."""
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS nutrient_aliases (
             nutrient_alias TEXT NOT NULL UNIQUE,
@@ -41,7 +73,8 @@ def create_schema():
         )
     """)
 
-    # Create the ingredient tables
+def create_ingredient_base_table(cursor:sqlite3.Cursor) -> None:
+    """Create the ingredient base table in the database."""
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS ingredient_base (
             ingredient_id INTEGER PRIMARY KEY,
@@ -62,7 +95,8 @@ def create_schema():
         )
     """)
 
-    # Create the ingredient flag tables
+def create_ingredient_flag_table(cursor:sqlite3.Cursor) -> None:
+    """Create the table to associate flags with ingredients."""
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS ingredient_flags (
             ingredient_id INTEGER,
@@ -73,7 +107,8 @@ def create_schema():
         )
     """)
 
-    # Create the ingredient nutrient table
+def create_ingredient_nutrient_table(cursor:sqlite3.Cursor) -> None:
+    """Create the table to associate nutrient quantities with recipes."""
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS ingredient_nutrients (
             ingredient_id INTEGER,
@@ -87,7 +122,8 @@ def create_schema():
         )
     """)
 
-    # Create the recipe table.
+def create_recipe_base_table(cursor:sqlite3.Cursor) -> None:
+    """Create the recipe base table in the database."""
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS recipe_base (
             recipe_id INTEGER PRIMARY KEY,
@@ -97,7 +133,8 @@ def create_schema():
         )
     """)
 
-    # Create the recipe ingredient table
+def create_recipe_ingredient_table(cursor:sqlite3.Cursor) -> None:
+    """Create the table to associate ingredient quantities with recipes."""
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS recipe_ingredients (
             recipe_id INTEGER,
@@ -111,7 +148,8 @@ def create_schema():
         )
     """)
 
-    # Create the recipe serve times table
+def create_recipe_serve_times_table(cursor:sqlite3.Cursor) -> None:
+    """Create the table to associate serve times with recipes."""
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS recipe_serve_times (
             recipe_id INTEGER,
@@ -120,7 +158,8 @@ def create_schema():
         )
     """)
 
-    # Create the global recipe type table
+def create_global_recipe_types_table(cursor:sqlite3.Cursor) -> None:
+    """Create the table for all global recipe types."""
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS global_recipe_types (
             recipe_type_id INTEGER PRIMARY KEY,
@@ -128,7 +167,8 @@ def create_schema():
         )
     """)
 
-    # Create the recipe types table
+def create_recipe_types_table(cursor:sqlite3.Cursor) -> None:
+    """Create the table to associate recipe types to recipes."""
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS recipe_types (
             recipe_id INTEGER,
@@ -137,6 +177,3 @@ def create_schema():
             FOREIGN KEY (recipe_type_id) REFERENCES global_recipe_types(recipe_type_id)
         )
     """)
-
-    connection.commit()
-    connection.close()
