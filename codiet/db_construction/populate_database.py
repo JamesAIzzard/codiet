@@ -97,6 +97,7 @@ def _load_ingredient_from_json(json_data) -> Ingredient:
     ingredient.density_vol_unit = json_data["bulk"]["density"]["vol_unit"]
     ingredient.density_vol_value = json_data["bulk"]["density"]["vol_value"]
     ingredient.set_flags(json_data["flags"])
+    ingredient.gi = json_data["GI"]
     # For each of the nutrient dicts, create an IngredientNutrientQuantity
     # instance and add it to the ingredient
     for nutrient_name, nutrient_data in json_data["nutrients"].items():
