@@ -30,6 +30,34 @@ class DatabaseService:
         # Close the connection
         self._repo._db.connection.close()
 
+    def create_empty_ingredient(self) -> Ingredient:
+        """Creates an ingredient."""
+        # Init the ingredient
+        ingredient = Ingredient()
+
+        # Populate the flag dict
+        flags = self._repo.fetch_all_global_flag_names()
+        for flag in flags:
+            ingredient._flags[flag] = False
+
+        # Populate the nutrient dict
+        # Grab all the leaf nutrients
+        nutrients = self._repo.fetch_all_leaf_nutrient_names()
+        # Cycle through them, and create a nutrient quantity for each
+        # and add it to the ingredient's nutrient dict
+        for nutrient in nutrients:
+            ingredient._nutrients[nutrient] = IngredientNutrientQuantity(nutrient)
+
+        # Return the ingredient
+        return ingredient
+
+    def create_empty_recipe(self) -> Recipe:
+        """Creates an empty recipe."""
+        # Init the recipe
+        recipe = Recipe()
+
+        return recipe
+
     def insert_global_flag(self, flag_name: str):
         """Inserts a global flag into the database."""
         self._repo.insert_global_flag(flag_name)
@@ -84,6 +112,12 @@ class DatabaseService:
         # Return the ID
         return id
 
+    def insert_global_leaf_nutrient(
+        self, nutrient_name: str, parent_id: int | None = None
+    ) -> int:
+        """Inserts a global leaf nutrient into the database."""
+        return self._repo.insert_global_leaf_nutrient(nutrient_name, parent_id)
+
     def fetch_all_global_flag_names(self) -> list[str]:
         """Returns a list of all the flags in the database."""
         return self._repo.fetch_all_global_flag_names()
@@ -102,36 +136,9 @@ class DatabaseService:
         """Inserts a global group nutrient into the database."""
         return self._repo.insert_global_group_nutrient(nutrient_name, parent_id)
 
-    def insert_global_leaf_nutrient(
-        self, nutrient_name: str, parent_id: int | None = None
-    ) -> int:
-        """Inserts a global leaf nutrient into the database."""
-        return self._repo.insert_global_leaf_nutrient(nutrient_name, parent_id)
-
     def fetch_all_ingredient_names(self) -> list[str]:
         """Returns a list of all the ingredients in the database."""
         return self._repo.fetch_all_ingredient_names()
-
-    def create_empty_ingredient(self) -> Ingredient:
-        """Creates an ingredient."""
-        # Init the ingredient
-        ingredient = Ingredient()
-
-        # Populate the flag dict
-        flags = self._repo.fetch_all_global_flag_names()
-        for flag in flags:
-            ingredient._flags[flag] = False
-
-        # Populate the nutrient dict
-        # Grab all the leaf nutrients
-        nutrients = self._repo.fetch_all_leaf_nutrient_names()
-        # Cycle through them, and create a nutrient quantity for each
-        # and add it to the ingredient's nutrient dict
-        for nutrient in nutrients:
-            ingredient._nutrients[nutrient] = IngredientNutrientQuantity(nutrient)
-
-        # Return the ingredient
-        return ingredient
 
     def fetch_ingredient_by_name(self, name: str) -> Ingredient:
         """Returns the ingredient with the given name."""
@@ -207,6 +214,67 @@ class DatabaseService:
             flags[flag_name] = bool(flag_value)
         return flags
 
+    def fetch_recipe_name_using_id(self, id: int) -> str:
+        """Returns the name of the recipe with the given ID."""
+        return self._repo.fetch_recipe_name(id)
+
+    def fetch_all_recipe_names(self) -> list[str]:
+        """Returns a list of all the recipes in the database."""
+        return self._repo.fetch_all_recipe_names()
+
+    def fetch_recipe_by_name(self, name: str) -> Recipe:
+        """Returns the recipe with the given name."""
+        # Init a fresh recipe instance
+        recipe = self.create_empty_recipe()
+        # Grab the ID of the recipe
+        recipe.id = self._repo.fetch_recipe_id(name)
+        # Set the name
+        recipe.name = name
+        # Fetch the description
+        recipe.description = self._repo.fetch_recipe_description(recipe.id)
+        # Fetch the instructions
+        recipe.instructions = self._repo.fetch_recipe_instructions(recipe.id)
+        # Fetch the ingredients
+        # First grab the raw data from the repo
+        raw_ingredients = self._repo.fetch_recipe_ingredients(recipe.id)
+        # Init a list to hold the ingredient quantities
+        ingredient_quantities: dict[str, IngredientQuantity] = {}
+        # Cycle through the raw data
+        for ingredient_name, data in raw_ingredients.items():
+            # Grab the ingredient
+            ingredient = self.fetch_ingredient_by_name(ingredient_name)
+            # Create a new ingredient quantity
+            ingredient_quantity = IngredientQuantity(
+                ingredient=ingredient,
+                qty_value=data[0],
+                qty_unit=data[1],
+                qty_utol=data[2],
+                qty_ltol=data[3],
+            )
+            # Add it to the list
+            ingredient_quantities[ingredient_name] = ingredient_quantity
+        # Add the ingredient quanities list to the recipe
+        recipe.ingredients = ingredient_quantities
+        # Fetch the serve times
+        # First fetch the raw strings
+        raw_serve_times = self._repo.fetch_recipe_serve_times(recipe.id)
+        # Init a list to hold the serve times
+        serve_times = []
+        # Cycle through the raw strings
+        for raw_serve_time in raw_serve_times:
+            # Convert the string to a tuple of datetime objects
+            serve_times.append(
+                convert_time_string_interval_to_datetime_interval(raw_serve_time)
+            )
+        recipe.serve_times = serve_times
+        # Fetch the recipe types
+        recipe.recipe_types = self._repo.fetch_recipe_types_for_recipe(recipe.id)
+
+        return recipe
+
+    def fetch_all_global_recipe_types(self) -> list[str]:
+        """Returns a list of all the recipe types in the database."""
+        return self._repo.fetch_all_global_recipe_types()
 
     def update_ingredient(self, ingredient: Ingredient):
         """Updates the given ingredient in the database."""
@@ -273,17 +341,6 @@ class DatabaseService:
             # Re-raise any exceptions
             raise e
 
-    def delete_ingredient(self, ingredient_name: str):
-        """Deletes the given ingredient from the database."""
-        self._repo.delete_ingredient(ingredient_name)
-
-    def create_empty_recipe(self) -> Recipe:
-        """Creates an empty recipe."""
-        # Init the recipe
-        recipe = Recipe()
-
-        return recipe
-
     def update_recipe(self, recipe: Recipe):
         """Updates the given recipe in the database."""
         # Check the recipe ID is set, otherwise raise an exception
@@ -347,67 +404,9 @@ class DatabaseService:
             # Re-raise any exceptions
             raise e
 
-    def fetch_recipe_name_using_id(self, id: int) -> str:
-        """Returns the name of the recipe with the given ID."""
-        return self._repo.fetch_recipe_name(id)
-
-    def fetch_all_recipe_names(self) -> list[str]:
-        """Returns a list of all the recipes in the database."""
-        return self._repo.fetch_all_recipe_names()
-
-    def fetch_recipe_by_name(self, name: str) -> Recipe:
-        """Returns the recipe with the given name."""
-        # Init a fresh recipe instance
-        recipe = self.create_empty_recipe()
-        # Grab the ID of the recipe
-        recipe.id = self._repo.fetch_recipe_id(name)
-        # Set the name
-        recipe.name = name
-        # Fetch the description
-        recipe.description = self._repo.fetch_recipe_description(recipe.id)
-        # Fetch the instructions
-        recipe.instructions = self._repo.fetch_recipe_instructions(recipe.id)
-        # Fetch the ingredients
-        # First grab the raw data from the repo
-        raw_ingredients = self._repo.fetch_recipe_ingredients(recipe.id)
-        # Init a list to hold the ingredient quantities
-        ingredient_quantities: dict[str, IngredientQuantity] = {}
-        # Cycle through the raw data
-        for ingredient_name, data in raw_ingredients.items():
-            # Grab the ingredient
-            ingredient = self.fetch_ingredient_by_name(ingredient_name)
-            # Create a new ingredient quantity
-            ingredient_quantity = IngredientQuantity(
-                ingredient=ingredient,
-                qty_value=data[0],
-                qty_unit=data[1],
-                qty_utol=data[2],
-                qty_ltol=data[3],
-            )
-            # Add it to the list
-            ingredient_quantities[ingredient_name] = ingredient_quantity
-        # Add the ingredient quanities list to the recipe
-        recipe.ingredients = ingredient_quantities
-        # Fetch the serve times
-        # First fetch the raw strings
-        raw_serve_times = self._repo.fetch_recipe_serve_times(recipe.id)
-        # Init a list to hold the serve times
-        serve_times = []
-        # Cycle through the raw strings
-        for raw_serve_time in raw_serve_times:
-            # Convert the string to a tuple of datetime objects
-            serve_times.append(
-                convert_time_string_interval_to_datetime_interval(raw_serve_time)
-            )
-        recipe.serve_times = serve_times
-        # Fetch the recipe types
-        recipe.recipe_types = self._repo.fetch_recipe_types_for_recipe(recipe.id)
-
-        return recipe
-
-    def fetch_all_global_recipe_types(self) -> list[str]:
-        """Returns a list of all the recipe types in the database."""
-        return self._repo.fetch_all_global_recipe_types()
+    def delete_ingredient(self, ingredient_name: str):
+        """Deletes the given ingredient from the database."""
+        self._repo.delete_ingredient(ingredient_name)
 
     def commit(self):
         """Commits the current transaction."""

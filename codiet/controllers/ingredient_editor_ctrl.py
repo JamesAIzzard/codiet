@@ -18,7 +18,7 @@ class IngredientEditorCtrl:
         self.yes_no_popup = YesNoDialogBoxView(parent=self.view)
 
         # Cache a list of leaf nutrients
-        self.leaf_nutrient_names: list[str] = []
+        self._leaf_nutrient_names: list[str] = []
 
         # Connect the handler functions to the view signals
         self._connect_basic_info_editors()
@@ -28,6 +28,16 @@ class IngredientEditorCtrl:
         self.view.txt_gi.textChanged.connect(self._on_gi_value_changed)
         self._connect_nutrient_editor()
         self.view.btn_save_ingredient.pressed.connect(self._on_save_ingredient_pressed)
+
+    @property
+    def leaf_nutrient_names(self) -> list[str]:
+        """Return a list of leaf nutrient names."""
+        # If there are no leaf ingredients cached
+        if len(self._leaf_nutrient_names) == 0:
+            # Fetch the leaf nutrient names from the database
+            with DatabaseService() as db_service:
+                self._leaf_nutrient_names = db_service.fetch_all_leaf_nutrient_names()
+        return self._leaf_nutrient_names
 
     def load_ingredient_instance(self, ingredient: Ingredient):
         """Set the ingredient instance to edit."""
@@ -238,11 +248,17 @@ class IngredientEditorCtrl:
         """Handler for changes to the nutrient filter."""
         # Clear the nutrient editor
         self.view.nutrient_editor.remove_all_nutrients()
-        # Get the filtered list of nutrients
-        filtered_nutrients = filter_text(search_term, self.leaf_nutrient_names, 3)
-        # Add each of the filtered nutrients into the view
-        for nutrient_name in filtered_nutrients:
-            self.view.nutrient_editor.add_nutrient(nutrient_name)
+        # If the search term is empty
+        if search_term.strip() == "":  # pragma: no cover
+            # Add all leaf nutrients back into the view
+            for nutrient_name in self.leaf_nutrient_names:
+                self.view.nutrient_editor.add_nutrient(nutrient_name)
+        else:
+            # Get the filtered list of nutrients
+            filtered_nutrients = filter_text(search_term, self.leaf_nutrient_names, 3)
+            # Add each of the filtered nutrients into the view
+            for nutrient_name in filtered_nutrients:
+                self.view.nutrient_editor.add_nutrient(nutrient_name)
 
     def _on_nutrient_filter_cleared(self):
         """Handler for clearing the nutrient filter."""
