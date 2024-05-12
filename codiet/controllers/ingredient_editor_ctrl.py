@@ -154,12 +154,12 @@ class IngredientEditorCtrl:
         # Update the ingredient description
         self.ingredient.description = description
 
-    def _on_ingredient_cost_value_changed(self, value: float|None = None):
+    def _on_ingredient_cost_value_changed(self, value: float|None):
         """Handler for changes to the ingredient cost."""
         # Update the ingredient cost
         self.ingredient.cost_value = value
 
-    def _on_ingredient_cost_quantity_changed(self, value: float|None = None):
+    def _on_ingredient_cost_quantity_changed(self, value: float|None):
         """Handler for changes to the ingredient quantity associated with the cost data."""
         # Update the ingredient cost quantity
         self.ingredient.cost_qty_value = value
@@ -169,40 +169,40 @@ class IngredientEditorCtrl:
         # Update the ingredient cost unit
         self.ingredient.cost_qty_unit = unit
 
-    def _on_ingredient_density_vol_value_changed(self):
+    def _on_ingredient_density_vol_value_changed(self, value: float|None):
         """Handler for changes to the ingredient density volume value."""
         # Update the ingredient density volume value
-        self.ingredient.density_vol_value = self.view.txt_dens_vol.text()
+        self.ingredient.density_vol_value = value
 
-    def _on_ingredient_density_vol_unit_changed(self):
+    def _on_ingredient_density_vol_unit_changed(self, value: str):
         """Handler for changes to the ingredient density volume unit."""
         # Update the ingredient density volume unit
-        self.ingredient.density_vol_unit = self.view.cmb_dens_vol_unit.currentText()
+        self.ingredient.density_vol_unit = value
 
-    def _on_ingredient_density_mass_value_changed(self):
+    def _on_ingredient_density_mass_value_changed(self, value: float|None):
         """Handler for changes to the ingredient density mass value."""
         # Update the ingredient density mass value
-        self.ingredient.density_mass_value = self.view.txt_dens_mass.text()
+        self.ingredient.density_mass_value = value
 
-    def _on_ingredient_density_mass_unit_changed(self):
+    def _on_ingredient_density_mass_unit_changed(self, value: str):
         """Handler for changes to the ingredient density mass unit."""
         # Update the ingredient density mass unit
-        self.ingredient.density_mass_unit = self.view.cmb_dens_mass_unit.currentText()
+        self.ingredient.density_mass_unit = value
 
-    def _on_ingredient_num_pieces_changed(self):
+    def _on_ingredient_num_pieces_changed(self, value: float|None):
         """Handler for changes to the ingredient piece count."""
         # Update the ingredient piece count
-        self.ingredient.pc_qty = self.view.txt_num_pieces.text()
+        self.ingredient.pc_qty = value
 
-    def _on_ingredient_pc_mass_value_changed(self):
+    def _on_ingredient_pc_mass_value_changed(self, value: float|None):
         """Handler for changes to the ingredient piece mass value."""
         # Update the ingredient piece mass value
-        self.ingredient.pc_mass_value = self.view.txt_pc_mass_value.text()
+        self.ingredient.pc_mass_value = value
 
-    def _on_ingredient_pc_mass_unit_changed(self):
+    def _on_ingredient_pc_mass_unit_changed(self, value: str):
         """Handler for changes to the ingredient piece mass unit."""
         # Update the ingredient piece mass unit
-        self.ingredient.pc_mass_unit = self.view.cmb_pc_mass_unit.currentText()
+        self.ingredient.pc_mass_unit = value
 
     def _on_flag_changed(self, flag_name: str, flag_value: bool):
         """Handler for changes to the ingredient flags."""
@@ -214,14 +214,14 @@ class IngredientEditorCtrl:
         # Select all flags on ingredient
         self.ingredient.set_all_flags_true()
         # Select all flags on the view
-        self.view.flag_editor.select_all_flags()
+        self.view.flag_editor.set_all_flags_true()
 
     def _on_deselect_all_flags_clicked(self):
         """Handler for deselecting all flags."""
         # Deselect all flags on ingredient
         self.ingredient.set_all_flags_false()
         # Deselect all flags on the view
-        self.view.flag_editor.deselect_all_flags()
+        self.view.flag_editor.set_all_flags_false()
 
     def _on_invert_selection_flags_clicked(self):
         """Handler for inverting the selected flags."""
@@ -229,15 +229,15 @@ class IngredientEditorCtrl:
         for flag in self.ingredient.flags:
             # Invert the flag on the ingredient
             self.ingredient.set_flag(flag, not self.ingredient.flags[flag])
-            # Invert on the view
-            self.view.flag_editor.update_flag(flag, not self.ingredient.flags[flag])
+        # Invert on the view
+        self.view.flag_editor.invert_flags()
 
     def _on_clear_selection_flags_clicked(self):
         """Handler for clearing the selected flags."""
         # Clear all flags on the ingredient
         self.ingredient.set_all_flags_false()
         # Clear all flags on the view
-        self.view.flag_editor.deselect_all_flags()
+        self.view.flag_editor.set_all_flags_false()
 
     def _on_gi_value_changed(self):
         """Handler for changes to the ingredient GI value."""

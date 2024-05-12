@@ -27,14 +27,14 @@ class IngredientEditorView(QWidget):
     ingredientCostValueChanged = pyqtSignal(QVariant)
     ingredientCostQuantityChanged = pyqtSignal(QVariant)
     ingredientCostQuantityUnitChanged = pyqtSignal(str)
-    ingredientDensityVolChanged = pyqtSignal(float)
+    ingredientDensityVolChanged = pyqtSignal(QVariant)
     ingredientDensityVolUnitChanged = pyqtSignal(str)
-    ingredientDensityMassChanged = pyqtSignal(float)
+    ingredientDensityMassChanged = pyqtSignal(QVariant)
     ingredientDensityMassUnitChanged = pyqtSignal(str)
-    ingredientNumPiecesChanged = pyqtSignal(float)
-    ingredientPieceMassChanged = pyqtSignal(float)
+    ingredientNumPiecesChanged = pyqtSignal(QVariant)
+    ingredientPieceMassChanged = pyqtSignal(QVariant)
     ingredientPieceMassUnitChanged = pyqtSignal(str)
-    ingredientGIChanged = pyqtSignal(float)
+    ingredientGIChanged = pyqtSignal(QVariant)
     saveIngredientClicked = pyqtSignal()
 
 
@@ -288,7 +288,7 @@ class IngredientEditorView(QWidget):
         # Create the density volume textbox and add it to the layout
         self.txt_dens_vol = NumericLineEdit()
         lyt_density.addWidget(self.txt_dens_vol)
-        self.txt_dens_vol.textChanged.connect(self.ingredientDensityVolChanged.emit)
+        self.txt_dens_vol.valueChanged.connect(self.ingredientDensityVolChanged.emit)
 
         # Create a density volume units dropdown and add it to the layout
         self.cmb_dens_vol_unit = QComboBox()
@@ -305,7 +305,7 @@ class IngredientEditorView(QWidget):
         # Create a textbox and add it to the layout
         self.txt_dens_mass = NumericLineEdit()
         lyt_density.addWidget(self.txt_dens_mass)
-        self.txt_dens_mass.textChanged.connect(self.ingredientDensityMassChanged.emit)
+        self.txt_dens_mass.valueChanged.connect(self.ingredientDensityMassChanged.emit)
 
         # Create a mass units dropdown and add it to the layout
         self.cmb_dens_mass_unit = QComboBox()
@@ -326,7 +326,7 @@ class IngredientEditorView(QWidget):
         # Create a textbox and add it to the layout
         self.txt_num_pieces = NumericLineEdit()
         lyt_piece_mass.addWidget(self.txt_num_pieces)
-        self.txt_num_pieces.textChanged.connect(self.ingredientNumPiecesChanged.emit)
+        self.txt_num_pieces.valueChanged.connect(self.ingredientNumPiecesChanged.emit)
 
         # Create another label
         label = QLabel(" piece(s) weighs ")
@@ -335,7 +335,7 @@ class IngredientEditorView(QWidget):
         # Create a textbox and add it to the layout
         self.txt_pc_mass_value = NumericLineEdit()
         lyt_piece_mass.addWidget(self.txt_pc_mass_value)
-        self.txt_pc_mass_value.textChanged.connect(self.ingredientPieceMassChanged.emit)
+        self.txt_pc_mass_value.valueChanged.connect(self.ingredientPieceMassChanged.emit)
 
         # Create a mass units dropdown and add it to the layout
         self.cmb_pc_mass_unit = QComboBox()
