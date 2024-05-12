@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (
     QLabel,
     QComboBox,
 )
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.utils.pyqt import block_signals
 from codiet.views.custom_line_editors import NumericLineEdit
@@ -14,9 +14,9 @@ class IngredientNutrientEditorView(QWidget):
     """UI element for quantity of a nutrient in an ingredient."""
 
     # Define signals
-    nutrientMassChanged = pyqtSignal(str, float)
+    nutrientMassChanged = pyqtSignal(str, QVariant)
     nutrientMassUnitsChanged = pyqtSignal(str, str)
-    ingredientMassChanged = pyqtSignal(str, float)
+    ingredientMassChanged = pyqtSignal(str, QVariant)
     ingredientMassUnitsChanged = pyqtSignal(str, str)
 
     def __init__(self, nutrient_name: str):

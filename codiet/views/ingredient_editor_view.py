@@ -362,5 +362,5 @@ class IngredientEditorView(QWidget):
         # Create a line edit and add it to the layout
         self.txt_gi = NumericLineEdit()
         column_layout.addWidget(self.txt_gi)
-        self.txt_gi.textChanged.connect(self.ingredientGIChanged.emit)
+        self.txt_gi.valueChanged.connect(self.ingredientGIChanged.emit)
 

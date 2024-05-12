@@ -326,12 +326,12 @@ class DatabaseService:
             # Update the nutrients
             # For a data dict for the nutrients
             nutr_data = {}
-            for name, nutrient in ingredient.nutrient_quantities.items():
-                nutr_data[name] = {
-                    "ntr_qty_unit": nutrient.nutrient_mass_unit,
-                    "ntr_qty_value": nutrient.nutrient_mass,
-                    "ing_qty_unit": nutrient.ingredient_quantity_unit,
-                    "ing_qty_value": nutrient.ingredient_quantity,
+            for nutrient_name, nutrient_qty in ingredient.nutrient_quantities.items():
+                nutr_data[nutrient_name] = {
+                    "ntr_qty_unit": nutrient_qty.nutrient_mass_unit,
+                    "ntr_qty_value": nutrient_qty.nutrient_mass,
+                    "ing_qty_unit": nutrient_qty.ingredient_quantity_unit,
+                    "ing_qty_value": nutrient_qty.ingredient_quantity,
                 }
             self._repo.update_ingredient_nutrients(ingredient.id, nutr_data)
 

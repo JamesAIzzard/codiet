@@ -82,7 +82,7 @@ class IngredientEditorCtrl:
         # Remove all old nutrients
         self.view.nutrient_editor.remove_all_nutrients()
         # Add the new nutrients
-        self.view.nutrient_editor.add_nutrients(self.ingredient.nutrient_quantities)
+        self.view.nutrient_editor.add_nutrients(self.leaf_nutrient_names)
         # Update their values
         self.view.nutrient_editor.update_nutrients(self.ingredient.nutrient_quantities)
 
@@ -239,17 +239,17 @@ class IngredientEditorCtrl:
         # Clear all flags on the view
         self.view.flag_editor.set_all_flags_false()
 
-    def _on_gi_value_changed(self):
+    def _on_gi_value_changed(self, value:float|None):
         """Handler for changes to the ingredient GI value."""
         # Update the ingredient GI value
-        self.ingredient.gi = self.view.txt_gi.text()
+        self.ingredient.gi = value
 
     def _on_nutrient_filter_changed(self, search_term: str):
         """Handler for changes to the nutrient filter."""
         # Clear the nutrient editor
         self.view.nutrient_editor.remove_all_nutrients()
         # If the search term is empty
-        if search_term.strip() == "":  # pragma: no cover
+        if search_term.strip() == "":
             # Add all leaf nutrients back into the view
             for nutrient_name in self.leaf_nutrient_names:
                 self.view.nutrient_editor.add_nutrient(nutrient_name)

@@ -305,7 +305,7 @@ def get_openai_ingredient_nutrients(
 
     # Set the prompt
     prompt = f"""Can you populate this nutrient data for {ingredient_name}: {nutrients_json_str}?
-        Provide a guess if unsure. Reply with JSON only."""
+        Provide a guess if unsure. Reply with JSON only. Please use 0 to represent a zero quantity."""
 
     completed = False
     while not completed:

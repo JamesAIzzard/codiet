@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
     QListWidget,
     QListWidgetItem,
 )
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.models.ingredients import IngredientNutrientQuantity
 from codiet.views.search_views import SearchTermView
@@ -20,9 +20,9 @@ class IngredientNutrientsEditorView(QWidget):
     # Define signals
     nutrientFilterChanged = pyqtSignal(str)
     nutrientFilterCleared = pyqtSignal()
-    nutrientMassChanged = pyqtSignal(str, float)
+    nutrientMassChanged = pyqtSignal(str, QVariant)
     nutrientMassUnitsChanged = pyqtSignal(str, str)
-    ingredientQtyChanged = pyqtSignal(str, float)
+    ingredientQtyChanged = pyqtSignal(str, QVariant)
     ingredientQtyUnitsChanged = pyqtSignal(str, str)
 
     def __init__(self):
@@ -34,7 +34,7 @@ class IngredientNutrientsEditorView(QWidget):
         # Create a dict to store widgets by nutrient name
         self.nutrient_widgets: dict[str, IngredientNutrientEditorView] = {}
 
-    def add_nutrient(self, nutrient_name: str):
+    def add_nutrient(self, nutrient_name: str) -> None:
         """Adds a new nutrient row to the list widget.
         Use the controller method to also connect signals.
         """
@@ -46,16 +46,16 @@ class IngredientNutrientsEditorView(QWidget):
         nutrient_widget = IngredientNutrientEditorView(nutrient_name)
         # Connect signals
         nutrient_widget.nutrientMassChanged.connect(
-            lambda qty: self.nutrientMassChanged.emit(nutrient_name, qty)
+            lambda ntr_name, qty: self.nutrientMassChanged.emit(ntr_name, qty)
         )
         nutrient_widget.nutrientMassUnitsChanged.connect(
-            lambda units: self.nutrientMassUnitsChanged.emit(nutrient_name, units)
+            lambda ntr_name, units: self.nutrientMassUnitsChanged.emit(ntr_name, units)
         )
         nutrient_widget.ingredientMassChanged.connect(
-            lambda qty: self.ingredientQtyChanged.emit(nutrient_name, qty)
+            lambda ntr_name, qty: self.ingredientQtyChanged.emit(ntr_name, qty)
         )
         nutrient_widget.ingredientMassUnitsChanged.connect(
-            lambda units: self.ingredientQtyUnitsChanged.emit(nutrient_name, units)
+            lambda ntr_name, units: self.ingredientQtyUnitsChanged.emit(ntr_name, units)
         )
         # Set the size hint
         listItem.setSizeHint(nutrient_widget.sizeHint())
@@ -66,15 +66,15 @@ class IngredientNutrientsEditorView(QWidget):
         # Store the widget
         self.nutrient_widgets[nutrient_name] = nutrient_widget
 
-    def add_nutrients(self, nutrient_names: dict[str, IngredientNutrientQuantity]):
+    def add_nutrients(self, nutrient_names: list[str]) -> None:
         """Adds multiple nutrient rows to the list widget.
         Use update_nutrient to set the values.
         """
-        for nutrient_name, nutrient in nutrient_names.items():
+        for nutrient_name in nutrient_names:
             # Add the widget
             self.add_nutrient(nutrient_name)
 
-    def update_nutrient(self, nutrient_name: str, nutrient: IngredientNutrientQuantity):
+    def update_nutrient(self, nutrient_name: str, nutrient: IngredientNutrientQuantity) -> None:
         """Updates the values of a nutrient row in the list widget."""
         # This will raise a KeyError if the nutrient is not in the list
         self.nutrient_widgets[nutrient_name].update_nutrient_mass(nutrient.nutrient_mass)
@@ -89,11 +89,10 @@ class IngredientNutrientsEditorView(QWidget):
 
     def remove_nutrient(self, nutrient_name: str) -> None:
         """Removes a nutrient row from the list widget."""
-        # Remove nutrient from the UI list
+        # Pop the widget from the dict
         nutrient_widget = self.nutrient_widgets.pop(nutrient_name)
+        # Remove the widget from the list
         self.listWidget.takeItem(self.listWidget.row(nutrient_widget)) # type: ignore
-        # Remove nutrient from the dict
-        self.nutrient_widgets.pop(nutrient_name)
 
     def remove_all_nutrients(self):
         """Removes all nutrient rows from the list widget."""
