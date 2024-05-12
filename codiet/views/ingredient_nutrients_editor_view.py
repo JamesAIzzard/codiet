@@ -21,10 +21,8 @@ class IngredientNutrientsEditorView(QWidget):
     nutrientFilterChanged = pyqtSignal(str)
     nutrientFilterCleared = pyqtSignal()
     nutrientMassChanged = pyqtSignal(str, float)
-    nutrientMassCleared = pyqtSignal(str)
     nutrientMassUnitsChanged = pyqtSignal(str, str)
     ingredientQtyChanged = pyqtSignal(str, float)
-    ingredientQtyCleared = pyqtSignal(str)
     ingredientQtyUnitsChanged = pyqtSignal(str, str)
 
     def __init__(self):
@@ -50,17 +48,11 @@ class IngredientNutrientsEditorView(QWidget):
         nutrient_widget.nutrientMassChanged.connect(
             lambda qty: self.nutrientMassChanged.emit(nutrient_name, qty)
         )
-        nutrient_widget.nutrientMassCleared.connect(
-            lambda: self.nutrientMassCleared.emit(nutrient_name)
-        )
         nutrient_widget.nutrientMassUnitsChanged.connect(
             lambda units: self.nutrientMassUnitsChanged.emit(nutrient_name, units)
         )
         nutrient_widget.ingredientMassChanged.connect(
             lambda qty: self.ingredientQtyChanged.emit(nutrient_name, qty)
-        )
-        nutrient_widget.ingredientMassCleared.connect(
-            lambda: self.ingredientQtyCleared.emit(nutrient_name)
         )
         nutrient_widget.ingredientMassUnitsChanged.connect(
             lambda units: self.ingredientQtyUnitsChanged.emit(nutrient_name, units)

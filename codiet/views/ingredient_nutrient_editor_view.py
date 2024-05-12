@@ -15,10 +15,8 @@ class IngredientNutrientEditorView(QWidget):
 
     # Define signals
     nutrientMassChanged = pyqtSignal(str, float)
-    nutrientMassCleared = pyqtSignal(str)
     nutrientMassUnitsChanged = pyqtSignal(str, str)
     ingredientMassChanged = pyqtSignal(str, float)
-    ingredientMassCleared = pyqtSignal(str)
     ingredientMassUnitsChanged = pyqtSignal(str, str)
 
     def __init__(self, nutrient_name: str):
@@ -93,10 +91,6 @@ class IngredientNutrientEditorView(QWidget):
         self.txt_nutrient_mass.valueChanged.connect(
             lambda value: self.nutrientMassChanged.emit(self.nutrient_name, value)
         )
-        # Connect the valueCleared signal to the nutrientMassCleared signal
-        self.txt_nutrient_mass.valueCleared.connect(
-            lambda: self.nutrientMassCleared.emit(self.nutrient_name)
-        )
 
         # Create a dropdown for mass units
         self.cmb_mass_units = QComboBox()
@@ -122,10 +116,6 @@ class IngredientNutrientEditorView(QWidget):
         # Connect the valueChanged signal to the ingredientMassChanged signal
         self.txt_ingredient_mass.valueChanged.connect(
             lambda value: self.ingredientMassChanged.emit(self.nutrient_name, value)
-        )
-        # Connect the valueCleared signal to the ingredientMassCleared signal
-        self.txt_ingredient_mass.valueCleared.connect(
-            lambda: self.ingredientMassCleared.emit(self.nutrient_name)
         )
 
         # Create a dropdown for mass units

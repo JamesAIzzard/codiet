@@ -144,30 +144,30 @@ class IngredientEditorCtrl:
         response = self.yes_no_popup.exec()
         return response
 
-    def _on_ingredient_name_changed(self):
+    def _on_ingredient_name_changed(self, name: str):
         """Handler for changes to the ingredient name."""
         # Update the ingredient name
-        self.ingredient.name = self.view.txt_ingredient_name.text()
+        self.ingredient.name = name
 
-    def _on_ingredient_description_changed(self):
+    def _on_ingredient_description_changed(self, description: str):
         """Handler for changes to the ingredient description."""
         # Update the ingredient description
-        self.ingredient.description = self.view.txt_description.toPlainText()
+        self.ingredient.description = description
 
-    def _on_ingredient_cost_value_changed(self):
+    def _on_ingredient_cost_value_changed(self, value: float|None = None):
         """Handler for changes to the ingredient cost."""
         # Update the ingredient cost
-        self.ingredient.cost_value = self.view.txt_cost.text()
+        self.ingredient.cost_value = value
 
-    def _on_ingredient_cost_quantity_changed(self):
+    def _on_ingredient_cost_quantity_changed(self, value: float|None = None):
         """Handler for changes to the ingredient quantity associated with the cost data."""
         # Update the ingredient cost quantity
-        self.ingredient.cost_qty_value = self.view.txt_cost_quantity.text()
+        self.ingredient.cost_qty_value = value
 
-    def _on_ingredient_cost_qty_unit_changed(self):
+    def _on_ingredient_cost_qty_unit_changed(self, unit: str):
         """Handler for changes to the ingredient cost unit."""
         # Update the ingredient cost unit
-        self.ingredient.cost_qty_unit = self.view.cmb_cost_qty_unit.currentText()
+        self.ingredient.cost_qty_unit = unit
 
     def _on_ingredient_density_vol_value_changed(self):
         """Handler for changes to the ingredient density volume value."""
@@ -344,22 +344,20 @@ class IngredientEditorCtrl:
     def _connect_basic_info_editors(self):
         """Connect the signals for the basic info editors."""
         # Connect the name field
-        self.view.txt_ingredient_name.textChanged.connect(
+        self.view.ingredientNameChanged.connect(
             self._on_ingredient_name_changed
         )
 
         # Connect the description field
-        self.view.txt_description.textChanged.connect(
+        self.view.ingredientDescriptionChanged.connect(
             self._on_ingredient_description_changed
         )
 
     def _connect_cost_editor(self):
         """Connect the signals for the cost editor."""
         # Connect the cost fields
-        self.view.txt_cost.textChanged.connect(self._on_ingredient_cost_value_changed)
-        self.view.txt_cost_quantity.textChanged.connect(
-            self._on_ingredient_cost_quantity_changed
-        )
+        self.view.ingredientCostValueChanged.connect(self._on_ingredient_cost_value_changed)
+        self.view.ingredientCostQuantityChanged.connect(self._on_ingredient_cost_quantity_changed)
         self.view.cmb_cost_qty_unit.currentTextChanged.connect(
             self._on_ingredient_cost_qty_unit_changed
         )

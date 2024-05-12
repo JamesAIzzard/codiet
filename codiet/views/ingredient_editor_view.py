@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import (
     QWidget,
+    QBoxLayout,
     QVBoxLayout,
     QHBoxLayout,
     QLabel,
@@ -10,21 +11,21 @@ from PyQt6.QtWidgets import (
     QComboBox
 )
 from PyQt6.QtGui import QFont
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.utils.pyqt import block_signals
 from codiet.views.custom_line_editors import NumericLineEdit
-from codiet.views.dialog_box_view import OkDialogBoxView
 from codiet.views.flag_editor_view import FlagEditorView
 from codiet.views.ingredient_nutrients_editor_view import IngredientNutrientsEditorView
 
 
 class IngredientEditorView(QWidget):
+    """User interface for editing an ingredient."""
     # Define signals
     ingredientNameChanged = pyqtSignal(str)
     ingredientDescriptionChanged = pyqtSignal(str)
-    ingredientCostValueChanged = pyqtSignal(float)
-    ingredientCostQuantityChanged = pyqtSignal(float)
+    ingredientCostValueChanged = pyqtSignal(QVariant)
+    ingredientCostQuantityChanged = pyqtSignal(QVariant)
     ingredientCostQuantityUnitChanged = pyqtSignal(str)
     ingredientDensityVolChanged = pyqtSignal(float)
     ingredientDensityVolUnitChanged = pyqtSignal(str)
@@ -193,7 +194,7 @@ class IngredientEditorView(QWidget):
         self.btn_save_ingredient.setMaximumWidth(150)
         page_layout.addWidget(self.btn_save_ingredient)
 
-    def _build_basic_info_UI(self, container: QVBoxLayout):
+    def _build_basic_info_UI(self, container: QBoxLayout):
         """Build the UI for the basic info section of the ingredient editor page."""
 
         # Create the basic info groupbox
@@ -225,9 +226,11 @@ class IngredientEditorView(QWidget):
         lyt_top_level.addWidget(label)
         self.txt_description = QTextEdit()
         lyt_top_level.addWidget(self.txt_description)
-        self.txt_description.textChanged.connect(self.ingredientDescriptionChanged.emit)
+        self.txt_description.textChanged.connect(
+            lambda: self.ingredientDescriptionChanged.emit(self.txt_description.toPlainText())
+        )
 
-    def _build_cost_UI(self, container: QVBoxLayout):
+    def _build_cost_UI(self, container: QBoxLayout):
         """Build the UI for the cost section of the ingredient editor page."""
         
         # Create the cost groupbox
@@ -242,10 +245,10 @@ class IngredientEditorView(QWidget):
         label = QLabel("Cost: £")
         lyt_cost.addWidget(label)
 
-        # Create a textbox and add it to the layout
+        # Create a textbox for the cost of the ingredient
         self.txt_cost = NumericLineEdit()
         lyt_cost.addWidget(self.txt_cost)
-        self.txt_cost.textChanged.connect(self.ingredientCostValueChanged.emit)
+        self.txt_cost.valueChanged.connect(self.ingredientCostValueChanged.emit)
 
         # Create a second label
         label = QLabel(" per ")
@@ -254,7 +257,7 @@ class IngredientEditorView(QWidget):
         # Create a textbox and add it to the layout
         self.txt_cost_quantity = NumericLineEdit()
         lyt_cost.addWidget(self.txt_cost_quantity)
-        self.txt_cost_quantity.textChanged.connect(self.ingredientCostQuantityChanged.emit)
+        self.txt_cost_quantity.valueChanged.connect(self.ingredientCostQuantityChanged.emit)
 
         # Create a units dropdown
         self.cmb_cost_qty_unit = QComboBox()
@@ -264,7 +267,7 @@ class IngredientEditorView(QWidget):
         lyt_cost.addWidget(self.cmb_cost_qty_unit)
         self.cmb_cost_qty_unit.currentTextChanged.connect(self.ingredientCostQuantityUnitChanged.emit)
 
-    def _build_bulk_properties_UI(self, container: QVBoxLayout):
+    def _build_bulk_properties_UI(self, container: QBoxLayout):
         """Build the UI for the bulk properties section of the ingredient editor page."""
         # Create the bulk properties groupbox
         gb_bulk_properties = QGroupBox("Bulk Properties")
@@ -342,7 +345,7 @@ class IngredientEditorView(QWidget):
         lyt_piece_mass.addWidget(self.cmb_pc_mass_unit)
         self.cmb_pc_mass_unit.currentTextChanged.connect(self.ingredientPieceMassUnitChanged.emit)
 
-    def _build_gi_UI(self, container: QVBoxLayout):
+    def _build_gi_UI(self, container: QBoxLayout):
         """Build the UI for the GI section of the ingredient editor page."""
         # Create the GI groupbox
         gb_gi = QGroupBox("GI")

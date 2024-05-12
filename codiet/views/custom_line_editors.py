@@ -1,12 +1,11 @@
 from PyQt6.QtWidgets import QLineEdit
 from PyQt6.QtGui import QDoubleValidator
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, QVariant
 
 class NumericLineEdit(QLineEdit):
     """A QLineEdit widget that only accepts numeric input."""
     # Define the signals
-    valueChanged = pyqtSignal(float)
-    valueCleared = pyqtSignal()
+    valueChanged = pyqtSignal(QVariant)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -43,6 +42,6 @@ class NumericLineEdit(QLineEdit):
     def on_text_changed(self, text: str) -> None:
         """Emit the valueChanged signal when the text changes."""
         if text.strip() == "":
-            self.valueCleared.emit()
+            self.valueChanged.emit(None)
         else:
             self.valueChanged.emit(float(text))
