@@ -253,12 +253,19 @@ class IngredientEditorCtrl:
             # Add all leaf nutrients back into the view
             for nutrient_name in self.leaf_nutrient_names:
                 self.view.nutrient_editor.add_nutrient(nutrient_name)
+            # Populate with the nutrient quantities from the ingredient instance
+            self.view.nutrient_editor.update_nutrients(self.ingredient.nutrient_quantities)
         else:
             # Get the filtered list of nutrients
             filtered_nutrients = filter_text(search_term, self.leaf_nutrient_names, 3)
             # Add each of the filtered nutrients into the view
             for nutrient_name in filtered_nutrients:
                 self.view.nutrient_editor.add_nutrient(nutrient_name)
+            # Populate with the nutrient quantities from the ingredient instance
+            for nutrient_name in filtered_nutrients:
+                self.view.nutrient_editor.update_nutrient(
+                    nutrient_name, self.ingredient.nutrient_quantities[nutrient_name]
+                )
 
     def _on_nutrient_filter_cleared(self):
         """Handler for clearing the nutrient filter."""
