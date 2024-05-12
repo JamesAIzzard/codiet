@@ -99,8 +99,7 @@ class MainWindowCtrl:
     def _on_delete_ingredient_clicked(self):
         """Handle the user clicking the Delete Ingredient button."""
         # Configure error box to say not implemented
-        self.error_popup.set_message("Delete Ingredient functionality not yet implemented.")
-        self.error_popup.show()
+        raise NotImplementedError("Delete Ingredient functionality not yet implemented.")
 
     def _on_new_recipe_clicked(self):
         """Handle the user clicking the New Recipe button."""
@@ -122,6 +121,20 @@ class MainWindowCtrl:
         # Show the editor
         self.recipe_search_popup.show()
 
+    def _on_recipe_search_term_changed(self, search_term):
+        """Handle the user changing the search term in the recipe search popup."""
+        # Filter the recipe names
+        matching_recipe_names = filter_text(search_term, self.recipe_names, 5)
+        # Update the search results
+        self.recipe_search_popup.update_results_list(matching_recipe_names)
+
+    def _on_recipe_search_term_cleared(self):
+        """Handle the user clearing the search term in the recipe search popup."""
+        # Clear the search results
+        self.recipe_search_popup.clear_results_list()
+        # Clear the search term
+        self.recipe_search_popup.clear_search_term()
+
     def _on_recipe_selected_for_edit(self, recipe_name):
         """Handle the user selecting a recipe to edit in search results."""
         # Fetch the recipe
@@ -135,8 +148,7 @@ class MainWindowCtrl:
     def _on_edit_recipe_types_clicked(self):
         """Handle the user clicking the Edit Recipe Types button."""
         # Configure error box to say not implemented
-        self.error_popup.set_message("Edit Recipe Types functionality not yet implemented.")
-        self.error_popup.show()
+        raise NotImplementedError("Edit Recipe Types functionality not yet implemented.")
 
     def _on_new_goal_set_clicked(self):
         """Handle the user clicking the New Meal Goal button."""
@@ -145,25 +157,22 @@ class MainWindowCtrl:
     def _on_edit_goal_set_clicked(self):
         """Handle the user clicking the Edit Meal Goal button."""
         # Configure error box to say not implemented
-        self.error_popup.set_message("Edit goal set functionality not yet implemented.")
-        self.error_popup.show()
+        raise NotImplementedError("Edit goal set functionality not yet implemented.")
 
     def _on_delete_goal_set_clicked(self):
         """Handle the user clicking the Delete Meal Goal button."""
         # Configure error box to say not implemented
-        self.error_popup.set_message("Delete goal set functionality not yet implemented.")
+        raise NotImplementedError("Delete goal set functionality not yet implemented.")
 
     def _on_edit_goal_defaults_clicked(self):
         """Handle the user clicking the Meal Goal Defaults button."""
         # Configure error box to say not implemented
-        self.error_popup.set_message("Edit goal defaults functionality not yet implemented.")
-        self.error_popup.show()
+        raise NotImplementedError("Edit goal defaults functionality not yet implemented.")
 
     def _on_general_help_clicked(self):
         """Handle the user clicking the General Help button."""
         # Configure error box to say not implemented
-        self.error_popup.set_message("General help functionality not yet implemented.")
-        self.error_popup.show()
+        raise NotImplementedError("General help functionality not yet implemented.")
 
     def _connect_menu_bar_signals(self):
         """Connect the signals from the menu bar to the appropriate slots."""
@@ -171,6 +180,7 @@ class MainWindowCtrl:
         self.view.editIngredientClicked.connect(self._on_edit_ingredient_clicked)
         self.view.deleteIngredientClicked.connect(self._on_delete_ingredient_clicked)
         self.view.newRecipeClicked.connect(self._on_new_recipe_clicked)
+        self.view.editRecipeClicked.connect(self._on_edit_recipe_clicked)
         self.view.editRecipeTypesClicked.connect(self._on_edit_recipe_types_clicked)
         self.view.newGoalSetClicked.connect(self._on_new_goal_set_clicked)
         self.view.editGoalSetClicked.connect(self._on_edit_goal_set_clicked)
@@ -186,4 +196,6 @@ class MainWindowCtrl:
 
     def _connect_recipe_search_signals(self):
         """Connect the signals from the recipe search popup to the appropriate slots."""
-        pass    
+        self.recipe_search_popup.searchTermChanged.connect(self._on_recipe_search_term_changed)
+        self.recipe_search_popup.resultSelected.connect(self._on_recipe_selected_for_edit)
+        self.recipe_search_popup.searchTermCleared.connect(self._on_recipe_search_term_cleared)
