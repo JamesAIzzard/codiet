@@ -8,8 +8,10 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import pyqtSignal
 
+
 class ServeTimeIntervalsEditorView(QWidget):
     """UI element to allow the user to edit the serve time intervals."""
+
     # Define signals
     addServeTimeClicked = pyqtSignal()
     removeServeTimeClicked = pyqtSignal()
@@ -43,9 +45,11 @@ class ServeTimeIntervalsEditorView(QWidget):
         # Create a button to add a time window
         self.btn_add_time_window = QPushButton("Add")
         lyt_buttons.addWidget(self.btn_add_time_window)
+        self.btn_add_time_window.clicked.connect(self.addServeTimeClicked)
         # Create a button to remove a time window
         self.btn_remove_time_window = QPushButton("Remove")
         lyt_buttons.addWidget(self.btn_remove_time_window)
+        self.btn_remove_time_window.clicked.connect(self.removeServeTimeClicked)
 
         # Create a list widget to hold the time windows
         self.lst_time_intervals = QListWidget()
@@ -57,13 +61,29 @@ class ServeTimeIntervalsEditorView(QWidget):
         intervals = []
         for i in range(self.lst_time_intervals.count()):
             item = self.lst_time_intervals.item(i)
-            intervals.append(item.text()) # type: ignore
+            intervals.append(item.text())  # type: ignore
         return intervals
 
     @property
-    def selected_index(self) -> int:
+    def selected_index(self) -> int | None:
         """Return the index of the selected time interval."""
-        return self.lst_time_intervals.currentRow()
+        if self.interval_is_selected:
+            return self.lst_time_intervals.currentRow()
+        else:
+            return None
+
+    @property
+    def interval_is_selected(self) -> bool:
+        """Return whether a time interval is selected."""
+        return self.lst_time_intervals.currentItem() is not None
+
+    @property
+    def selected_time_interval_string(self) -> str | None:
+        """Return the selected time interval."""
+        if not self.interval_is_selected:
+            return None
+        else:
+            return self.lst_time_intervals.currentItem().text()  # type: ignore
 
     def update_serve_times(self, time_intervals: list[str]) -> None:
         """Update the list of time intervals."""
@@ -77,7 +97,7 @@ class ServeTimeIntervalsEditorView(QWidget):
         """Add a time interval to the list."""
         # Check the string is not already in the list
         for i in range(len(self.lst_time_intervals)):
-            if self.lst_time_intervals.item(i).text() == time_interval: # type: ignore
+            if self.lst_time_intervals.item(i).text() == time_interval:  # type: ignore
                 return
         # Add the time interval to the list
         self.lst_time_intervals.addItem(time_interval)

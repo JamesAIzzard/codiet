@@ -1,7 +1,10 @@
 from datetime import datetime
 
 from codiet.utils.search import filter_text
-from codiet.utils.time import convert_datetime_interval_to_time_string_interval
+from codiet.utils.time import (
+    convert_datetime_interval_to_time_string_interval,
+    convert_time_string_interval_to_datetime_interval
+)
 from codiet.models.recipes import Recipe
 from codiet.models.ingredients import IngredientQuantity
 from codiet.views.recipe_editor_view import RecipeEditorView
@@ -137,13 +140,25 @@ class RecipeEditorCtrl:
         # Hide the popup
         self.ingredients_editor_popup.hide()
 
-    def _on_add_serve_time(self) -> None:
+    def _on_add_serve_time_clicked(self) -> None:
         """Handle the addition of a serve time."""
         # Show the popup
         self.serve_time_popup.show()
 
-    def _on_remove_serve_time(self, index: int) -> None:
+    def _on_remove_serve_time_clicked(self) -> None:
         """Handle the removal of a serve time."""
+        # Get the selected index
+        index = self.view.serve_time_intervals_editor_view.selected_index
+        # If there is no selected index, return
+        if index is None:
+            return None
+        # Create the datetime objects for the start and end times
+        datetime_interval = convert_time_string_interval_to_datetime_interval(
+            self.view.serve_time_intervals_editor_view.selected_time_interval_string # type: ignore
+        )
+        # Remove the time interval from the recipe
+        self.recipe.remove_serve_time(datetime_interval)
+        # Update the serve times in the view
         self.view.serve_time_intervals_editor_view.remove_time_interval(index)
 
     def _on_serve_time_provided(self, start_time: str, end_time: str) -> None:
@@ -156,15 +171,15 @@ class RecipeEditorCtrl:
         except ValueError:
             # Configure the error popup
             self.error_popup.setWindowTitle("Invalid Time")
-            self.error_popup.set_message("Please enter a valid time.")
+            self.error_popup.message = "Please enter a valid time."
             # Show the error popup
             self.error_popup.show()
             return None
         # Add the time interval to the recipe
         self.recipe.add_serve_time((dt_start, dt_end))
         # Update the serve times in the view
-        self.view.serve_time_intervals_editor_view.update_serve_times(
-            self.recipe.serve_times_strings
+        self.view.serve_time_intervals_editor_view.add_time_interval(
+            convert_datetime_interval_to_time_string_interval((dt_start, dt_end))
         )
         # Hide the popup
         self.serve_time_popup.hide()
@@ -265,12 +280,12 @@ class RecipeEditorCtrl:
     def _connect_serve_time_editor(self) -> None:
         """Initialise the serve time editor views."""
         self.view.serve_time_intervals_editor_view.addServeTimeClicked.connect(
-            self._on_add_serve_time
+            self._on_add_serve_time_clicked
         )
         self.view.serve_time_intervals_editor_view.removeServeTimeClicked.connect(
-            self._on_remove_serve_time
+            self._on_remove_serve_time_clicked
         )
-        self.serve_time_popup.addClicked.connect(self._on_serve_time_provided)
+        self.serve_time_popup.addIntervalClicked.connect(self._on_serve_time_provided)
 
     def _config_recipe_type_editor(self) -> None:
         """Initialise the recipe type selector popup."""

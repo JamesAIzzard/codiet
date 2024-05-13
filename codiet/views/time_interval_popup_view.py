@@ -10,7 +10,7 @@ from PyQt6.QtCore import pyqtSignal
 
 class TimeIntervalPopupView(QDialog):
     # Define signals
-    addClicked = pyqtSignal(str, str)
+    addIntervalClicked = pyqtSignal(str, str)
 
     def __init__(self):
         super().__init__()
@@ -64,4 +64,4 @@ class TimeIntervalPopupView(QDialog):
 
     def _on_add_clicked(self):
         """Emit the addClicked signal."""
-        self.addClicked.emit(self.start_time, self.end_time)
+        self.addIntervalClicked.emit(self.start_time, self.end_time)
