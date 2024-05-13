@@ -1,7 +1,9 @@
 from datetime import datetime
 
 from codiet.utils.search import filter_text
+from codiet.utils.time import convert_datetime_interval_to_time_string_interval
 from codiet.models.recipes import Recipe
+from codiet.models.ingredients import IngredientQuantity
 from codiet.views.recipe_editor_view import RecipeEditorView
 from codiet.views.search_views import SearchPopupView
 from codiet.views.dialog_box_view import ErrorDialogBoxView
@@ -50,9 +52,10 @@ class RecipeEditorCtrl:
         # Update the ingredients fields
         self.view.ingredients_editor.update_ingredients(recipe.ingredients)
         # Update the time intervals field
-        self.view.serve_time_intervals_editor_view.update_serve_times(
-            recipe.serve_times
-        )
+        for interval in recipe.serve_times:
+            self.view.serve_time_intervals_editor_view.add_time_interval(
+                convert_datetime_interval_to_time_string_interval(interval)
+            )
         # Update the recipe type field
         self.view.update_recipe_types(recipe._recipe_types)
 
@@ -125,8 +128,10 @@ class RecipeEditorCtrl:
         # Fetch the ingredient data from the database
         with DatabaseService() as db_service:
             ingredient = db_service.fetch_ingredient_by_name(ingredient_name)
+        # Create a new recipe ingredient instance
+        ingredient_qty = IngredientQuantity(ingredient)
         # Add the ingredient to the recipe
-        self.recipe.add_ingredient(ingredient)
+        self.recipe.add_ingredient(ingredient_quantity=ingredient_qty)
         # Update the ingredients in the view
         self.view.ingredients_editor.update_ingredients(self.recipe._ingredients)
         # Hide the popup
@@ -259,10 +264,10 @@ class RecipeEditorCtrl:
 
     def _connect_serve_time_editor(self) -> None:
         """Initialise the serve time editor views."""
-        self.view.serve_time_intervals_editor_view.addTimeClicked.connect(
+        self.view.serve_time_intervals_editor_view.addServeTimeClicked.connect(
             self._on_add_serve_time
         )
-        self.view.serve_time_intervals_editor_view.removeTimeClicked.connect(
+        self.view.serve_time_intervals_editor_view.removeServeTimeClicked.connect(
             self._on_remove_serve_time
         )
         self.serve_time_popup.addClicked.connect(self._on_serve_time_provided)

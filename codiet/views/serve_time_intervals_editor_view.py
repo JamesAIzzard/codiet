@@ -11,8 +11,8 @@ from PyQt6.QtCore import pyqtSignal
 class ServeTimeIntervalsEditorView(QWidget):
     """UI element to allow the user to edit the serve time intervals."""
     # Define signals
-    addTimeClicked = pyqtSignal()
-    removeTimeClicked = pyqtSignal(int)
+    addServeTimeClicked = pyqtSignal()
+    removeServeTimeClicked = pyqtSignal()
 
     def __init__(self):
         super().__init__()

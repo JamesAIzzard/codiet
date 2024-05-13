@@ -7,11 +7,13 @@ import os, json
 
 from codiet.db_construction import (
     INGREDIENT_DATA_DIR,
+    RECIPE_DATA_DIR,
     FLAG_DATA_FILEPATH,
     NUTRIENT_DATA_FILEPATH,
     RECIPE_TYPE_DATA_FILE
 )
 from codiet.models.ingredients import Ingredient, IngredientNutrientQuantity
+from codiet.models.recipes import Recipe
 from codiet.db.database_service import DatabaseService
 
 def push_flags_to_db():
@@ -80,6 +82,21 @@ def push_global_recipe_types_to_db():
         db_service.commit()
     print("Global recipe types pushed to the database.")
 
+def push_recipes_to_db():
+    """Push the recipes to the database."""
+    # For each of the recipe datafiles
+    for file in os.listdir(RECIPE_DATA_DIR):
+        # Open the file and load the data
+        with open(os.path.join(RECIPE_DATA_DIR, file)) as f:
+            data = json.load(f)
+        # Convert the data into a recipe instance
+        recipe = _load_recipe_from_json(data)
+        # Save the recipe to the database
+        with DatabaseService() as db_service:
+            db_service.insert_new_recipe(recipe)
+            # Save changes
+            db_service.commit()
+
 def _load_ingredient_from_json(json_data) -> Ingredient:
     """Load an ingredient object from a json data dict."""
     # Create the ingredient instance
@@ -116,3 +133,12 @@ def _load_ingredient_nutrient_qty_from_json(nutrient_name:str, nutrient_data:dic
         ing_qty_unit=nutrient_data["ing_qty_unit"]
     )
     return nutrient_qty
+
+def _load_recipe_from_json(json_data) -> Recipe:
+    """Load a recipe object from a json data dict."""
+    # Create the recipe instance
+    recipe = Recipe()
+    # Move the recipe data into the instance
+    recipe.name = json_data["name"]
+    recipe.description = json_data["description"]
+    return recipe

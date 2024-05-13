@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QDialog
+from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.views.dialog_box_view import OkDialogBoxView, ConfirmDialogBoxView
 from codiet.views.search_views import SearchPopupView
@@ -20,6 +21,21 @@ from codiet.utils.pyqt import block_signals
 
 
 class RecipeEditorView(QWidget):
+    """User interface for editing recipes."""
+    # Define signals
+    recipeNameChanged = pyqtSignal(str)
+    recipeDescriptionChanged = pyqtSignal(str)
+    recipeInstructionsChanged = pyqtSignal(str)
+    addIngredientClicked = pyqtSignal()
+    removeIngredientClicked = pyqtSignal()
+    addServeTimeClicked = pyqtSignal()
+    removeServeTimeClicked = pyqtSignal()
+    addRecipeTypeClicked = pyqtSignal()
+    removeRecipeTypeClicked = pyqtSignal()
+    saveRecipeClicked = pyqtSignal()
+    saveToJSONClicked = pyqtSignal()
+
+
     def __init__(self):
         super().__init__()
         # Build the user interface
@@ -144,6 +160,9 @@ class RecipeEditorView(QWidget):
         label = QLabel("Name: ")
         recipe_name_layout.addWidget(label)
         self.txt_recipe_name = QLineEdit()
+        # Connect to the signal
+        self.txt_recipe_name.textChanged.connect(self.recipeNameChanged.emit)
+        # Add to the UI
         recipe_name_layout.addWidget(self.txt_recipe_name)
 
         # Add a row containing the recipe description label and multiline textbox
@@ -153,12 +172,20 @@ class RecipeEditorView(QWidget):
         basic_info_layout.addWidget(self.txt_recipe_description)
         # Make the description box just three lines high
         self.txt_recipe_description.setFixedHeight(60)
+        # Connect to the signal, also passing the text
+        self.txt_recipe_description.textChanged.connect(
+            lambda: self.recipeDescriptionChanged.emit(self.txt_recipe_description.toPlainText())
+        )
 
         # Add a row containing the recipe instructions label and multiline textbox
         label = QLabel("Instructions:")
         basic_info_layout.addWidget(label)
         self.textbox_recipe_instructions = QTextEdit()
         basic_info_layout.addWidget(self.textbox_recipe_instructions)
+        # Connect to the signal, also passing the text
+        self.textbox_recipe_instructions.textChanged.connect(
+            lambda: self.recipeInstructionsChanged.emit(self.textbox_recipe_instructions.toPlainText())
+        )
 
         # Create the second column
         lyt_col_2 = QVBoxLayout()
@@ -167,6 +194,9 @@ class RecipeEditorView(QWidget):
         # Add the ingredients editor widget to the second col
         self.ingredients_editor = IngredientsEditorView()
         lyt_col_2.addWidget(self.ingredients_editor)
+        # Connect the add and remove ingredients editor buttons
+        self.ingredients_editor.addIngredientClicked.connect(self.addIngredientClicked.emit)
+        self.ingredients_editor.removeIngredientClicked.connect(self.removeIngredientClicked.emit)
 
         # Create the third column
         lyt_col_3 = QVBoxLayout()
@@ -175,12 +205,31 @@ class RecipeEditorView(QWidget):
         # Add the serve times editor widget to the third col
         self.serve_time_intervals_editor_view = ServeTimeIntervalsEditorView()
         lyt_col_3.addWidget(self.serve_time_intervals_editor_view)
+        # Connect the add and remove serve time buttons
+        self.serve_time_intervals_editor_view.addServeTimeClicked.connect(self.addServeTimeClicked.emit)
+        self.serve_time_intervals_editor_view.removeServeTimeClicked.connect(self.removeServeTimeClicked.emit)
 
         # Add the recipe type selector widget to the third col
         self.recipe_type_editor_view = RecipeTypeEditorView()
         lyt_col_3.addWidget(self.recipe_type_editor_view)
+        # Connect the add and remove recipe types buttons
+        self.recipe_type_editor_view.addRecipeTypeClicked.connect(self.addRecipeTypeClicked.emit)
+        self.recipe_type_editor_view.removeRecipeTypeClicked.connect(self.removeRecipeTypeClicked.emit)
 
+        # Add a horizontal layout for the buttons
+        lyt_buttons = QHBoxLayout()
+        page_layout.addLayout(lyt_buttons)
         # At the bottom of the page, put a 'Save Recipe' button
         self.btn_save_recipe = QPushButton("Save Recipe")
         self.btn_save_recipe.setMaximumWidth(150)
-        page_layout.addWidget(self.btn_save_recipe)
+        lyt_buttons.addWidget(self.btn_save_recipe)
+        # Connect to the save recipe signal
+        self.btn_save_recipe.clicked.connect(self.saveRecipeClicked.emit)
+        # Add a 'Save to .json' button
+        self.btn_save_json = QPushButton("Save to .json")
+        self.btn_save_json.setMaximumWidth(150)
+        lyt_buttons.addWidget(self.btn_save_json)
+        # Connect to the save to json signal
+        self.btn_save_json.clicked.connect(self.saveToJSONClicked.emit)
+        # Push the buttons to the left
+        lyt_buttons.addStretch()

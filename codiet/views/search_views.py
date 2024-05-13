@@ -72,13 +72,13 @@ class SearchPopupView(QDialog):
         self.search_term_textbox.searchTermChanged.connect(self.searchTermChanged.emit)
         self.search_term_textbox.cancelClicked.connect(self.searchTermCleared.emit)
 
-    def update_results_list(self, matching_ingredient_names: list[str]):
+    def update_results_list(self, matching_results: list[str]):
         """Update the list of ingredients."""
         # Clear the existing ingredients
         self.lst_search_results.clear()
         # Add the matching ingredients
-        for ingredient_name in matching_ingredient_names:
-            self.lst_search_results.addItem(ingredient_name)
+        for result in matching_results:
+            self.lst_search_results.addItem(result)
 
     def clear_results_list(self):
         """Clear the search results."""

@@ -1,4 +1,5 @@
 from codiet.utils.search import filter_text
+from codiet.models.recipes import Recipe
 from codiet.db.database_service import DatabaseService
 from codiet.views.search_views import SearchPopupView
 from codiet.views.dialog_box_view import ErrorDialogBoxView
@@ -104,10 +105,7 @@ class MainWindowCtrl:
     def _on_new_recipe_clicked(self):
         """Handle the user clicking the New Recipe button."""
         # Put a new recipe in the editor
-        with DatabaseService() as db_service:
-            self.recipe_editor_ctrl.load_recipe_instance(
-                db_service.create_empty_recipe()
-            )
+        self.recipe_editor_ctrl.load_recipe_instance(Recipe())
         # Show the editor
         self.view.show_page("recipe-editor")
 
@@ -116,17 +114,21 @@ class MainWindowCtrl:
         # Cache the recipe names for the search popup
         with DatabaseService() as db_service:
             self.recipe_names = db_service.fetch_all_recipe_names()
-        # Connect the handler to the search popup
-        self.recipe_search_popup.resultSelected.connect(self._on_recipe_selected_for_edit)
         # Show the editor
         self.recipe_search_popup.show()
 
-    def _on_recipe_search_term_changed(self, search_term):
+    def _on_recipe_search_term_changed(self, search_term) -> None:
         """Handle the user changing the search term in the recipe search popup."""
-        # Filter the recipe names
-        matching_recipe_names = filter_text(search_term, self.recipe_names, 5)
-        # Update the search results
-        self.recipe_search_popup.update_results_list(matching_recipe_names)
+        # If the search term is just whitespace
+        if search_term.strip() == "":
+            # Clear the search results
+            self.recipe_search_popup.clear_results_list()
+        # If the search term is not whitespace
+        else:
+            # Filter the recipe names
+            matching_recipe_names = filter_text(search_term, self.recipe_names, 5)
+            # Update the search results
+            self.recipe_search_popup.update_results_list(matching_recipe_names)
 
     def _on_recipe_search_term_cleared(self):
         """Handle the user clearing the search term in the recipe search popup."""

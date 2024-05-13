@@ -51,13 +51,6 @@ class DatabaseService:
         # Return the ingredient
         return ingredient
 
-    def create_empty_recipe(self) -> Recipe:
-        """Creates an empty recipe."""
-        # Init the recipe
-        recipe = Recipe()
-
-        return recipe
-
     def insert_global_flag(self, flag_name: str):
         """Inserts a global flag into the database."""
         self._repo.insert_global_flag(flag_name)
@@ -225,7 +218,7 @@ class DatabaseService:
     def fetch_recipe_by_name(self, name: str) -> Recipe:
         """Returns the recipe with the given name."""
         # Init a fresh recipe instance
-        recipe = self.create_empty_recipe()
+        recipe = Recipe()
         # Grab the ID of the recipe
         recipe.id = self._repo.fetch_recipe_id(name)
         # Set the name

@@ -7,6 +7,7 @@ RECIPE_TYPE_DATA_FILE = os.path.join(
     os.path.dirname(__file__), "global_recipe_types.json"
 )
 INGREDIENT_DATA_DIR = os.path.join(os.path.dirname(__file__), "ingredient_data")
+RECIPE_DATA_DIR = os.path.join(os.path.dirname(__file__), "recipe_data")
 INGREDIENT_WISHLIST_FILEPATH = os.path.join(
     os.path.dirname(__file__), "ingredient_wishlist.json"
 )
