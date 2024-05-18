@@ -4,7 +4,7 @@ from codiet.exceptions.ingredient_exceptions import IngredientNameExistsError
 from codiet.db.database_service import DatabaseService
 from codiet.utils.search import filter_text
 from codiet.views.ingredient_editor_view import IngredientEditorView
-from codiet.views.dialog_box_view import OkDialogBoxView, ErrorDialogBoxView, YesNoDialogBoxView
+from codiet.views.dialog_box_views import OkDialogBoxView, ErrorDialogBoxView, YesNoDialogBoxView
 from codiet.models.ingredients import Ingredient
 
 

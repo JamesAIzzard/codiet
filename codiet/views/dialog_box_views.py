@@ -26,7 +26,6 @@ class DialogBoxView(QDialog):
 
         # Init the label for the icon
         self.lbl_icon = QLabel(self)
-        self.lbl_icon.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.lyt_icon_and_label.addWidget(self.lbl_icon)
 
         # Add the text
@@ -67,7 +66,7 @@ class DialogBoxView(QDialog):
         pixmap = QPixmap(icon_path)
         # Set the pixmap to the label
         self.lbl_icon.setPixmap(
-            pixmap.scaled(20, 20, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
+            pixmap.scaled(30, 30, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
         )
 
     def set_button_configuration(self, buttons):

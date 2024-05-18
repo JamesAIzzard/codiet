@@ -12,7 +12,7 @@ from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QDialog
 from PyQt6.QtCore import pyqtSignal, QVariant
 
-from codiet.views.dialog_box_view import OkDialogBoxView, ConfirmDialogBoxView
+from codiet.views.dialog_box_views import OkDialogBoxView, ConfirmDialogBoxView
 from codiet.views.search_views import SearchPopupView
 from codiet.views.ingredients_editor_view import IngredientsEditorView
 from codiet.views.serve_time_intervals_editor_view import ServeTimeIntervalsEditorView
@@ -81,16 +81,6 @@ class RecipeEditorView(QWidget):
     def show_ingredient_search_popop(self) -> None:
         """Show the ingredient search popup."""
         self.ingredient_search_popup.show()
-
-    def show_name_required_popup(self) -> None:
-        """Show the name required popup."""
-        # Show confirm dialog box
-        dialog = OkDialogBoxView(
-            message="Please enter a name for the recipe.",
-            title="Name Required",
-            parent=self,
-        )
-        _ = dialog.exec()
 
     def show_name_change_confirmation_popup(self) -> bool:
         """Show the name change confirmation popup."""

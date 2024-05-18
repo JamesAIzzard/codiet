@@ -2,7 +2,7 @@ from codiet.utils.search import filter_text
 from codiet.models.recipes import Recipe
 from codiet.db.database_service import DatabaseService
 from codiet.views.search_views import SearchPopupView
-from codiet.views.dialog_box_view import ErrorDialogBoxView
+from codiet.views.dialog_box_views import ErrorDialogBoxView
 from codiet.views.main_window_view import MainWindowView
 from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.views.recipe_editor_view import RecipeEditorView

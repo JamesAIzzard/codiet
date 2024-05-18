@@ -10,7 +10,7 @@ from codiet.models.recipes import Recipe
 from codiet.models.ingredients import IngredientQuantity
 from codiet.views.recipe_editor_view import RecipeEditorView
 from codiet.views.search_views import SearchPopupView
-from codiet.views.dialog_box_view import ErrorDialogBoxView
+from codiet.views.dialog_box_views import ErrorDialogBoxView
 from codiet.views.time_interval_popup_view import TimeIntervalPopupView
 from codiet.db.database_service import DatabaseService
 
@@ -25,6 +25,11 @@ class RecipeEditorCtrl:
         self.serve_time_popup = TimeIntervalPopupView()
         self.recipe_type_selector_popup = SearchPopupView()
         self.error_popup = ErrorDialogBoxView(message="", title="", parent=self.view)
+        self.name_required_popup = ErrorDialogBoxView(
+            message="Please provide a name for the recipe.",
+            title="Name Required",
+            parent=self.view,
+        )
 
         # Cache some searchable things
         self.all_ingredient_names: list[str] = []
@@ -277,7 +282,7 @@ class RecipeEditorCtrl:
         """Handle the save button being pressed."""
         # Open the 'name required' popup if the name is empty
         if self.recipe.name is None or self.recipe.name.strip() == "":
-            self.view.show_name_required_popup()
+            self.name_required_popup.show()
             return None
         # If we are saving a new recipe (there is no ID yet)
         if self.recipe.id is None:
@@ -308,10 +313,31 @@ class RecipeEditorCtrl:
 
     def _on_save_to_json_button_clicked(self) -> None:
         """Handle the save to JSON button being clicked."""
+        # Open the name required popup if the name is empty
+        if self.recipe.name is None or self.recipe.name.strip() == "":
+            self.name_required_popup.show()
+            return None
         # Create a .json datafile representing the recipe
         recipe_data = convert_recipe_to_json(self.recipe)
-        # Save the recipe to the file
-        save_recipe_datafile(recipe_data)
+        try:
+            # Save the recipe to the file
+            save_recipe_datafile(recipe_data)
+        except FileExistsError as e:
+            # The file already exists - configure the error popup
+            self.error_popup.setWindowTitle("File Exists")
+            self.error_popup.message = str(e)
+            # Show the error popup
+            self.error_popup.show()
+            return None
+        except ValueError as e:
+            # Some other error occurred - configure the error popup
+            self.error_popup.setWindowTitle("Error")
+            self.error_popup.message = str(e)
+            # Show the error popup
+            self.error_popup.show()
+        # Open a popup to confirm the save
+        self.view.show_save_confirmation_popup()
+
 
     def _connect_ingredients_editor(self) -> None:
         """Initialise the ingredients editor views."""
