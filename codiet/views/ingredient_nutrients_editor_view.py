@@ -118,9 +118,6 @@ class IngredientNutrientsEditorView(QWidget):
         # Add an HBox layout for the filter controls
         lyt_filter = QHBoxLayout()
         lyt_top_level.addLayout(lyt_filter)
-        # Add the label
-        self.lbl_filter = QLabel("Filter: ")
-        lyt_filter.addWidget(self.lbl_filter)
         # Add the filter input
         self.search_term_widget = SearchTermView()
         lyt_filter.addWidget(self.search_term_widget)

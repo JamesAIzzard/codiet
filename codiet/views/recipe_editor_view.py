@@ -12,6 +12,7 @@ from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QDialog
 from PyQt6.QtCore import pyqtSignal, QVariant
 
+from codiet.views.buttons import SaveButton
 from codiet.views.dialog_box_views import OkDialogBoxView, ConfirmDialogBoxView
 from codiet.views.search_views import SearchPopupView
 from codiet.views.ingredients_editor_view import IngredientsEditorView
@@ -210,14 +211,16 @@ class RecipeEditorView(QWidget):
         lyt_buttons = QHBoxLayout()
         page_layout.addLayout(lyt_buttons)
         # At the bottom of the page, put a 'Save Recipe' button
-        self.btn_save_recipe = QPushButton("Save Recipe")
-        self.btn_save_recipe.setMaximumWidth(150)
+        self.btn_save_recipe = SaveButton()
         lyt_buttons.addWidget(self.btn_save_recipe)
         # Connect to the save recipe signal
         self.btn_save_recipe.clicked.connect(self.saveRecipeClicked.emit)
         # Add a 'Save to .json' button
-        self.btn_save_json = QPushButton("Save to .json")
-        self.btn_save_json.setMaximumWidth(150)
+        self.btn_save_json = SaveButton()
+        # Update text to say 'Save to JSON'
+        self.btn_save_json.setText("Save to JSON")
+        # Make wider
+        self.btn_save_json.setMaximumWidth(100)
         lyt_buttons.addWidget(self.btn_save_json)
         # Connect to the save to json signal
         self.btn_save_json.clicked.connect(self.saveToJSONClicked.emit)

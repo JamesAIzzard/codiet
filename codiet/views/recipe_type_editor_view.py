@@ -13,6 +13,8 @@ from PyQt6.QtWidgets import (
     QPushButton
 )
 
+from codiet.views.buttons import AddButton, RemoveButton
+
 class RecipeTypeEditorView(QWidget):
     # Define signals
     addRecipeTypeClicked = pyqtSignal()
@@ -81,11 +83,13 @@ class RecipeTypeEditorView(QWidget):
         lyt_buttons = QHBoxLayout()
         lyt_recipe_types.addLayout(lyt_buttons)
         # Add an 'Add' button
-        self.btn_add = QPushButton("Add")
+        self.btn_add = AddButton()
         lyt_buttons.addWidget(self.btn_add)
         # Add a 'Remove' button
-        self.btn_remove = QPushButton("Remove")
+        self.btn_remove = RemoveButton()
         lyt_buttons.addWidget(self.btn_remove)
+        # Push buttons to LHS
+        lyt_buttons.addStretch()
 
         # Add a listbox for the recipe types
         self.lst_recipe_types = QListWidget()

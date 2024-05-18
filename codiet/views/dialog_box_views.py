@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
     QSizePolicy,
 )
 from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QIcon
 
 
 class DialogBoxView(QDialog):
@@ -16,6 +17,8 @@ class DialogBoxView(QDialog):
 
         # Set the window title
         self.setWindowTitle("Custom Dialog")
+        # Set the window icon
+        self.setWindowIcon(QIcon("codiet/resources/icons/app-icon.png"))
 
         # Set the dialog layout
         lyt_top_level = QVBoxLayout(self)

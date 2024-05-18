@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import pyqtSignal
 
+from codiet.views.buttons import AddButton, RemoveButton
 
 class ServeTimeIntervalsEditorView(QWidget):
     """UI element to allow the user to edit the serve time intervals."""
@@ -43,13 +44,15 @@ class ServeTimeIntervalsEditorView(QWidget):
         lyt_serve_times.addLayout(lyt_buttons)
 
         # Create a button to add a time window
-        self.btn_add_time_window = QPushButton("Add")
+        self.btn_add_time_window = AddButton()
         lyt_buttons.addWidget(self.btn_add_time_window)
         self.btn_add_time_window.clicked.connect(self.addServeTimeClicked)
         # Create a button to remove a time window
-        self.btn_remove_time_window = QPushButton("Remove")
+        self.btn_remove_time_window = RemoveButton()
         lyt_buttons.addWidget(self.btn_remove_time_window)
         self.btn_remove_time_window.clicked.connect(self.removeServeTimeClicked)
+        # Push buttons to LHS
+        lyt_buttons.addStretch()
 
         # Create a list widget to hold the time windows
         self.lst_time_intervals = QListWidget()

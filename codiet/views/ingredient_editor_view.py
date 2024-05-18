@@ -14,6 +14,7 @@ from PyQt6.QtGui import QFont
 from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.utils.pyqt import block_signals
+from codiet.views.buttons import SaveButton
 from codiet.views.custom_line_editors import NumericLineEdit
 from codiet.views.flag_editor_view import FlagEditorView
 from codiet.views.ingredient_nutrients_editor_view import IngredientNutrientsEditorView
@@ -143,7 +144,6 @@ class IngredientEditorView(QWidget):
         # Set the layout for the page
         self.setLayout(page_layout)
 
-
         # Create a label and add it to the page layout
         label = QLabel("Ingredient Editor")
         font = QFont()
@@ -187,11 +187,7 @@ class IngredientEditorView(QWidget):
         lyt_col_2.addWidget(self.nutrient_editor)
 
         # Add a save ingredient button to the bottom of the page
-        self.btn_save_ingredient = QPushButton("Save Ingredient")
-        self.btn_save_ingredient.pressed.connect(self.saveIngredientClicked.emit)
-        
-        # Limit the width of the button
-        self.btn_save_ingredient.setMaximumWidth(150)
+        self.btn_save_ingredient = SaveButton()
         page_layout.addWidget(self.btn_save_ingredient)
 
     def _build_basic_info_UI(self, container: QBoxLayout):

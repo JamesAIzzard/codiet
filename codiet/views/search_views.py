@@ -2,15 +2,17 @@ from PyQt6.QtWidgets import (
     QWidget, 
     QLineEdit, 
     QHBoxLayout, 
-    QPushButton,
     QVBoxLayout,
     QListWidget,
     QDialog,
     QSizePolicy
 )
 from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtGui import QIcon
 
 from codiet.utils.pyqt import block_signals
+from codiet.views.buttons import ClearButton
+from codiet.views.labels import SearchIconLabel
 
 class SearchTermView(QWidget):
     # Define singals
@@ -45,12 +47,15 @@ class SearchTermView(QWidget):
         layout = QHBoxLayout()
         self.setLayout(layout)
 
+        # Add the search icon
+        layout.addWidget(SearchIconLabel())
+
         # Create a search textbox and add it to the layout
         self.txt_search = QLineEdit()
         layout.addWidget(self.txt_search)
 
         # Create a cancel button and add it to the layout
-        self.btn_cancel = QPushButton("X")
+        self.btn_cancel = ClearButton()
         layout.addWidget(self.btn_cancel)
 
 class SearchPopupView(QDialog):
@@ -64,6 +69,7 @@ class SearchPopupView(QDialog):
         super().__init__()
 
         self.setWindowTitle(title)
+        self.setWindowIcon(QIcon("codiet/resources/icons/app-icon.png"))
 
         self._build_ui()
 
