@@ -3,19 +3,15 @@ from datetime import datetime
 from codiet.utils.search import filter_text
 from codiet.utils.time import (
     convert_datetime_interval_to_time_string_interval,
-    convert_time_string_interval_to_datetime_interval
+    convert_time_string_interval_to_datetime_interval,
 )
-from codiet.utils.recipes import (
-    convert_recipe_to_json,
-    save_recipe_datafile
-)
+from codiet.utils.recipes import convert_recipe_to_json, save_recipe_datafile
 from codiet.models.recipes import Recipe
 from codiet.models.ingredients import IngredientQuantity
 from codiet.views.recipe_editor_view import RecipeEditorView
 from codiet.views.search_views import SearchPopupView
 from codiet.views.dialog_box_view import ErrorDialogBoxView
 from codiet.views.time_interval_popup_view import TimeIntervalPopupView
-from codiet.views.recipe_type_selector_popup_view import RecipeTypeSelectorPopupView
 from codiet.db.database_service import DatabaseService
 
 
@@ -27,13 +23,12 @@ class RecipeEditorCtrl:
         # Init ancillairy views
         self.ingredients_editor_popup = SearchPopupView()
         self.serve_time_popup = TimeIntervalPopupView()
-        self.recipe_type_selector_popup = RecipeTypeSelectorPopupView()
-        self.error_popup = ErrorDialogBoxView(
-            message="", title="", parent=self.view
-        )
+        self.recipe_type_selector_popup = SearchPopupView()
+        self.error_popup = ErrorDialogBoxView(message="", title="", parent=self.view)
 
-        # Init a cache of all ingredient names to speed up searching
-        self.all_ingredient_names = []
+        # Cache some searchable things
+        self.all_ingredient_names: list[str] = []
+        self.recipe_types: list[str] = []
 
         # Connect the ingredient editor views
         self._connect_ingredients_editor()
@@ -55,7 +50,10 @@ class RecipeEditorCtrl:
         # Update the ingredients fields
         for ingredient_quantity in recipe.ingredient_quantities.values():
             # If the ingredient name or ID are None, raise exception
-            if ingredient_quantity.ingredient.name is None or ingredient_quantity.ingredient.id is None:
+            if (
+                ingredient_quantity.ingredient.name is None
+                or ingredient_quantity.ingredient.id is None
+            ):
                 raise ValueError("Ingredient name or ID is None.")
             # Add the widget to the view
             self.view.ingredients_editor.add_ingredient_quantity(
@@ -64,7 +62,7 @@ class RecipeEditorCtrl:
                 ingredient_quantity_value=ingredient_quantity.qty_value,
                 ingredient_quantity_unit=ingredient_quantity.qty_unit,
                 ingredient_quantity_upper_tol=ingredient_quantity.upper_tol,
-                ingredient_quantity_lower_tol=ingredient_quantity.lower_tol
+                ingredient_quantity_lower_tol=ingredient_quantity.lower_tol,
             )
         # Update the time intervals field
         for interval in recipe.serve_times:
@@ -129,7 +127,9 @@ class RecipeEditorCtrl:
         if search_term.strip() == "":
             return None
         # Filter the ingredients
-        filtered_ingredient_names = filter_text(search_term, self.all_ingredient_names, 5)
+        filtered_ingredient_names = filter_text(
+            search_term, self.all_ingredient_names, 5
+        )
         # Update the ingredients in the popup
         self.ingredients_editor_popup.update_results_list(filtered_ingredient_names)
 
@@ -149,10 +149,9 @@ class RecipeEditorCtrl:
         self.recipe.add_ingredient_quantity(ingredient_quantity=ingredient_qty)
         # Assert the ingredient id is set
         assert ingredient.id is not None
-        # Add the ingredient to the view        
+        # Add the ingredient to the view
         self.view.ingredients_editor.add_ingredient_quantity(
-            ingredient_name=ingredient_name,
-            ingredient_id=ingredient.id
+            ingredient_name=ingredient_name, ingredient_id=ingredient.id
         )
         # Hide the popup
         self.ingredients_editor_popup.hide()
@@ -191,7 +190,7 @@ class RecipeEditorCtrl:
             return None
         # Create the datetime objects for the start and end times
         datetime_interval = convert_time_string_interval_to_datetime_interval(
-            self.view.serve_time_intervals_editor_view.selected_time_interval_string # type: ignore
+            self.view.serve_time_intervals_editor_view.selected_time_interval_string  # type: ignore
         )
         # Remove the time interval from the recipe
         self.recipe.remove_serve_time(datetime_interval)
@@ -227,7 +226,7 @@ class RecipeEditorCtrl:
         with DatabaseService() as db_service:
             self.recipe_types = db_service.fetch_all_global_recipe_types()
         # Add all of these types to the popup
-        self.recipe_type_selector_popup.update_recipe_types(self.recipe_types)
+        self.recipe_type_selector_popup.update_results_list(self.recipe_types)
         # Show the popup
         self.recipe_type_selector_popup.show()
 
@@ -258,13 +257,21 @@ class RecipeEditorCtrl:
         # If the search term is empty, return
         if search_term.strip() == "":
             # Update the recipe types in the popup
-            self.recipe_type_selector_popup.update_recipe_types(self.recipe_types)
+            self.recipe_type_selector_popup.update_results_list(self.recipe_types)
         # Otherwise, find the best matching recipe types
         else:
             # Filter the recipe types
             filtered_recipe_types = filter_text(search_term, self.recipe_types, 2)
             # Update the recipe types in the popup
-            self.recipe_type_selector_popup.update_recipe_types(filtered_recipe_types)
+            self.recipe_type_selector_popup.update_results_list(filtered_recipe_types)
+
+    def _on_clear_recipe_type_search_clicked(self) -> None:
+        """Handle the clear recipe type search button being clicked."""
+        # Clear the search term and results list
+        self.recipe_type_selector_popup.clear_results_list()
+        self.recipe_type_selector_popup.clear_search_term()
+        # Repopulate the list with all types
+        self.recipe_type_selector_popup.update_results_list(self.recipe_types)
 
     def _on_save_button_clicked(self) -> None:
         """Handle the save button being pressed."""
@@ -354,8 +361,11 @@ class RecipeEditorCtrl:
         self.view.recipe_type_editor_view.removeRecipeTypeClicked.connect(
             self._on_remove_recipe_type_clicked
         )
-        self.recipe_type_selector_popup.recipeTypeSelected.connect(
+        self.recipe_type_selector_popup.resultSelected.connect(
             self._on_recipe_type_selected
+        )
+        self.recipe_type_selector_popup.searchTermCleared.connect(
+            self._on_clear_recipe_type_search_clicked
         )
         self.recipe_type_selector_popup.searchTermChanged.connect(
             self._on_recipe_type_search_term_changed
