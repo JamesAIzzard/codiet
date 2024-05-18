@@ -8,7 +8,7 @@ class Recipe:
         self.id: int | None = None
         self.description: str | None = None
         self.instructions: str | None = None
-        self._ingredients: dict[str, IngredientQuantity] = {}
+        self._ingredient_quantities: dict[int, IngredientQuantity] = {}
         self._serve_times: list[tuple[datetime, datetime]] = []
         self._recipe_types: list[str] = []
 
@@ -25,16 +25,16 @@ class Recipe:
             self.add_serve_time(serve_time)
     
     @property
-    def ingredients(self) -> dict[str, IngredientQuantity]:
+    def ingredient_quantities(self) -> dict[int, IngredientQuantity]:
         """Get the ingredients for the recipe."""
-        return self._ingredients
+        return self._ingredient_quantities
     
-    @ingredients.setter
-    def ingredients(self, ingredients: dict[str, IngredientQuantity]) -> None:
+    @ingredient_quantities.setter
+    def ingredient_quantities(self, ingredients: dict[int, IngredientQuantity]) -> None:
         """Set the ingredients for the recipe."""
         # For each ingredient, add it to the recipe
         for ingredient in ingredients.values():
-            self.add_ingredient(ingredient)
+            self.add_ingredient_quantity(ingredient)
     
     @property
     def recipe_types(self) -> list[str]:
@@ -61,29 +61,67 @@ class Recipe:
         # Remove the serve time from the recipe
         self._serve_times.remove(serve_time)
 
-    def add_ingredient(self, ingredient_quantity: IngredientQuantity) -> None:
+    def add_ingredient_quantity(self, ingredient_quantity: IngredientQuantity) -> None:
         """Add an ingredient to the recipe."""
         # If it is already there, return None
-        if ingredient_quantity.ingredient.name in self._ingredients:
+        if ingredient_quantity.ingredient.name in self._ingredient_quantities:
             return None
-        # If the ingredient has no name, raise an exception
-        if ingredient_quantity.ingredient.name is None:
-            raise ValueError("Cannot add unamed ingredient")
-        # Otherwise, add it
-        self._ingredients[ingredient_quantity.ingredient.name] = ingredient_quantity
+        # Raise an exception if the ID is not populated
+        if ingredient_quantity.ingredient.id is None:
+            raise ValueError("Ingredient ID not populated")
+        # Go ahead and add it
+        self._ingredient_quantities[ingredient_quantity.ingredient.id] = ingredient_quantity
 
-    def remove_ingredient(self, ingredient_id: int) -> None:
+    def remove_ingredient_quantity(self, ingredient_id: int) -> None:
         """Remove an ingredient from the recipe."""
         # Cycle through each ingredient
-        for ingredient_name, ingredient_qty in self._ingredients.items():
+        for ingredient_name, ingredient_qty in self._ingredient_quantities.items():
             # Check if the ingredient ID matches the ingredient ID to remove
             if ingredient_qty.ingredient.id == ingredient_id:
                 # Remove the ingredient from the recipe
-                del self._ingredients[ingredient_name]
+                del self._ingredient_quantities[ingredient_name]
                 return None
         # Raise a value error if the ingredient is not in the recipe
         raise ValueError("Ingredient not in recipe")
     
+    def get_ingredient_quantity(self, ingredient_id: int) -> IngredientQuantity:
+        """Get the quantity of an ingredient in the recipe."""
+        # First, find the ingredient quantity instance associated with the id
+        for ingredient_quantity in self._ingredient_quantities.values():
+            # Check if the ingredient ID matches the ingredient ID to get
+            if ingredient_quantity.ingredient.id == ingredient_id:
+                return ingredient_quantity
+        # Raise a value error if the ingredient is not in the recipe
+        raise ValueError("Ingredient quantity not found.")
+
+    def update_ingredient_quantity_value(self, ingredient_id:int, ingredient_qty_value:float|None) -> None:
+        """Update the quantity of an ingredient in the recipe."""
+        # Fetch the ingredient quantity
+        ingredient_quantity = self.get_ingredient_quantity(ingredient_id)
+        # Update the quantity value
+        ingredient_quantity.qty_value = ingredient_qty_value
+
+    def update_ingredient_quantity_unit(self, ingredient_id:int, ingredient_qty_unit:str) -> None:
+        """Update the unit of an ingredient in the recipe."""
+        # Fetch the ingredient quantity
+        ingredient_quantity = self.get_ingredient_quantity(ingredient_id)
+        # Update the quantity unit
+        ingredient_quantity.qty_unit = ingredient_qty_unit
+
+    def update_ingredient_quantity_utol(self, ingredient_id:int, ingredient_qty_utol:float|None) -> None:
+        """Update the upper tolerance of an ingredient in the recipe."""
+        # Fetch the ingredient quantity
+        ingredient_quantity = self.get_ingredient_quantity(ingredient_id)
+        # Update the quantity upper tolerance
+        ingredient_quantity.upper_tol = ingredient_qty_utol
+    
+    def update_ingredient_quantity_ltol(self, ingredient_id:int, ingredient_qty_ltol:float|None) -> None:
+        """Update the lower tolerance of an ingredient in the recipe."""
+        # Fetch the ingredient quantity
+        ingredient_quantity = self.get_ingredient_quantity(ingredient_id)
+        # Update the quantity lower tolerance
+        ingredient_quantity.lower_tol = ingredient_qty_ltol
+
     def add_recipe_type(self, recipe_type: str) -> None:
         """Add a recipe type to the recipe."""
         # Check if the recipe type is already in the recipe

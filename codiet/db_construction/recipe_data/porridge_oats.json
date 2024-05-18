@@ -1,0 +1,35 @@
+{
+    "name": "Porridge Oats",
+    "description": "Breakfast cereal made of oats and milk.",
+    "instructions": "1. Add oats to bowl.\n2. Add milk.\n3. Add rasins.",
+    "ingredients": {
+        "70": {
+            "id": 70,
+            "qty_unit": "g",
+            "qty_value": "150",
+            "qty_upper_tol": "25",
+            "qty_lower_tol": "25"
+        },
+        "55": {
+            "id": 55,
+            "qty_unit": "g",
+            "qty_value": "80",
+            "qty_upper_tol": "25",
+            "qty_lower_tol": "25"
+        },
+        "65": {
+            "id": 65,
+            "qty_unit": "g",
+            "qty_value": "25",
+            "qty_upper_tol": "50",
+            "qty_lower_tol": "50"
+        }
+    },
+    "serve_times": [
+        "02:00-11:00"
+    ],
+    "types": [
+        "cereal",
+        "main"
+    ]
+}

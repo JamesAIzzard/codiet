@@ -1,4 +1,4 @@
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, QVariant
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -9,20 +9,28 @@ from PyQt6.QtWidgets import (
     QListWidgetItem,
 )
 
-from codiet.models.ingredients import IngredientQuantity
 from codiet.views.ingredient_quantity_editor_view import IngredientQuantityEditorView
 
+
 class IngredientsEditorView(QWidget):
-    """UI element to allow the user to edit ingredients."""
+    """UI element to allow the user to edit ingredients associated with a recipe."""
 
     # Define signals
     addIngredientClicked = pyqtSignal()
     removeIngredientClicked = pyqtSignal()
+    ingredientQtyChanged = pyqtSignal(int, QVariant)
+    ingredientQtyUnitChanged = pyqtSignal(int, QVariant)
+    ingredientQtyUTolChanged = pyqtSignal(int, QVariant)
+    ingredientQtyLTolChanged = pyqtSignal(int, QVariant)
 
     def __init__(self):
         super().__init__()
         # Build the UI
         self._build_ui()
+
+        # Create a list to hold the ingredient quantities
+        # indexed by the ingredient ID.
+        self._ingredient_quantities: dict[int, IngredientQuantityEditorView] = {}
 
         # Emit the button press signals
         self.btn_add_ingredient.clicked.connect(self.addIngredientClicked.emit)
@@ -39,7 +47,7 @@ class IngredientsEditorView(QWidget):
         # Grab the widget from the item
         selected_widget = self.list_ingredients.itemWidget(selected_item)
         # Return the widget
-        return selected_widget # type: ignore
+        return selected_widget  # type: ignore
 
     @property
     def selected_ingredient_id(self) -> int | None:
@@ -52,38 +60,104 @@ class IngredientsEditorView(QWidget):
         # Return the ingredient ID
         return widget.ingredient_id
 
-    def update_ingredients(self, ingredient_quantities: dict[str, IngredientQuantity]) -> None:
-        """Update the ingredients in the editor."""
-        # Clear the current ingredients
-        self.clear()
-        # Loop through the ingredients
-        for ingredient in ingredient_quantities.values():
-            self.add_ingredient(ingredient)
-
-    def add_ingredient(self, ingredient_quantity: IngredientQuantity) -> None:
-        """Add an ingredient to the list."""
+    def add_ingredient_quantity(
+        self,
+        ingredient_name: str,
+        ingredient_id: int,
+        ingredient_quantity_value: float | None = None,
+        ingredient_quantity_unit: str = "g",
+        ingredient_quantity_upper_tol: float | None = None,
+        ingredient_quantity_lower_tol: float | None = None,
+    ) -> None:
+        """Add an ingredient quantity to the list."""
         # Create a new row in the list
         listItem = QListWidgetItem(self.list_ingredients)
-        # If the ingredient name or id are not populated, raise exception
-        if ingredient_quantity.ingredient.name is None or ingredient_quantity.ingredient.id is None:
-            raise ValueError("Cannot add ingredient with no name or id")
         # Create a new instance of IngredientQuantityEditorView
-        ingredient = IngredientQuantityEditorView(
-            ingredient_name = ingredient_quantity.ingredient.name,
-            ingredient_id = ingredient_quantity.ingredient.id,
-            ingredient_qty = ingredient_quantity.qty_value,
-            ingredient_qty_unit = ingredient_quantity.qty_unit,
-            ingredient_qty_utol = ingredient_quantity.upper_tol,
-            ingredient_qty_ltol = ingredient_quantity.lower_tol
+        ingredient_qty_editor = IngredientQuantityEditorView(
+            ingredient_name=ingredient_name,
+            ingredient_id=ingredient_id,
         )
+        # Set the values
+        ingredient_qty_editor.ingredient_qty_value = ingredient_quantity_value
+        ingredient_qty_editor.ingredient_qty_unit = ingredient_quantity_unit
+        ingredient_qty_editor.ingredient_qty_utol = ingredient_quantity_upper_tol
+        ingredient_qty_editor.ingredient_qty_ltol = ingredient_quantity_lower_tol
+        # Add it to the internal dict
+        self._ingredient_quantities[ingredient_id] = ingredient_qty_editor
         # Set the size hint of the list item to the size hint of the ingredient editor
-        listItem.setSizeHint(ingredient.sizeHint())
+        listItem.setSizeHint(ingredient_qty_editor.sizeHint())
         # Add the list item to the list
         self.list_ingredients.addItem(listItem)
         # Set the widget of the list item to be the ingredient editor
-        self.list_ingredients.setItemWidget(listItem, ingredient)
+        self.list_ingredients.setItemWidget(listItem, ingredient_qty_editor)
+        # Connect the signals
+        ingredient_qty_editor.ingredientQtyChanged.connect(
+            lambda value: self.ingredientQtyChanged.emit(ingredient_id, value)
+        )
+        ingredient_qty_editor.ingredientQtyUnitChanged.connect(
+            lambda value: self.ingredientQtyUnitChanged.emit(ingredient_id, value)
+        )
+        ingredient_qty_editor.ingredientQtyUTolChanged.connect(
+            lambda value: self.ingredientQtyUTolChanged.emit(ingredient_id, value)
+        )
+        ingredient_qty_editor.ingredientQtyLTolChanged.connect(
+            lambda value: self.ingredientQtyLTolChanged.emit(ingredient_id, value)
+        )
 
-    def clear(self) -> None:
+    def remove_ingredient_quantity(self, ingredient_id: int) -> None:
+        """Remove an ingredient from the list."""
+        # Get the ingredient editor
+        ingredient_quantity_editor = self._ingredient_quantities[ingredient_id]
+        # Iterate through each item on the list
+        for i in range(self.list_ingredients.count()):
+            # Get the list item
+            list_item = self.list_ingredients.item(i)
+            # Get the widget from the list item
+            widget = self.list_ingredients.itemWidget(list_item)
+            # If the widget is the same as the ingredient editor, remove the list item
+            if widget == ingredient_quantity_editor:
+                self.list_ingredients.takeItem(i)
+                break
+        # Remove the ingredient from the internal dict
+        del self._ingredient_quantities[ingredient_id]
+
+    def update_ingredient_quantity_value(
+        self, ingredient_id: int, quantity_value: float | None
+    ) -> None:
+        """Update the quantity value of an ingredient."""
+        # Get the ingredient editor
+        ingredient_editor = self._ingredient_quantities[ingredient_id]
+        # Update the quantity value
+        ingredient_editor.ingredient_qty_value = quantity_value
+
+    def update_ingredient_quantity_unit(
+        self, ingredient_id: int, quantity_unit: str
+    ) -> None:
+        """Update the quantity unit of an ingredient."""
+        # Get the ingredient editor
+        ingredient_editor = self._ingredient_quantities[ingredient_id]
+        # Update the quantity unit
+        ingredient_editor.ingredient_qty_unit = quantity_unit
+
+    def update_ingredient_quantity_upper_tol(
+        self, ingredient_id: int, upper_tol: float | None
+    ) -> None:
+        """Update the upper tolerance of an ingredient."""
+        # Get the ingredient editor
+        ingredient_editor = self._ingredient_quantities[ingredient_id]
+        # Update the upper tolerance
+        ingredient_editor.ingredient_qty_utol = upper_tol
+
+    def update_ingredient_quantity_lower_tol(
+        self, ingredient_id: int, lower_tol: float | None
+    ) -> None:
+        """Update the lower tolerance of an ingredient."""
+        # Get the ingredient editor
+        ingredient_editor = self._ingredient_quantities[ingredient_id]
+        # Update the lower tolerance
+        ingredient_editor.ingredient_qty_ltol = lower_tol
+
+    def remove_all_ingredients(self) -> None:
         """Clear all the ingredients from the list."""
         self.list_ingredients.clear()
 

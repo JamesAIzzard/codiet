@@ -8,9 +8,9 @@ import os, json
 from codiet.db_construction import (
     INGREDIENT_DATA_DIR,
     RECIPE_DATA_DIR,
-    FLAG_DATA_FILEPATH,
-    NUTRIENT_DATA_FILEPATH,
-    RECIPE_TYPE_DATA_FILE
+    GLOBAL_FLAG_DATA_FILEPATH,
+    GLOBAL_NUTRIENT_DATA_FILEPATH,
+    GLOBAL_RECIPE_TYPE_DATA_FILEPATH
 )
 from codiet.models.ingredients import Ingredient, IngredientNutrientQuantity
 from codiet.models.recipes import Recipe
@@ -20,7 +20,7 @@ def push_flags_to_db():
     """Populate the flags table in the database using the 
     .json flag list file."""
     # Read the flags from the datafile
-    with open(FLAG_DATA_FILEPATH) as file:
+    with open(GLOBAL_FLAG_DATA_FILEPATH) as file:
         flags = json.load(file)
     # Push the flags to the database
     with DatabaseService() as db_service:
@@ -31,7 +31,7 @@ def push_flags_to_db():
 def push_nutrients_to_db():
     """Populate the database with nutrient data."""
     # Read the nutrient data from the file
-    with open(NUTRIENT_DATA_FILEPATH) as file:
+    with open(GLOBAL_NUTRIENT_DATA_FILEPATH) as file:
         nutrient_data = json.load(file)
     # Define a recursive function to insert either a leaf or a group nutrient
     def insert_nutrients(nutrient_data:dict, db_service:DatabaseService, parent_id:int|None=None):
@@ -72,7 +72,7 @@ def push_ingredients_to_db():
 def push_global_recipe_types_to_db():
     """Push the global recipe types to the database."""
     # Read the global recipe types from the file
-    with open(RECIPE_TYPE_DATA_FILE) as file:
+    with open(GLOBAL_RECIPE_TYPE_DATA_FILEPATH) as file:
         global_recipe_types = json.load(file)
     # Add each recipe type to the database
     with DatabaseService() as db_service:

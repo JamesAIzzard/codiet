@@ -5,6 +5,10 @@ from codiet.utils.time import (
     convert_datetime_interval_to_time_string_interval,
     convert_time_string_interval_to_datetime_interval
 )
+from codiet.utils.recipes import (
+    convert_recipe_to_json,
+    save_recipe_datafile
+)
 from codiet.models.recipes import Recipe
 from codiet.models.ingredients import IngredientQuantity
 from codiet.views.recipe_editor_view import RecipeEditorView
@@ -28,19 +32,15 @@ class RecipeEditorCtrl:
             message="", title="", parent=self.view
         )
 
-        # Init a cache of ingredient names
-        self.ingredient_names = []
+        # Init a cache of all ingredient names to speed up searching
+        self.all_ingredient_names = []
 
         # Connect the ingredient editor views
         self._connect_ingredients_editor()
-        # Connect the serve time views
         self._connect_serve_time_editor()
-        # Connect the recipe type views
-        self._config_recipe_type_editor()
-        # Connect the signals and slots
-        # TODO: Update this to use better organised setup methods as
-        # done with the recipe types stuff.
-        self._connect_signals_and_slots()
+        self._connect_recipe_type_editor()
+        self._connect_basic_info_fields()
+        self._connect_save_buttons()
 
     def load_recipe_instance(self, recipe: Recipe) -> None:
         """Load a recipe instance into the editor."""
@@ -53,7 +53,19 @@ class RecipeEditorCtrl:
         # Update the instructions field
         self.view.update_instructions(recipe.instructions)
         # Update the ingredients fields
-        self.view.ingredients_editor.update_ingredients(recipe.ingredients)
+        for ingredient_quantity in recipe.ingredient_quantities.values():
+            # If the ingredient name or ID are None, raise exception
+            if ingredient_quantity.ingredient.name is None or ingredient_quantity.ingredient.id is None:
+                raise ValueError("Ingredient name or ID is None.")
+            # Add the widget to the view
+            self.view.ingredients_editor.add_ingredient_quantity(
+                ingredient_name=ingredient_quantity.ingredient.name,
+                ingredient_id=ingredient_quantity.ingredient.id,
+                ingredient_quantity_value=ingredient_quantity.qty_value,
+                ingredient_quantity_unit=ingredient_quantity.qty_unit,
+                ingredient_quantity_upper_tol=ingredient_quantity.upper_tol,
+                ingredient_quantity_lower_tol=ingredient_quantity.lower_tol
+            )
         # Update the time intervals field
         for interval in recipe.serve_times:
             self.view.serve_time_intervals_editor_view.add_time_interval(
@@ -95,7 +107,7 @@ class RecipeEditorCtrl:
         """Handle the add ingredient button being clicked."""
         # Cache the current list of ingredient names
         with DatabaseService() as db_service:
-            self.ingredient_names = db_service.fetch_all_ingredient_names()
+            self.all_ingredient_names = db_service.fetch_all_ingredient_names()
         # Show the ingredient search popup
         self.ingredients_editor_popup.show()
 
@@ -107,9 +119,9 @@ class RecipeEditorCtrl:
         if ingredient_id is None:
             return None
         # Remove the ingredient from the recipe
-        self.recipe.remove_ingredient(ingredient_id)
+        self.recipe.remove_ingredient_quantity(ingredient_id)
         # Update the ingredients in the view
-        self.view.ingredients_editor.update_ingredients(self.recipe._ingredients)
+        self.view.ingredients_editor.remove_ingredient_quantity(ingredient_id)
 
     def _on_ingredient_search_term_changed(self, search_term: str) -> None:
         """Handle the ingredient search term being changed."""
@@ -117,7 +129,7 @@ class RecipeEditorCtrl:
         if search_term.strip() == "":
             return None
         # Filter the ingredients
-        filtered_ingredient_names = filter_text(search_term, self.ingredient_names, 5)
+        filtered_ingredient_names = filter_text(search_term, self.all_ingredient_names, 5)
         # Update the ingredients in the popup
         self.ingredients_editor_popup.update_results_list(filtered_ingredient_names)
 
@@ -134,11 +146,36 @@ class RecipeEditorCtrl:
         # Create a new recipe ingredient instance
         ingredient_qty = IngredientQuantity(ingredient)
         # Add the ingredient to the recipe
-        self.recipe.add_ingredient(ingredient_quantity=ingredient_qty)
-        # Update the ingredients in the view
-        self.view.ingredients_editor.update_ingredients(self.recipe._ingredients)
+        self.recipe.add_ingredient_quantity(ingredient_quantity=ingredient_qty)
+        # Assert the ingredient id is set
+        assert ingredient.id is not None
+        # Add the ingredient to the view        
+        self.view.ingredients_editor.add_ingredient_quantity(
+            ingredient_name=ingredient_name,
+            ingredient_id=ingredient.id
+        )
         # Hide the popup
         self.ingredients_editor_popup.hide()
+
+    def _on_ingredient_qty_changed(self, ingredient_id: int, qty: float) -> None:
+        """Handle the ingredient quantity being changed."""
+        # Update the ingredient quantity in the recipe
+        self.recipe.update_ingredient_quantity_value(ingredient_id, qty)
+
+    def _on_ingredient_qty_unit_changed(self, ingredient_id: int, unit: str) -> None:
+        """Handle the ingredient quantity unit being changed."""
+        # Update the ingredient quantity unit in the recipe
+        self.recipe.update_ingredient_quantity_unit(ingredient_id, unit)
+
+    def _on_ingredient_qty_utol_changed(self, ingredient_id: int, utol: float) -> None:
+        """Handle the ingredient quantity upper tolerance being changed."""
+        # Update the ingredient quantity upper tolerance in the recipe
+        self.recipe.update_ingredient_quantity_utol(ingredient_id, utol)
+
+    def _on_ingredient_qty_ltol_changed(self, ingredient_id: int, ltol: float) -> None:
+        """Handle the ingredient quantity lower tolerance being changed."""
+        # Update the ingredient quantity lower tolerance in the recipe
+        self.recipe.update_ingredient_quantity_ltol(ingredient_id, ltol)
 
     def _on_add_serve_time_clicked(self) -> None:
         """Handle the addition of a serve time."""
@@ -226,7 +263,7 @@ class RecipeEditorCtrl:
             # Update the recipe types in the popup
             self.recipe_type_selector_popup.update_recipe_types(filtered_recipe_types)
 
-    def _on_save_button_pressed(self) -> None:
+    def _on_save_button_clicked(self) -> None:
         """Handle the save button being pressed."""
         # Open the 'name required' popup if the name is empty
         if self.recipe.name is None or self.recipe.name.strip() == "":
@@ -259,6 +296,13 @@ class RecipeEditorCtrl:
         # Open a popup to confirm the update
         self.view.show_update_confirmation_popup()
 
+    def _on_save_to_json_button_clicked(self) -> None:
+        """Handle the save to JSON button being clicked."""
+        # Create a .json datafile representing the recipe
+        recipe_data = convert_recipe_to_json(self.recipe)
+        # Save the recipe to the file
+        save_recipe_datafile(recipe_data)
+
     def _connect_ingredients_editor(self) -> None:
         """Initialise the ingredients editor views."""
         self.view.ingredients_editor.addIngredientClicked.connect(
@@ -276,6 +320,18 @@ class RecipeEditorCtrl:
         self.ingredients_editor_popup.resultSelected.connect(
             self._on_ingredient_selected
         )
+        self.view.ingredients_editor.ingredientQtyChanged.connect(
+            self._on_ingredient_qty_changed
+        )
+        self.view.ingredients_editor.ingredientQtyUnitChanged.connect(
+            self._on_ingredient_qty_unit_changed
+        )
+        self.view.ingredients_editor.ingredientQtyUTolChanged.connect(
+            self._on_ingredient_qty_utol_changed
+        )
+        self.view.ingredients_editor.ingredientQtyLTolChanged.connect(
+            self._on_ingredient_qty_ltol_changed
+        )
 
     def _connect_serve_time_editor(self) -> None:
         """Initialise the serve time editor views."""
@@ -287,7 +343,7 @@ class RecipeEditorCtrl:
         )
         self.serve_time_popup.addIntervalClicked.connect(self._on_serve_time_provided)
 
-    def _config_recipe_type_editor(self) -> None:
+    def _connect_recipe_type_editor(self) -> None:
         """Initialise the recipe type selector popup."""
         self.view.recipe_type_editor_view.addRecipeTypeClicked.connect(
             self._on_add_recipe_type_clicked
@@ -302,7 +358,7 @@ class RecipeEditorCtrl:
             self._on_recipe_type_search_term_changed
         )
 
-    def _connect_signals_and_slots(self) -> None:
+    def _connect_basic_info_fields(self) -> None:
         """Connect the signals and slots for the recipe editor."""
         # Connect the recipe name changed signal
         self.view.txt_recipe_name.textChanged.connect(self._on_recipe_name_changed)
@@ -314,5 +370,8 @@ class RecipeEditorCtrl:
         self.view.textbox_recipe_instructions.textChanged.connect(
             self._on_recipe_instructions_changed
         )
-        # Connect the save button
-        self.view.btn_save_recipe.clicked.connect(self._on_save_button_pressed)
+
+    def _connect_save_buttons(self) -> None:
+        """Connect the save buttons."""
+        self.view.saveRecipeClicked.connect(self._on_save_button_clicked)
+        self.view.saveToJSONClicked.connect(self._on_save_to_json_button_clicked)

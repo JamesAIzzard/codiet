@@ -247,7 +247,7 @@ class DatabaseService:
             # Add it to the list
             ingredient_quantities[ingredient_name] = ingredient_quantity
         # Add the ingredient quanities list to the recipe
-        recipe.ingredients = ingredient_quantities
+        recipe.ingredient_quantities = ingredient_quantities
         # Fetch the serve times
         # First fetch the raw strings
         raw_serve_times = self._repo.fetch_recipe_serve_times(recipe.id)
@@ -362,7 +362,7 @@ class DatabaseService:
             # Form a dict to represent the ingredients
             ingredient_quantities = {}
             # For each ingredient in the recipe, add it to the dict
-            for ingredient_name, ingredient_quantity in recipe.ingredients.items():
+            for ingredient_name, ingredient_quantity in recipe.ingredient_quantities.items():
                 ingredient_quantities[ingredient_name] = {
                     "qty": ingredient_quantity.qty_value,
                     "qty_unit": ingredient_quantity.qty_unit,

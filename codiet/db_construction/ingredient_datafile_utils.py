@@ -7,8 +7,8 @@ from typing import Callable
 from codiet.db_construction import openai
 
 from codiet.db_construction import (
-    FLAG_DATA_FILEPATH,
-    NUTRIENT_DATA_FILEPATH,
+    GLOBAL_FLAG_DATA_FILEPATH,
+    GLOBAL_NUTRIENT_DATA_FILEPATH,
     INGREDIENT_DATA_DIR,
     INGREDIENT_WISHLIST_FILEPATH,
     INGREDIENT_TEMPLATE_FILEPATH,
@@ -59,7 +59,7 @@ def get_global_flag_names() -> list[str]:
     # If the flags have not been loaded yet
     if _cached_global_flags is None:
         # Load it from the file and cache it
-        with open(FLAG_DATA_FILEPATH) as global_flags_file:
+        with open(GLOBAL_FLAG_DATA_FILEPATH) as global_flags_file:
             _cached_global_flags = json.load(global_flags_file)
     # Return the cached flags
     return _cached_global_flags  # type: ignore
@@ -71,7 +71,7 @@ def get_nutrient_data_template() -> dict:
     # If the nutrient data has not been loaded yet
     if _cached_nutrient_data_template is None:
         # Load it from the file and cache it
-        with open(NUTRIENT_DATA_FILEPATH) as nutrient_data_file:
+        with open(GLOBAL_NUTRIENT_DATA_FILEPATH) as nutrient_data_file:
             _cached_nutrient_data_template = json.load(nutrient_data_file)
     # Return the cached nutrient data
     return _cached_nutrient_data_template  # type: ignore
@@ -83,7 +83,7 @@ def get_leaf_nutrient_names() -> list[str]:
     # If the leaf nutrient names have not been loaded yet
     if _cached_leaf_nutrient_names is None:
         # Load it from the file and cache it
-        with open(NUTRIENT_DATA_FILEPATH) as nutrient_data_file:
+        with open(GLOBAL_NUTRIENT_DATA_FILEPATH) as nutrient_data_file:
             nutrient_data = json.load(nutrient_data_file)
             _cached_leaf_nutrient_names = find_leaf_nutrients(nutrient_data)
     # Return the cached leaf nutrient names

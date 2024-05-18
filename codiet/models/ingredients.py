@@ -69,10 +69,10 @@ class IngredientQuantity:
     def __init__(
         self,
         ingredient: Ingredient,
-        qty_value: float = 0.0,
+        qty_value: float | None = 0.0,
         qty_unit: str = "g",
-        qty_utol: float = 0.0,
-        qty_ltol: float = 0.0,
+        qty_utol: float | None = 0.0,
+        qty_ltol: float | None = 0.0,
     ):
         self.ingredient = ingredient
         self.qty_value = qty_value
