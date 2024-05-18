@@ -233,6 +233,9 @@ class RecipeEditorCtrl:
 
     def _on_recipe_type_selected(self, recipe_type: str) -> None:
         """Handle a recipe type being selected."""
+        # If the type is already on the recipe, return
+        if recipe_type in self.recipe.recipe_types:
+            return None
         # Add the type to the view
         self.view.recipe_type_editor_view.add_recipe_type(recipe_type)
         # Add the type to the recipe
