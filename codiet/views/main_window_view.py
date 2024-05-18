@@ -97,37 +97,13 @@ class MainWindowView(QMainWindow):
         recipes_menu.addAction(self.delete_recipe_action)
         self.delete_recipe_action.triggered.connect(self.deleteRecipeClicked.emit)
 
-        # Create the Goals menu
-        goals_menu = QMenu("Goals", self)
-        menu_bar.addMenu(goals_menu)
-        # Create the 'New Goal Set' action
-        self.new_goal_set_action = QAction("New Goal Set", self)
-        goals_menu.addAction(self.new_goal_set_action)
-        self.new_goal_set_action.triggered.connect(self.newGoalSetClicked.emit)
-        # Create the 'Edit Goal Set' action
-        self.edit_goal_set_action = QAction("Edit Goal Set", self)
-        goals_menu.addAction(self.edit_goal_set_action)
-        self.edit_goal_set_action.triggered.connect(self.editGoalSetClicked.emit)
-        # Create the 'Delete Goal Set' action
-        self.delete_goal_set_action = QAction("Delete Goal Set", self)
-        goals_menu.addAction(self.delete_goal_set_action)
-        self.delete_goal_set_action.triggered.connect(self.deleteGoalSetClicked.emit)
+        # Create the Nutritional Solver menu
+        solver_menu = QMenu("Meal Planner", self)
+        menu_bar.addMenu(solver_menu)
 
-        # Create the Solve menu
-        solve_menu = QMenu("Solve", self)
-        menu_bar.addMenu(solve_menu)
-        # Add a "Solve Goal Set" action
-        self.solve_goal_set_action = QAction("Solve Goal Set", self)
-        solve_menu.addAction(self.solve_goal_set_action)
-        self.solve_goal_set_action.triggered.connect(self.solveGoalSetClicked.emit)
-
-        # Create a "Results" menu
+        # Create the Results Menu
         results_menu = QMenu("Results", self)
         menu_bar.addMenu(results_menu)
-        # Add a "View Result" action
-        self.view_result_action = QAction("View Result", self)
-        results_menu.addAction(self.view_result_action)
-        self.view_result_action.triggered.connect(self.viewResultClicked.emit)
 
         # Create the Preferences menu
         preferences_menu = QMenu("Preferences", self)
