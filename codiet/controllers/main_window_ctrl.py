@@ -115,10 +115,8 @@ class MainWindowCtrl:
 
     def _connect_menu_bar_signals(self):
         """Connect the signals from the menu bar to the appropriate slots."""
-        self.view.newIngredientClicked.connect(self._on_new_ingredient_clicked)
-        self.view.editIngredientClicked.connect(self._on_edit_ingredient_clicked)
-        self.view.deleteIngredientClicked.connect(self._on_delete_ingredient_clicked)
-        self.view.newRecipeClicked.connect(self._on_new_recipe_clicked)
+        self.view.ingredientsClicked.connect(self._on_new_ingredient_clicked)
+        self.view.recipesClicked.connect(self._on_new_recipe_clicked)
         self.view.mealPlannerClicked.connect(self._on_meal_planner_clicked)
 
     def _connect_ingredient_search_signals(self):
