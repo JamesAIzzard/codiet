@@ -1,20 +1,19 @@
 from PyQt6.QtWidgets import (
     QMainWindow,
-    QMenuBar,
-    QMenu,
     QStackedWidget,
-    QWidget
+    QToolBar
 )
-from PyQt6.QtGui import QAction, QIcon
+from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import pyqtSignal
+
+from codiet.views import load_icon
+from codiet.views.buttons import IconButton
 
 class MainWindowView(QMainWindow):
     """The main window view for the CoDiet application."""
     # Define signals
-    newIngredientClicked = pyqtSignal()
-    editIngredientClicked = pyqtSignal()
-    deleteIngredientClicked = pyqtSignal()
-    newRecipeClicked = pyqtSignal()
+    ingredientsClicked = pyqtSignal()
+    recipesClicked = pyqtSignal()
     mealPlannerClicked = pyqtSignal()
 
     def __init__(self):
@@ -25,17 +24,13 @@ class MainWindowView(QMainWindow):
         # Set the window size
         self.resize(900, 600)
         # Set the window icon
-        icon = QIcon("codiet/resources/icons/app-icon.png")
-        self.setWindowIcon(icon)
+        self.setWindowIcon(load_icon("app-icon.png"))
 
-        # Build the menu bar
-        self._build_menu_bar()
+        # Build the UI
+        self._build_ui()
 
         # Create a dict for the individual pages
         self.pages = {}
-        # Create a stacked widget to hold the pages
-        self._page_stack = QStackedWidget()
-        self.setCentralWidget(self._page_stack)
 
     def add_page(self, name: str, page):
         """Adds a page to the stacked widget."""
@@ -46,62 +41,29 @@ class MainWindowView(QMainWindow):
         """Shows the page with the given name."""
         self._page_stack.setCurrentWidget(self.pages[name])
 
-    def _build_menu_bar(self):
-        # Create a menu bar
-        menu_bar = QMenuBar(self)
-        self.setMenuBar(menu_bar)
+    def _build_ui(self) -> None:
+        """Builds the main page UI."""
+        # Add a toolbar
+        self._build_toolbar()
+        # Create a stacked widget to hold the pages
+        self._page_stack = QStackedWidget()
+        self.setCentralWidget(self._page_stack)
 
-        # Create the Ingredients menu
-        ingredients_menu = QMenu("Ingredients", self)
-        menu_bar.addMenu(ingredients_menu)
-        # Create the "New Ingredient" action
-        self.new_ingredient_action = QAction("New Ingredient", self)
-        ingredients_menu.addAction(self.new_ingredient_action)
-        self.new_ingredient_action.triggered.connect(self.newIngredientClicked.emit)
-        # Create the "Edit Ingredient" action
-        self.edit_ingredient_action = QAction("Edit Ingredient", self)
-        ingredients_menu.addAction(self.edit_ingredient_action)
-        self.edit_ingredient_action.triggered.connect(self.editIngredientClicked.emit)
-        # Create a "Delete Ingredient" action
-        self.delete_ingredient_action = QAction("Delete Ingredient", self)
-        ingredients_menu.addAction(self.delete_ingredient_action)
-        self.delete_ingredient_action.triggered.connect(self.deleteIngredientClicked.emit)
+    def _build_toolbar(self) -> None:
+        """Builds the main page menu bar."""
+        # Build the toolbar
+        toolbar = QToolBar(self)
+        self.addToolBar(toolbar)
+        # Add an ingredients button
+        btn_ingredients = IconButton("ingredients-icon.png", "Ingredients")
+        btn_ingredients.clicked.connect(self.ingredientsClicked.emit)
+        toolbar.addWidget(btn_ingredients)
+        # Add a recipes button
+        btn_recipes = IconButton("recipes-icon.png", "Recipes")
+        btn_recipes.clicked.connect(self.recipesClicked.emit)
+        toolbar.addWidget(btn_recipes)
+        # Add a meal planner button
+        btn_meal_planner = IconButton("meal-planner-icon.png", "Meal Planner")
+        btn_meal_planner.clicked.connect(self.mealPlannerClicked.emit)
+        toolbar.addWidget(btn_meal_planner)
 
-
-        # Create the Recipes menu
-        recipes_menu = QMenu("Recipes", self)
-        menu_bar.addMenu(recipes_menu)
-        # Create the "New Recipe" action
-        self.new_recipe_action = QAction("New Recipe", self)
-        recipes_menu.addAction(self.new_recipe_action)
-        self.new_recipe_action.triggered.connect(self.newRecipeClicked.emit)
-        # Create the "Edit Recipe" action
-        self.edit_recipe_action = QAction("Edit Recipe", self)
-        recipes_menu.addAction(self.edit_recipe_action)
-        # Create an "Edit Recipe Types" action
-        self.edit_recipe_types_action = QAction("Edit Recipe Types", self)
-        recipes_menu.addAction(self.edit_recipe_types_action)
-        # Create a "Delete Recipe" action
-        self.delete_recipe_action = QAction("Delete Recipe", self)
-        recipes_menu.addAction(self.delete_recipe_action)
-
-        # Create the Meal Planner menu
-        solver_menu = QMenu("Meal Planner", self)
-        menu_bar.addMenu(solver_menu)
-
-        # Create the Results Menu
-        results_menu = QMenu("Results", self)
-        menu_bar.addMenu(results_menu)
-
-        # Create the Preferences menu
-        preferences_menu = QMenu("Preferences", self)
-        menu_bar.addMenu(preferences_menu)
-        # Add a set meal goal defaults action
-        self.edit_goal_defaults_action = QAction("Edit Meal Goal Defaults", self)
-        preferences_menu.addAction(self.edit_goal_defaults_action)
-
-        # Create the Help menu
-        help_menu = QMenu("Help", self)
-        menu_bar.addMenu(help_menu)
-        self.general_help_action = QAction("General Help", self)
-        help_menu.addAction(self.general_help_action)
