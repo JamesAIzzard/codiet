@@ -1,0 +1,8 @@
+* {
+    font-family: 'Calibri';
+    font-size: 14px;
+    color: #333;
+}
+QLabel.page-title {
+    font-weight: bold;
+}

@@ -4,7 +4,6 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QLabel,
-    QPushButton,
     QGroupBox,
     QLineEdit,
     QTextEdit,
@@ -145,11 +144,9 @@ class IngredientEditorView(QWidget):
         self.setLayout(page_layout)
 
         # Create a label and add it to the page layout
-        label = QLabel("Ingredient Editor")
-        font = QFont()
-        font.setBold(True)
-        label.setFont(font)
-        page_layout.addWidget(label)
+        lbl_page_title = QLabel("Ingredient Editor")
+        lbl_page_title.setProperty('class', 'page-title')
+        page_layout.addWidget(lbl_page_title)
 
         # Create a horizontal layout for the columns
         columns_layout = QHBoxLayout()

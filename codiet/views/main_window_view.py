@@ -15,16 +15,7 @@ class MainWindowView(QMainWindow):
     editIngredientClicked = pyqtSignal()
     deleteIngredientClicked = pyqtSignal()
     newRecipeClicked = pyqtSignal()
-    editRecipeClicked = pyqtSignal()
-    editRecipeTypesClicked = pyqtSignal()
-    deleteRecipeClicked = pyqtSignal()
-    newGoalSetClicked = pyqtSignal()
-    solveGoalSetClicked = pyqtSignal()
-    editGoalSetClicked = pyqtSignal()
-    deleteGoalSetClicked = pyqtSignal()
-    viewResultClicked = pyqtSignal()
-    editGoalDefaultsClicked = pyqtSignal()
-    generalHelpClicked = pyqtSignal()
+    mealPlannerClicked = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -87,17 +78,14 @@ class MainWindowView(QMainWindow):
         # Create the "Edit Recipe" action
         self.edit_recipe_action = QAction("Edit Recipe", self)
         recipes_menu.addAction(self.edit_recipe_action)
-        self.edit_recipe_action.triggered.connect(self.editRecipeClicked.emit)
         # Create an "Edit Recipe Types" action
         self.edit_recipe_types_action = QAction("Edit Recipe Types", self)
         recipes_menu.addAction(self.edit_recipe_types_action)
-        self.edit_recipe_types_action.triggered.connect(self.editRecipeTypesClicked.emit)
         # Create a "Delete Recipe" action
         self.delete_recipe_action = QAction("Delete Recipe", self)
         recipes_menu.addAction(self.delete_recipe_action)
-        self.delete_recipe_action.triggered.connect(self.deleteRecipeClicked.emit)
 
-        # Create the Nutritional Solver menu
+        # Create the Meal Planner menu
         solver_menu = QMenu("Meal Planner", self)
         menu_bar.addMenu(solver_menu)
 
@@ -111,11 +99,9 @@ class MainWindowView(QMainWindow):
         # Add a set meal goal defaults action
         self.edit_goal_defaults_action = QAction("Edit Meal Goal Defaults", self)
         preferences_menu.addAction(self.edit_goal_defaults_action)
-        self.edit_goal_defaults_action.triggered.connect(self.editGoalDefaultsClicked.emit)
 
         # Create the Help menu
         help_menu = QMenu("Help", self)
         menu_bar.addMenu(help_menu)
         self.general_help_action = QAction("General Help", self)
         help_menu.addAction(self.general_help_action)
-        self.general_help_action.triggered.connect(self.generalHelpClicked.emit)

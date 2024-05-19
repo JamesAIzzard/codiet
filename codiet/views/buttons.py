@@ -53,3 +53,13 @@ class ConfirmButton(QPushButton):
         
         # Set the maximum width
         self.setMaximumWidth(50)
+
+class SolveButton(QPushButton):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Set the icon
+        self.setIcon(QIcon('codiet/resources/icons/solve-icon.png'))
+        
+        # Set the maximum width
+        self.setMaximumWidth(50)
