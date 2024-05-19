@@ -8,9 +8,9 @@ from PyQt6.QtWidgets import (
     QSizePolicy
 )
 from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtGui import QIcon
 
 from codiet.utils.pyqt import block_signals
+from codiet.views import load_icon
 from codiet.views.buttons import ClearButton
 from codiet.views.labels import SearchIconLabel
 
@@ -69,7 +69,7 @@ class SearchPopupView(QDialog):
         super().__init__()
 
         self.setWindowTitle(title)
-        self.setWindowIcon(QIcon("codiet/resources/icons/app-icon.png"))
+        self.setWindowIcon(load_icon("app-icon.png"))
 
         self._build_ui()
 
