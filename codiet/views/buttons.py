@@ -1,65 +1,80 @@
 from PyQt6.QtWidgets import QPushButton
-from PyQt6.QtGui import QIcon
 
-class SaveButton(QPushButton):
-    def __init__(self, *args, **kwargs):
+from codiet.views import load_icon
+
+class IconButton(QPushButton):
+    def __init__(self, icon_filename:str, text:str|None=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # Set the text
-        self.setText("Save")
         
         # Set the icon
-        self.setIcon(QIcon('codiet/resources/icons/save-icon.png'))
+        self.setIcon(load_icon(icon_filename))
+        # If the text is set, set it
+        if text is not None:
+            self.setText(text)
+
+
+class SaveButton(IconButton):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            icon_filename='save-icon.png',
+            text='Save',
+            *args,
+            **kwargs
+        )
         
         # Set the maximum width
         self.setMaximumWidth(50)
 
-class AddButton(QPushButton):
+class AddButton(IconButton):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        # Set the icon
-        self.setIcon(QIcon('codiet/resources/icons/add-icon.png'))
+        super().__init__(
+            icon_filename='add-icon.png',
+            *args,
+            **kwargs
+        )
         
         # Set the maximum width
         self.setMaximumWidth(50)
 
-class RemoveButton(QPushButton):
+class RemoveButton(IconButton):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        # Set the icon
-        self.setIcon(QIcon('codiet/resources/icons/remove-icon.png'))
+        super().__init__(
+            icon_filename='remove-icon.png',
+            *args,
+            **kwargs
+        )
+        # Set the maximum width
+        self.setMaximumWidth(50)
+
+class ClearButton(IconButton):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            icon_filename='cancel-icon.png',
+            *args,
+            **kwargs
+        )
         
         # Set the maximum width
         self.setMaximumWidth(50)
 
-class ClearButton(QPushButton):
+class ConfirmButton(IconButton):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        # Set the icon
-        self.setIcon(QIcon('codiet/resources/icons/cancel-icon.png'))
+        super().__init__(
+            icon_filename='ok-icon.png',
+            *args,
+            **kwargs
+        )
         
         # Set the maximum width
         self.setMaximumWidth(50)
 
-class ConfirmButton(QPushButton):
+class SolveButton(IconButton):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        # Set the icon
-        self.setIcon(QIcon('codiet/resources/icons/ok-icon.png'))
-        
-        # Set the maximum width
-        self.setMaximumWidth(50)
-
-class SolveButton(QPushButton):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        # Set the icon
-        self.setIcon(QIcon('codiet/resources/icons/solve-icon.png'))
+        super().__init__(
+            icon_filename='solve-icon.png',
+            *args,
+            **kwargs
+        )
         
         # Set the maximum width
         self.setMaximumWidth(50)
