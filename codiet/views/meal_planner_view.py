@@ -24,9 +24,7 @@ class MealPlannerView(QWidget):
 
         # Create the page title
         lbl_title = QLabel("Meal Planner")
-        font = QFont()
-        font.setBold(True)
-        lbl_title.setFont(font)
+        lbl_title.setProperty("class", "page-title")
         lyt_top_level.addWidget(lbl_title)
 
         # Create a horizontal layout for the page columns
