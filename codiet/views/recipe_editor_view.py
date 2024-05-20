@@ -14,7 +14,6 @@ from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.views.buttons import SaveButton
 from codiet.views.dialog_box_views import OkDialogBoxView, ConfirmDialogBoxView
-from codiet.views.search_views import SearchPopupView
 from codiet.views.ingredients_editor_view import IngredientsEditorView
 from codiet.views.serve_time_intervals_editor_view import ServeTimeIntervalsEditorView
 from codiet.views.recipe_type_editor_view import RecipeTypeEditorView
@@ -41,9 +40,6 @@ class RecipeEditorView(QWidget):
         super().__init__()
         # Build the user interface
         self._build_ui()
-        # Init the ingredient search popup
-        self.ingredient_search_popup = SearchPopupView()
-
 
     def update_name(self, name: str | None) -> None:
         """Set the recipe name."""
@@ -79,10 +75,6 @@ class RecipeEditorView(QWidget):
         """Update the recipe types."""
         self.recipe_type_editor_view.update_recipe_types(recipe_types)
 
-    def show_ingredient_search_popop(self) -> None:
-        """Show the ingredient search popup."""
-        self.ingredient_search_popup.show()
-
     def show_name_change_confirmation_popup(self) -> bool:
         """Show the name change confirmation popup."""
         # Show confirm dialog box
@@ -112,10 +104,6 @@ class RecipeEditorView(QWidget):
             parent=self,
         )
         _ = dialog.exec()
-
-    def on_add_ingredient_clicked(self) -> None:
-        """Handle the add ingredient button click."""
-        self.show_ingredient_search_popop()
 
     def _build_ui(self):
         """Build the UI for the recipe editor."""

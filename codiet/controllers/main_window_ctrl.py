@@ -1,7 +1,6 @@
 from codiet.utils.search import filter_text
 from codiet.models.recipes import Recipe
 from codiet.db.database_service import DatabaseService
-from codiet.views.search_views import SearchPopupView
 from codiet.views.dialog_box_views import ErrorDialogBoxView
 from codiet.views.main_window_view import MainWindowView
 from codiet.views.ingredient_editor_view import IngredientEditorView
@@ -24,12 +23,6 @@ class MainWindowCtrl:
         self.view.add_page("meal-planner", MealPlannerView())
 
         # Init popup windows
-        self.ingredient_search_popup = SearchPopupView(
-            title="Search Ingredients"
-        )
-        self.recipe_search_popup = SearchPopupView(
-            title="Search Recipes"
-        )
         self.error_popup = ErrorDialogBoxView(parent=self.view)
 
         # Instantiate the controllers
@@ -39,7 +32,6 @@ class MainWindowCtrl:
 
         # Connect up the signals
         self._connect_menu_bar_signals()
-        self._connect_ingredient_search_signals()
 
         # Cache names for search
         self.ingredient_names = []
@@ -61,40 +53,6 @@ class MainWindowCtrl:
             )
         # Show the editor
         self.view.show_page("ingredient-editor")
-
-    def _on_edit_ingredient_clicked(self) -> None:
-        """Handle the user clicking the Edit Ingredient button on the menubar."""
-        # Cache the ingredient names for the search popup
-        with DatabaseService() as db_service:
-            self.ingredient_names = db_service.fetch_all_ingredient_names()
-        # Show the search popup
-        self.ingredient_search_popup.exec()
-
-    def _on_ingredient_search_term_changed(self, search_term: str) -> None:
-        """Handle the user changing the search term in the ingredient search popup."""
-        # Filter the ingredient names
-        matching_ingredient_names = filter_text(search_term, self.ingredient_names, 5)
-        # Update the search results
-        self.ingredient_search_popup.update_results_list(matching_ingredient_names)
-
-    def _on_ingredient_search_term_cleared(self) -> None:
-        """Handle the user clearing the search term in the ingredient search popup."""
-        # Clear the search results
-        self.ingredient_search_popup.clear_results_list()
-        # Clear the search term
-        self.ingredient_search_popup.clear_search_term()
-
-    def _on_ingredient_selected_for_edit(self, ingredient_name: str) -> None:
-        """Handle the user selecting an ingredient to edit in search results."""
-        # Fetch the ingredient
-        with DatabaseService() as db_service:
-            ingredient = db_service.fetch_ingredient_by_name(ingredient_name)
-        # Load it into the editor
-        self.ingredient_editor_ctrl.load_ingredient_instance(ingredient)
-        # Show the editor
-        self.view.show_page("ingredient-editor")
-        # Close the search popup
-        self.ingredient_search_popup.close()
 
     def _on_delete_ingredient_clicked(self):
         """Handle the user clicking the Delete Ingredient button."""
@@ -118,9 +76,3 @@ class MainWindowCtrl:
         self.view.ingredientsClicked.connect(self._on_new_ingredient_clicked)
         self.view.recipesClicked.connect(self._on_new_recipe_clicked)
         self.view.mealPlannerClicked.connect(self._on_meal_planner_clicked)
-
-    def _connect_ingredient_search_signals(self):
-        """Connect the signals from the ingredient search popup to the appropriate slots."""
-        self.ingredient_search_popup.searchTermChanged.connect(self._on_ingredient_search_term_changed)
-        self.ingredient_search_popup.resultSelected.connect(self._on_ingredient_selected_for_edit)
-        self.ingredient_search_popup.searchTermCleared.connect(self._on_ingredient_search_term_cleared)

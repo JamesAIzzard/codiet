@@ -36,6 +36,12 @@ class SearchTermView(QWidget):
         """Return the text in the search box."""
         return self.txt_search.text()
     
+    @current_text.setter
+    def current_text(self, text: str) -> None:
+        """Set the text in the search box."""
+        with block_signals(self.txt_search):
+            self.txt_search.setText(text)
+    
     def clear(self) -> None:
         """Clear the search box."""
         with block_signals(self.txt_search):
@@ -45,6 +51,8 @@ class SearchTermView(QWidget):
         """Build the user interface."""
         # Create a layout for the widget
         layout = QHBoxLayout()
+        # Reduce margins
+        layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 
         # Add the search icon
@@ -58,25 +66,16 @@ class SearchTermView(QWidget):
         self.btn_cancel = ClearButton()
         layout.addWidget(self.btn_cancel)
 
-class SearchPopupView(QDialog):
-    """UI element to allow the user to search for ingredients."""
+class SearchColumn(QWidget):
+    """UI element to allow the user to search and select a result."""
     # Define signals
     resultSelected = pyqtSignal(str)
     searchTermChanged = pyqtSignal(str)
     searchTermCleared = pyqtSignal()
 
-    def __init__(self, title="Search"):
+    def __init__(self):
         super().__init__()
-
-        self.setWindowTitle(title)
-        self.setWindowIcon(load_icon("app-icon.png"))
-
         self._build_ui()
-
-        # Connect signal emissions
-        self.lst_search_results.itemClicked.connect(self._on_result_selected)
-        self.search_term_textbox.searchTermChanged.connect(self.searchTermChanged.emit)
-        self.search_term_textbox.cancelClicked.connect(self.searchTermCleared.emit)
 
     def update_results_list(self, matching_results: list[str]):
         """Update the list of ingredients."""
@@ -95,27 +94,27 @@ class SearchPopupView(QDialog):
         self.search_term_textbox.clear()
 
     def _on_result_selected(self, item):
-        """Handle the user selecting an ingredient to edit."""
+        """Handle the user selecting a result to edit."""
         # Emit a signal with the selected text
         self.resultSelected.emit(item.text())
 
     def _build_ui(self):
-        """Build the user interface."""
-        self.setWindowTitle("Ingredient Search")
-        self.resize(400, 300)
-
-        # Create a layout for the dialog
-        layout = QVBoxLayout()
-        self.setLayout(layout)
+        lyt_top_level = QVBoxLayout()
+        lyt_top_level.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(lyt_top_level)
 
         # Create a search textbox and add it to the layout
         self.search_term_textbox = SearchTermView()
-        layout.addWidget(self.search_term_textbox)
-
+        lyt_top_level.addWidget(self.search_term_textbox)
+        # Connect the signals
+        self.search_term_textbox.searchTermChanged.connect(self.searchTermChanged.emit)
+        self.search_term_textbox.cancelClicked.connect(self.searchTermCleared.emit)
         # Create a dropdown and add it to the layout
         self.lst_search_results = QListWidget()
+        # Connect the itemClicked signal to the _on_result_selected method
+        self.lst_search_results.itemClicked.connect(self._on_result_selected)
         # Make the dropdown fill the space
         self.lst_search_results.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
-        layout.addWidget(self.lst_search_results)
+        lyt_top_level.addWidget(self.lst_search_results)

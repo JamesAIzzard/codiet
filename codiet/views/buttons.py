@@ -25,6 +25,18 @@ class SaveButton(IconButton):
         # Set the maximum width
         self.setMaximumWidth(50)
 
+class SaveJSONButton(IconButton):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            icon_filename='save-icon.png',
+            text='Save JSON',
+            *args,
+            **kwargs
+        )
+        
+        # Set the maximum width
+        self.setMaximumWidth(150)
+
 class AddButton(IconButton):
     def __init__(self, *args, **kwargs):
         super().__init__(
@@ -43,6 +55,17 @@ class RemoveButton(IconButton):
             *args,
             **kwargs
         )
+        # Set the maximum width
+        self.setMaximumWidth(50)
+
+class DeleteButton(IconButton):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            icon_filename='delete-icon.png',
+            *args,
+            **kwargs
+        )
+        
         # Set the maximum width
         self.setMaximumWidth(50)
 
