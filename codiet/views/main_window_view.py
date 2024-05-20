@@ -74,6 +74,8 @@ class MainWindowView(QMainWindow):
         """Builds the footer bar."""
         # Create a status bar
         self.footer = QStatusBar(self)
+        # Put a label in the status bar
+        self.footer.showMessage("V0.01")
         # Set the status bar for the main window
         self.setStatusBar(self.footer)
 

@@ -191,6 +191,13 @@ class IngredientEditorCtrl:
         # Load the ingredient into the view
         self.load_ingredient_instance(ingredient)
 
+    def _on_add_new_ingredient_clicked(self):
+        """Handler for adding a new ingredient."""
+        # Create a new ingredient instance
+        self.ingredient = Ingredient()
+        # Clear the view
+        self.load_ingredient_instance(self.ingredient)
+
     def _on_ingredient_name_changed(self, name: str):
         """Handler for changes to the ingredient name."""
         # Update the ingredient name
@@ -401,7 +408,7 @@ class IngredientEditorCtrl:
         self.view.searchTextChanged.connect(self._on_ingredient_search_term_changed)
         self.view.searchTextCleared.connect(self._on_ingredient_search_term_cleared)
         self.view.ingredientSelected.connect(self._on_ingredient_selected)
-        # self.view.addIngredientClicked.connect(self._on_add_ingredient_clicked)
+        self.view.addIngredientClicked.connect(self._on_add_new_ingredient_clicked)
         # self.view.deleteIngredientClicked.connect(self._on_remove_ingredient_clicked)
         # self.view.saveJSONClicked.connect(self._on_save_json_clicked)
 
