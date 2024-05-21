@@ -1,6 +1,3 @@
-from PyQt6.QtWidgets import QMessageBox
-
-from codiet.exceptions.ingredient_exceptions import IngredientNameExistsError
 from codiet.db.database_service import DatabaseService
 from codiet.utils.search import filter_text
 from codiet.views.ingredient_editor_view import IngredientEditorView
@@ -194,9 +191,10 @@ class IngredientEditorCtrl:
     def _on_add_new_ingredient_clicked(self):
         """Handler for adding a new ingredient."""
         # Create a new ingredient instance
-        self.ingredient = Ingredient()
+        with DatabaseService() as db_service:
+            ingredient = db_service.create_empty_ingredient()
         # Clear the view
-        self.load_ingredient_instance(self.ingredient)
+        self.load_ingredient_instance(ingredient)
 
     def _on_ingredient_name_changed(self, name: str):
         """Handler for changes to the ingredient name."""
