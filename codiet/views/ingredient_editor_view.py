@@ -15,9 +15,9 @@ from codiet.utils.pyqt import block_signals
 from codiet.views.buttons import AddButton, DeleteButton, SaveJSONButton
 from codiet.views.search_views import SearchColumn
 from codiet.views.custom_line_editors import NumericLineEdit
+from codiet.views.dialog_box_views import EntityNameDialogView
 from codiet.views.flag_editor_view import FlagEditorView
 from codiet.views.ingredient_nutrients_editor_view import IngredientNutrientsEditorView
-
 
 class IngredientEditorView(QWidget):
     """User interface for editing an ingredient."""
@@ -204,7 +204,6 @@ class IngredientEditorView(QWidget):
         self.ingredient_search.resultSelected.connect(self.ingredientSelected.emit)
         container.addWidget(self.ingredient_search)
 
-
     def _build_basic_info_UI(self, container: QBoxLayout):
         """Build the UI for the basic info section of the ingredient editor page."""
 
@@ -374,4 +373,6 @@ class IngredientEditorView(QWidget):
         self.txt_gi = NumericLineEdit()
         column_layout.addWidget(self.txt_gi)
         self.txt_gi.valueChanged.connect(self.ingredientGIChanged.emit)
+
+
 

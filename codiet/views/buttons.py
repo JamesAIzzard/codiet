@@ -12,7 +12,6 @@ class IconButton(QPushButton):
         if text is not None:
             self.setText(text)
 
-
 class SaveButton(IconButton):
     def __init__(self, *args, **kwargs):
         super().__init__(
