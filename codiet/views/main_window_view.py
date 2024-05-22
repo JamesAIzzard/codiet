@@ -1,9 +1,9 @@
 from PyQt6.QtWidgets import (
     QMainWindow,
     QStackedWidget,
-    QToolBar
+    QToolBar,
+    QStatusBar,
 )
-from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import pyqtSignal
 
 from codiet.views import load_icon
@@ -22,7 +22,7 @@ class MainWindowView(QMainWindow):
         # Set the window title
         self.setWindowTitle("CoDiet - Computational Nutrition")
         # Set the window size
-        self.resize(900, 600)
+        self.resize(1400, 900)
         # Set the window icon
         self.setWindowIcon(load_icon("app-icon.png"))
 
@@ -49,6 +49,9 @@ class MainWindowView(QMainWindow):
         self._page_stack = QStackedWidget()
         self.setCentralWidget(self._page_stack)
 
+        # Add a footer bar
+        self._build_footer()
+
     def _build_toolbar(self) -> None:
         """Builds the main page menu bar."""
         # Build the toolbar
@@ -66,4 +69,13 @@ class MainWindowView(QMainWindow):
         btn_meal_planner = IconButton("meal-planner-icon.png", "Meal Planner")
         btn_meal_planner.clicked.connect(self.mealPlannerClicked.emit)
         toolbar.addWidget(btn_meal_planner)
+
+    def _build_footer(self) -> None:
+        """Builds the footer bar."""
+        # Create a status bar
+        self.footer = QStatusBar(self)
+        # Put a label in the status bar
+        self.footer.showMessage("V0.01")
+        # Set the status bar for the main window
+        self.setStatusBar(self.footer)
 

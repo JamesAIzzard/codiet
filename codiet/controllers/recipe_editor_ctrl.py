@@ -9,7 +9,6 @@ from codiet.utils.recipes import convert_recipe_to_json, save_recipe_datafile
 from codiet.models.recipes import Recipe
 from codiet.models.ingredients import IngredientQuantity
 from codiet.views.recipe_editor_view import RecipeEditorView
-from codiet.views.search_views import SearchPopupView
 from codiet.views.dialog_box_views import ErrorDialogBoxView
 from codiet.views.time_interval_popup_view import TimeIntervalPopupView
 from codiet.db.database_service import DatabaseService
@@ -21,9 +20,7 @@ class RecipeEditorCtrl:
         self.view = view
 
         # Init ancillairy views
-        self.ingredients_editor_popup = SearchPopupView()
         self.serve_time_popup = TimeIntervalPopupView()
-        self.recipe_type_selector_popup = SearchPopupView()
         self.error_popup = ErrorDialogBoxView(message="", title="", parent=self.view)
         self.name_required_popup = ErrorDialogBoxView(
             message="Please provide a name for the recipe.",
@@ -106,13 +103,13 @@ class RecipeEditorCtrl:
         else:
             self.recipe.instructions = instructions
 
-    def _on_add_ingredient_clicked(self) -> None:
-        """Handle the add ingredient button being clicked."""
-        # Cache the current list of ingredient names
-        with DatabaseService() as db_service:
-            self.all_ingredient_names = db_service.fetch_all_ingredient_names()
-        # Show the ingredient search popup
-        self.ingredients_editor_popup.show()
+    # def _on_add_ingredient_clicked(self) -> None:
+    #     """Handle the add ingredient button being clicked."""
+    #     # Cache the current list of ingredient names
+    #     with DatabaseService() as db_service:
+    #         self.all_ingredient_names = db_service.fetch_all_ingredient_names()
+    #     # Show the ingredient search popup
+    #     self.ingredients_editor_popup.show()
 
     def _on_remove_ingredient_clicked(self) -> None:
         """Handle the remove ingredient button being clicked."""
@@ -126,40 +123,40 @@ class RecipeEditorCtrl:
         # Update the ingredients in the view
         self.view.ingredients_editor.remove_ingredient_quantity(ingredient_id)
 
-    def _on_ingredient_search_term_changed(self, search_term: str) -> None:
-        """Handle the ingredient search term being changed."""
-        # If the search term is empty, return
-        if search_term.strip() == "":
-            return None
-        # Filter the ingredients
-        filtered_ingredient_names = filter_text(
-            search_term, self.all_ingredient_names, 5
-        )
-        # Update the ingredients in the popup
-        self.ingredients_editor_popup.update_results_list(filtered_ingredient_names)
+    # def _on_ingredient_search_term_changed(self, search_term: str) -> None:
+    #     """Handle the ingredient search term being changed."""
+    #     # If the search term is empty, return
+    #     if search_term.strip() == "":
+    #         return None
+    #     # Filter the ingredients
+    #     filtered_ingredient_names = filter_text(
+    #         search_term, self.all_ingredient_names, 5
+    #     )
+    #     # Update the ingredients in the popup
+    #     self.ingredients_editor_popup.update_results_list(filtered_ingredient_names)
 
-    def _on_ingredient_search_cancelled(self) -> None:
-        """Handle the ingredient search being cancelled."""
-        # Clear the contents of the search term textbox
-        self.ingredients_editor_popup.search_term_textbox.clear()
+    # def _on_ingredient_search_cancelled(self) -> None:
+    #     """Handle the ingredient search being cancelled."""
+    #     # Clear the contents of the search term textbox
+    #     self.ingredients_editor_popup.search_term_textbox.clear()
 
-    def _on_ingredient_selected(self, ingredient_name: str) -> None:
-        """Handle an ingredient being selected."""
-        # Fetch the ingredient data from the database
-        with DatabaseService() as db_service:
-            ingredient = db_service.fetch_ingredient_by_name(ingredient_name)
-        # Create a new recipe ingredient instance
-        ingredient_qty = IngredientQuantity(ingredient)
-        # Add the ingredient to the recipe
-        self.recipe.add_ingredient_quantity(ingredient_quantity=ingredient_qty)
-        # Assert the ingredient id is set
-        assert ingredient.id is not None
-        # Add the ingredient to the view
-        self.view.ingredients_editor.add_ingredient_quantity(
-            ingredient_name=ingredient_name, ingredient_id=ingredient.id
-        )
-        # Hide the popup
-        self.ingredients_editor_popup.hide()
+    # def _on_ingredient_selected(self, ingredient_name: str) -> None:
+    #     """Handle an ingredient being selected."""
+    #     # Fetch the ingredient data from the database
+    #     with DatabaseService() as db_service:
+    #         ingredient = db_service.fetch_ingredient_by_name(ingredient_name)
+    #     # Create a new recipe ingredient instance
+    #     ingredient_qty = IngredientQuantity(ingredient)
+    #     # Add the ingredient to the recipe
+    #     self.recipe.add_ingredient_quantity(ingredient_quantity=ingredient_qty)
+    #     # Assert the ingredient id is set
+    #     assert ingredient.id is not None
+    #     # Add the ingredient to the view
+    #     self.view.ingredients_editor.add_ingredient_quantity(
+    #         ingredient_name=ingredient_name, ingredient_id=ingredient.id
+    #     )
+    #     # Hide the popup
+    #     self.ingredients_editor_popup.hide()
 
     def _on_ingredient_qty_changed(self, ingredient_id: int, qty: float) -> None:
         """Handle the ingredient quantity being changed."""
@@ -225,15 +222,15 @@ class RecipeEditorCtrl:
         # Hide the popup
         self.serve_time_popup.hide()
 
-    def _on_add_recipe_type_clicked(self) -> None:
-        """Handle the add recipe type button being clicked."""
-        # Rebuild the cached recipe types
-        with DatabaseService() as db_service:
-            self.recipe_types = db_service.fetch_all_global_recipe_types()
-        # Add all of these types to the popup
-        self.recipe_type_selector_popup.update_results_list(self.recipe_types)
-        # Show the popup
-        self.recipe_type_selector_popup.show()
+    # def _on_add_recipe_type_clicked(self) -> None:
+    #     """Handle the add recipe type button being clicked."""
+    #     # Rebuild the cached recipe types
+    #     with DatabaseService() as db_service:
+    #         self.recipe_types = db_service.fetch_all_global_recipe_types()
+    #     # Add all of these types to the popup
+    #     self.recipe_type_selector_popup.update_results_list(self.recipe_types)
+    #     # Show the popup
+    #     self.recipe_type_selector_popup.show()
 
     def _on_recipe_type_selected(self, recipe_type: str) -> None:
         """Handle a recipe type being selected."""
@@ -257,26 +254,26 @@ class RecipeEditorCtrl:
         # Remove the recipe type from the recipe
         self.recipe.remove_recipe_type(recipe_type)
 
-    def _on_recipe_type_search_term_changed(self, search_term: str) -> None:
-        """Handle the search term being changed."""
-        # If the search term is empty, return
-        if search_term.strip() == "":
-            # Update the recipe types in the popup
-            self.recipe_type_selector_popup.update_results_list(self.recipe_types)
-        # Otherwise, find the best matching recipe types
-        else:
-            # Filter the recipe types
-            filtered_recipe_types = filter_text(search_term, self.recipe_types, 2)
-            # Update the recipe types in the popup
-            self.recipe_type_selector_popup.update_results_list(filtered_recipe_types)
+    # def _on_recipe_type_search_term_changed(self, search_term: str) -> None:
+    #     """Handle the search term being changed."""
+    #     # If the search term is empty, return
+    #     if search_term.strip() == "":
+    #         # Update the recipe types in the popup
+    #         self.recipe_type_selector_popup.update_results_list(self.recipe_types)
+    #     # Otherwise, find the best matching recipe types
+    #     else:
+    #         # Filter the recipe types
+    #         filtered_recipe_types = filter_text(search_term, self.recipe_types, 2)
+    #         # Update the recipe types in the popup
+    #         self.recipe_type_selector_popup.update_results_list(filtered_recipe_types)
 
-    def _on_clear_recipe_type_search_clicked(self) -> None:
-        """Handle the clear recipe type search button being clicked."""
-        # Clear the search term and results list
-        self.recipe_type_selector_popup.clear_results_list()
-        self.recipe_type_selector_popup.clear_search_term()
-        # Repopulate the list with all types
-        self.recipe_type_selector_popup.update_results_list(self.recipe_types)
+    # def _on_clear_recipe_type_search_clicked(self) -> None:
+    #     """Handle the clear recipe type search button being clicked."""
+    #     # Clear the search term and results list
+    #     self.recipe_type_selector_popup.clear_results_list()
+    #     self.recipe_type_selector_popup.clear_search_term()
+    #     # Repopulate the list with all types
+    #     self.recipe_type_selector_popup.update_results_list(self.recipe_types)
 
     def _on_save_button_clicked(self) -> None:
         """Handle the save button being pressed."""
@@ -341,21 +338,21 @@ class RecipeEditorCtrl:
 
     def _connect_ingredients_editor(self) -> None:
         """Initialise the ingredients editor views."""
-        self.view.ingredients_editor.addIngredientClicked.connect(
-            self._on_add_ingredient_clicked
-        )
+        # self.view.ingredients_editor.addIngredientClicked.connect(
+        #     self._on_add_ingredient_clicked
+        # )
         self.view.ingredients_editor.removeIngredientClicked.connect(
             self._on_remove_ingredient_clicked
         )
-        self.ingredients_editor_popup.search_term_textbox.searchTermChanged.connect(
-            self._on_ingredient_search_term_changed
-        )
-        self.ingredients_editor_popup.search_term_textbox.cancelClicked.connect(
-            self._on_ingredient_search_cancelled
-        )
-        self.ingredients_editor_popup.resultSelected.connect(
-            self._on_ingredient_selected
-        )
+        # self.ingredients_editor_popup.search_term_textbox.searchTermChanged.connect(
+        #     self._on_ingredient_search_term_changed
+        # )
+        # self.ingredients_editor_popup.search_term_textbox.cancelClicked.connect(
+        #     self._on_ingredient_search_cancelled
+        # )
+        # self.ingredients_editor_popup.resultSelected.connect(
+        #     self._on_ingredient_selected
+        # )
         self.view.ingredients_editor.ingredientQtyChanged.connect(
             self._on_ingredient_qty_changed
         )
@@ -381,21 +378,21 @@ class RecipeEditorCtrl:
 
     def _connect_recipe_type_editor(self) -> None:
         """Initialise the recipe type selector popup."""
-        self.view.recipe_type_editor_view.addRecipeTypeClicked.connect(
-            self._on_add_recipe_type_clicked
-        )
-        self.view.recipe_type_editor_view.removeRecipeTypeClicked.connect(
-            self._on_remove_recipe_type_clicked
-        )
-        self.recipe_type_selector_popup.resultSelected.connect(
-            self._on_recipe_type_selected
-        )
-        self.recipe_type_selector_popup.searchTermCleared.connect(
-            self._on_clear_recipe_type_search_clicked
-        )
-        self.recipe_type_selector_popup.searchTermChanged.connect(
-            self._on_recipe_type_search_term_changed
-        )
+        # self.view.recipe_type_editor_view.addRecipeTypeClicked.connect(
+        #     self._on_add_recipe_type_clicked
+        # )
+        # self.view.recipe_type_editor_view.removeRecipeTypeClicked.connect(
+        #     self._on_remove_recipe_type_clicked
+        # )
+        # self.recipe_type_selector_popup.resultSelected.connect(
+        #     self._on_recipe_type_selected
+        # )
+        # self.recipe_type_selector_popup.searchTermCleared.connect(
+        #     self._on_clear_recipe_type_search_clicked
+        # )
+        # self.recipe_type_selector_popup.searchTermChanged.connect(
+        #     self._on_recipe_type_search_term_changed
+        # )
 
     def _connect_basic_info_fields(self) -> None:
         """Connect the signals and slots for the recipe editor."""

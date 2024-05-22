@@ -9,19 +9,25 @@ from PyQt6.QtWidgets import (
     QTextEdit,
     QComboBox
 )
-from PyQt6.QtGui import QFont
 from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.utils.pyqt import block_signals
-from codiet.views.buttons import SaveButton
+from codiet.views.buttons import AddButton, DeleteButton, SaveJSONButton
+from codiet.views.search_views import SearchColumn
 from codiet.views.custom_line_editors import NumericLineEdit
+from codiet.views.dialog_box_views import EntityNameDialogView
 from codiet.views.flag_editor_view import FlagEditorView
 from codiet.views.ingredient_nutrients_editor_view import IngredientNutrientsEditorView
-
 
 class IngredientEditorView(QWidget):
     """User interface for editing an ingredient."""
     # Define signals
+    searchTextChanged = pyqtSignal(str)
+    searchTextCleared = pyqtSignal()
+    ingredientSelected = pyqtSignal(str)
+    addIngredientClicked = pyqtSignal()
+    deleteIngredientClicked = pyqtSignal()
+    saveJSONClicked = pyqtSignal()
     ingredientNameChanged = pyqtSignal(str)
     ingredientDescriptionChanged = pyqtSignal(str)
     ingredientCostValueChanged = pyqtSignal(QVariant)
@@ -35,7 +41,6 @@ class IngredientEditorView(QWidget):
     ingredientPieceMassChanged = pyqtSignal(QVariant)
     ingredientPieceMassUnitChanged = pyqtSignal(str)
     ingredientGIChanged = pyqtSignal(QVariant)
-    saveIngredientClicked = pyqtSignal()
 
 
     def __init__(self):
@@ -138,54 +143,66 @@ class IngredientEditorView(QWidget):
 
     def _build_ui(self):
         """Build the UI for the ingredient editor page."""
-        # Create a vertical layout for the page
-        page_layout = QVBoxLayout()
-        # Set the layout for the page
-        self.setLayout(page_layout)
+        # Create a top level horizontal layout
+        lyt_top_level_columns = QHBoxLayout()
+        lyt_top_level_columns.setContentsMargins(5, 5, 5, 5)
+        self.setLayout(lyt_top_level_columns)
 
-        # Create a label and add it to the page layout
-        lbl_page_title = QLabel("Ingredient Editor")
-        lbl_page_title.setProperty('class', 'page-title')
-        page_layout.addWidget(lbl_page_title)
+        # Create a col for searching ingredients
+        lyt_search_column = QVBoxLayout()
+        # Reduce vertical padding
+        lyt_search_column.setContentsMargins(0, 0, 0, 0)
+        lyt_top_level_columns.addLayout(lyt_search_column, 1)
+        self._build_search_ui(lyt_search_column)
 
-        # Create a horizontal layout for the columns
-        columns_layout = QHBoxLayout()
-        page_layout.addLayout(columns_layout)
-
-        # Create a vertical layout for the first column
-        column1_layout = QVBoxLayout()
-        columns_layout.addLayout(column1_layout, 1)
-
+        # Create a col for the basic info, cost, flags and GI
+        lyt_basic_info = QVBoxLayout()
+        lyt_top_level_columns.addLayout(lyt_basic_info, 2)
         # Add the basic info section to the column 1 layout
-        self._build_basic_info_UI(column1_layout)
-
+        self._build_basic_info_UI(lyt_basic_info)
         # Add the cost editor to the column 1 layout
-        self._build_cost_UI(column1_layout)
-
+        self._build_cost_UI(lyt_basic_info)
         # Add the bulk properties widget to the column1 layout
-        self._build_bulk_properties_UI(column1_layout)
-
+        self._build_bulk_properties_UI(lyt_basic_info)
         # Add the flags widget to the column1 layout
         self.flag_editor = FlagEditorView()
-        column1_layout.addWidget(self.flag_editor)
-
+        lyt_basic_info.addWidget(self.flag_editor)
         # Add the GI widget to the column1 layout
-        self._build_gi_UI(column1_layout)
-
+        self._build_gi_UI(lyt_basic_info)
         # Add stretch to end of layout
-        column1_layout.addStretch(1)
+        lyt_basic_info.addStretch(1)
 
-        # Create the second column.
-        lyt_col_2 = QVBoxLayout()
-        columns_layout.addLayout(lyt_col_2, 1)
-
+        # Create a second column for the nutrients editor
+        lyt_nutrients_col = QVBoxLayout()
+        lyt_top_level_columns.addLayout(lyt_nutrients_col, 2)
         # Create a nutrient editor widget and add it to the column2 layout
         self.nutrient_editor = IngredientNutrientsEditorView()
-        lyt_col_2.addWidget(self.nutrient_editor)
+        lyt_nutrients_col.addWidget(self.nutrient_editor)
 
-        # Add a save ingredient button to the bottom of the page
-        self.btn_save_ingredient = SaveButton()
-        page_layout.addWidget(self.btn_save_ingredient)
+    def _build_search_ui(self, container: QBoxLayout):
+        """Build the search UI for the ingredient editor page."""
+        # Add a horizontal row for buttons
+        lyt_buttons = QHBoxLayout()
+        lyt_buttons.setContentsMargins(0, 0, 0, 0)
+        container.addLayout(lyt_buttons)
+        # Add an add, remove and save to json button.
+        btn_add = AddButton()
+        btn_add.clicked.connect(self.addIngredientClicked.emit)
+        btn_delete = DeleteButton()
+        btn_delete.clicked.connect(self.deleteIngredientClicked.emit)
+        btn_save = SaveJSONButton()
+        btn_save.clicked.connect(self.saveJSONClicked.emit)
+        lyt_buttons.addWidget(btn_add)
+        lyt_buttons.addWidget(btn_delete)
+        lyt_buttons.addWidget(btn_save)
+        # Push buttons to left
+        lyt_buttons.addStretch()
+        # Add a search widget
+        self.ingredient_search = SearchColumn()
+        self.ingredient_search.searchTermChanged.connect(self.searchTextChanged.emit)
+        self.ingredient_search.searchTermCleared.connect(self.searchTextCleared.emit)
+        self.ingredient_search.resultSelected.connect(self.ingredientSelected.emit)
+        container.addWidget(self.ingredient_search)
 
     def _build_basic_info_UI(self, container: QBoxLayout):
         """Build the UI for the basic info section of the ingredient editor page."""
@@ -349,11 +366,13 @@ class IngredientEditorView(QWidget):
         gb_gi.setLayout(column_layout)
 
         # Create a label and add it to the layout
-        label = QLabel("Glycemic Index (Carbohydrate Only):")
+        label = QLabel("Glycemic Index:")
         column_layout.addWidget(label)
 
         # Create a line edit and add it to the layout
         self.txt_gi = NumericLineEdit()
         column_layout.addWidget(self.txt_gi)
         self.txt_gi.valueChanged.connect(self.ingredientGIChanged.emit)
+
+
 
