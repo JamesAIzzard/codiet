@@ -8,7 +8,10 @@ from codiet.models.ingredients import Ingredient
 class IngredientEditorCtrl:
     def __init__(self, view: IngredientEditorView):
         self.view = view  # reference to the view
-        self.ingredient: Ingredient  # Ingredient instance
+
+        # Create an empty ingredient instance
+        with DatabaseService() as db_service:
+            self.ingredient = db_service.create_empty_ingredient()
 
         # Init the anciliarry views
         self.error_popup = ErrorDialogBoxView(parent=self.view)
@@ -143,7 +146,7 @@ class IngredientEditorCtrl:
         self.new_ingredient_dialog.clear()
         self.new_ingredient_dialog.show()        
 
-    def _on_new_ingredient_name_changed(self, name: str):
+    def _on_new_ingredient_name_changed(self, name: str) -> None:
         """Handler for changes to the ingredient name."""
         # If the name is not whitespace
         if self.new_ingredient_dialog.name_is_set:
@@ -164,12 +167,27 @@ class IngredientEditorCtrl:
             # Disable the OK button
             self.new_ingredient_dialog.disable_ok_button()
 
-    def _on_new_ingredient_name_accepted(self):
+    def _on_ingredient_name_accepted(self) -> None:
         """Handler for accepting the new ingredient name."""
-        # TODO: Implement this
-        raise NotImplementedError("Needs doing.")
+        # Set the name on the ingredient
+        self.ingredient.name = self.new_ingredient_dialog.name
+        # If the ingredient has an id already, then we must be updating
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()
+        else:
+            with DatabaseService() as db_service:
+                self.ingredient.id = db_service.insert_new_ingredient(self.ingredient)
+                db_service.commit()
+        # Recache the ingredient names
+        self._cache_ingredient_names()
+        # Clear the new ingredient dialog
+        self.new_ingredient_dialog.clear()
+        # Hide the new ingredient dialog
+        self.new_ingredient_dialog.hide()
 
-    def _on_new_ingredient_name_cancelled(self):
+    def _on_new_ingredient_name_cancelled(self) -> None:
         """Handler for cancelling the new ingredient name."""
         # Clear the new ingredient dialog
         self.new_ingredient_dialog.clear()
@@ -335,7 +353,7 @@ class IngredientEditorCtrl:
     def _connect_new_ingredient_dialog(self) -> None:
         """Connect the signals for the new ingredient dialog."""
         self.new_ingredient_dialog.nameChanged.connect(self._on_new_ingredient_name_changed)
-        self.new_ingredient_dialog.nameAccepted.connect(self._on_new_ingredient_name_accepted)
+        self.new_ingredient_dialog.nameAccepted.connect(self._on_ingredient_name_accepted)
         self.new_ingredient_dialog.nameCancelled.connect(self._on_new_ingredient_name_cancelled)
 
     def _connect_search_column(self) -> None:

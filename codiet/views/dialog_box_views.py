@@ -187,9 +187,11 @@ class EntityNameDialogView(DialogBoxView):
         self.btn_cancel = ClearButton()
         lyt_buttons.addWidget(self.btn_ok)
         lyt_buttons.addWidget(self.btn_cancel)
-        # Connect the button signals
-        self.btn_ok.clicked.connect(self.accept)
-        self.btn_cancel.clicked.connect(self.reject)
+        # When the buttons are clicked, emit the signals
+        self.btn_ok.clicked.connect(
+            lambda: self.nameAccepted.emit(self.txt_name.text())
+        )
+        self.btn_cancel.clicked.connect(self.nameCancelled)
 
     @property
     def name(self) -> str | None:
