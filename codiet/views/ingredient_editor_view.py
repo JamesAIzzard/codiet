@@ -12,10 +12,9 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.utils.pyqt import block_signals
-from codiet.views.buttons import AddButton, DeleteButton, SaveJSONButton
+from codiet.views.buttons import AddButton, DeleteButton, EditButton, SaveJSONButton
 from codiet.views.search_views import SearchColumn
 from codiet.views.custom_line_editors import NumericLineEdit
-from codiet.views.dialog_box_views import EntityNameDialogView
 from codiet.views.flag_editor_view import FlagEditorView
 from codiet.views.ingredient_nutrients_editor_view import IngredientNutrientsEditorView
 
@@ -28,7 +27,7 @@ class IngredientEditorView(QWidget):
     addIngredientClicked = pyqtSignal()
     deleteIngredientClicked = pyqtSignal()
     saveJSONClicked = pyqtSignal()
-    ingredientNameChanged = pyqtSignal(str)
+    editIngredientNameClicked = pyqtSignal()
     ingredientDescriptionChanged = pyqtSignal(str)
     ingredientCostValueChanged = pyqtSignal(QVariant)
     ingredientCostQuantityChanged = pyqtSignal(QVariant)
@@ -225,8 +224,13 @@ class IngredientEditorView(QWidget):
 
         # Create a textbox and add it to the layout
         self.txt_ingredient_name = QLineEdit()
+        # Make the line edit not editable
+        self.txt_ingredient_name.setReadOnly(True)
         lyt_ingredient_name.addWidget(self.txt_ingredient_name)
-        self.txt_ingredient_name.textChanged.connect(self.ingredientNameChanged.emit)
+        # Add an edit button
+        btn_edit = EditButton()
+        lyt_ingredient_name.addWidget(btn_edit)
+        btn_edit.clicked.connect(self.editIngredientNameClicked.emit)
 
         # Reduce the vertical padding in this layout
         lyt_ingredient_name.setContentsMargins(0, 0, 0, 0)

@@ -4,13 +4,11 @@ from PyQt6.QtWidgets import (
     QHBoxLayout, 
     QVBoxLayout,
     QListWidget,
-    QDialog,
     QSizePolicy
 )
 from PyQt6.QtCore import pyqtSignal
 
 from codiet.utils.pyqt import block_signals
-from codiet.views import load_icon
 from codiet.views.buttons import ClearButton
 from codiet.views.labels import SearchIconLabel
 
@@ -61,6 +59,8 @@ class SearchTermView(QWidget):
         # Create a search textbox and add it to the layout
         self.txt_search = QLineEdit()
         layout.addWidget(self.txt_search)
+        # Make it occupy the maximum width
+        layout.setStretchFactor(self.txt_search, 1)
 
         # Create a cancel button and add it to the layout
         self.btn_cancel = ClearButton()
@@ -76,6 +76,24 @@ class SearchColumn(QWidget):
     def __init__(self):
         super().__init__()
         self._build_ui()
+
+    @property
+    def selected_result(self) -> str | None:
+        """Return the selected result."""
+        if self.result_is_selected:
+            return self.lst_search_results.currentItem().text() # type: ignore
+        else:
+            return None
+
+    @property
+    def selected_index(self) -> int:
+        """Return the index of the selected result."""
+        return self.lst_search_results.currentRow()
+
+    @property
+    def result_is_selected(self) -> bool:
+        """Return True if a result is selected."""
+        return self.selected_index != -1
 
     def update_results_list(self, matching_results: list[str]):
         """Update the list of ingredients."""

@@ -397,7 +397,7 @@ class DatabaseService:
             # Re-raise any exceptions
             raise e
 
-    def delete_ingredient(self, ingredient_name: str):
+    def delete_ingredient_by_name(self, ingredient_name: str):
         """Deletes the given ingredient from the database."""
         self._repo.delete_ingredient(ingredient_name)
 

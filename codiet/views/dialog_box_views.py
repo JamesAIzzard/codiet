@@ -5,11 +5,13 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QPushButton,
     QDialogButtonBox,
     QSizePolicy,
     QStackedWidget
 )
 
+from codiet.utils.pyqt import block_signals
 from codiet.views import load_icon, load_pixmap_icon
 from codiet.views.buttons import ConfirmButton, ClearButton
 from codiet.views.labels import IconLabel
@@ -35,14 +37,14 @@ class DialogBoxView(QDialog):
 class LabelIconDialog(DialogBoxView):
     """A dialog box with a label and an icon."""
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super().__init__(parent=parent)
 
         # Set the dialog layout
-        lyt_top_level = QVBoxLayout(self)
+        self.lyt_top_level = QVBoxLayout(self)
 
         # Add an HBox for icon and label
         self.lyt_icon_and_label = QHBoxLayout()
-        lyt_top_level.addLayout(self.lyt_icon_and_label)
+        self.lyt_top_level.addLayout(self.lyt_icon_and_label)
         # Init the label for the icon
         self.lbl_icon = QLabel(self)
         self.lyt_icon_and_label.addWidget(self.lbl_icon)
@@ -54,14 +56,13 @@ class LabelIconDialog(DialogBoxView):
         )
         self.lyt_icon_and_label.addWidget(self.lbl_message)
 
-        # Add the buttons
-        self.button_box = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
-        )
-        self.button_box.accepted.connect(self.accept)
-        self.button_box.rejected.connect(self.reject)
-        lyt_top_level.addWidget(self.button_box)
+    @property
+    def title(self) -> str:
+        return self.windowTitle()
 
+    @title.setter
+    def title(self, title: str) -> None:
+        self.setWindowTitle(title)
 
     @property
     def message(self):
@@ -80,9 +81,20 @@ class LabelIconDialog(DialogBoxView):
             pixmap.scaled(30, 30, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
         )
 
-    def set_button_configuration(self, buttons):
-        """Set the buttons to display on the dialog box."""
-        self.button_box.setStandardButtons(buttons)
+class LabelIconButtonsDialog(LabelIconDialog):
+    """A dialog box with a label, an icon, and a button box."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        # Add a button box
+        self.lyt_button_box = QHBoxLayout(self)
+        self.lyt_top_level.addLayout(self.lyt_button_box)
+
+    def add_button(self, button: QPushButton) -> QPushButton:
+        """Add a button to the button box."""
+        self.lyt_button_box.addWidget(button)
+        return button
 
 class OkDialogBoxView(LabelIconDialog):
     """A simple dialog box with an OK button."""
@@ -108,25 +120,29 @@ class ErrorDialogBoxView(LabelIconDialog):
         self.message = message
         self.title = title
 
-class ConfirmDialogBoxView(LabelIconDialog):
+class ConfirmDialogBoxView(LabelIconButtonsDialog):
     """A dialog box to confirm an action."""
+
+    confirmClicked = pyqtSignal()
+    cancelClicked = pyqtSignal()
 
     def __init__(
         self, message: str = "Are you sure?", title: str = "Confirm", parent=None
     ):
         super().__init__(parent)
-        self.set_button_configuration(
-            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
-        )
         self.set_icon("question-icon.png")
         self.message = message
         self.title = title
+        self.btn_confirm = self.add_button(ConfirmButton())
+        self.btn_clear = self.add_button(ClearButton())
+        self.btn_confirm.clicked.connect(self.confirmClicked)
+        self.btn_clear.clicked.connect(self.cancelClicked)
 
 class YesNoDialogBoxView(LabelIconDialog):
     """A dialog box to make a Yes/No decision."""
 
     def __init__(
-        self, message: str = "Are you sure?", title: str = "Confirm", parent=None
+        self, message: str = "message", title: str = "Title", parent=None
     ):
         super().__init__(parent)
         self.set_button_configuration(
@@ -201,6 +217,12 @@ class EntityNameDialogView(DialogBoxView):
         else:
             return self.txt_name.text()
     
+    @name.setter
+    def name(self, name: str):
+        """Set the name in the text box."""
+        with block_signals(self.txt_name):
+            self.txt_name.setText(name)
+
     @property
     def name_is_set(self) -> bool:
         """Returns True/False to indicate if the name is set."""

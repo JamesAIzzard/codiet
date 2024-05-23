@@ -57,6 +57,17 @@ class RemoveButton(IconButton):
         # Set the maximum width
         self.setMaximumWidth(50)
 
+class EditButton(IconButton):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            icon_filename='edit-icon.png',
+            *args,
+            **kwargs
+        )
+        
+        # Set the maximum width
+        self.setMaximumWidth(50)
+
 class DeleteButton(IconButton):
     def __init__(self, *args, **kwargs):
         super().__init__(
