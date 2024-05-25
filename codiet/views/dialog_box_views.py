@@ -1,11 +1,10 @@
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import (
     QDialog,
     QVBoxLayout,
     QHBoxLayout,
     QLineEdit,
     QPushButton,
-    QDialogButtonBox,
     QStackedWidget
 )
 
@@ -42,9 +41,13 @@ class LabelIconDialog(DialogBoxView):
         ):
         super().__init__(*args, **kwargs)
 
-        # Set the dialog layout
+        # Set the top level layout
         self.lyt_top_level = QVBoxLayout(self)
         self.setLayout(self.lyt_top_level)
+
+        # Create a horizontal layout for the icon and message
+        self.lyt_icon_message = QHBoxLayout()
+        self.lyt_top_level.addLayout(self.lyt_icon_message)
         # Create the iconlabel
         self.lbl_icon_message = IconTextLabel(
             icon_filename=icon_filename,
@@ -52,7 +55,7 @@ class LabelIconDialog(DialogBoxView):
             parent=self
         )
         # Add the iconlabel to the layout
-        self.lyt_top_level.addWidget(self.lbl_icon_message)
+        self.lyt_icon_message.addWidget(self.lbl_icon_message)
 
     @property
     def message(self):
@@ -72,9 +75,9 @@ class LabelIconButtonsDialog(LabelIconDialog):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        
         # Add a button box
-        self.lyt_button_box = QHBoxLayout(self)
+        self.lyt_button_box = QHBoxLayout()
         self.lyt_top_level.addLayout(self.lyt_button_box)
 
     def add_button(self, button: QPushButton) -> QPushButton:
