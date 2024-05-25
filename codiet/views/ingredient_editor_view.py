@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.utils.pyqt import block_signals
-from codiet.views.buttons import AddButton, DeleteButton, EditButton, SaveJSONButton
+from codiet.views.buttons import AddButton, DeleteButton, EditButton, SaveJSONButton, AutopopulateButton
 from codiet.views.search_views import SearchColumn
 from codiet.views.custom_line_editors import NumericLineEdit
 from codiet.views.flag_editor_view import FlagEditorView
@@ -26,6 +26,7 @@ class IngredientEditorView(QWidget):
     ingredientSelected = pyqtSignal(str)
     addIngredientClicked = pyqtSignal()
     deleteIngredientClicked = pyqtSignal()
+    autopopulateClicked = pyqtSignal()
     saveJSONClicked = pyqtSignal()
     editIngredientNameClicked = pyqtSignal()
     ingredientDescriptionChanged = pyqtSignal(str)
@@ -44,8 +45,6 @@ class IngredientEditorView(QWidget):
 
     def __init__(self):
         super().__init__()
-
-        # Build the UI
         self._build_ui()
 
     def update_name(self, name: str | None):
@@ -157,7 +156,6 @@ class IngredientEditorView(QWidget):
         # Create a col for the basic info, cost, flags and GI
         lyt_basic_info = QVBoxLayout()
         lyt_top_level_columns.addLayout(lyt_basic_info, 2)
-        # Add the basic info section to the column 1 layout
         self._build_basic_info_UI(lyt_basic_info)
         # Add the cost editor to the column 1 layout
         self._build_cost_UI(lyt_basic_info)
@@ -174,7 +172,6 @@ class IngredientEditorView(QWidget):
         # Create a second column for the nutrients editor
         lyt_nutrients_col = QVBoxLayout()
         lyt_top_level_columns.addLayout(lyt_nutrients_col, 2)
-        # Create a nutrient editor widget and add it to the column2 layout
         self.nutrient_editor = IngredientNutrientsEditorView()
         lyt_nutrients_col.addWidget(self.nutrient_editor)
 
@@ -186,13 +183,20 @@ class IngredientEditorView(QWidget):
         container.addLayout(lyt_buttons)
         # Add an add, remove and save to json button.
         btn_add = AddButton()
+        btn_add.setToolTip("Add new ingredient.")
         btn_add.clicked.connect(self.addIngredientClicked.emit)
         btn_delete = DeleteButton()
+        btn_delete.setToolTip("Delete selected ingredient.")
         btn_delete.clicked.connect(self.deleteIngredientClicked.emit)
+        btn_autopopulate = AutopopulateButton()
+        btn_autopopulate.setToolTip("Autopopulate ingredient.")
+        btn_autopopulate.clicked.connect(self.autopopulateClicked.emit)
         btn_save = SaveJSONButton()
+        btn_save.setToolTip("Save ingredient to JSON.")
         btn_save.clicked.connect(self.saveJSONClicked.emit)
         lyt_buttons.addWidget(btn_add)
         lyt_buttons.addWidget(btn_delete)
+        lyt_buttons.addWidget(btn_autopopulate)
         lyt_buttons.addWidget(btn_save)
         # Push buttons to left
         lyt_buttons.addStretch()
@@ -211,17 +215,15 @@ class IngredientEditorView(QWidget):
         container.addWidget(gb_basic_info)
 
         # Put a vertical layout inside the basic info groubox
-        lyt_top_level = QVBoxLayout()
-        gb_basic_info.setLayout(lyt_top_level)
+        lyt_basic_info = QVBoxLayout()
+        gb_basic_info.setLayout(lyt_basic_info)
 
         # Create a horizontal layout for name and textbox
         lyt_ingredient_name = QHBoxLayout()
-        lyt_top_level.addLayout(lyt_ingredient_name)
-
+        lyt_basic_info.addLayout(lyt_ingredient_name)
         # Create a label and add it to the layout
         label = QLabel("Name:")
         lyt_ingredient_name.addWidget(label)
-
         # Create a textbox and add it to the layout
         self.txt_ingredient_name = QLineEdit()
         # Make the line edit not editable
@@ -231,15 +233,14 @@ class IngredientEditorView(QWidget):
         btn_edit = EditButton()
         lyt_ingredient_name.addWidget(btn_edit)
         btn_edit.clicked.connect(self.editIngredientNameClicked.emit)
-
         # Reduce the vertical padding in this layout
         lyt_ingredient_name.setContentsMargins(0, 0, 0, 0)
 
         # Add a description field and multiline textbox
         label = QLabel("Description:")
-        lyt_top_level.addWidget(label)
+        lyt_basic_info.addWidget(label)
         self.txt_description = QTextEdit()
-        lyt_top_level.addWidget(self.txt_description)
+        lyt_basic_info.addWidget(self.txt_description)
         self.txt_description.textChanged.connect(
             lambda: self.ingredientDescriptionChanged.emit(self.txt_description.toPlainText())
         )
