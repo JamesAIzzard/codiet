@@ -3,26 +3,24 @@ from PyQt6.QtWidgets import (
     QDialog,
     QVBoxLayout,
     QHBoxLayout,
-    QLabel,
     QLineEdit,
     QPushButton,
     QDialogButtonBox,
-    QSizePolicy,
     QStackedWidget
 )
 
 from codiet.utils.pyqt import block_signals
-from codiet.views import load_icon, load_pixmap_icon
-from codiet.views.buttons import ConfirmButton, ClearButton
-from codiet.views.labels import IconLabel
+from codiet.views import load_icon
+from codiet.views.buttons import ConfirmButton, ClearButton, OKButton
+from codiet.views.labels import IconTextLabel
 
 class DialogBoxView(QDialog):
     """A base class for dialog boxes with the codiet logo."""
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    def __init__(self, title:str = "Title", parent=None):
+        super().__init__(parent=parent)
 
         # Set the window title
-        self.setWindowTitle("Custom Dialog")
+        self.setWindowTitle(title)
         # Set the window icon
         self.setWindowIcon(load_icon("app-icon.png"))
 
@@ -36,56 +34,44 @@ class DialogBoxView(QDialog):
 
 class LabelIconDialog(DialogBoxView):
     """A dialog box with a label and an icon."""
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
+    def __init__(
+            self, 
+            message:str = "Message", 
+            icon_filename:str = "app-icon.png", 
+            *args, **kwargs
+        ):
+        super().__init__(*args, **kwargs)
 
         # Set the dialog layout
         self.lyt_top_level = QVBoxLayout(self)
-
-        # Add an HBox for icon and label
-        self.lyt_icon_and_label = QHBoxLayout()
-        self.lyt_top_level.addLayout(self.lyt_icon_and_label)
-        # Init the label for the icon
-        self.lbl_icon = QLabel(self)
-        self.lyt_icon_and_label.addWidget(self.lbl_icon)
-        # Add the text
-        self.lbl_message = QLabel(self)
-        self.lbl_message.setWordWrap(True)
-        self.lbl_message.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        self.setLayout(self.lyt_top_level)
+        # Create the iconlabel
+        self.lbl_icon_message = IconTextLabel(
+            icon_filename=icon_filename,
+            text=message,
+            parent=self
         )
-        self.lyt_icon_and_label.addWidget(self.lbl_message)
-
-    @property
-    def title(self) -> str:
-        return self.windowTitle()
-
-    @title.setter
-    def title(self, title: str) -> None:
-        self.setWindowTitle(title)
+        # Add the iconlabel to the layout
+        self.lyt_top_level.addWidget(self.lbl_icon_message)
 
     @property
     def message(self):
-        return self.lbl_message.text()
+        return self.lbl_icon_message.text
 
     @message.setter
     def message(self, message: str):
-        self.lbl_message.setText(message)
+        self.lbl_icon_message.text = message
 
     def set_icon(self, icon_name: str):
         """Set the icon for the dialog box."""
-        # Create the pixmap to display the icon
-        pixmap = load_pixmap_icon(icon_name)
-        # Set the pixmap to the label
-        self.lbl_icon.setPixmap(
-            pixmap.scaled(30, 30, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
-        )
+        self.lbl_icon_message.set_icon(icon_name)
+        self.lbl_icon_message.set_icon_size(30)
 
 class LabelIconButtonsDialog(LabelIconDialog):
     """A dialog box with a label, an icon, and a button box."""
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         # Add a button box
         self.lyt_button_box = QHBoxLayout(self)
@@ -96,29 +82,24 @@ class LabelIconButtonsDialog(LabelIconDialog):
         self.lyt_button_box.addWidget(button)
         return button
 
-class OkDialogBoxView(LabelIconDialog):
+class OkDialogBoxView(LabelIconButtonsDialog):
     """A simple dialog box with an OK button."""
 
-    def __init__(
-        self, message: str = "Complete", title: str = "Action Complete", parent=None
-    ):
-        super().__init__(parent)
-        self.set_button_configuration(QDialogButtonBox.StandardButton.Ok)
-        self.set_icon("ok-icon.png")
-        self.message = message
-        self.title = title
+    okClicked = pyqtSignal()
 
-class ErrorDialogBoxView(LabelIconDialog):
+    def __init__(self, title="OK", message="OK", *args, **kwargs):
+        super().__init__(title=title, message=message, *args, **kwargs)
+        # Add the button
+        self.btn_ok = self.add_button(OKButton())
+        # Connect the button to the signal
+        self.btn_ok.clicked.connect(self.okClicked)
+
+class ErrorDialogBoxView(OkDialogBoxView):
     """A dialog box to display an error message."""
 
-    def __init__(
-        self, message: str = "An error occurred.", title: str = "Error", parent=None
-    ):
-        super().__init__(parent)
-        self.set_button_configuration(QDialogButtonBox.StandardButton.Ok)
+    def __init__(self, title="Error", message="An error occurred.", *args, **kwargs):
+        super().__init__(title=title, message=message, *args, **kwargs)
         self.set_icon("error-icon.png")
-        self.message = message
-        self.title = title
 
 class ConfirmDialogBoxView(LabelIconButtonsDialog):
     """A dialog box to confirm an action."""
@@ -126,31 +107,12 @@ class ConfirmDialogBoxView(LabelIconButtonsDialog):
     confirmClicked = pyqtSignal()
     cancelClicked = pyqtSignal()
 
-    def __init__(
-        self, message: str = "Are you sure?", title: str = "Confirm", parent=None
-    ):
-        super().__init__(parent)
-        self.set_icon("question-icon.png")
-        self.message = message
-        self.title = title
+    def __init__(self, title="Confirm", message="Are you sure?", *args, **kwargs):
+        super().__init__(title=title, message=message, icon_filename="question-icon.png", *args, **kwargs)
         self.btn_confirm = self.add_button(ConfirmButton())
         self.btn_clear = self.add_button(ClearButton())
         self.btn_confirm.clicked.connect(self.confirmClicked)
         self.btn_clear.clicked.connect(self.cancelClicked)
-
-class YesNoDialogBoxView(LabelIconDialog):
-    """A dialog box to make a Yes/No decision."""
-
-    def __init__(
-        self, message: str = "message", title: str = "Title", parent=None
-    ):
-        super().__init__(parent)
-        self.set_button_configuration(
-            QDialogButtonBox.StandardButton.Yes | QDialogButtonBox.StandardButton.No
-        )
-        self.set_icon("question-icon.png")
-        self.message = message
-        self.title = title
 
 class EntityNameDialogView(DialogBoxView):
     """A dialog box for creating and editing the name of an entity."""
@@ -159,9 +121,11 @@ class EntityNameDialogView(DialogBoxView):
     nameAccepted = pyqtSignal(str)
     nameCancelled = pyqtSignal()
 
-    def __init__(self, entity_name:str, parent=None):
-        super().__init__(parent)
-        self.title = f"New {entity_name.capitalize()}"
+    def __init__(self, entity_name:str, *args, **kwargs):
+        super().__init__(
+            title=f"New {entity_name.capitalize()}",
+            *args, **kwargs
+        )
 
         # Add a vertical layout to the dialog
         lyt_top_level = QVBoxLayout(self)
@@ -170,15 +134,15 @@ class EntityNameDialogView(DialogBoxView):
         self.stackedWidget = QStackedWidget()
         lyt_top_level.addWidget(self.stackedWidget)
         # Create three labels
-        self.lbl_info_message = IconLabel(
+        self.lbl_info_message = IconTextLabel(
             icon_filename="info-icon.png",
             text=f"Enter the {entity_name.lower()} name:"
         )
-        self.lbl_name_available = IconLabel(
+        self.lbl_name_available = IconTextLabel(
             icon_filename="ok-icon.png",
             text="Name is available."
         )
-        self.lbl_name_unavailable = IconLabel(
+        self.lbl_name_unavailable = IconTextLabel(
             icon_filename="error-icon.png",
             text="Name is unavailable."
         )

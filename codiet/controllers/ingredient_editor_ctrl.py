@@ -21,6 +21,11 @@ class IngredientEditorCtrl:
             title="Delete Ingredient",
             parent=self.view,
         )
+        self.delete_ingredient_selection_needed_popup = ErrorDialogBoxView(
+            message="Please select an ingredient to delete.",
+            title="No Ingredient Selected",
+            parent=self.view,
+        )
         self.new_ingredient_dialog = EntityNameDialogView("Ingredient", parent=self.view)
 
         # Cache searchable lists
@@ -157,11 +162,12 @@ class IngredientEditorCtrl:
         # If no ingredient is selected, show the info box to tell the user
         # to select an ingredient.
         if self.view.ingredient_search.result_is_selected is False:
-            self.info_popup.title = "No Ingredient Selected"
-            self.info_popup.message = "Please select an ingredient to delete."
-            self.info_popup.show()
-            return None
+            self.delete_ingredient_selection_needed_popup.show()
         else:
+            # Set the ingredient name in the confirmation dialog
+            self.delete_ingredient_confirmation_popup.message = (
+                f"Are you sure you want to delete {self.view.ingredient_search.selected_result}?"
+            )
             # Show the confirmation dialog
             self.delete_ingredient_confirmation_popup.show()
 
@@ -417,6 +423,9 @@ class IngredientEditorCtrl:
         )
         self.delete_ingredient_confirmation_popup.cancelClicked.connect(
             self._on_cancel_delete_ingredient_clicked
+        )
+        self.delete_ingredient_selection_needed_popup.okClicked.connect(
+            lambda: self.delete_ingredient_selection_needed_popup.hide()
         )
 
     def _connect_search_column(self) -> None:

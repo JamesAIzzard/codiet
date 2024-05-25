@@ -54,7 +54,8 @@ class SearchTermView(QWidget):
         self.setLayout(layout)
 
         # Add the search icon
-        layout.addWidget(SearchIconLabel())
+        lbl_search_icon = SearchIconLabel()
+        layout.addWidget(lbl_search_icon)
 
         # Create a search textbox and add it to the layout
         self.txt_search = QLineEdit()
