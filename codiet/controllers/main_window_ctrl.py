@@ -46,11 +46,6 @@ class MainWindowCtrl:
 
     def _on_new_ingredient_clicked(self):
         """Handle the user clicking the New Ingredient button."""
-        # Put a new ingredient in the editor
-        with DatabaseService() as db_service:
-            self.ingredient_editor_ctrl.load_ingredient_instance(
-                db_service.create_empty_ingredient()
-            )
         # Show the editor
         self.view.show_page("ingredient-editor")
 
