@@ -9,6 +9,7 @@ from codiet.utils.recipes import convert_recipe_to_json, save_recipe_datafile
 from codiet.models.recipes import Recipe
 from codiet.models.ingredients import IngredientQuantity
 from codiet.controllers.search_column_ctrl import SearchColumnCtrl
+from codiet.controllers.entity_name_dialog_ctrl import EntityNameDialogCtrl
 from codiet.views.dialog_box_views import EntityNameDialogView
 from codiet.views.recipe_editor_view import RecipeEditorView
 from codiet.views.dialog_box_views import ErrorDialogBoxView
@@ -46,6 +47,11 @@ class RecipeEditorCtrl:
             view=self.view.recipe_search,
             get_data=lambda: self._recipe_names,
             on_result_selected=self._on_recipe_selected,
+        )
+        self.recipe_name_editor_ctrl = EntityNameDialogCtrl(
+            view=self.recipe_name_editor_dialog,
+            check_name_available=lambda name: name not in self._recipe_names,
+            on_name_accepted=self._on_recipe_name_accepted,
         )        
 
         # Connect the recipe editor views
@@ -135,10 +141,10 @@ class RecipeEditorCtrl:
             # Disable the OK button
             self.recipe_name_editor_dialog.disable_ok_button()
 
-    def _on_recipe_name_accepted(self) -> None:
+    def _on_recipe_name_accepted(self, name:str) -> None:
         """Handle the recipe name being accepted."""
         # Set the name on the recipe
-        self.recipe.name = self.recipe_name_editor_dialog.name
+        self.recipe.name = name
         # If the recipe has an ID, update it in the database
         if self.recipe.id is not None:
             with DatabaseService() as db_service:

@@ -3,6 +3,7 @@ from codiet.utils.search import filter_text
 from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.views.dialog_box_views import ErrorDialogBoxView, ConfirmDialogBoxView, EntityNameDialogView
 from codiet.controllers.search_column_ctrl import SearchColumnCtrl
+from codiet.controllers.entity_name_dialog_ctrl import EntityNameDialogCtrl
 from codiet.models.ingredients import Ingredient
 
 
@@ -44,10 +45,14 @@ class IngredientEditorCtrl:
             get_data=lambda: self._ingredient_names,
             on_result_selected=self._on_ingredient_selected,
         )
+        self.ingredient_name_editor_ctrl = EntityNameDialogCtrl(
+            view=self.ingredient_name_editor_dialog,
+            check_name_available=lambda name: name not in self._ingredient_names,
+            on_name_accepted=self._on_ingredient_name_accepted,
+        )
 
         # Connect the handler functions to the view signals
         self._connect_toolbar()
-        self._connect_new_ingredient_dialog()
         self._connect_delete_ingredient_dialog()
         self._connect_basic_info_editors()
         self._connect_cost_editor()
@@ -186,28 +191,7 @@ class IngredientEditorCtrl:
         # Show the dialog
         self.ingredient_name_editor_dialog.show()
 
-    def _on_ingredient_name_changed(self, name: str) -> None:
-        """Handler for changes to the ingredient name."""
-        # If the name is not whitespace
-        if self.ingredient_name_editor_dialog.name_is_set:
-            # Check if the name is in the cached list of ingredient names
-            if self.ingredient_name_editor_dialog.name in self._ingredient_names:
-                # Show the name unavailable message
-                self.ingredient_name_editor_dialog.show_name_unavailable()
-                # Disable the OK button
-                self.ingredient_name_editor_dialog.disable_ok_button()
-            else:
-                # Show the name available message
-                self.ingredient_name_editor_dialog.show_name_available()
-                # Enable the OK button
-                self.ingredient_name_editor_dialog.enable_ok_button()
-        else:
-            # Show the instructions message
-            self.ingredient_name_editor_dialog.show_instructions()
-            # Disable the OK button
-            self.ingredient_name_editor_dialog.disable_ok_button()
-
-    def _on_ingredient_name_accepted(self) -> None:
+    def _on_ingredient_name_accepted(self, name:str) -> None:
         """Handler for accepting the new ingredient name."""
         # Set the name on the ingredient
         self.ingredient.name = self.ingredient_name_editor_dialog.name
@@ -227,13 +211,6 @@ class IngredientEditorCtrl:
         # Reset the search pane
         self.view.ingredient_search.clear_search_term()
         self.view.ingredient_search.update_results_list(self._ingredient_names)
-        # Clear the new ingredient dialog
-        self.ingredient_name_editor_dialog.clear()
-        # Hide the new ingredient dialog
-        self.ingredient_name_editor_dialog.hide()
-
-    def _on_ingredient_name_edit_cancelled(self) -> None:
-        """Handler for cancelling the new ingredient name."""
         # Clear the new ingredient dialog
         self.ingredient_name_editor_dialog.clear()
         # Hide the new ingredient dialog
@@ -394,12 +371,6 @@ class IngredientEditorCtrl:
         nutrient_quantity = self.ingredient.nutrient_quantities[nutrient_name]
         # Update the ingredient mass units
         nutrient_quantity.ingredient_quantity_unit = units
-
-    def _connect_new_ingredient_dialog(self) -> None:
-        """Connect the signals for the new ingredient dialog."""
-        self.ingredient_name_editor_dialog.nameChanged.connect(self._on_ingredient_name_changed)
-        self.ingredient_name_editor_dialog.nameAccepted.connect(self._on_ingredient_name_accepted)
-        self.ingredient_name_editor_dialog.nameCancelled.connect(self._on_ingredient_name_edit_cancelled)
 
     def _connect_delete_ingredient_dialog(self) -> None:
         """Connect the signals for the delete ingredient dialog."""
