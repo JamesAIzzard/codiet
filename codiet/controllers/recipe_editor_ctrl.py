@@ -113,6 +113,9 @@ class RecipeEditorCtrl:
                 ingredient_quantity_lower_tol=ingredient_quantity.lower_tol,
             )
         # Update the time intervals field
+        # Clear the existing time intervals
+        self.view.serve_time_intervals_editor_view.clear()
+        # Add the time intervals to the view
         for interval in recipe.serve_times:
             self.view.serve_time_intervals_editor_view.add_time_interval(
                 convert_datetime_interval_to_time_string_interval(interval)
@@ -390,19 +393,34 @@ class RecipeEditorCtrl:
 
     def _on_remove_serve_time_clicked(self) -> None:
         """Handle the removal of a serve time."""
-        # Get the selected index
-        index = self.view.serve_time_intervals_editor_view.selected_index
-        # If there is no selected index, return
-        if index is None:
+        # If no time interval is selected
+        if not self.view.serve_time_intervals_editor_view.interval_is_selected:
+            # Show an error popup
+            error_popup = OkDialogBoxView(
+                title="No Time Interval Selected",
+                message="Please select a time interval to remove.",
+                parent=self.view
+            )
+            error_popup.okClicked.connect(lambda: error_popup.close())
+            error_popup.show()
             return None
-        # Create the datetime objects for the start and end times
-        datetime_interval = convert_time_string_interval_to_datetime_interval(
-            self.view.serve_time_intervals_editor_view.selected_time_interval_string  # type: ignore
-        )
-        # Remove the time interval from the recipe
-        self.recipe.remove_serve_time(datetime_interval)
-        # Update the serve times in the view
-        self.view.serve_time_intervals_editor_view.remove_time_interval(index)
+        else:
+            # Get the selected index
+            index = self.view.serve_time_intervals_editor_view.selected_index
+            assert index is not None
+            # Create the datetime objects for the start and end times
+            datetime_interval = convert_time_string_interval_to_datetime_interval(
+                self.view.serve_time_intervals_editor_view.selected_time_interval_string  # type: ignore
+            )
+            # Remove the time interval from the recipe
+            self.recipe.remove_serve_time(datetime_interval)
+            # Update the serve times in the view
+            self.view.serve_time_intervals_editor_view.remove_time_interval(index)
+            # Remove the serve time from the database
+            if self.recipe.id is not None:
+                with DatabaseService() as db_service:
+                    db_service.update_recipe(self.recipe)
+                    db_service.commit()            
 
     def _on_serve_time_provided(self, start_time: str, end_time: str) -> None:
         """Handle a serve time being provided."""
@@ -426,6 +444,11 @@ class RecipeEditorCtrl:
         self.view.serve_time_intervals_editor_view.add_time_interval(
             convert_datetime_interval_to_time_string_interval((dt_start, dt_end))
         )
+        # Update the recipe in the database
+        if self.recipe.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_recipe(self.recipe)
+                db_service.commit()
         # Hide the popup
         self.serve_time_popup.hide()
 

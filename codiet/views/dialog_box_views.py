@@ -94,7 +94,11 @@ class OkDialogBoxView(LabelIconButtonsDialog):
     okClicked = pyqtSignal()
 
     def __init__(self, title="OK", message="OK", *args, **kwargs):
-        super().__init__(title=title, message=message, *args, **kwargs)
+        super().__init__(
+            title=title, 
+            message=message,
+            icon_filename="info-icon.png",
+            *args, **kwargs)
         # Add the button
         self.btn_ok = self.add_button(OKButton())
         # Connect the button to the signal
