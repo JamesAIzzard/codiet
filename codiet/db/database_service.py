@@ -399,7 +399,11 @@ class DatabaseService:
 
     def delete_ingredient_by_name(self, ingredient_name: str):
         """Deletes the given ingredient from the database."""
-        self._repo.delete_ingredient(ingredient_name)
+        self._repo.delete_ingredient_by_name(ingredient_name)
+
+    def delete_recipe_by_name(self, recipe_name: str):
+        """Deletes the given recipe from the database."""
+        self._repo.delete_recipe_by_name(recipe_name)
 
     def commit(self):
         """Commits the current transaction."""

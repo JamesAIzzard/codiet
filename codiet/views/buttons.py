@@ -20,7 +20,6 @@ class SaveButton(IconButton):
             *args,
             **kwargs
         )
-        
         # Set the maximum width
         self.setMaximumWidth(50)
 
@@ -32,7 +31,6 @@ class SaveJSONButton(IconButton):
             *args,
             **kwargs
         )
-        
         # Set the maximum width
         self.setMaximumWidth(150)
 
@@ -44,7 +42,6 @@ class OKButton(IconButton):
             *args,
             **kwargs
         )
-        
         # Set the maximum width
         self.setMaximumWidth(50)
 
@@ -55,7 +52,6 @@ class AddButton(IconButton):
             *args,
             **kwargs
         )
-        
         # Set the maximum width
         self.setMaximumWidth(50)
 
@@ -76,7 +72,6 @@ class EditButton(IconButton):
             *args,
             **kwargs
         )
-        
         # Set the maximum width
         self.setMaximumWidth(50)
 
@@ -87,7 +82,6 @@ class DeleteButton(IconButton):
             *args,
             **kwargs
         )
-        
         # Set the maximum width
         self.setMaximumWidth(50)
 
@@ -98,7 +92,6 @@ class ClearButton(IconButton):
             *args,
             **kwargs
         )
-        
         # Set the maximum width
         self.setMaximumWidth(50)
 
@@ -109,7 +102,6 @@ class ConfirmButton(IconButton):
             *args,
             **kwargs
         )
-        
         # Set the maximum width
         self.setMaximumWidth(50)
 
@@ -120,6 +112,15 @@ class SolveButton(IconButton):
             *args,
             **kwargs
         )
-        
+        # Set the maximum width
+        self.setMaximumWidth(50)
+
+class AutopopulateButton(IconButton):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            icon_filename='autopopulate-icon.png',
+            *args,
+            **kwargs
+        )
         # Set the maximum width
         self.setMaximumWidth(50)
