@@ -13,7 +13,7 @@ from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.views.buttons import EditButton, AddButton, DeleteButton, SaveJSONButton, AutopopulateButton
 from codiet.views.dialog_box_views import OkDialogBoxView, ConfirmDialogBoxView
-from codiet.views.search_views import SearchColumn
+from codiet.views.search_views import SearchColumnView
 from codiet.views.ingredients_editor_view import IngredientsEditorView
 from codiet.views.serve_time_intervals_editor_view import ServeTimeIntervalsEditorView
 from codiet.views.recipe_type_editor_view import RecipeTypeEditorView
@@ -167,7 +167,7 @@ class RecipeEditorView(QWidget):
         # Push buttons to left
         lyt_buttons.addStretch()
         # Add a search widget
-        self.recipe_search = SearchColumn()
+        self.recipe_search = SearchColumnView()
         self.recipe_search.searchTermChanged.connect(self.searchTextChanged.emit)
         self.recipe_search.searchTermCleared.connect(self.searchTextCleared.emit)
         self.recipe_search.resultSelected.connect(self.recipeSelected.emit)

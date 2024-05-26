@@ -67,7 +67,7 @@ class SearchTermView(QWidget):
         self.btn_cancel = ClearButton()
         layout.addWidget(self.btn_cancel)
 
-class SearchColumn(QWidget):
+class SearchColumnView(QWidget):
     """UI element to allow the user to search and select a result."""
     # Define signals
     resultSelected = pyqtSignal(str)
