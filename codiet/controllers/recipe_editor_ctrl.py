@@ -347,21 +347,41 @@ class RecipeEditorCtrl:
         """Handle the ingredient quantity being changed."""
         # Update the ingredient quantity in the recipe
         self.recipe.update_ingredient_quantity_value(ingredient_id, qty)
+        # Update the recipe in the database
+        if self.recipe.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_recipe(self.recipe)
+                db_service.commit()
 
     def _on_ingredient_qty_unit_changed(self, ingredient_id: int, unit: str) -> None:
         """Handle the ingredient quantity unit being changed."""
         # Update the ingredient quantity unit in the recipe
         self.recipe.update_ingredient_quantity_unit(ingredient_id, unit)
+        # Update the recipe in the database
+        if self.recipe.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_recipe(self.recipe)
+                db_service.commit()
 
     def _on_ingredient_qty_utol_changed(self, ingredient_id: int, utol: float) -> None:
         """Handle the ingredient quantity upper tolerance being changed."""
         # Update the ingredient quantity upper tolerance in the recipe
         self.recipe.update_ingredient_quantity_utol(ingredient_id, utol)
+        # Update the recipe in the database
+        if self.recipe.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_recipe(self.recipe)
+                db_service.commit()
 
     def _on_ingredient_qty_ltol_changed(self, ingredient_id: int, ltol: float) -> None:
         """Handle the ingredient quantity lower tolerance being changed."""
         # Update the ingredient quantity lower tolerance in the recipe
         self.recipe.update_ingredient_quantity_ltol(ingredient_id, ltol)
+        # Update the recipe in the database
+        if self.recipe.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_recipe(self.recipe)
+                db_service.commit()
 
     def _on_add_serve_time_clicked(self) -> None:
         """Handle the addition of a serve time."""
