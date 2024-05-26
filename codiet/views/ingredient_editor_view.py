@@ -146,7 +146,7 @@ class IngredientEditorView(QWidget):
         lyt_top_level = QVBoxLayout()
         lyt_top_level.setContentsMargins(0, 0, 0, 0)
         self.setLayout(lyt_top_level)
-        
+
         # Put the toolbar in it
         self._build_toolbar(lyt_top_level)
 
@@ -185,7 +185,7 @@ class IngredientEditorView(QWidget):
         lyt_nutrients_col.addWidget(self.nutrient_editor)
 
     def _build_toolbar(self, container: QBoxLayout) -> None:
-        """Builds the main page menu bar."""
+        """Builds the main page toolbar."""
         # Build the toolbar
         toolbar = QToolBar(self)
         container.addWidget(toolbar)

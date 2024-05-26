@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QGroupBox,
+    QToolBar,
     QLabel,
     QLineEdit,
     QTextEdit,
@@ -25,7 +26,7 @@ class RecipeEditorView(QWidget):
     # Define signals
     addRecipeClicked = pyqtSignal()
     deleteRecipeClicked = pyqtSignal()
-    autopopulateRecipeClicked = pyqtSignal()
+    autopopulateClicked = pyqtSignal()
     saveJSONClicked = pyqtSignal()
     searchTextChanged = pyqtSignal(str)
     searchTextCleared = pyqtSignal()
@@ -41,7 +42,6 @@ class RecipeEditorView(QWidget):
     removeRecipeTypeClicked = pyqtSignal()
     saveRecipeClicked = pyqtSignal()
     saveToJSONClicked = pyqtSignal()
-
 
     def __init__(self):
         super().__init__()
@@ -114,58 +114,65 @@ class RecipeEditorView(QWidget):
     def _build_ui(self):
         """Build the UI for the recipe editor."""
         # Create a vertical layout for the page
-        page_layout = QVBoxLayout()
-        self.setLayout(page_layout)
+        lyt_top_level = QVBoxLayout()
+        lyt_top_level.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(lyt_top_level)
+
+        # Put the toolbar in it
+        self._build_toolbar(lyt_top_level)
 
         # Create a horizontal layout for the columns
-        lyt_top_level_columns = QHBoxLayout()
-        page_layout.addLayout(lyt_top_level_columns)
+        lyt_columns = QHBoxLayout()
+        lyt_top_level.addLayout(lyt_columns)
 
         # Create the search column
         lyt_search_column = QVBoxLayout()
-        lyt_top_level_columns.addLayout(lyt_search_column, 1)
+        lyt_columns.addLayout(lyt_search_column, 1)
         lyt_search_column.setContentsMargins(0, 0, 0, 0)
         self._build_search_ui(lyt_search_column)
 
         # Create the basic info column
         lyt_basic_info_column = QVBoxLayout()
-        lyt_top_level_columns.addLayout(lyt_basic_info_column, 2)
+        lyt_columns.addLayout(lyt_basic_info_column, 2)
         lyt_search_column.setContentsMargins(0, 0, 0, 0)
         self._build_basic_info_ui(lyt_basic_info_column)
 
         # Create the ingredients column
         lyt_ingredients_column = QVBoxLayout()
-        lyt_top_level_columns.addLayout(lyt_ingredients_column, 2)
+        lyt_columns.addLayout(lyt_ingredients_column, 2)
         lyt_ingredients_column.setContentsMargins(0, 0, 0, 0)
         self._build_ingredients_ui(lyt_ingredients_column)
 
         # Create the times and types column
         lyt_times_and_types_column = QVBoxLayout()
-        lyt_top_level_columns.addLayout(lyt_times_and_types_column, 2)
+        lyt_columns.addLayout(lyt_times_and_types_column, 2)
         lyt_times_and_types_column.setContentsMargins(0, 0, 0, 0)
         self._build_times_and_types_ui(lyt_times_and_types_column)
 
-    def _build_search_ui(self, container: QBoxLayout) -> None:
-        """Build the search UI."""
-        # Add a horizontal row for buttons
-        lyt_buttons = QHBoxLayout()
-        lyt_buttons.setContentsMargins(0, 0, 0, 0)
-        container.addLayout(lyt_buttons)
-        # Add an add, remove and save to json button.
+    def _build_toolbar(self, container: QBoxLayout) -> None:
+        """Builds the main page toolbar."""
+        # Build the toolbar
+        toolbar = QToolBar(self)
+        container.addWidget(toolbar)
         btn_add = AddButton()
+        btn_add.setToolTip("Add new recipe.")
         btn_add.clicked.connect(self.addRecipeClicked.emit)
         btn_delete = DeleteButton()
+        btn_delete.setToolTip("Delete selected recipe.")
         btn_delete.clicked.connect(self.deleteRecipeClicked.emit)
         btn_autopopulate = AutopopulateButton()
-        btn_autopopulate.clicked.connect(self.autopopulateRecipeClicked.emit)
+        btn_autopopulate.setToolTip("Autopopulate recipe.")
+        btn_autopopulate.clicked.connect(self.autopopulateClicked.emit)
         btn_save = SaveJSONButton()
+        btn_save.setToolTip("Save recipe to JSON.")
         btn_save.clicked.connect(self.saveJSONClicked.emit)
-        lyt_buttons.addWidget(btn_add)
-        lyt_buttons.addWidget(btn_delete)
-        lyt_buttons.addWidget(btn_autopopulate)
-        lyt_buttons.addWidget(btn_save)
-        # Push buttons to left
-        lyt_buttons.addStretch()
+        toolbar.addWidget(btn_add)
+        toolbar.addWidget(btn_delete)
+        toolbar.addWidget(btn_autopopulate)
+        toolbar.addWidget(btn_save)        
+
+    def _build_search_ui(self, container: QBoxLayout) -> None:
+        """Build the search UI."""
         # Add a search widget
         self.recipe_search = SearchColumnView()
         self.recipe_search.searchTermChanged.connect(self.searchTextChanged.emit)
