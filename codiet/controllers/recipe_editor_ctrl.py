@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from codiet.utils.search import filter_text
 from codiet.utils.time import (
     convert_datetime_interval_to_time_string_interval,
     convert_time_string_interval_to_datetime_interval,
@@ -10,7 +9,7 @@ from codiet.models.recipes import Recipe
 from codiet.models.ingredients import IngredientQuantity
 from codiet.controllers.search_column_ctrl import SearchColumnCtrl
 from codiet.controllers.entity_name_dialog_ctrl import EntityNameDialogCtrl
-from codiet.views.dialog_box_views import EntityNameDialogView
+from codiet.views.dialog_box_views import EntityNameDialogView, OkDialogBoxView, ConfirmDialogBoxView
 from codiet.views.recipe_editor_view import RecipeEditorView
 from codiet.views.dialog_box_views import ErrorDialogBoxView
 from codiet.views.time_interval_popup_view import TimeIntervalPopupView
@@ -56,7 +55,6 @@ class RecipeEditorCtrl:
 
         # Connect the recipe editor views
         self._connect_main_buttons()
-        self._connect_name_editor_dialog()
         self._connect_ingredients_editor()
         self._connect_serve_time_editor()
         self._connect_recipe_type_editor()
@@ -120,6 +118,52 @@ class RecipeEditorCtrl:
         self.recipe_name_editor_dialog.clear()
         self.recipe_name_editor_dialog.show()
 
+    def _on_delete_recipe_clicked(self) -> None:
+        """Handler for deleting a recipe."""
+        # If no recipe is selected, show the info box to tell the user
+        # to select a recipe
+        if self.view.recipe_search.selected_result is None:
+            ok_dialog_box_view = OkDialogBoxView(
+                title="No Recipe Selected",
+                message="Please select a recipe to delete.",
+                parent=self.view
+            )
+            ok_dialog_box_view.okClicked.connect(lambda: ok_dialog_box_view.close())
+            ok_dialog_box_view.show()
+        else:
+            # Grab the recipe name from the view
+            recipe_name = self.view.recipe_search.selected_result
+            # Otherwise, show a confirmation dialog
+            confirm_dialog_box_view = ConfirmDialogBoxView(
+                title="Delete Recipe",
+                message=f"Are you sure you want to delete the recipe '{recipe_name}'?",
+                parent=self.view
+            )
+            # Define confirm function
+            def on_confirm():
+                self._on_delete_recipe(recipe_name)
+                confirm_dialog_box_view.close()
+            # Connect the confirm and cancel signals
+            confirm_dialog_box_view.confirmClicked.connect(on_confirm)
+            confirm_dialog_box_view.cancelClicked.connect(
+                lambda: confirm_dialog_box_view.close()
+            )
+            confirm_dialog_box_view.show()
+
+    def _on_delete_recipe(self, recipe_name: str) -> None:
+        """Handler for deleting a recipe."""
+        # Fetch the recipe from the database
+        with DatabaseService() as db_service:
+            recipe = db_service.fetch_recipe_by_name(recipe_name)
+            db_service.delete_recipe_by_name(recipe_name)
+            db_service.commit()
+        # Recache the recipe names
+        self._cache_recipe_names()
+        # Update the view with the new recipe names
+        self.view.recipe_search.update_results_list(self._recipe_names)
+        # Clear the recipe editor
+        self.load_recipe_instance(Recipe())
+
     def _on_recipe_name_changed(self, name: str) -> None:
         """Handle the recipe name being changed."""
         # If the name is not whitespace
@@ -149,15 +193,18 @@ class RecipeEditorCtrl:
         if self.recipe.id is not None:
             with DatabaseService() as db_service:
                 db_service.update_recipe(self.recipe)
+                db_service.commit()
         else:
             # Otherwise, insert it into the database
             with DatabaseService() as db_service:
                 self.recipe.id = db_service.insert_new_recipe(self.recipe)
+                db_service.commit()
         # Update the name on the view
         self.view.update_name(self.recipe.name)
         # Recache the recipe names
         self._cache_recipe_names()
-        # TODO: Reset the search pane
+        # Update the view with any new recipe names
+        self.view.recipe_search.update_results_list(self._recipe_names)
         # Clear the recipe name editor dialog
         self.recipe_name_editor_dialog.clear()
         # Hide the name editor dialog
@@ -316,14 +363,9 @@ class RecipeEditorCtrl:
         self.view.show_save_confirmation_popup()
 
     def _connect_main_buttons(self) -> None:
-        """Connect the main button signals to their handles"""
+        """Connect the main button signals to their handlers"""
         self.view.addRecipeClicked.connect(self._on_add_recipe_clicked)
-
-    def _connect_name_editor_dialog(self) -> None:
-        """Initialise the name editor dialog views."""
-        self.recipe_name_editor_dialog.nameAccepted.connect(self._on_recipe_name_accepted)
-        self.recipe_name_editor_dialog.nameChanged.connect(self._on_recipe_name_changed)
-        self.recipe_name_editor_dialog.nameCancelled.connect(self._on_recipe_name_edit_cancelled)
+        self.view.deleteRecipeClicked.connect(self._on_delete_recipe_clicked)
 
     def _connect_ingredients_editor(self) -> None:
         """Initialise the ingredients editor views."""

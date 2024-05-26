@@ -239,7 +239,7 @@ class Repository:
         """Returns the ingredients of the recipe associated with the given ID."""
         rows = self._db.execute(
             """
-            SELECT ingredient_name, qty, qty_unit, qty_utol, qty_ltol
+            SELECT ingredient_name, qty_value, qty_unit, qty_tol_upper, qty_tol_lower
             FROM ingredient_base
             JOIN recipe_ingredients ON ingredient_base.ingredient_id = recipe_ingredients.ingredient_id
             WHERE recipe_id = ?;
@@ -615,7 +615,7 @@ class Repository:
                 (recipe_id, recipe_type),
             )
 
-    def delete_ingredient(self, ingredient_name: str) -> None:
+    def delete_ingredient_by_name(self, ingredient_name: str) -> None:
         """Deletes the given ingredient from the database."""
         # Grab the ID of the ingredient
         ingredient_id = self.fetch_ingredient_id_by_name(ingredient_name)
@@ -641,4 +641,36 @@ class Repository:
                 self._db.commit()
         except Exception as e:
             self._db.connection.rollback()
-            raise e            
+            raise e       
+
+    def delete_recipe_by_name(self, recipe_name: str) -> None:
+        """Deletes the given recipe from the database."""
+        # Grab the ID of the recipe
+        recipe_id = self.fetch_recipe_id(recipe_name)
+
+        # Remove all entries against the ID from all recipe tables.
+        queries = [
+            """
+            DELETE FROM recipe_base
+            WHERE recipe_id = ?;
+            """,
+            """
+            DELETE FROM recipe_ingredients
+            WHERE recipe_id = ?;
+            """,
+            """
+            DELETE FROM recipe_serve_times
+            WHERE recipe_id = ?;
+            """,
+            """
+            DELETE FROM recipe_types
+            WHERE recipe_id = ?;
+            """,
+        ]
+        try:
+            for query in queries:
+                self._db.execute(query, (recipe_id,))
+                self._db.commit()
+        except Exception as e:
+            self._db.connection.rollback()
+            raise e     
