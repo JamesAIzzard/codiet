@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QPushButton
+from PyQt6.QtWidgets import QPushButton,QSizePolicy
 
 from codiet.views import load_icon
 
@@ -11,20 +11,24 @@ class IconButton(QPushButton):
         # If the text is set, set it
         if text is not None:
             self.setText(text)
+        # Update the button to be the length of the text
+        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+
+    def _update_styles(self):
+        """Updates the styles for the button."""
+        self.style().unpolish(self) # type: ignore
+        self.style().polish(self) # type: ignore
+        self.update()
 
     def select(self):
         """Adds the selected class to the button."""
         self.setProperty('selected', True)
-        self.style().unpolish(self)
-        self.style().polish(self)
-        self.update()
+        self._update_styles()
 
     def deselect(self):
         """Removes the selected class from the button."""
         self.setProperty('selected', False)
-        self.style().unpolish(self)
-        self.style().polish(self)
-        self.update()        
+        self._update_styles()     
 
 class SaveButton(IconButton):
     def __init__(self, *args, **kwargs):
