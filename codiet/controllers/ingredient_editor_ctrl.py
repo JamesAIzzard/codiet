@@ -1,33 +1,65 @@
-from PyQt6.QtWidgets import QMessageBox
-
-from codiet.exceptions.ingredient_exceptions import IngredientNameExistsError
 from codiet.db.database_service import DatabaseService
 from codiet.utils.search import filter_text
 from codiet.views.ingredient_editor_view import IngredientEditorView
-from codiet.views.dialog_box_view import OkDialogBoxView, ErrorDialogBoxView, YesNoDialogBoxView
+from codiet.views.dialog_box_views import ErrorDialogBoxView, ConfirmDialogBoxView, EntityNameDialogView
+from codiet.controllers.search_column_ctrl import SearchColumnCtrl
+from codiet.controllers.entity_name_dialog_ctrl import EntityNameDialogCtrl
 from codiet.models.ingredients import Ingredient
 
 
 class IngredientEditorCtrl:
     def __init__(self, view: IngredientEditorView):
         self.view = view  # reference to the view
-        self.ingredient: Ingredient  # Ingredient instance
+
+        # Create an empty ingredient instance
+        with DatabaseService() as db_service:
+            self.ingredient = db_service.create_empty_ingredient()
 
         # Init the anciliarry views
         self.error_popup = ErrorDialogBoxView(parent=self.view)
-        self.yes_no_popup = YesNoDialogBoxView(parent=self.view)
+        self.info_popup = ErrorDialogBoxView(parent=self.view)
+        self.delete_ingredient_confirmation_popup = ConfirmDialogBoxView(
+            message="Are you sure you want to delete this ingredient?",
+            title="Delete Ingredient",
+            parent=self.view,
+        )
+        self.delete_ingredient_selection_needed_popup = ErrorDialogBoxView(
+            message="Please select an ingredient to delete.",
+            title="No Ingredient Selected",
+            parent=self.view,
+        )
+        self.ingredient_name_editor_dialog = EntityNameDialogView(
+            entity_name="Ingredient", 
+            parent=self.view
+        )
 
-        # Cache a list of leaf nutrients
+        # Cache searchable lists
         self._leaf_nutrient_names: list[str] = []
+        self._ingredient_names: list[str] = []
+        self._cache_leaf_nutrient_names()
+        self._cache_ingredient_names()
+
+        # Connect the module controllers
+        self.search_column_ctrl = SearchColumnCtrl(
+            view=self.view.ingredient_search,
+            get_data=lambda: self._ingredient_names,
+            on_result_selected=self._on_ingredient_selected,
+        )
+        self.ingredient_name_editor_ctrl = EntityNameDialogCtrl(
+            view=self.ingredient_name_editor_dialog,
+            check_name_available=lambda name: name not in self._ingredient_names,
+            on_name_accepted=self._on_ingredient_name_accepted,
+        )
 
         # Connect the handler functions to the view signals
+        self._connect_toolbar()
+        self._connect_delete_ingredient_dialog()
         self._connect_basic_info_editors()
         self._connect_cost_editor()
         self._connect_bulk_editor()
         self._connect_flag_editor()
         self.view.txt_gi.textChanged.connect(self._on_gi_value_changed)
         self._connect_nutrient_editor()
-        self.view.btn_save_ingredient.pressed.connect(self._on_save_ingredient_pressed)
 
     @property
     def leaf_nutrient_names(self) -> list[str]:
@@ -86,68 +118,103 @@ class IngredientEditorCtrl:
         # Update their values
         self.view.nutrient_editor.update_nutrients(self.ingredient.nutrient_quantities)
 
-    def _handle_saving_duplicate_name(self) -> None:
-        """Handle the case where the ingredient name already exists."""
-        # Raise an exception if the ingredient name is None
-        if self.ingredient.name is None:
-            raise ValueError("Ingredient name is None")
-        # Prep the yes/no dialog
-        self.yes_no_popup.title = "Name Already Exists"
-        # Ask the user if they want to overwrite the ingredient which already exists with that name
-        self.yes_no_popup.message = f"An ingredient with the name '{self.ingredient.name}' already exists. Do you want to overwrite it?"
-        # Show the name already exists popup
-        response = self.yes_no_popup.exec()
-        # If the user clicked yes
-        if response == 1:
-            # Fetch the id for the existing version
-            with DatabaseService() as db_service:
-                existing_id = db_service.fetch_ingredient_id_by_name(self.ingredient.name)
-            # Update the ingredient id
-            self.ingredient.id = existing_id
-            # Update the ingredient
+    def _cache_leaf_nutrient_names(self) -> None:
+        """Cache the leaf nutrient names."""
+        with DatabaseService() as db_service:
+            self._leaf_nutrient_names = db_service.fetch_all_leaf_nutrient_names()
+
+    def _cache_ingredient_names(self) -> None:
+        """Cache the ingredient names."""
+        with DatabaseService() as db_service:
+            self._ingredient_names = db_service.fetch_all_ingredient_names()
+
+    def _on_ingredient_selected(self, ingredient_name: str) -> None:
+        """Handler for selecting an ingredient."""
+        # Fetch the ingredient from the database
+        with DatabaseService() as db_service:
+            ingredient = db_service.fetch_ingredient_by_name(ingredient_name)
+        # Load the ingredient into the view
+        self.load_ingredient_instance(ingredient)
+
+    def _on_add_new_ingredient_clicked(self) -> None:
+        """Handler for adding a new ingredient."""
+        # Create a new ingredient instance
+        with DatabaseService() as db_service:
+            ingredient = db_service.create_empty_ingredient()
+        # Load the fresh instance into the UI
+        self.load_ingredient_instance(ingredient)
+        # Open the create new ingredient dialog box
+        self.ingredient_name_editor_dialog.clear()
+        self.ingredient_name_editor_dialog.show()        
+
+    def _on_delete_ingredient_clicked(self) -> None:
+        """Handler for deleting an ingredient."""
+        # If no ingredient is selected, show the info box to tell the user
+        # to select an ingredient.
+        if self.view.ingredient_search.result_is_selected is False:
+            self.delete_ingredient_selection_needed_popup.show()
+        else:
+            # Set the ingredient name in the confirmation dialog
+            self.delete_ingredient_confirmation_popup.message = (
+                f"Are you sure you want to delete {self.view.ingredient_search.selected_result}?"
+            )
+            # Show the confirmation dialog
+            self.delete_ingredient_confirmation_popup.show()
+
+    def _on_confirm_delete_ingredient_clicked(self) -> None:
+        """Handler for confirming the deletion of an ingredient."""
+        # Grab the selected ingredient name from the search widget
+        ingredient_name = self.view.ingredient_search.selected_result
+        # Delete the ingredient from the database
+        with DatabaseService() as db_service:
+            db_service.delete_ingredient_by_name(ingredient_name) # type: ignore
+            db_service.commit()
+        # Recache the ingredient names
+        self._cache_ingredient_names()
+        # Reset the search pane
+        self.view.ingredient_search.update_results_list(self._ingredient_names)
+        # Close the confirmation dialog
+        self.delete_ingredient_confirmation_popup.hide()
+
+    def _on_cancel_delete_ingredient_clicked(self) -> None:
+        """Handler for cancelling the deletion of an ingredient."""
+        # Hide the confirmation dialog
+        self.delete_ingredient_confirmation_popup.hide()
+
+    def _on_edit_ingredient_name_clicked(self) -> None:
+        """Handler for editing the ingredient name."""
+        # Clear the box
+        self.ingredient_name_editor_dialog.clear()
+        # If the ingredient has a name already, write it into the box
+        if self.ingredient.name is not None:
+            self.ingredient_name_editor_dialog.name = self.ingredient.name
+        # Show the dialog
+        self.ingredient_name_editor_dialog.show()
+
+    def _on_ingredient_name_accepted(self, name:str) -> None:
+        """Handler for accepting the new ingredient name."""
+        # Set the name on the ingredient
+        self.ingredient.name = self.ingredient_name_editor_dialog.name
+        # If the ingredient has an id already, then we must be updating
+        if self.ingredient.id is not None:
             with DatabaseService() as db_service:
                 db_service.update_ingredient(self.ingredient)
-                # Commit the transaction
                 db_service.commit()
-            # Open a popup to confirm the update
-            self._show_save_confirmation_popup()
-            return None
-        # If the user clicked no
-        elif response == 0:
-            # Do nothing
-            return None
-
-    def _show_save_confirmation_popup(self) -> None:
-        """Show a popup to confirm the ingredient was saved."""
-        # Prep the ok dialog
-        self.ok_popup = OkDialogBoxView(parent=self.view)
-        self.ok_popup.title = "Ingredient Saved"
-        self.ok_popup.message = "The ingredient has been saved."
-        # Show the popup
-        self.ok_popup.show()
-
-    def _show_name_required_popup(self) -> None:
-        """Show a popup to indicate the name is required."""
-        # Prep the ok dialog
-        self.ok_popup = OkDialogBoxView(parent=self.view)
-        self.ok_popup.title = "Name Required"
-        self.ok_popup.message = "The ingredient name is required."
-        # Show the popup
-        self.ok_popup.show()
-
-    def _show_name_change_confirmation_popup(self) -> int:
-        """Show a popup to confirm the name change."""
-        # Prep the yes/no dialog
-        self.yes_no_popup.title = "Name Change"
-        self.yes_no_popup.message = "Update the ingredient name?"
-        # Show the popup
-        response = self.yes_no_popup.exec()
-        return response
-
-    def _on_ingredient_name_changed(self, name: str):
-        """Handler for changes to the ingredient name."""
-        # Update the ingredient name
-        self.ingredient.name = name
+        else:
+            with DatabaseService() as db_service:
+                self.ingredient.id = db_service.insert_new_ingredient(self.ingredient)
+                db_service.commit()
+        # Update the name on the view
+        self.view.update_name(self.ingredient.name)
+        # Recache the ingredient names
+        self._cache_ingredient_names()
+        # Reset the search pane
+        self.view.ingredient_search.clear_search_term()
+        self.view.ingredient_search.update_results_list(self._ingredient_names)
+        # Clear the new ingredient dialog
+        self.ingredient_name_editor_dialog.clear()
+        # Hide the new ingredient dialog
+        self.ingredient_name_editor_dialog.hide()
 
     def _on_ingredient_description_changed(self, description: str):
         """Handler for changes to the ingredient description."""
@@ -305,62 +372,33 @@ class IngredientEditorCtrl:
         # Update the ingredient mass units
         nutrient_quantity.ingredient_quantity_unit = units
 
-    def _on_save_ingredient_pressed(self):
-        """Handler for the save ingredient button."""
-        # Open the 'name required' popup if the name is empty
-        if self.ingredient.name is None or self.ingredient.name.strip() == "":
-            self._show_name_required_popup()
-            return None
-        # If we are saving a new ingredient (there is no ID yet)
-        if self.ingredient.id is None:
-            # Save it
-            try:
-                with DatabaseService() as db_service:
-                    self.ingredient.id = self.ingredient.id = (
-                        db_service.insert_new_ingredient(self.ingredient)
-                    )
-                    # Commit the transaction
-                    db_service.commit()
-            except IngredientNameExistsError:
-                # Handle the case where the name already exists
-                self._handle_saving_duplicate_name()
-                return None
-            # Open a popup to confirm the save
-            self._show_save_confirmation_popup()
-            return None
-        # So the id is populated, this must be an update.
-        # First fetch the name from the database which corresponds to this id.
-        with DatabaseService() as db_service:
-            existing_name = db_service.fetch_ingredient_name_by_id(self.ingredient.id)
-        # If the name has changed
-        if existing_name != self.ingredient.name:
-            # Open a yes/no popup to confirm the update
-            response = self._show_name_change_confirmation_popup()
-            # If the user clicked no, return
-            if response == QMessageBox.StandardButton.No:
-                # No changes, break out of the function
-                return None
-        # If the name has not changed, go ahead and update
-        with DatabaseService() as db_service:
-            db_service.update_ingredient(self.ingredient)
-            # Commit the transaction
-            db_service.commit()
-        # Open a popup to confirm the update
-        self._show_save_confirmation_popup()
-
-    def _connect_basic_info_editors(self):
-        """Connect the signals for the basic info editors."""
-        # Connect the name field
-        self.view.ingredientNameChanged.connect(
-            self._on_ingredient_name_changed
+    def _connect_delete_ingredient_dialog(self) -> None:
+        """Connect the signals for the delete ingredient dialog."""
+        self.delete_ingredient_confirmation_popup.confirmClicked.connect(
+            self._on_confirm_delete_ingredient_clicked
+        )
+        self.delete_ingredient_confirmation_popup.cancelClicked.connect(
+            self._on_cancel_delete_ingredient_clicked
+        )
+        self.delete_ingredient_selection_needed_popup.okClicked.connect(
+            lambda: self.delete_ingredient_selection_needed_popup.hide()
         )
 
+    def _connect_toolbar(self) -> None:
+        """Connect the toolbar button signals."""
+        self.view.addIngredientClicked.connect(self._on_add_new_ingredient_clicked)
+        self.view.deleteIngredientClicked.connect(self._on_delete_ingredient_clicked)
+
+    def _connect_basic_info_editors(self) -> None:
+        """Connect the signals for the basic info editors."""
+        # Connect the edit name button
+        self.view.editIngredientNameClicked.connect(self._on_edit_ingredient_name_clicked)
         # Connect the description field
         self.view.ingredientDescriptionChanged.connect(
             self._on_ingredient_description_changed
         )
 
-    def _connect_cost_editor(self):
+    def _connect_cost_editor(self) -> None:
         """Connect the signals for the cost editor."""
         # Connect the cost fields
         self.view.ingredientCostValueChanged.connect(self._on_ingredient_cost_value_changed)
@@ -369,7 +407,7 @@ class IngredientEditorCtrl:
             self._on_ingredient_cost_qty_unit_changed
         )
 
-    def _connect_bulk_editor(self):
+    def _connect_bulk_editor(self) -> None:
         """Connect the signals for the bulk editor."""
         # Connect the density fields
         self.view.txt_dens_vol.textChanged.connect(
@@ -396,7 +434,7 @@ class IngredientEditorCtrl:
             self._on_ingredient_pc_mass_unit_changed
         )
 
-    def _connect_flag_editor(self):
+    def _connect_flag_editor(self) -> None:
         """Connect the signals for the flag editor."""
         # Connect the flag editor signals
         self.view.flag_editor.onFlagChanged.connect(self._on_flag_changed)
@@ -413,7 +451,7 @@ class IngredientEditorCtrl:
             self._on_clear_selection_flags_clicked
         )
 
-    def _connect_nutrient_editor(self):
+    def _connect_nutrient_editor(self) -> None:
         """Connect the signals for the nutrient editor."""
         self.view.nutrient_editor.nutrientFilterChanged.connect(
             self._on_nutrient_filter_changed

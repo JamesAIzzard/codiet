@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import (
     QListWidgetItem,
 )
 
+from codiet.views.buttons import AddButton, RemoveButton
 from codiet.views.ingredient_quantity_editor_view import IngredientQuantityEditorView
 
 
@@ -181,11 +182,13 @@ class IngredientsEditorView(QWidget):
         lyt_main.addLayout(lyt_buttons)
 
         # Create an add ingredient button
-        self.btn_add_ingredient = QPushButton("Add")
+        self.btn_add_ingredient = AddButton()
         lyt_buttons.addWidget(self.btn_add_ingredient)
         # Create a remove ingredient button
-        self.btn_remove_ingredient = QPushButton("Remove")
+        self.btn_remove_ingredient = RemoveButton()
         lyt_buttons.addWidget(self.btn_remove_ingredient)
+        # Push the buttons to the LHS
+        lyt_buttons.addStretch()
 
         # Create a list widget to hold the ingredients
         self.list_ingredients = QListWidget()

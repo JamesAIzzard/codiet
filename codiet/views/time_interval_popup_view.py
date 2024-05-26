@@ -8,6 +8,8 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import pyqtSignal
 
+from codiet.views.buttons import ConfirmButton
+
 class TimeIntervalPopupView(QDialog):
     # Define signals
     addIntervalClicked = pyqtSignal(str, str)
@@ -45,7 +47,7 @@ class TimeIntervalPopupView(QDialog):
         lyt_time_interval.addWidget(self.txt_end_time)
 
         # Add the add button
-        self.btn_add = QPushButton("Add")
+        self.btn_add = ConfirmButton()
         lyt_top_level.addWidget(self.btn_add)
     
     @property

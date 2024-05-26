@@ -49,13 +49,15 @@ if __name__ == '__main__':
     # DATABASE POPULATION
     # Push all of the ingredient .json data into the database
     print("Pushing datafile data into database...")
+    print("Pushing global flags into database...")
     populate_database.push_flags_to_db()
+    print("Pushing global nutrients into database...")
     populate_database.push_nutrients_to_db()
+    print("Pushing ingredients into database...")
     populate_database.push_ingredients_to_db()
+    print("Pushing global recipe types into database...")
     populate_database.push_global_recipe_types_to_db()
-    # Push all of the recipe .json data into the database
-    print("Pushing recipe data into database...")
-    populate_database.push_global_recipe_types_to_db()
+    print("Pushing recipes into database...")
     populate_database.push_recipes_to_db()
 
     # Update the console
