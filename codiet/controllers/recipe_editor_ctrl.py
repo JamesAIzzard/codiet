@@ -53,12 +53,12 @@ class RecipeEditorCtrl:
             on_name_accepted=self._on_recipe_name_accepted,
         )        
 
-        # Connect the recipe editor views
-        self._connect_main_buttons()
+        # Connect signals and slots
+        self._connect_toolbar()
+        self._connect_basic_info_fields()        
         self._connect_ingredients_editor()
         self._connect_serve_time_editor()
         self._connect_recipe_type_editor()
-        self._connect_basic_info_fields()
 
     def load_recipe_instance(self, recipe: Recipe) -> None:
         """Load a recipe instance into the editor."""
@@ -362,10 +362,23 @@ class RecipeEditorCtrl:
         # Open a popup to confirm the save
         self.view.show_save_confirmation_popup()
 
-    def _connect_main_buttons(self) -> None:
+    def _connect_toolbar(self) -> None:
         """Connect the main button signals to their handlers"""
         self.view.addRecipeClicked.connect(self._on_add_recipe_clicked)
         self.view.deleteRecipeClicked.connect(self._on_delete_recipe_clicked)
+
+    def _connect_basic_info_fields(self) -> None:
+        """Connect the signals and slots for the recipe editor."""
+        # Connect the edit name click
+        self.view.editRecipeNameClicked.connect(self.recipe_name_editor_dialog.show)
+        # Connect the recipe description changed signal
+        self.view.txt_recipe_description.textChanged.connect(
+            self._on_recipe_description_changed
+        )
+        # Connect the recipe instructions changed signal
+        self.view.textbox_recipe_instructions.textChanged.connect(
+            self._on_recipe_instructions_changed
+        )
 
     def _connect_ingredients_editor(self) -> None:
         """Initialise the ingredients editor views."""
@@ -424,16 +437,3 @@ class RecipeEditorCtrl:
         # self.recipe_type_selector_popup.searchTermChanged.connect(
         #     self._on_recipe_type_search_term_changed
         # )
-
-    def _connect_basic_info_fields(self) -> None:
-        """Connect the signals and slots for the recipe editor."""
-        # Connect the recipe name changed signal
-        self.view.txt_recipe_name.textChanged.connect(self._on_recipe_name_changed)
-        # Connect the recipe description changed signal
-        self.view.txt_recipe_description.textChanged.connect(
-            self._on_recipe_description_changed
-        )
-        # Connect the recipe instructions changed signal
-        self.view.textbox_recipe_instructions.textChanged.connect(
-            self._on_recipe_instructions_changed
-        )
