@@ -12,6 +12,20 @@ class IconButton(QPushButton):
         if text is not None:
             self.setText(text)
 
+    def select(self):
+        """Adds the selected class to the button."""
+        self.setProperty('selected', True)
+        self.style().unpolish(self)
+        self.style().polish(self)
+        self.update()
+
+    def deselect(self):
+        """Removes the selected class from the button."""
+        self.setProperty('selected', False)
+        self.style().unpolish(self)
+        self.style().polish(self)
+        self.update()        
+
 class SaveButton(IconButton):
     def __init__(self, *args, **kwargs):
         super().__init__(

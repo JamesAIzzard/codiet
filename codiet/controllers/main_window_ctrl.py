@@ -26,9 +26,9 @@ class MainWindowCtrl:
         self.error_popup = ErrorDialogBoxView(parent=self.view)
 
         # Instantiate the controllers
-        self.ingredient_editor_ctrl = IngredientEditorCtrl(self.view.pages["ingredient-editor"])
-        self.recipe_editor_ctrl = RecipeEditorCtrl(self.view.pages["recipe-editor"])
-        self.meal_planner_ctrl = MealPlannerCtrl(self.view.pages["meal-planner"])
+        self.ingredient_editor_ctrl = IngredientEditorCtrl(self.view._pages["ingredient-editor"])
+        self.recipe_editor_ctrl = RecipeEditorCtrl(self.view._pages["recipe-editor"])
+        self.meal_planner_ctrl = MealPlannerCtrl(self.view._pages["meal-planner"])
 
         # Connect up the signals
         self._connect_menu_bar_signals()
@@ -44,30 +44,37 @@ class MainWindowCtrl:
                 db_service.create_empty_ingredient()
             )
 
-    def _on_new_ingredient_clicked(self):
-        """Handle the user clicking the New Ingredient button."""
+    def _on_ingredients_clicked(self):
+        """Handle the user clicking the ingredients button."""
         # Show the editor
         self.view.show_page("ingredient-editor")
+        # Deselect the other nav buttons
+        self.view.deselect_all_nav_buttons()
+        # Highlight the ingredients button
+        self.view.btn_ingredients.select()
 
-    def _on_delete_ingredient_clicked(self):
-        """Handle the user clicking the Delete Ingredient button."""
-        # Configure error box to say not implemented
-        raise NotImplementedError("Delete Ingredient functionality not yet implemented.")
-
-    def _on_new_recipe_clicked(self):
+    def _on_recipes_clicked(self):
         """Handle the user clicking the New Recipe button."""
         # Put a new recipe in the editor
         self.recipe_editor_ctrl.load_recipe_instance(Recipe())
         # Show the editor
         self.view.show_page("recipe-editor")
+        # Deselect the other nav buttons
+        self.view.deselect_all_nav_buttons()
+        # Highlight the recipes button
+        self.view.btn_recipes.select()
 
     def _on_meal_planner_clicked(self):
         """Handle the user clicking the Meal Planner button."""
         print("Meal Planner clicked")
         self.view.show_page("meal-planner")
+        # Deselect the other nav buttons
+        self.view.deselect_all_nav_buttons()
+        # Highlight the recipes button
+        self.view.btn_meal_planner.select()        
 
     def _connect_menu_bar_signals(self):
         """Connect the signals from the menu bar to the appropriate slots."""
-        self.view.ingredientsClicked.connect(self._on_new_ingredient_clicked)
-        self.view.recipesClicked.connect(self._on_new_recipe_clicked)
+        self.view.ingredientsClicked.connect(self._on_ingredients_clicked)
+        self.view.recipesClicked.connect(self._on_recipes_clicked)
         self.view.mealPlannerClicked.connect(self._on_meal_planner_clicked)
