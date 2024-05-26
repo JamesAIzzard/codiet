@@ -93,6 +93,9 @@ class RecipeEditorCtrl:
         # Update the instructions field
         self.view.update_instructions(recipe.instructions)
         # Update the ingredients fields
+        # Clear the existing ingredients
+        self.view.ingredients_editor.remove_all_ingredients()
+        # Add the ingredients to the view
         for ingredient_quantity in recipe.ingredient_quantities.values():
             # If the ingredient name or ID are None, raise exception
             if (
@@ -303,20 +306,31 @@ class RecipeEditorCtrl:
 
     def _on_remove_ingredient_clicked(self) -> None:
         """Handle the remove ingredient button being clicked."""
-        # Get the selected ingredient id
-        ingredient_id = self.view.ingredients_editor.selected_ingredient_id
-        # If there is no selected ingredient, return
-        if ingredient_id is None:
+        # If no ingredient is selected, show a popup to inform the user
+        if not self.view.ingredients_editor.ingredient_is_selected:
+            no_ingredient_selected_popup = OkDialogBoxView(
+                title="No Ingredient Selected",
+                message="Please select an ingredient to remove.",
+                parent=self.view
+            )
+            no_ingredient_selected_popup.okClicked.connect(
+                lambda: no_ingredient_selected_popup.close()
+            )
+            no_ingredient_selected_popup.show()
             return None
-        # Remove the ingredient from the recipe
-        self.recipe.remove_ingredient_quantity(ingredient_id)
-        # Update the ingredients in the view
-        self.view.ingredients_editor.remove_ingredient_quantity(ingredient_id)
-        # Update the recipe in the database
-        if self.recipe.id is not None:
-            with DatabaseService() as db_service:
-                db_service.update_recipe(self.recipe)
-                db_service.commit()
+        else:
+            # Get the selected ingredient ID
+            ingredient_id = self.view.ingredients_editor.selected_ingredient_id
+            assert ingredient_id is not None
+            # Remove the ingredient from the recipe
+            self.recipe.remove_ingredient_quantity(ingredient_id)
+            # Update the ingredients in the view
+            self.view.ingredients_editor.remove_ingredient_quantity(ingredient_id)
+            # Update the recipe in the database
+            if self.recipe.id is not None:
+                with DatabaseService() as db_service:
+                    db_service.update_recipe(self.recipe)
+                    db_service.commit()
 
     def _on_ingredient_qty_changed(self, ingredient_id: int, qty: float) -> None:
         """Handle the ingredient quantity being changed."""
@@ -441,7 +455,12 @@ class RecipeEditorCtrl:
             error_popup.okClicked.connect(lambda: error_popup.close())
             return None
         # Open a popup to confirm the save
-        self.view.show_save_confirmation_popup()
+        save_confirm_popup = OkDialogBoxView(
+            title="Saved",
+            message="The recipe has been saved to a .json file.",
+            parent=self.view
+        )
+        save_confirm_popup.okClicked.connect(lambda: save_confirm_popup.close())
 
     def _connect_toolbar(self) -> None:
         """Connect the main button signals to their handlers"""

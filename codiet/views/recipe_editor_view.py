@@ -82,36 +82,6 @@ class RecipeEditorView(QWidget):
         """Update the recipe types."""
         self.recipe_type_editor_view.update_recipe_types(recipe_types)
 
-    def show_name_change_confirmation_popup(self) -> bool:
-        """Show the name change confirmation popup."""
-        # Show confirm dialog box
-        dialog = ConfirmDialogBoxView(
-            message="Recipe name has changed. Are you sure you want to update the name?",
-            title="Recipe Name Change",
-            parent=self,
-        )
-        return dialog.exec() == QDialog.DialogCode.Accepted
-
-    def show_save_confirmation_popup(self) -> None:
-        """Show the save confirmation popup."""
-        # Show confirm dialog box
-        dialog = OkDialogBoxView(
-            message="Recipe saved.",
-            title="Recipe Saved",
-            parent=self,
-        )
-        _ = dialog.exec()
-
-    def show_update_confirmation_popup(self) -> None:    
-        """Show the update confirmation popup."""
-        # Show confirm dialog box
-        dialog = OkDialogBoxView(
-            message="Recipe updated.",
-            title="Recipe updated",
-            parent=self,
-        )
-        _ = dialog.exec()
-
     def _build_ui(self):
         """Build the UI for the recipe editor."""
         # Create a vertical layout for the page

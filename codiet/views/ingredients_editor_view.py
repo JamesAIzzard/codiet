@@ -4,7 +4,6 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QGroupBox,
-    QPushButton,
     QListWidget,
     QListWidgetItem,
 )
@@ -60,6 +59,11 @@ class IngredientsEditorView(QWidget):
             return None
         # Return the ingredient ID
         return widget.ingredient_id
+
+    @property
+    def ingredient_is_selected(self) -> bool:
+        """Return whether an ingredient is selected."""
+        return self.selected_ingredient_widget is not None
 
     def add_ingredient_quantity(
         self,
