@@ -1,35 +1,33 @@
 {
     "name": "Porridge Oats",
     "description": "Breakfast cereal made of oats and milk.",
-    "instructions": "1. Add oats to bowl.\n2. Add milk.\n3. Add rasins.",
+    "instructions": "1. Put the oats in the bowl.\n2. Pour the milk into the oats.\n3. Microwave for 3mins.\n4. Sprinkle the rasins on top.",
     "ingredients": {
         "70": {
             "id": 70,
             "qty_unit": "g",
-            "qty_value": "150",
-            "qty_upper_tol": "25",
-            "qty_lower_tol": "25"
+            "qty_value": 0.0,
+            "qty_upper_tol": 0.0,
+            "qty_lower_tol": 0.0
         },
         "55": {
             "id": 55,
             "qty_unit": "g",
-            "qty_value": "80",
-            "qty_upper_tol": "25",
-            "qty_lower_tol": "25"
+            "qty_value": 0.0,
+            "qty_upper_tol": 0.0,
+            "qty_lower_tol": 0.0
         },
         "65": {
             "id": 65,
             "qty_unit": "g",
-            "qty_value": "25",
-            "qty_upper_tol": "50",
-            "qty_lower_tol": "50"
+            "qty_value": 0.0,
+            "qty_upper_tol": 0.0,
+            "qty_lower_tol": 0.0
         }
     },
     "serve_times": [
+        "05:00-11:00",
         "02:00-11:00"
     ],
-    "types": [
-        "cereal",
-        "main"
-    ]
+    "types": []
 }

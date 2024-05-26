@@ -6,7 +6,8 @@ from codiet.utils.time import (
     convert_datetime_interval_to_time_string_interval,
     convert_time_string_interval_to_datetime_interval,
 )
-from codiet.utils.recipes import convert_recipe_to_json, save_recipe_datafile
+from codiet.utils.strings import convert_to_snake_case
+from codiet.utils.recipes import convert_recipe_to_json, save_recipe_datafile, recipe_datafile_exists
 from codiet.models.recipes import Recipe
 from codiet.models.ingredients import IngredientQuantity
 from codiet.controllers.search_column_ctrl import SearchColumnCtrl
@@ -196,6 +197,39 @@ class RecipeEditorCtrl:
         self.view.recipe_search.update_results_list(self._recipe_names)
         # Clear the recipe editor
         self.load_recipe_instance(Recipe())
+
+    def _on_save_to_json_button_clicked(self) -> None:
+        """Handle the save to JSON button being clicked."""
+        # Open the name required popup if the name is empty
+        if self.recipe.name is None or self.recipe.name.strip() == "":
+            name_required_popup = OkDialogBoxView(
+                title="Name Required",
+                message="Please enter a name for the recipe.",
+                parent=self.view
+            )
+            name_required_popup.okClicked.connect(lambda: name_required_popup.close())
+            name_required_popup.show()
+            return None
+        # Create a .json datafile representing the recipe
+        recipe_data = convert_recipe_to_json(self.recipe)
+        # If the datafile already exists, ask to confirm overwriting
+        if recipe_datafile_exists(convert_to_snake_case(self.recipe.name)):
+            overwrite_popup = ConfirmDialogBoxView(
+                title="File Exists",
+                message="A file with this name already exists. Overwrite?",
+                parent=self.view
+            )
+            # Define the overwrite function
+            def on_overwrite():
+                save_recipe_datafile(recipe_data, overwrite=True)
+                overwrite_popup.close()               
+            # Connect the confirm and cancel signals
+            overwrite_popup.confirmClicked.connect(on_overwrite)
+            overwrite_popup.cancelClicked.connect(lambda: overwrite_popup.close())
+            overwrite_popup.show()
+        else:
+            # Save the recipe datafile
+            save_recipe_datafile(recipe_data)
 
     def _on_recipe_name_changed(self, name: str) -> None:
         """Handle the recipe name being changed."""
@@ -461,6 +495,11 @@ class RecipeEditorCtrl:
         self.view.recipe_type_editor_view.add_recipe_type(recipe_type)
         # Add the type to the recipe
         self.recipe.add_recipe_type(recipe_type)
+        # Update the recipe in the database
+        if self.recipe.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_recipe(self.recipe)
+                db_service.commit()
 
     def _on_remove_recipe_type_clicked(self) -> None:
         """Handle the remove recipe type button being clicked."""
@@ -473,48 +512,6 @@ class RecipeEditorCtrl:
         self.view.recipe_type_editor_view.remove_recipe_type(recipe_type)
         # Remove the recipe type from the recipe
         self.recipe.remove_recipe_type(recipe_type)
-
-    def _on_save_to_json_button_clicked(self) -> None:
-        """Handle the save to JSON button being clicked."""
-        # Open the name required popup if the name is empty
-        if self.recipe.name is None or self.recipe.name.strip() == "":
-            name_required_popup = OkDialogBoxView(
-                title="Name Required",
-                message="Please enter a name for the recipe.",
-                parent=self.view
-            )
-            name_required_popup.okClicked.connect(lambda: name_required_popup.close())
-            return None
-        # Create a .json datafile representing the recipe
-        recipe_data = convert_recipe_to_json(self.recipe)
-        try:
-            # Save the recipe to the file
-            save_recipe_datafile(recipe_data)
-        except FileExistsError as e:
-            # The file already exists - configure the error popup
-            file_exists_popup = ErrorDialogBoxView(
-                title="File Exists",
-                message=str(e),
-                parent=self.view
-            )
-            file_exists_popup.okClicked.connect(lambda: file_exists_popup.close())
-            return None
-        except ValueError as e:
-            # Some other error occurred - configure the error popup
-            error_popup = ErrorDialogBoxView(
-                title="Error",
-                message=str(e),
-                parent=self.view
-            )
-            error_popup.okClicked.connect(lambda: error_popup.close())
-            return None
-        # Open a popup to confirm the save
-        save_confirm_popup = OkDialogBoxView(
-            title="Saved",
-            message="The recipe has been saved to a .json file.",
-            parent=self.view
-        )
-        save_confirm_popup.okClicked.connect(lambda: save_confirm_popup.close())
 
     def _connect_toolbar(self) -> None:
         """Connect the main button signals to their handlers"""
@@ -571,9 +568,9 @@ class RecipeEditorCtrl:
         # self.view.recipe_type_editor_view.addRecipeTypeClicked.connect(
         #     self._on_add_recipe_type_clicked
         # )
-        # self.view.recipe_type_editor_view.removeRecipeTypeClicked.connect(
-        #     self._on_remove_recipe_type_clicked
-        # )
+        self.view.recipe_type_editor_view.removeRecipeTypeClicked.connect(
+            self._on_remove_recipe_type_clicked
+        )
         # self.recipe_type_selector_popup.resultSelected.connect(
         #     self._on_recipe_type_selected
         # )

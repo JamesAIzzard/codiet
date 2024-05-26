@@ -1,0 +1,25 @@
+{
+    "name": "French Fries",
+    "description": "Potato chips cut into lengths and fried.",
+    "instructions": "1. Cut the potatoes.\n2. Fry the potatoes.",
+    "ingredients": {
+        "63": {
+            "id": 63,
+            "qty_unit": "g",
+            "qty_value": 100.0,
+            "qty_upper_tol": 25.0,
+            "qty_lower_tol": 25.0
+        },
+        "58": {
+            "id": 58,
+            "qty_unit": "kg",
+            "qty_value": 10.0,
+            "qty_upper_tol": 10.0,
+            "qty_lower_tol": 10.0
+        }
+    },
+    "serve_times": [
+        "11:00-23:59"
+    ],
+    "types": []
+}
