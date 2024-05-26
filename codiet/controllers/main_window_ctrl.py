@@ -43,6 +43,8 @@ class MainWindowCtrl:
             self.ingredient_editor_ctrl.load_ingredient_instance(
                 db_service.create_empty_ingredient()
             )
+        # Select the ingredient button on the nav bar
+        self.view.btn_ingredients.select()
 
     def _on_ingredients_clicked(self):
         """Handle the user clicking the ingredients button."""
