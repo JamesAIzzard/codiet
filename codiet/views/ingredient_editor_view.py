@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import (
     QBoxLayout,
     QVBoxLayout,
     QHBoxLayout,
+    QToolBar,
     QLabel,
     QGroupBox,
     QLineEdit,
@@ -141,21 +142,29 @@ class IngredientEditorView(QWidget):
 
     def _build_ui(self):
         """Build the UI for the ingredient editor page."""
-        # Create a top level horizontal layout
-        lyt_top_level_columns = QHBoxLayout()
-        lyt_top_level_columns.setContentsMargins(5, 5, 5, 5)
-        self.setLayout(lyt_top_level_columns)
+        # Create a top level layout
+        lyt_top_level = QVBoxLayout()
+        lyt_top_level.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(lyt_top_level)
+
+        # Put the toolbar in it
+        self._build_toolbar(lyt_top_level)
+
+        # Create a horizontal layout for the columns
+        lyt_columns = QHBoxLayout()
+        lyt_columns.setContentsMargins(5, 5, 5, 5)
+        lyt_top_level.addLayout(lyt_columns)
 
         # Create a col for searching ingredients
         lyt_search_column = QVBoxLayout()
         # Reduce vertical padding
         lyt_search_column.setContentsMargins(0, 0, 0, 0)
-        lyt_top_level_columns.addLayout(lyt_search_column, 1)
+        lyt_columns.addLayout(lyt_search_column, 1)
         self._build_search_ui(lyt_search_column)
 
         # Create a col for the basic info, cost, flags and GI
         lyt_basic_info = QVBoxLayout()
-        lyt_top_level_columns.addLayout(lyt_basic_info, 2)
+        lyt_columns.addLayout(lyt_basic_info, 2)
         self._build_basic_info_UI(lyt_basic_info)
         # Add the cost editor to the column 1 layout
         self._build_cost_UI(lyt_basic_info)
@@ -171,17 +180,15 @@ class IngredientEditorView(QWidget):
 
         # Create a second column for the nutrients editor
         lyt_nutrients_col = QVBoxLayout()
-        lyt_top_level_columns.addLayout(lyt_nutrients_col, 2)
+        lyt_columns.addLayout(lyt_nutrients_col, 2)
         self.nutrient_editor = IngredientNutrientsEditorView()
         lyt_nutrients_col.addWidget(self.nutrient_editor)
 
-    def _build_search_ui(self, container: QBoxLayout):
-        """Build the search UI for the ingredient editor page."""
-        # Add a horizontal row for buttons
-        lyt_buttons = QHBoxLayout()
-        lyt_buttons.setContentsMargins(0, 0, 0, 0)
-        container.addLayout(lyt_buttons)
-        # Add an add, remove and save to json button.
+    def _build_toolbar(self, container: QBoxLayout) -> None:
+        """Builds the main page toolbar."""
+        # Build the toolbar
+        toolbar = QToolBar(self)
+        container.addWidget(toolbar)
         btn_add = AddButton()
         btn_add.setToolTip("Add new ingredient.")
         btn_add.clicked.connect(self.addIngredientClicked.emit)
@@ -194,13 +201,13 @@ class IngredientEditorView(QWidget):
         btn_save = SaveJSONButton()
         btn_save.setToolTip("Save ingredient to JSON.")
         btn_save.clicked.connect(self.saveJSONClicked.emit)
-        lyt_buttons.addWidget(btn_add)
-        lyt_buttons.addWidget(btn_delete)
-        lyt_buttons.addWidget(btn_autopopulate)
-        lyt_buttons.addWidget(btn_save)
-        # Push buttons to left
-        lyt_buttons.addStretch()
-        # Add a search widget
+        toolbar.addWidget(btn_add)
+        toolbar.addWidget(btn_delete)
+        toolbar.addWidget(btn_autopopulate)
+        toolbar.addWidget(btn_save)
+
+    def _build_search_ui(self, container: QBoxLayout):
+        """Build the search UI for the ingredient editor page."""
         self.ingredient_search = SearchColumnView()
         self.ingredient_search.searchTermChanged.connect(self.searchTextChanged.emit)
         self.ingredient_search.searchTermCleared.connect(self.searchTextCleared.emit)

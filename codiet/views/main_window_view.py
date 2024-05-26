@@ -30,16 +30,22 @@ class MainWindowView(QMainWindow):
         self._build_ui()
 
         # Create a dict for the individual pages
-        self.pages = {}
+        self._pages = {}
 
     def add_page(self, name: str, page):
         """Adds a page to the stacked widget."""
-        self.pages[name] = page
+        self._pages[name] = page
         self._page_stack.addWidget(page)
 
     def show_page(self, name: str):
         """Shows the page with the given name."""
-        self._page_stack.setCurrentWidget(self.pages[name])
+        self._page_stack.setCurrentWidget(self._pages[name])
+
+    def deselect_all_nav_buttons(self):
+        """Deselects all navigation buttons."""
+        self.btn_ingredients.deselect()
+        self.btn_recipes.deselect()
+        self.btn_meal_planner.deselect()
 
     def _build_ui(self) -> None:
         """Builds the main page UI."""
@@ -58,17 +64,17 @@ class MainWindowView(QMainWindow):
         toolbar = QToolBar(self)
         self.addToolBar(toolbar)
         # Add an ingredients button
-        btn_ingredients = IconButton("ingredients-icon.png", "Ingredients")
-        btn_ingredients.clicked.connect(self.ingredientsClicked.emit)
-        toolbar.addWidget(btn_ingredients)
+        self.btn_ingredients = IconButton("ingredients-icon.png", "Ingredients")
+        self.btn_ingredients.clicked.connect(self.ingredientsClicked.emit)
+        toolbar.addWidget(self.btn_ingredients)
         # Add a recipes button
-        btn_recipes = IconButton("recipes-icon.png", "Recipes")
-        btn_recipes.clicked.connect(self.recipesClicked.emit)
-        toolbar.addWidget(btn_recipes)
+        self.btn_recipes = IconButton("recipes-icon.png", "Recipes")
+        self.btn_recipes.clicked.connect(self.recipesClicked.emit)
+        toolbar.addWidget(self.btn_recipes)
         # Add a meal planner button
-        btn_meal_planner = IconButton("meal-planner-icon.png", "Meal Planner")
-        btn_meal_planner.clicked.connect(self.mealPlannerClicked.emit)
-        toolbar.addWidget(btn_meal_planner)
+        self.btn_meal_planner = IconButton("meal-planner-icon.png", "Meal Planner")
+        self.btn_meal_planner.clicked.connect(self.mealPlannerClicked.emit)
+        toolbar.addWidget(self.btn_meal_planner)
 
     def _build_footer(self) -> None:
         """Builds the footer bar."""

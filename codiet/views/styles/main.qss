@@ -6,3 +6,19 @@
 QLabel.page-title {
     font-weight: bold;
 }
+QPushButton {
+    border-radius: 2px;
+    border-color: #dcdcdc;
+    border-width: 1px;
+    border-style: solid;  
+    padding: 2px;
+    margin: 2px;
+}
+QPushButton:hover {
+    background-color: #87cefa;
+    border-color: #00bfff;    
+}
+QPushButton[selected="true"] {
+    background-color: #87cefa;
+    border-color: #00bfff;
+}
