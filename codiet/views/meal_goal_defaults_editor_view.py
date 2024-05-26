@@ -12,7 +12,7 @@ from PyQt6.QtGui import QFont
 
 from codiet.views.nutrient_targets_editor_view import NutrientTargetsEditorView
 from codiet.views.flag_editor_view import FlagEditorView
-from codiet.views.custom_line_editors import NumericLineEdit
+from codiet.views.text_editors import NumericLineEdit
 
 class MealGoalDefaultsEditorView(QWidget):
     """The UI element to allow the user to edit the default values applied

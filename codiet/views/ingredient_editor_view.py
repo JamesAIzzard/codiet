@@ -15,7 +15,7 @@ from PyQt6.QtCore import pyqtSignal, QVariant
 from codiet.utils.pyqt import block_signals
 from codiet.views.buttons import AddButton, DeleteButton, EditButton, SaveJSONButton, AutopopulateButton
 from codiet.views.search_views import SearchColumnView
-from codiet.views.custom_line_editors import NumericLineEdit
+from codiet.views.text_editors import NumericLineEdit
 from codiet.views.flag_editor_view import FlagEditorView
 from codiet.views.ingredient_nutrients_editor_view import IngredientNutrientsEditorView
 

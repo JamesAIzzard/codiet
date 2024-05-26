@@ -12,6 +12,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtWidgets import QDialog
 from PyQt6.QtCore import pyqtSignal, QVariant
 
+from codiet.views.text_editors import MultilineEdit
 from codiet.views.buttons import EditButton, AddButton, DeleteButton, SaveJSONButton, AutopopulateButton
 from codiet.views.dialog_box_views import OkDialogBoxView, ConfirmDialogBoxView
 from codiet.views.search_views import SearchColumnView
@@ -210,19 +211,19 @@ class RecipeEditorView(QWidget):
         # Add a row containing the recipe description label and multiline textbox
         label = QLabel("Description:")
         lyt_basic_info.addWidget(label)
-        self.txt_recipe_description = QTextEdit()
+        self.txt_recipe_description = MultilineEdit()
         lyt_basic_info.addWidget(self.txt_recipe_description)
         # Make the description box just three lines high
         self.txt_recipe_description.setFixedHeight(60)
         # Connect to the signal, also passing the text
-        self.txt_recipe_description.textChanged.connect(
+        self.txt_recipe_description.lostFocus.connect(
             lambda: self.recipeDescriptionChanged.emit(self.txt_recipe_description.toPlainText())
         )
 
         # Add a row containing the recipe instructions label and multiline textbox
         label = QLabel("Instructions:")
         lyt_basic_info.addWidget(label)
-        self.textbox_recipe_instructions = QTextEdit()
+        self.textbox_recipe_instructions = MultilineEdit()
         lyt_basic_info.addWidget(self.textbox_recipe_instructions)
         # Connect to the signal, also passing the text
         self.textbox_recipe_instructions.textChanged.connect(

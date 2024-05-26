@@ -217,25 +217,25 @@ class RecipeEditorCtrl:
         # Hide the name editor dialog
         self.recipe_name_editor_dialog.hide()
 
-    def _on_recipe_description_changed(self) -> None:
+    def _on_recipe_description_changed(self, description:str|None) -> None:
         """Handle the recipe description being changed."""
-        description = self.view.txt_recipe_description.toPlainText()
-        # If the description is empty, set it to None
-        if description.strip() == "":
-            self.recipe.description = None
-        # Otherwise, set the description
-        else:
-            self.recipe.description = description
+        # Update the description on the model
+        self.recipe.description = description
+        # Update the description in the database
+        if self.recipe.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_recipe(self.recipe)
+                db_service.commit()
 
-    def _on_recipe_instructions_changed(self) -> None:
+    def _on_recipe_instructions_changed(self, instructions:str|None) -> None:
         """Handle the recipe instructions being changed."""
-        instructions = self.view.textbox_recipe_instructions.toPlainText()
-        # If the instructions are empty, set them to None
-        if instructions.strip() == "":
-            self.recipe.instructions = None
-        # Otherwise, set the instructions
-        else:
-            self.recipe.instructions = instructions
+        # Update the instructions on the model
+        self.recipe.instructions = instructions
+        # Update the instructions in the database
+        if self.recipe.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_recipe(self.recipe)
+                db_service.commit()
 
     def _on_remove_ingredient_clicked(self) -> None:
         """Handle the remove ingredient button being clicked."""
@@ -372,11 +372,11 @@ class RecipeEditorCtrl:
         # Connect the edit name click
         self.view.editRecipeNameClicked.connect(self.recipe_name_editor_dialog.show)
         # Connect the recipe description changed signal
-        self.view.txt_recipe_description.textChanged.connect(
+        self.view.txt_recipe_description.lostFocus.connect(
             self._on_recipe_description_changed
         )
         # Connect the recipe instructions changed signal
-        self.view.textbox_recipe_instructions.textChanged.connect(
+        self.view.textbox_recipe_instructions.lostFocus.connect(
             self._on_recipe_instructions_changed
         )
 

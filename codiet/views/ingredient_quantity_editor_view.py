@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, pyqtSignal, QVariant
 
 from codiet.utils.pyqt import block_signals
-from codiet.views.custom_line_editors import NumericLineEdit
+from codiet.views.text_editors import NumericLineEdit
 
 class IngredientQuantityEditorView(QWidget):
     """UI element to allow the user to edit an ingredient quantity."""

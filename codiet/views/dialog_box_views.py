@@ -130,6 +130,9 @@ class EntityNameDialogView(DialogBoxView):
             *args, **kwargs
         )
 
+        # Set the width of the dialog
+        self.setFixedWidth(350)
+
         # Add a vertical layout to the dialog
         lyt_top_level = QVBoxLayout(self)
 
@@ -139,7 +142,7 @@ class EntityNameDialogView(DialogBoxView):
         # Create three labels
         self.lbl_info_message = IconTextLabel(
             icon_filename="info-icon.png",
-            text=f"Enter the {entity_name.lower()} name:"
+            text=f"Enter the {entity_name.lower()} name."
         )
         self.lbl_name_available = IconTextLabel(
             icon_filename="ok-icon.png",

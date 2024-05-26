@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.utils.pyqt import block_signals
-from codiet.views.custom_line_editors import NumericLineEdit
+from codiet.views.text_editors import NumericLineEdit
 
 
 class IngredientNutrientEditorView(QWidget):
