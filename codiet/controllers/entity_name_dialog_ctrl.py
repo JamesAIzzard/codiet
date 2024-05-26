@@ -16,6 +16,10 @@ class EntityNameDialogCtrl:
         self.view.nameChanged.connect(self._on_name_changed)
         self.view.nameAccepted.connect(on_name_accepted)
         self.view.nameCancelled.connect(self._on_name_edit_cancelled)
+        # On initialization, show the instructions, clear the box and disable the OK button
+        self.view.show_instructions()
+        self.view.clear()
+        self.view.disable_ok_button()
         
 
     def _on_name_changed(self, name: str) -> None:

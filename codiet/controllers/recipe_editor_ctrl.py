@@ -497,6 +497,7 @@ class RecipeEditorCtrl:
         """Connect the main button signals to their handlers"""
         self.view.addRecipeClicked.connect(self._on_add_recipe_clicked)
         self.view.deleteRecipeClicked.connect(self._on_delete_recipe_clicked)
+        self.view.saveJSONClicked.connect(self._on_save_to_json_button_clicked)
 
     def _connect_basic_info_fields(self) -> None:
         """Connect the signals and slots for the recipe editor."""

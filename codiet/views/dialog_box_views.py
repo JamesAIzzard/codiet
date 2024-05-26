@@ -12,6 +12,7 @@ from PyQt6.QtWidgets import (
 
 from codiet.utils.pyqt import block_signals
 from codiet.views import load_icon
+from codiet.views.text_editors import LineEdit
 from codiet.views.buttons import ConfirmButton, ClearButton, OKButton
 from codiet.views.labels import IconTextLabel
 
@@ -162,7 +163,7 @@ class EntityNameDialogView(DialogBoxView):
         self.show_instructions()
 
         # Add a textbox for the entity name
-        self.txt_name = QLineEdit()
+        self.txt_name = LineEdit()
         lyt_top_level.addWidget(self.txt_name)
         # Connect the text changed signal
         self.txt_name.textChanged.connect(self.nameChanged)

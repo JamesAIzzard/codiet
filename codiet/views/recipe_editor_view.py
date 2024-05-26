@@ -9,7 +9,9 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QTextEdit,
 )
-from PyQt6.QtWidgets import QDialog
+from PyQt6.QtWidgets import (
+    QRadioButton
+)
 from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.views.text_editors import MultilineEdit
@@ -177,6 +179,10 @@ class RecipeEditorView(QWidget):
         btn_edit.clicked.connect(self.editRecipeNameClicked.emit)
         # Reduce the vertical padding in this layout
         lyt_recipe_name.setContentsMargins(0, 0, 0, 0)
+
+        # Add a radio button to indicate if the recipe can be reused as an ingredient
+        self.btn_reuse_as_ingredient = QRadioButton("Reuse as Ingredient")
+        lyt_basic_info.addWidget(self.btn_reuse_as_ingredient)
 
         # Add a row containing the recipe description label and multiline textbox
         label = QLabel("Description:")
