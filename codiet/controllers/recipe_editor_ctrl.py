@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from PyQt6.QtWidgets import QVBoxLayout
+
 from codiet.utils.time import (
     convert_datetime_interval_to_time_string_interval,
     convert_time_string_interval_to_datetime_interval,
@@ -9,8 +11,14 @@ from codiet.models.recipes import Recipe
 from codiet.models.ingredients import IngredientQuantity
 from codiet.controllers.search_column_ctrl import SearchColumnCtrl
 from codiet.controllers.entity_name_dialog_ctrl import EntityNameDialogCtrl
-from codiet.views.dialog_box_views import EntityNameDialogView, OkDialogBoxView, ConfirmDialogBoxView
+from codiet.views.dialog_box_views import (
+    DialogBoxView,
+    EntityNameDialogView, 
+    OkDialogBoxView, 
+    ConfirmDialogBoxView,
+)
 from codiet.views.recipe_editor_view import RecipeEditorView
+from codiet.views.search_views import SearchColumnView
 from codiet.views.dialog_box_views import ErrorDialogBoxView
 from codiet.views.time_interval_popup_view import TimeIntervalPopupView
 from codiet.db.database_service import DatabaseService
@@ -18,21 +26,8 @@ from codiet.db.database_service import DatabaseService
 
 class RecipeEditorCtrl:
     def __init__(self, view: RecipeEditorView):
-        # Stash a reference to the view
         self.view = view
-
-        # Init ancillairy views
-        self.recipe_name_editor_dialog = EntityNameDialogView(
-            entity_name="Recipe",
-            parent=self.view
-        )
-        self.serve_time_popup = TimeIntervalPopupView()
-        self.error_popup = ErrorDialogBoxView(message="", title="", parent=self.view)
-        self.name_required_popup = ErrorDialogBoxView(
-            message="Please provide a name for the recipe.",
-            title="Name Required",
-            parent=self.view,
-        )
+        self.recipe = Recipe()
 
         # Cache some searchable things
         self._recipe_names: list[str] = []
@@ -40,19 +35,46 @@ class RecipeEditorCtrl:
         self._recipe_types: list[str] = []
         # Run the caching functions for the first time
         self._cache_recipe_names()
+        self._cache_ingredient_names()
 
-        # Connect the module controllers
+        # Configure name editor
+        self.recipe_name_editor_view = EntityNameDialogView(
+            entity_name="Recipe",
+            parent=self.view
+        )
+        self.recipe_name_editor_ctrl = EntityNameDialogCtrl(
+            view=self.recipe_name_editor_view,
+            check_name_available=lambda name: name not in self._recipe_names,
+            on_name_accepted=self._on_recipe_name_accepted,
+        )  
+
+        # Configure search column controller
         self.search_column_ctrl = SearchColumnCtrl(
             view=self.view.recipe_search,
             get_data=lambda: self._recipe_names,
             on_result_selected=self._on_recipe_selected,
-        )
-        self.recipe_name_editor_ctrl = EntityNameDialogCtrl(
-            view=self.recipe_name_editor_dialog,
-            check_name_available=lambda name: name not in self._recipe_names,
-            on_name_accepted=self._on_recipe_name_accepted,
-        )        
+        )   
 
+        # Configure the ingredient search popup
+        # First init a search column
+        self.ingredient_search_column_view = SearchColumnView()
+        self.ingredient_search_column_ctrl = SearchColumnCtrl(
+            view=self.ingredient_search_column_view,
+            get_data=lambda: self._all_ingredient_names,
+            on_result_selected=self._on_ingredient_selected,
+        )
+        # Place into a dialog box
+        self.ingredients_editor_popup = DialogBoxView(
+            title="Add Ingredient",
+            parent=self.view,
+        )
+        lyt_ingredient_search = QVBoxLayout()
+        lyt_ingredient_search.addWidget(self.ingredient_search_column_view)
+        self.ingredients_editor_popup.setLayout(lyt_ingredient_search)
+
+        # Configure the serve time popup
+        self.serve_time_popup = TimeIntervalPopupView()
+   
         # Connect signals and slots
         self._connect_toolbar()
         self._connect_basic_info_fields()        
@@ -100,6 +122,11 @@ class RecipeEditorCtrl:
         with DatabaseService() as db_service:
             self._recipe_names = db_service.fetch_all_recipe_names()
 
+    def _cache_ingredient_names(self) -> None:
+        """Cache the ingredient names."""
+        with DatabaseService() as db_service:
+            self._all_ingredient_names = db_service.fetch_all_ingredient_names()
+
     def _on_recipe_selected(self, recipe_name: str) -> None:
         """Handle a recipe being selected."""
         # Fetch the recipe from the database
@@ -115,8 +142,8 @@ class RecipeEditorCtrl:
         # Recache recipe names
         self._cache_recipe_names()
         # Open the name editor view
-        self.recipe_name_editor_dialog.clear()
-        self.recipe_name_editor_dialog.show()
+        self.recipe_name_editor_view.clear()
+        self.recipe_name_editor_view.show()
 
     def _on_delete_recipe_clicked(self) -> None:
         """Handler for deleting a recipe."""
@@ -167,23 +194,23 @@ class RecipeEditorCtrl:
     def _on_recipe_name_changed(self, name: str) -> None:
         """Handle the recipe name being changed."""
         # If the name is not whitespace
-        if self.recipe_name_editor_dialog.name_is_set:
+        if self.recipe_name_editor_view.name_is_set:
             # Check if the name is in the cached list of ingredient names
-            if self.recipe_name_editor_dialog.name in self._recipe_names:
+            if self.recipe_name_editor_view.name in self._recipe_names:
                 # Show the name unavailable message
-                self.recipe_name_editor_dialog.show_name_unavailable()
+                self.recipe_name_editor_view.show_name_unavailable()
                 # Disable the OK button
-                self.recipe_name_editor_dialog.disable_ok_button()
+                self.recipe_name_editor_view.disable_ok_button()
             else:
                 # Show the name available message
-                self.recipe_name_editor_dialog.show_name_available()
+                self.recipe_name_editor_view.show_name_available()
                 # Enable the OK button
-                self.recipe_name_editor_dialog.enable_ok_button()
+                self.recipe_name_editor_view.enable_ok_button()
         else:
             # Show the instructions message
-            self.recipe_name_editor_dialog.show_instructions()
+            self.recipe_name_editor_view.show_instructions()
             # Disable the OK button
-            self.recipe_name_editor_dialog.disable_ok_button()
+            self.recipe_name_editor_view.disable_ok_button()
 
     def _on_recipe_name_accepted(self, name:str) -> None:
         """Handle the recipe name being accepted."""
@@ -206,16 +233,16 @@ class RecipeEditorCtrl:
         # Update the view with any new recipe names
         self.view.recipe_search.update_results_list(self._recipe_names)
         # Clear the recipe name editor dialog
-        self.recipe_name_editor_dialog.clear()
+        self.recipe_name_editor_view.clear()
         # Hide the name editor dialog
-        self.recipe_name_editor_dialog.hide()
+        self.recipe_name_editor_view.hide()
 
     def _on_recipe_name_edit_cancelled(self) -> None:
         """Handle the recipe name edit being cancelled."""
         # Clear the recipe name editor dialog
-        self.recipe_name_editor_dialog.clear()
+        self.recipe_name_editor_view.clear()
         # Hide the name editor dialog
-        self.recipe_name_editor_dialog.hide()
+        self.recipe_name_editor_view.hide()
 
     def _on_recipe_description_changed(self, description:str|None) -> None:
         """Handle the recipe description being changed."""
@@ -237,6 +264,43 @@ class RecipeEditorCtrl:
                 db_service.update_recipe(self.recipe)
                 db_service.commit()
 
+    def _on_add_ingredient_clicked(self) -> None:
+        """Handle the add ingredient button being clicked."""
+        # Recache the ingredient names
+        self._cache_ingredient_names()
+        # Show the ingredient search popup
+        self.ingredient_search_column_view.clear_search_term()
+        self.ingredients_editor_popup.show()
+
+    def _on_ingredient_selected(self, ingredient_name:str) -> None:
+        """Handler for an ingredient being selected"""
+        # Grab the id for the ingredient name
+        with DatabaseService() as db_service:
+            ingredient = db_service.fetch_ingredient_by_name(ingredient_name)
+        # Add the ingredient quantity to the view
+        self.view.ingredients_editor.add_ingredient_quantity(
+            ingredient_name=ingredient_name,
+            ingredient_id=ingredient.id, # type: ignore
+            ingredient_quantity_value=0.0,
+            ingredient_quantity_unit="g",
+            ingredient_quantity_upper_tol=0.0,
+            ingredient_quantity_lower_tol=0.0,
+        )
+        # Add the ingredient quantity to the recipe
+        ingredient_quantity = IngredientQuantity(
+            ingredient=ingredient,
+            qty_value=0.0,
+            qty_unit="g",
+            qty_utol=0.0,
+            qty_ltol=0.0,
+        )
+        self.recipe.add_ingredient_quantity(ingredient_quantity)
+        # Update the recipe in the database
+        if self.recipe.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_recipe(self.recipe)
+                db_service.commit()
+
     def _on_remove_ingredient_clicked(self) -> None:
         """Handle the remove ingredient button being clicked."""
         # Get the selected ingredient id
@@ -248,6 +312,11 @@ class RecipeEditorCtrl:
         self.recipe.remove_ingredient_quantity(ingredient_id)
         # Update the ingredients in the view
         self.view.ingredients_editor.remove_ingredient_quantity(ingredient_id)
+        # Update the recipe in the database
+        if self.recipe.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_recipe(self.recipe)
+                db_service.commit()
 
     def _on_ingredient_qty_changed(self, ingredient_id: int, qty: float) -> None:
         """Handle the ingredient quantity being changed."""
@@ -299,10 +368,12 @@ class RecipeEditorCtrl:
             dt_end = datetime.strptime(end_time, "%H:%M")
         except ValueError:
             # Configure the error popup
-            self.error_popup.setWindowTitle("Invalid Time")
-            self.error_popup.message = "Please enter a valid time."
-            # Show the error popup
-            self.error_popup.show()
+            error_popup = ErrorDialogBoxView(
+                title="Invalid Time",
+                message="Please enter a valid time in the format HH:MM.",
+                parent=self.view
+            )
+            error_popup.okClicked.connect(lambda: error_popup.close())
             return None
         # Add the time interval to the recipe
         self.recipe.add_serve_time((dt_start, dt_end))
@@ -339,7 +410,12 @@ class RecipeEditorCtrl:
         """Handle the save to JSON button being clicked."""
         # Open the name required popup if the name is empty
         if self.recipe.name is None or self.recipe.name.strip() == "":
-            self.name_required_popup.show()
+            name_required_popup = OkDialogBoxView(
+                title="Name Required",
+                message="Please enter a name for the recipe.",
+                parent=self.view
+            )
+            name_required_popup.okClicked.connect(lambda: name_required_popup.close())
             return None
         # Create a .json datafile representing the recipe
         recipe_data = convert_recipe_to_json(self.recipe)
@@ -348,17 +424,22 @@ class RecipeEditorCtrl:
             save_recipe_datafile(recipe_data)
         except FileExistsError as e:
             # The file already exists - configure the error popup
-            self.error_popup.setWindowTitle("File Exists")
-            self.error_popup.message = str(e)
-            # Show the error popup
-            self.error_popup.show()
+            file_exists_popup = ErrorDialogBoxView(
+                title="File Exists",
+                message=str(e),
+                parent=self.view
+            )
+            file_exists_popup.okClicked.connect(lambda: file_exists_popup.close())
             return None
         except ValueError as e:
             # Some other error occurred - configure the error popup
-            self.error_popup.setWindowTitle("Error")
-            self.error_popup.message = str(e)
-            # Show the error popup
-            self.error_popup.show()
+            error_popup = ErrorDialogBoxView(
+                title="Error",
+                message=str(e),
+                parent=self.view
+            )
+            error_popup.okClicked.connect(lambda: error_popup.close())
+            return None
         # Open a popup to confirm the save
         self.view.show_save_confirmation_popup()
 
@@ -370,7 +451,7 @@ class RecipeEditorCtrl:
     def _connect_basic_info_fields(self) -> None:
         """Connect the signals and slots for the recipe editor."""
         # Connect the edit name click
-        self.view.editRecipeNameClicked.connect(self.recipe_name_editor_dialog.show)
+        self.view.editRecipeNameClicked.connect(self.recipe_name_editor_view.show)
         # Connect the recipe description changed signal
         self.view.txt_recipe_description.lostFocus.connect(
             self._on_recipe_description_changed
@@ -382,21 +463,12 @@ class RecipeEditorCtrl:
 
     def _connect_ingredients_editor(self) -> None:
         """Initialise the ingredients editor views."""
-        # self.view.ingredients_editor.addIngredientClicked.connect(
-        #     self._on_add_ingredient_clicked
-        # )
+        self.view.ingredients_editor.addIngredientClicked.connect(
+            self._on_add_ingredient_clicked
+        )
         self.view.ingredients_editor.removeIngredientClicked.connect(
             self._on_remove_ingredient_clicked
         )
-        # self.ingredients_editor_popup.search_term_textbox.searchTermChanged.connect(
-        #     self._on_ingredient_search_term_changed
-        # )
-        # self.ingredients_editor_popup.search_term_textbox.cancelClicked.connect(
-        #     self._on_ingredient_search_cancelled
-        # )
-        # self.ingredients_editor_popup.resultSelected.connect(
-        #     self._on_ingredient_selected
-        # )
         self.view.ingredients_editor.ingredientQtyChanged.connect(
             self._on_ingredient_qty_changed
         )

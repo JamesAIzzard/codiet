@@ -235,23 +235,22 @@ class Repository:
             (id,),
         ).fetchone()[0]
 
-    def fetch_recipe_ingredients(self, id: int) -> dict[str, dict]:
+    def fetch_recipe_ingredients(self, recipe_id: int) -> dict[int, dict]:
         """Returns the ingredients of the recipe associated with the given ID."""
         rows = self._db.execute(
             """
-            SELECT ingredient_name, qty_value, qty_unit, qty_tol_upper, qty_tol_lower
-            FROM ingredient_base
-            JOIN recipe_ingredients ON ingredient_base.ingredient_id = recipe_ingredients.ingredient_id
+            SELECT ingredient_id, qty_value, qty_unit, qty_tol_upper, qty_tol_lower
+            FROM recipe_ingredients
             WHERE recipe_id = ?;
         """,
-            (id,),
+            (recipe_id,),
         ).fetchall()
         return {
             row[0]: {
                 "qty_value": row[1],
                 "qty_unit": row[2],
-                "qty_tol_upper": row[3],
-                "qty_tol_lower": row[4],
+                "qty_utol": row[3],
+                "qty_ltol": row[4],
             }
             for row in rows
         }
@@ -547,24 +546,17 @@ class Repository:
             (recipe_id,),
         )
         # Add the new ingredients
-        for ingredient, data in ingredients.items():
-            # Get the ingredient ID from the name
-            ingredient_id = self._db.execute(
-                """
-                SELECT ingredient_id FROM ingredient_base WHERE ingredient_name = ?;
-            """,
-                (ingredient,),
-            ).fetchone()[0]
+        for ingredient_id, data in ingredients.items():
             # Add the ingredient
             self._db.execute(
                 """
-                INSERT INTO recipe_ingredients (recipe_id, ingredient_id, qty, qty_unit, qty_utol, qty_ltol)
+                INSERT INTO recipe_ingredients (recipe_id, ingredient_id, qty_value, qty_unit, qty_tol_upper, qty_tol_lower)
                 VALUES (?, ?, ?, ?, ?, ?);
             """,
                 (
                     recipe_id,
                     ingredient_id,
-                    data["qty"],
+                    data["qty_value"],
                     data["qty_unit"],
                     data["qty_utol"],
                     data["qty_ltol"],

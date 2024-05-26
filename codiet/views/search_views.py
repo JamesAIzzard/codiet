@@ -112,7 +112,7 @@ class SearchColumnView(QWidget):
         """Clear the search term."""
         self.search_term_textbox.clear()
 
-    def _on_result_selected(self, item):
+    def _on_result_selected(self, item) -> None:
         """Handle the user selecting a result to edit."""
         # Emit a signal with the selected text
         self.resultSelected.emit(item.text())

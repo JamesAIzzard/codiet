@@ -179,6 +179,13 @@ class DatabaseService:
         # Return the completed ingredient
         return ingredient
 
+    def fetch_ingredient_by_id(self, id: int) -> Ingredient:
+        """Returns the ingredient with the given ID."""
+        # Grab the name corresponding to the id
+        name = self._repo.fetch_ingredient_name(id)
+        # Return the ingredient with the name
+        return self.fetch_ingredient_by_name(name)
+
     def fetch_ingredient_name_by_id(self, id: int) -> str:
         """Returns the name of the ingredient with the given ID."""
         return self._repo.fetch_ingredient_name(id)
@@ -231,21 +238,21 @@ class DatabaseService:
         # First grab the raw data from the repo
         raw_ingredients = self._repo.fetch_recipe_ingredients(recipe.id)
         # Init a list to hold the ingredient quantities
-        ingredient_quantities: dict[str, IngredientQuantity] = {}
+        ingredient_quantities: dict[int, IngredientQuantity] = {}
         # Cycle through the raw data
-        for ingredient_name, data in raw_ingredients.items():
+        for ingredient_id, data in raw_ingredients.items():
             # Grab the ingredient
-            ingredient = self.fetch_ingredient_by_name(ingredient_name)
+            ingredient = self.fetch_ingredient_by_id(ingredient_id)
             # Create a new ingredient quantity
             ingredient_quantity = IngredientQuantity(
                 ingredient=ingredient,
-                qty_value=data[0],
-                qty_unit=data[1],
-                qty_utol=data[2],
-                qty_ltol=data[3],
+                qty_value=data['qty_value'],
+                qty_unit=data['qty_unit'],
+                qty_utol=data['qty_utol'],
+                qty_ltol=data['qty_ltol'],
             )
             # Add it to the list
-            ingredient_quantities[ingredient_name] = ingredient_quantity
+            ingredient_quantities[ingredient_id] = ingredient_quantity
         # Add the ingredient quanities list to the recipe
         recipe.ingredient_quantities = ingredient_quantities
         # Fetch the serve times
@@ -364,7 +371,7 @@ class DatabaseService:
             # For each ingredient in the recipe, add it to the dict
             for ingredient_name, ingredient_quantity in recipe.ingredient_quantities.items():
                 ingredient_quantities[ingredient_name] = {
-                    "qty": ingredient_quantity.qty_value,
+                    "qty_value": ingredient_quantity.qty_value,
                     "qty_unit": ingredient_quantity.qty_unit,
                     "qty_utol": ingredient_quantity.upper_tol,
                     "qty_ltol": ingredient_quantity.lower_tol,
