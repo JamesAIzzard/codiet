@@ -280,6 +280,17 @@ class RecipeEditorCtrl:
         # Grab the id for the ingredient name
         with DatabaseService() as db_service:
             ingredient = db_service.fetch_ingredient_by_name(ingredient_name)
+        # If the ingredient is already in the recipe
+        if ingredient.id in self.recipe.ingredient_quantities:
+            # Show an error popup
+            error_popup = OkDialogBoxView(
+                title="Ingredient Already Added",
+                message="This ingredient is already in the recipe.",
+                parent=self.view
+            )
+            error_popup.okClicked.connect(lambda: error_popup.close())
+            error_popup.show()
+            return None
         # Add the ingredient quantity to the view
         self.view.ingredients_editor.add_ingredient_quantity(
             ingredient_name=ingredient_name,
