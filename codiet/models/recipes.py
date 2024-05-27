@@ -10,7 +10,7 @@ class Recipe:
         self.instructions: str | None = None
         self._ingredient_quantities: dict[int, IngredientQuantity] = {}
         self._serve_times: list[tuple[datetime, datetime]] = []
-        self._recipe_types: list[str] = []
+        self._recipe_tags: list[str] = []
 
     @property
     def serve_times(self) -> list[tuple[datetime, datetime]]:
@@ -37,16 +37,16 @@ class Recipe:
             self.add_ingredient_quantity(ingredient)
     
     @property
-    def recipe_types(self) -> list[str]:
-        """Get the recipe types for the recipe."""
-        return self._recipe_types
+    def tags(self) -> list[str]:
+        """Get the recipe tags for the recipe."""
+        return self._recipe_tags
     
-    @recipe_types.setter
-    def recipe_types(self, recipe_types: list[str]) -> None:
-        """Set the recipe types for the recipe."""
-        # For each recipe type, add it to the recipe
-        for recipe_type in recipe_types:
-            self.add_recipe_type(recipe_type)
+    @tags.setter
+    def tags(self, tags: list[str]) -> None:
+        """Set the recipe tags for the recipe."""
+        # For each recipe tag, add it to the recipe
+        for recipe_tag in tags:
+            self.add_recipe_tag(recipe_tag)
 
     def add_serve_time(self, serve_time: tuple[datetime, datetime]) -> None:
         """Add a serve time to the recipe."""
@@ -122,18 +122,18 @@ class Recipe:
         # Update the quantity lower tolerance
         ingredient_quantity.lower_tol = ingredient_qty_ltol
 
-    def add_recipe_type(self, recipe_type: str) -> None:
-        """Add a recipe type to the recipe."""
-        # Check if the recipe type is already in the recipe
-        if recipe_type in self._recipe_types:
+    def add_recipe_tag(self, tag: str) -> None:
+        """Add a recipe tag to the recipe."""
+        # Check if the recipe tag is already in the recipe
+        if tag in self._recipe_tags:
             return None
-        # Add the recipe type to the recipe
-        self._recipe_types.append(recipe_type)
+        # Add the recipe tag to the recipe
+        self._recipe_tags.append(tag)
 
-    def remove_recipe_type(self, recipe_type: str) -> None:
-        """Remove a recipe type from the recipe."""
-        # Check if the recipe type is in the recipe
-        if recipe_type not in self._recipe_types:
+    def remove_recipe_tag(self, tag: str) -> None:
+        """Remove a recipe tag from the recipe."""
+        # Check if the recipe tag is in the recipe
+        if tag not in self._recipe_tags:
             return None
-        # Remove the recipe type from the recipe
-        self._recipe_types.remove(recipe_type)
+        # Remove the recipe tag from the recipe
+        self._recipe_tags.remove(tag)

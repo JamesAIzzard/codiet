@@ -14,16 +14,16 @@ from codiet.views.labels import SearchIconLabel
 
 class SearchTermView(QWidget):
     # Define singals
-    cancelClicked = pyqtSignal()
+    clearSearchTermClicked = pyqtSignal()
     searchTermChanged = pyqtSignal(str)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         # Build the UI
         self._build_ui()
 
         # Emit a signal when the cancel button is clicked
-        self.btn_cancel.clicked.connect(self.cancelClicked.emit)
+        self.btn_clear.clicked.connect(self.clearSearchTermClicked.emit)
         # Emit a signal when the search box is edited.
         # The signal will pass the current text in the search box.
         # This is automatic because the signal is connected to the textChanged signal of the search box.
@@ -64,8 +64,8 @@ class SearchTermView(QWidget):
         layout.setStretchFactor(self.txt_search, 1)
 
         # Create a cancel button and add it to the layout
-        self.btn_cancel = ClearButton()
-        layout.addWidget(self.btn_cancel)
+        self.btn_clear = ClearButton()
+        layout.addWidget(self.btn_clear)
 
 class SearchColumnView(QWidget):
     """UI element to allow the user to search and select a result."""
@@ -112,7 +112,7 @@ class SearchColumnView(QWidget):
         """Clear the search term."""
         self.search_term_textbox.clear()
 
-    def _on_result_selected(self, item):
+    def _on_result_selected(self, item) -> None:
         """Handle the user selecting a result to edit."""
         # Emit a signal with the selected text
         self.resultSelected.emit(item.text())
@@ -127,7 +127,7 @@ class SearchColumnView(QWidget):
         lyt_top_level.addWidget(self.search_term_textbox)
         # Connect the signals
         self.search_term_textbox.searchTermChanged.connect(self.searchTermChanged.emit)
-        self.search_term_textbox.cancelClicked.connect(self.searchTermCleared.emit)
+        self.search_term_textbox.clearSearchTermClicked.connect(self.searchTermCleared.emit)
         # Create a dropdown and add it to the layout
         self.lst_search_results = QListWidget()
         # Connect the itemClicked signal to the _on_result_selected method

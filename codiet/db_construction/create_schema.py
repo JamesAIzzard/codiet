@@ -26,8 +26,8 @@ def create_schema() -> None:
     create_recipe_base_table(cursor)
     create_recipe_ingredient_table(cursor)
     create_recipe_serve_times_table(cursor)
-    create_global_recipe_types_table(cursor)
-    create_recipe_types_table(cursor)
+    create_global_recipe_tags_table(cursor)
+    create_recipe_tags_table(cursor)
     # Commit the changes
     connection.commit()
     # Close the connection
@@ -158,22 +158,22 @@ def create_recipe_serve_times_table(cursor:sqlite3.Cursor) -> None:
         )
     """)
 
-def create_global_recipe_types_table(cursor:sqlite3.Cursor) -> None:
-    """Create the table for all global recipe types."""
+def create_global_recipe_tags_table(cursor:sqlite3.Cursor) -> None:
+    """Create the table for all global recipe tags."""
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS global_recipe_types (
-            recipe_type_id INTEGER PRIMARY KEY,
-            recipe_type_name TEXT UNIQUE
+        CREATE TABLE IF NOT EXISTS global_recipe_tags (
+            recipe_tag_id INTEGER PRIMARY KEY,
+            recipe_tag_name TEXT UNIQUE
         )
     """)
 
-def create_recipe_types_table(cursor:sqlite3.Cursor) -> None:
-    """Create the table to associate recipe types to recipes."""
+def create_recipe_tags_table(cursor:sqlite3.Cursor) -> None:
+    """Create the table to associate recipe tags to recipes."""
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS recipe_types (
+        CREATE TABLE IF NOT EXISTS recipe_tags (
             recipe_id INTEGER,
-            recipe_type_id INTEGER,
+            recipe_tag_id INTEGER,
             FOREIGN KEY (recipe_id) REFERENCES recipe_base(id),
-            FOREIGN KEY (recipe_type_id) REFERENCES global_recipe_types(recipe_type_id)
+            FOREIGN KEY (recipe_tag_id) REFERENCES global_recipe_tags(recipe_tag_id)
         )
     """)

@@ -79,22 +79,22 @@ class Repository:
         ).fetchall()
         return [row[0] for row in rows]
 
-    def fetch_all_global_recipe_types(self) -> list[str]:
-        """Returns a list of all global recipe types in the database."""
+    def fetch_all_global_recipe_tags(self) -> list[str]:
+        """Returns a list of all global recipe tags in the database."""
         rows = self._db.execute(
             """
-            SELECT recipe_type_name FROM global_recipe_types;
+            SELECT recipe_tag_name FROM global_recipe_tags;
         """
         ).fetchall()
         return [row[0] for row in rows]
     
-    def fetch_recipe_types_for_recipe(self, recipe_id: int) -> list[str]:
-        """Returns a list of all recipe types for the given recipe ID."""
+    def fetch_recipe_tags_for_recipe(self, recipe_id: int) -> list[str]:
+        """Returns a list of all recipe tags for the given recipe ID."""
         rows = self._db.execute(
             """
-            SELECT recipe_type_name
-            FROM global_recipe_types
-            JOIN recipe_types ON global_recipe_types.recipe_type_id = recipe_types.recipe_type_id
+            SELECT recipe_tag_name
+            FROM global_recipe_tags
+            JOIN recipe_tags ON global_recipe_tags.recipe_tag_id = recipe_tags.recipe_tag_id
             WHERE recipe_id = ?;
         """,
             (recipe_id,),
@@ -235,23 +235,22 @@ class Repository:
             (id,),
         ).fetchone()[0]
 
-    def fetch_recipe_ingredients(self, id: int) -> dict[str, dict]:
+    def fetch_recipe_ingredients(self, recipe_id: int) -> dict[int, dict]:
         """Returns the ingredients of the recipe associated with the given ID."""
         rows = self._db.execute(
             """
-            SELECT ingredient_name, qty_value, qty_unit, qty_tol_upper, qty_tol_lower
-            FROM ingredient_base
-            JOIN recipe_ingredients ON ingredient_base.ingredient_id = recipe_ingredients.ingredient_id
+            SELECT ingredient_id, qty_value, qty_unit, qty_tol_upper, qty_tol_lower
+            FROM recipe_ingredients
             WHERE recipe_id = ?;
         """,
-            (id,),
+            (recipe_id,),
         ).fetchall()
         return {
             row[0]: {
                 "qty_value": row[1],
                 "qty_unit": row[2],
-                "qty_tol_upper": row[3],
-                "qty_tol_lower": row[4],
+                "qty_utol": row[3],
+                "qty_ltol": row[4],
             }
             for row in rows
         }
@@ -339,11 +338,11 @@ class Repository:
         )
         return cursor.lastrowid
 
-    def insert_global_recipe_type(self, name: str) -> int:
-        """Adds a recipe type to the global recipe type table and returns the ID."""
+    def insert_global_recipe_tag(self, name: str) -> int:
+        """Adds a recipe tag to the global recipe tag table and returns the ID."""
         cursor = self._db.execute(
             """
-            INSERT INTO global_recipe_types (recipe_type_name) VALUES (?);
+            INSERT INTO global_recipe_tags (recipe_tag_name) VALUES (?);
         """,
             (name,),
         )
@@ -547,24 +546,17 @@ class Repository:
             (recipe_id,),
         )
         # Add the new ingredients
-        for ingredient, data in ingredients.items():
-            # Get the ingredient ID from the name
-            ingredient_id = self._db.execute(
-                """
-                SELECT ingredient_id FROM ingredient_base WHERE ingredient_name = ?;
-            """,
-                (ingredient,),
-            ).fetchone()[0]
+        for ingredient_id, data in ingredients.items():
             # Add the ingredient
             self._db.execute(
                 """
-                INSERT INTO recipe_ingredients (recipe_id, ingredient_id, qty, qty_unit, qty_utol, qty_ltol)
+                INSERT INTO recipe_ingredients (recipe_id, ingredient_id, qty_value, qty_unit, qty_tol_upper, qty_tol_lower)
                 VALUES (?, ?, ?, ?, ?, ?);
             """,
                 (
                     recipe_id,
                     ingredient_id,
-                    data["qty"],
+                    data["qty_value"],
                     data["qty_unit"],
                     data["qty_utol"],
                     data["qty_ltol"],
@@ -593,26 +585,33 @@ class Repository:
                 (recipe_id, serve_time),
             )
 
-    def update_recipe_types(
-        self, recipe_id: int, recipe_types: list[str]
+    def update_recipe_tags(
+        self, recipe_id: int, recipe_tags: list[str]
     ) -> None:
-        """Updates the recipe types of the recipe associated with the given ID."""
-        # Clear the existing recipe types
+        """Updates the recipe tags of the recipe associated with the given ID."""
+        # Clear the existing recipe tags
         self._db.execute(
             """
-            DELETE FROM recipe_types WHERE recipe_id = ?;
+            DELETE FROM recipe_tags WHERE recipe_id = ?;
         """,
             (recipe_id,),
         )
-        # Add the new recipe types
-        for recipe_type in recipe_types:
-            # Add the recipe type
+        # Add the new recipe tags
+        for tag in recipe_tags:
+            # Get the tag ID
+            tag_id = self._db.execute(
+                """
+                SELECT recipe_tag_id FROM global_recipe_tags WHERE recipe_tag_name = ?;
+            """,
+                (tag,),
+            ).fetchone()[0]
+            # Add the tag
             self._db.execute(
                 """
-                INSERT INTO recipe_types (recipe_id, recipe_type)
+                INSERT INTO recipe_tags (recipe_id, recipe_tag_id)
                 VALUES (?, ?);
             """,
-                (recipe_id, recipe_type),
+                (recipe_id, tag_id),
             )
 
     def delete_ingredient_by_name(self, ingredient_name: str) -> None:
@@ -663,7 +662,7 @@ class Repository:
             WHERE recipe_id = ?;
             """,
             """
-            DELETE FROM recipe_types
+            DELETE FROM recipe_tags
             WHERE recipe_id = ?;
             """,
         ]

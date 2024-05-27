@@ -98,10 +98,10 @@ class DatabaseService:
             # Re-raise any exceptions
             raise e
 
-    def insert_global_recipe_type(self, recipe_type_name: str) -> int:
-        """Inserts a global recipe type into the database."""
+    def insert_global_recipe_tag(self, recipe_tag_name: str) -> int:
+        """Inserts a global recipe tag into the database."""
         # Action the insertion
-        id = self._repo.insert_global_recipe_type(recipe_type_name)
+        id = self._repo.insert_global_recipe_tag(recipe_tag_name)
         # Return the ID
         return id
 
@@ -179,6 +179,13 @@ class DatabaseService:
         # Return the completed ingredient
         return ingredient
 
+    def fetch_ingredient_by_id(self, id: int) -> Ingredient:
+        """Returns the ingredient with the given ID."""
+        # Grab the name corresponding to the id
+        name = self._repo.fetch_ingredient_name(id)
+        # Return the ingredient with the name
+        return self.fetch_ingredient_by_name(name)
+
     def fetch_ingredient_name_by_id(self, id: int) -> str:
         """Returns the name of the ingredient with the given ID."""
         return self._repo.fetch_ingredient_name(id)
@@ -231,21 +238,21 @@ class DatabaseService:
         # First grab the raw data from the repo
         raw_ingredients = self._repo.fetch_recipe_ingredients(recipe.id)
         # Init a list to hold the ingredient quantities
-        ingredient_quantities: dict[str, IngredientQuantity] = {}
+        ingredient_quantities: dict[int, IngredientQuantity] = {}
         # Cycle through the raw data
-        for ingredient_name, data in raw_ingredients.items():
+        for ingredient_id, data in raw_ingredients.items():
             # Grab the ingredient
-            ingredient = self.fetch_ingredient_by_name(ingredient_name)
+            ingredient = self.fetch_ingredient_by_id(ingredient_id)
             # Create a new ingredient quantity
             ingredient_quantity = IngredientQuantity(
                 ingredient=ingredient,
-                qty_value=data[0],
-                qty_unit=data[1],
-                qty_utol=data[2],
-                qty_ltol=data[3],
+                qty_value=data['qty_value'],
+                qty_unit=data['qty_unit'],
+                qty_utol=data['qty_utol'],
+                qty_ltol=data['qty_ltol'],
             )
             # Add it to the list
-            ingredient_quantities[ingredient_name] = ingredient_quantity
+            ingredient_quantities[ingredient_id] = ingredient_quantity
         # Add the ingredient quanities list to the recipe
         recipe.ingredient_quantities = ingredient_quantities
         # Fetch the serve times
@@ -260,14 +267,14 @@ class DatabaseService:
                 convert_time_string_interval_to_datetime_interval(raw_serve_time)
             )
         recipe.serve_times = serve_times
-        # Fetch the recipe types
-        recipe.recipe_types = self._repo.fetch_recipe_types_for_recipe(recipe.id)
+        # Fetch the recipe tags
+        recipe.tags = self._repo.fetch_recipe_tags_for_recipe(recipe.id)
 
         return recipe
 
-    def fetch_all_global_recipe_types(self) -> list[str]:
-        """Returns a list of all the recipe types in the database."""
-        return self._repo.fetch_all_global_recipe_types()
+    def fetch_all_global_recipe_tags(self) -> list[str]:
+        """Returns a list of all the recipe tags in the database."""
+        return self._repo.fetch_all_global_recipe_tags()
 
     def update_ingredient(self, ingredient: Ingredient):
         """Updates the given ingredient in the database."""
@@ -364,7 +371,7 @@ class DatabaseService:
             # For each ingredient in the recipe, add it to the dict
             for ingredient_name, ingredient_quantity in recipe.ingredient_quantities.items():
                 ingredient_quantities[ingredient_name] = {
-                    "qty": ingredient_quantity.qty_value,
+                    "qty_value": ingredient_quantity.qty_value,
                     "qty_unit": ingredient_quantity.qty_unit,
                     "qty_utol": ingredient_quantity.upper_tol,
                     "qty_ltol": ingredient_quantity.lower_tol,
@@ -386,10 +393,10 @@ class DatabaseService:
                 recipe_id=recipe.id,
                 serve_times=serve_times,
             )
-            # Update the recipe types
-            self._repo.update_recipe_types(
+            # Update the recipe tags
+            self._repo.update_recipe_tags(
                 recipe_id=recipe.id,
-                recipe_types=recipe._recipe_types,
+                recipe_tags=recipe._recipe_tags,
             )
         except Exception as e:
             # Roll back the transaction if an exception occurs

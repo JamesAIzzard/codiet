@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, pyqtSignal, QVariant
 
 from codiet.utils.pyqt import block_signals
-from codiet.views.custom_line_editors import NumericLineEdit
+from codiet.views.text_editors import NumericLineEdit
 
 class IngredientQuantityEditorView(QWidget):
     """UI element to allow the user to edit an ingredient quantity."""
@@ -104,7 +104,7 @@ class IngredientQuantityEditorView(QWidget):
         self.txt_ingredient_qty.setMaximumWidth(60)
         layout.addWidget(self.txt_ingredient_qty)
         # Emit a signal when the text changes
-        self.txt_ingredient_qty.textChanged.connect(self.ingredientQtyChanged.emit)
+        self.txt_ingredient_qty.lostFocus.connect(self.ingredientQtyChanged.emit)
 
         # Create a dropdown for qty units
         self.cmb_ingredient_qty_units = QComboBox()
@@ -135,7 +135,7 @@ class IngredientQuantityEditorView(QWidget):
         # Add a textbox
         self.txt_upper_tolerance = NumericLineEdit()
         # Emit a signal when the text changes
-        self.txt_upper_tolerance.textChanged.connect(self.ingredientQtyUTolChanged.emit)
+        self.txt_upper_tolerance.lostFocus.connect(self.ingredientQtyUTolChanged.emit)
         # Set the max width of the textbox
         self.txt_upper_tolerance.setMaximumWidth(30)
         upper_tol_layout.addWidget(self.txt_upper_tolerance)
@@ -156,7 +156,7 @@ class IngredientQuantityEditorView(QWidget):
         # Add a textbox
         self.txt_lower_tolerance = NumericLineEdit()
         # Emit a signal when the text changes
-        self.txt_lower_tolerance.textChanged.connect(self.ingredientQtyLTolChanged.emit)
+        self.txt_lower_tolerance.lostFocus.connect(self.ingredientQtyLTolChanged.emit)
         # Set the max width of the textbox
         self.txt_lower_tolerance.setMaximumWidth(30)
         lower_tol_layout.addWidget(self.txt_lower_tolerance)

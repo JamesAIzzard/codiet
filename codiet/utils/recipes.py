@@ -1,5 +1,6 @@
 import json, os, copy
 
+from codiet.utils.strings import convert_to_snake_case
 from codiet.utils.time import convert_datetime_interval_to_time_string_interval
 from codiet.models.recipes import Recipe
 from codiet.db_construction import (
@@ -65,20 +66,20 @@ def convert_recipe_to_json(recipe: Recipe) -> dict:
         timestring_interval = convert_datetime_interval_to_time_string_interval(serve_time)
         recipe_data["serve_times"].append(timestring_interval)
     # Add the recipe types to the recipe dictionary
-    for recipe_type in recipe.recipe_types:
-        recipe_data["types"].append(recipe_type)
+    for tag in recipe.tags:
+        recipe_data["tags"].append(tag)
     # Return the recipe dictionary
     return recipe_data
 
-def save_recipe_datafile(datafile:dict) -> None:
+def save_recipe_datafile(datafile:dict, overwrite:bool=False) -> None:
     """Save the datafile into the recipe data directory."""
     # Raise an exception if the name is None or an empty string
     if datafile["name"] is None or datafile["name"] == "":
         raise ValueError("Recipe name cannot be None or an empty string.")
     # Convert the recipe name to snake case
-    filename = datafile["name"].replace(" ", "_").lower()
+    filename = convert_to_snake_case(datafile["name"])
     # Raise an exception if the datafile already exists
-    if recipe_datafile_exists(filename):
+    if recipe_datafile_exists(filename) and not overwrite:
         raise FileExistsError(f"Recipe datafile '{filename}.json' already exists.")
     # Create the filepath for the recipe datafile
     recipe_data_filepath = os.path.join(RECIPE_DATA_DIR, f"{filename}.json")

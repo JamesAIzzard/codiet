@@ -1,5 +1,7 @@
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
     QDialog,
     QVBoxLayout,
     QHBoxLayout,
@@ -10,6 +12,7 @@ from PyQt6.QtWidgets import (
 
 from codiet.utils.pyqt import block_signals
 from codiet.views import load_icon
+from codiet.views.text_editors import LineEdit
 from codiet.views.buttons import ConfirmButton, ClearButton, OKButton
 from codiet.views.labels import IconTextLabel
 
@@ -91,7 +94,11 @@ class OkDialogBoxView(LabelIconButtonsDialog):
     okClicked = pyqtSignal()
 
     def __init__(self, title="OK", message="OK", *args, **kwargs):
-        super().__init__(title=title, message=message, *args, **kwargs)
+        super().__init__(
+            title=title, 
+            message=message,
+            icon_filename="info-icon.png",
+            *args, **kwargs)
         # Add the button
         self.btn_ok = self.add_button(OKButton())
         # Connect the button to the signal
@@ -130,6 +137,9 @@ class EntityNameDialogView(DialogBoxView):
             *args, **kwargs
         )
 
+        # Set the width of the dialog
+        self.setFixedWidth(350)
+
         # Add a vertical layout to the dialog
         lyt_top_level = QVBoxLayout(self)
 
@@ -139,7 +149,7 @@ class EntityNameDialogView(DialogBoxView):
         # Create three labels
         self.lbl_info_message = IconTextLabel(
             icon_filename="info-icon.png",
-            text=f"Enter the {entity_name.lower()} name:"
+            text=f"Enter the {entity_name.lower()} name."
         )
         self.lbl_name_available = IconTextLabel(
             icon_filename="ok-icon.png",
@@ -157,7 +167,7 @@ class EntityNameDialogView(DialogBoxView):
         self.show_instructions()
 
         # Add a textbox for the entity name
-        self.txt_name = QLineEdit()
+        self.txt_name = LineEdit()
         lyt_top_level.addWidget(self.txt_name)
         # Connect the text changed signal
         self.txt_name.textChanged.connect(self.nameChanged)

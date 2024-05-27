@@ -108,3 +108,7 @@ class ServeTimeIntervalsEditorView(QWidget):
     def remove_time_interval(self, index: int):
         """Remove a time interval from the list."""
         self.lst_time_intervals.takeItem(index)
+
+    def clear(self):
+        """Clear the list of time intervals."""
+        self.lst_time_intervals.clear()

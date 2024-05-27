@@ -10,8 +10,9 @@ from codiet.db_construction import (
     RECIPE_DATA_DIR,
     GLOBAL_FLAG_DATA_FILEPATH,
     GLOBAL_NUTRIENT_DATA_FILEPATH,
-    GLOBAL_RECIPE_TYPE_DATA_FILEPATH
+    GLOBAL_RECIPE_TAG_DATA_FILEPATH
 )
+from codiet.utils.tags import flatten_tree
 from codiet.models.ingredients import Ingredient, IngredientNutrientQuantity
 from codiet.models.recipes import Recipe
 from codiet.db.database_service import DatabaseService
@@ -69,18 +70,20 @@ def push_ingredients_to_db():
             db_service.commit()
 
 
-def push_global_recipe_types_to_db():
-    """Push the global recipe types to the database."""
-    # Read the global recipe types from the file
-    with open(GLOBAL_RECIPE_TYPE_DATA_FILEPATH) as file:
-        global_recipe_types = json.load(file)
-    # Add each recipe type to the database
+def push_global_recipe_tags_to_db():
+    """Push the global recipe tags to the database."""
+    # Read the global recipe tags from the file
+    with open(GLOBAL_RECIPE_TAG_DATA_FILEPATH) as file:
+        global_recipe_tags = json.load(file)
+    # Flatten to list
+    flat_global_recipe_tags = flatten_tree(global_recipe_tags)
+    # Add each recipe tage to the database
     with DatabaseService() as db_service:
-        for recipe_type in global_recipe_types:
-            db_service.insert_global_recipe_type(recipe_type)
+        for recipe_tag in flat_global_recipe_tags:
+            db_service.insert_global_recipe_tag(recipe_tag)
         # Save changes
         db_service.commit()
-    print("Global recipe types pushed to the database.")
+    print("Global recipe tags pushed to the database.")
 
 def push_recipes_to_db():
     """Push the recipes to the database."""

@@ -1,0 +1,35 @@
+{
+    "meal": {
+        "savory": {
+            "breakfast": {
+                "cereal": {},
+                "cooked": {},
+                "fruit": {}
+            },
+            "lunch": {},
+            "dinner": {},
+            "snack": {},
+            "side-dish": {},
+            "sauce": {},
+            "dip": {}
+        },
+        "sweet": {
+            "cake": {},
+            "cookie": {}
+        }
+    },
+    "drink": {
+        "soft-drink": {},
+        "fruit-drink": {
+            "smoothie": {},
+            "juice": {}
+        },
+        "alcoholic-drink": {
+            "beer": {},
+            "wine": {},
+            "cocktail": {},
+            "spirit": {},
+            "liqueur": {}
+        }
+    }
+}

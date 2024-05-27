@@ -12,8 +12,8 @@ from PyQt6.QtGui import QFont
 
 from codiet.views.nutrient_targets_editor_view import NutrientTargetsEditorView
 from codiet.views.flag_editor_view import FlagEditorView
-from codiet.views.recipe_type_editor_view import RecipeTypeEditorView
-from codiet.views.custom_line_editors import NumericLineEdit
+from codiet.views.tag_views import RecipeTagEditorView
+from codiet.views.text_editors import NumericLineEdit
 
 class GoalSetEditorView(QWidget):
     """The UI element to allow the user to edit a meal goal."""
@@ -80,7 +80,7 @@ class GoalSetEditorView(QWidget):
         lyt_columns.setStretch(1, 2)
         
         # Add the recipe types selector UI element
-        self.recipe_type_selector_view = RecipeTypeEditorView()
+        self.recipe_type_selector_view = RecipeTagEditorView()
         lyt_columns.addWidget(self.recipe_type_selector_view)
         lyt_columns.setStretch(2, 1)
 

@@ -9,15 +9,19 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QTextEdit,
 )
-from PyQt6.QtWidgets import QDialog
+from PyQt6.QtWidgets import (
+    QRadioButton
+)
 from PyQt6.QtCore import pyqtSignal, QVariant
 
+from codiet.views.text_editors import MultilineEdit
 from codiet.views.buttons import EditButton, AddButton, DeleteButton, SaveJSONButton, AutopopulateButton
 from codiet.views.dialog_box_views import OkDialogBoxView, ConfirmDialogBoxView
 from codiet.views.search_views import SearchColumnView
 from codiet.views.ingredients_editor_view import IngredientsEditorView
 from codiet.views.serve_time_intervals_editor_view import ServeTimeIntervalsEditorView
-from codiet.views.recipe_type_editor_view import RecipeTypeEditorView
+from codiet.views.tags import RecipeTagEditorView, RecipeTagSelectorPopup
+from codiet.controllers.tags import RecipeTagEditorCtrl
 from codiet.utils.pyqt import block_signals
 
 
@@ -38,8 +42,6 @@ class RecipeEditorView(QWidget):
     removeIngredientClicked = pyqtSignal()
     addServeTimeClicked = pyqtSignal()
     removeServeTimeClicked = pyqtSignal()
-    addRecipeTypeClicked = pyqtSignal()
-    removeRecipeTypeClicked = pyqtSignal()
     saveRecipeClicked = pyqtSignal()
     saveToJSONClicked = pyqtSignal()
 
@@ -77,40 +79,6 @@ class RecipeEditorView(QWidget):
             else:
                 self.textbox_recipe_instructions.setPlainText(instructions)
 
-    def update_recipe_types(self, recipe_types: list[str]) -> None:
-        """Update the recipe types."""
-        self.recipe_type_editor_view.update_recipe_types(recipe_types)
-
-    def show_name_change_confirmation_popup(self) -> bool:
-        """Show the name change confirmation popup."""
-        # Show confirm dialog box
-        dialog = ConfirmDialogBoxView(
-            message="Recipe name has changed. Are you sure you want to update the name?",
-            title="Recipe Name Change",
-            parent=self,
-        )
-        return dialog.exec() == QDialog.DialogCode.Accepted
-
-    def show_save_confirmation_popup(self) -> None:
-        """Show the save confirmation popup."""
-        # Show confirm dialog box
-        dialog = OkDialogBoxView(
-            message="Recipe saved.",
-            title="Recipe Saved",
-            parent=self,
-        )
-        _ = dialog.exec()
-
-    def show_update_confirmation_popup(self) -> None:    
-        """Show the update confirmation popup."""
-        # Show confirm dialog box
-        dialog = OkDialogBoxView(
-            message="Recipe updated.",
-            title="Recipe updated",
-            parent=self,
-        )
-        _ = dialog.exec()
-
     def _build_ui(self):
         """Build the UI for the recipe editor."""
         # Create a vertical layout for the page
@@ -143,11 +111,11 @@ class RecipeEditorView(QWidget):
         lyt_ingredients_column.setContentsMargins(0, 0, 0, 0)
         self._build_ingredients_ui(lyt_ingredients_column)
 
-        # Create the times and types column
-        lyt_times_and_types_column = QVBoxLayout()
-        lyt_columns.addLayout(lyt_times_and_types_column, 2)
-        lyt_times_and_types_column.setContentsMargins(0, 0, 0, 0)
-        self._build_times_and_types_ui(lyt_times_and_types_column)
+        # Create the times and tags column
+        lyt_times_and_tags_column = QVBoxLayout()
+        lyt_columns.addLayout(lyt_times_and_tags_column, 2)
+        lyt_times_and_tags_column.setContentsMargins(0, 0, 0, 0)
+        self._build_times_and_tags_ui(lyt_times_and_tags_column)
 
     def _build_toolbar(self, container: QBoxLayout) -> None:
         """Builds the main page toolbar."""
@@ -207,22 +175,26 @@ class RecipeEditorView(QWidget):
         # Reduce the vertical padding in this layout
         lyt_recipe_name.setContentsMargins(0, 0, 0, 0)
 
+        # Add a radio button to indicate if the recipe can be reused as an ingredient
+        self.btn_reuse_as_ingredient = QRadioButton("Reuse as Ingredient")
+        lyt_basic_info.addWidget(self.btn_reuse_as_ingredient)
+
         # Add a row containing the recipe description label and multiline textbox
         label = QLabel("Description:")
         lyt_basic_info.addWidget(label)
-        self.txt_recipe_description = QTextEdit()
+        self.txt_recipe_description = MultilineEdit()
         lyt_basic_info.addWidget(self.txt_recipe_description)
         # Make the description box just three lines high
         self.txt_recipe_description.setFixedHeight(60)
         # Connect to the signal, also passing the text
-        self.txt_recipe_description.textChanged.connect(
+        self.txt_recipe_description.lostFocus.connect(
             lambda: self.recipeDescriptionChanged.emit(self.txt_recipe_description.toPlainText())
         )
 
         # Add a row containing the recipe instructions label and multiline textbox
         label = QLabel("Instructions:")
         lyt_basic_info.addWidget(label)
-        self.textbox_recipe_instructions = QTextEdit()
+        self.textbox_recipe_instructions = MultilineEdit()
         lyt_basic_info.addWidget(self.textbox_recipe_instructions)
         # Connect to the signal, also passing the text
         self.textbox_recipe_instructions.textChanged.connect(
@@ -238,8 +210,8 @@ class RecipeEditorView(QWidget):
         self.ingredients_editor.addIngredientClicked.connect(self.addIngredientClicked.emit)
         self.ingredients_editor.removeIngredientClicked.connect(self.removeIngredientClicked.emit)
 
-    def _build_times_and_types_ui(self, container: QBoxLayout) -> None:
-        """Build the times and types UI."""
+    def _build_times_and_tags_ui(self, container: QBoxLayout) -> None:
+        """Build the times and tags UI."""
         # Add the serve times editor widget to the third col
         self.serve_time_intervals_editor_view = ServeTimeIntervalsEditorView()
         container.addWidget(self.serve_time_intervals_editor_view)
@@ -247,9 +219,6 @@ class RecipeEditorView(QWidget):
         self.serve_time_intervals_editor_view.addServeTimeClicked.connect(self.addServeTimeClicked.emit)
         self.serve_time_intervals_editor_view.removeServeTimeClicked.connect(self.removeServeTimeClicked.emit)
 
-        # Add the recipe type selector widget to the third col
-        self.recipe_type_editor_view = RecipeTypeEditorView()
-        container.addWidget(self.recipe_type_editor_view)
-        # Connect the add and remove recipe types buttons
-        self.recipe_type_editor_view.addRecipeTypeClicked.connect(self.addRecipeTypeClicked.emit)
-        self.recipe_type_editor_view.removeRecipeTypeClicked.connect(self.removeRecipeTypeClicked.emit)
+        # Add the recipe tag selector widget to the third col
+        self.recipe_tag_editor_view = RecipeTagEditorView(parent=self)
+        container.addWidget(self.recipe_tag_editor_view)
