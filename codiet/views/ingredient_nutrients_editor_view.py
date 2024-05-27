@@ -122,7 +122,7 @@ class IngredientNutrientsEditorView(QWidget):
         self.search_term_widget = SearchTermView()
         lyt_filter.addWidget(self.search_term_widget)
         # Connect the signals
-        self.search_term_widget.cancelClicked.connect(self.nutrientFilterCleared.emit)
+        self.search_term_widget.clearSearchTermClicked.connect(self.nutrientFilterCleared.emit)
         self.search_term_widget.searchTermChanged.connect(self.nutrientFilterChanged.emit)
 
         # Create a listbox for the nutrient rows

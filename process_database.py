@@ -55,8 +55,8 @@ if __name__ == '__main__':
     populate_database.push_nutrients_to_db()
     print("Pushing ingredients into database...")
     populate_database.push_ingredients_to_db()
-    print("Pushing global recipe types into database...")
-    populate_database.push_global_recipe_types_to_db()
+    print("Pushing global recipe tags into database...")
+    populate_database.push_global_recipe_tags_to_db()
     print("Pushing recipes into database...")
     populate_database.push_recipes_to_db()
 

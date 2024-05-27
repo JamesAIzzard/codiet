@@ -98,10 +98,10 @@ class DatabaseService:
             # Re-raise any exceptions
             raise e
 
-    def insert_global_recipe_type(self, recipe_type_name: str) -> int:
-        """Inserts a global recipe type into the database."""
+    def insert_global_recipe_tag(self, recipe_tag_name: str) -> int:
+        """Inserts a global recipe tag into the database."""
         # Action the insertion
-        id = self._repo.insert_global_recipe_type(recipe_type_name)
+        id = self._repo.insert_global_recipe_tag(recipe_tag_name)
         # Return the ID
         return id
 
@@ -267,14 +267,14 @@ class DatabaseService:
                 convert_time_string_interval_to_datetime_interval(raw_serve_time)
             )
         recipe.serve_times = serve_times
-        # Fetch the recipe types
-        recipe.recipe_types = self._repo.fetch_recipe_types_for_recipe(recipe.id)
+        # Fetch the recipe tags
+        recipe.tags = self._repo.fetch_recipe_tags_for_recipe(recipe.id)
 
         return recipe
 
-    def fetch_all_global_recipe_types(self) -> list[str]:
-        """Returns a list of all the recipe types in the database."""
-        return self._repo.fetch_all_global_recipe_types()
+    def fetch_all_global_recipe_tags(self) -> list[str]:
+        """Returns a list of all the recipe tags in the database."""
+        return self._repo.fetch_all_global_recipe_tags()
 
     def update_ingredient(self, ingredient: Ingredient):
         """Updates the given ingredient in the database."""
@@ -393,10 +393,10 @@ class DatabaseService:
                 recipe_id=recipe.id,
                 serve_times=serve_times,
             )
-            # Update the recipe types
-            self._repo.update_recipe_types(
+            # Update the recipe tags
+            self._repo.update_recipe_tags(
                 recipe_id=recipe.id,
-                recipe_types=recipe._recipe_types,
+                recipe_tags=recipe._recipe_tags,
             )
         except Exception as e:
             # Roll back the transaction if an exception occurs

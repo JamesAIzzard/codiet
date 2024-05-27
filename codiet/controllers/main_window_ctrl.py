@@ -68,7 +68,6 @@ class MainWindowCtrl:
 
     def _on_meal_planner_clicked(self):
         """Handle the user clicking the Meal Planner button."""
-        print("Meal Planner clicked")
         self.view.show_page("meal-planner")
         # Deselect the other nav buttons
         self.view.deselect_all_nav_buttons()

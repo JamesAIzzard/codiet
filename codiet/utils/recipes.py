@@ -66,8 +66,8 @@ def convert_recipe_to_json(recipe: Recipe) -> dict:
         timestring_interval = convert_datetime_interval_to_time_string_interval(serve_time)
         recipe_data["serve_times"].append(timestring_interval)
     # Add the recipe types to the recipe dictionary
-    for recipe_type in recipe.recipe_types:
-        recipe_data["types"].append(recipe_type)
+    for tag in recipe.tags:
+        recipe_data["tags"].append(tag)
     # Return the recipe dictionary
     return recipe_data
 

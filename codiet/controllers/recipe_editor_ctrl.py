@@ -2,6 +2,7 @@ from datetime import datetime
 
 from PyQt6.QtWidgets import QVBoxLayout
 
+from codiet.db.database_service import DatabaseService
 from codiet.utils.time import (
     convert_datetime_interval_to_time_string_interval,
     convert_time_string_interval_to_datetime_interval,
@@ -10,8 +11,6 @@ from codiet.utils.strings import convert_to_snake_case
 from codiet.utils.recipes import convert_recipe_to_json, save_recipe_datafile, recipe_datafile_exists
 from codiet.models.recipes import Recipe
 from codiet.models.ingredients import IngredientQuantity
-from codiet.controllers.search_column_ctrl import SearchColumnCtrl
-from codiet.controllers.entity_name_dialog_ctrl import EntityNameDialogCtrl
 from codiet.views.dialog_box_views import (
     DialogBoxView,
     EntityNameDialogView, 
@@ -22,7 +21,10 @@ from codiet.views.recipe_editor_view import RecipeEditorView
 from codiet.views.search_views import SearchColumnView
 from codiet.views.dialog_box_views import ErrorDialogBoxView
 from codiet.views.time_interval_popup_view import TimeIntervalPopupView
-from codiet.db.database_service import DatabaseService
+from codiet.views.tags import RecipeTagSelectorPopup
+from codiet.controllers.search import SearchColumnCtrl
+from codiet.controllers.entity_name_dialog_ctrl import EntityNameDialogCtrl
+from codiet.controllers.tags import RecipeTagEditorCtrl
 
 
 class RecipeEditorCtrl:
@@ -76,12 +78,22 @@ class RecipeEditorCtrl:
         # Configure the serve time popup
         self.serve_time_popup = TimeIntervalPopupView()
    
+        # Configure the tag editor popup
+        # Init the tag selector popup
+        self.recipe_tag_selector_popup = RecipeTagSelectorPopup(parent=self.view)
+        # Init the controller
+        self.recipe_tag_editor_ctrl = RecipeTagEditorCtrl(
+            recipe_tag_editor_view=self.view.recipe_tag_editor_view, 
+            recipe_tag_selector_popup=self.recipe_tag_selector_popup,
+            on_tag_added=self._on_recipe_tag_added,
+            on_tag_removed=self._on_recipe_tag_removed
+        )
+
         # Connect signals and slots
         self._connect_toolbar()
         self._connect_basic_info_fields()        
         self._connect_ingredients_editor()
         self._connect_serve_time_editor()
-        self._connect_recipe_type_editor()
 
     def load_recipe_instance(self, recipe: Recipe) -> None:
         """Load a recipe instance into the editor."""
@@ -121,8 +133,8 @@ class RecipeEditorCtrl:
             self.view.serve_time_intervals_editor_view.add_time_interval(
                 convert_datetime_interval_to_time_string_interval(interval)
             )
-        # Update the recipe type field
-        self.view.update_recipe_types(recipe._recipe_types)
+        # Update the recipe tag field
+        self.recipe_tag_editor_ctrl.update_recipe_tags(recipe.tags)
 
     def _cache_recipe_names(self) -> None:
         """Cache the recipe names."""
@@ -486,32 +498,25 @@ class RecipeEditorCtrl:
         # Hide the popup
         self.serve_time_popup.hide()
 
-    def _on_recipe_type_selected(self, recipe_type: str) -> None:
-        """Handle a recipe type being selected."""
-        # If the type is already on the recipe, return
-        if recipe_type in self.recipe.recipe_types:
-            return None
-        # Add the type to the view
-        self.view.recipe_type_editor_view.add_recipe_type(recipe_type)
-        # Add the type to the recipe
-        self.recipe.add_recipe_type(recipe_type)
+    def _on_recipe_tag_added(self, tag:str) -> None:
+        """Handle a recipe tag being added."""
+        # Add the tag to the recipe
+        self.recipe.add_recipe_tag(tag)
         # Update the recipe in the database
         if self.recipe.id is not None:
             with DatabaseService() as db_service:
                 db_service.update_recipe(self.recipe)
                 db_service.commit()
 
-    def _on_remove_recipe_type_clicked(self) -> None:
-        """Handle the remove recipe type button being clicked."""
-        # Get the selected recipe type
-        recipe_type = self.view.recipe_type_editor_view.selected_recipe_type
-        # If there is no selected recipe type, return
-        if recipe_type is None:
-            return None
-        # Remove the recipe type from the view
-        self.view.recipe_type_editor_view.remove_recipe_type(recipe_type)
-        # Remove the recipe type from the recipe
-        self.recipe.remove_recipe_type(recipe_type)
+    def _on_recipe_tag_removed(self, tag:str) -> None:
+        """Handle a recipe tag being removed."""
+        # Remove the tag from the recipe
+        self.recipe.remove_recipe_tag(tag)
+        # Update the recipe in the database
+        if self.recipe.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_recipe(self.recipe)
+                db_service.commit()
 
     def _connect_toolbar(self) -> None:
         """Connect the main button signals to their handlers"""
@@ -562,21 +567,3 @@ class RecipeEditorCtrl:
             self._on_remove_serve_time_clicked
         )
         self.serve_time_popup.addIntervalClicked.connect(self._on_serve_time_provided)
-
-    def _connect_recipe_type_editor(self) -> None:
-        """Initialise the recipe type selector popup."""
-        # self.view.recipe_type_editor_view.addRecipeTypeClicked.connect(
-        #     self._on_add_recipe_type_clicked
-        # )
-        self.view.recipe_type_editor_view.removeRecipeTypeClicked.connect(
-            self._on_remove_recipe_type_clicked
-        )
-        # self.recipe_type_selector_popup.resultSelected.connect(
-        #     self._on_recipe_type_selected
-        # )
-        # self.recipe_type_selector_popup.searchTermCleared.connect(
-        #     self._on_clear_recipe_type_search_clicked
-        # )
-        # self.recipe_type_selector_popup.searchTermChanged.connect(
-        #     self._on_recipe_type_search_term_changed
-        # )
