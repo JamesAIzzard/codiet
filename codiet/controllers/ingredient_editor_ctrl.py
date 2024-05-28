@@ -1,10 +1,11 @@
 from codiet.db.database_service import DatabaseService
-from codiet.utils.search import filter_text
+from codiet.models.ingredients import Ingredient
+from codiet.models.nutrients import IngredientNutrientQuantity
 from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.views.dialog_box_views import ErrorDialogBoxView, ConfirmDialogBoxView, EntityNameDialogView
 from codiet.controllers.search import SearchColumnCtrl
 from codiet.controllers.entity_name_dialog_ctrl import EntityNameDialogCtrl
-from codiet.models.ingredients import Ingredient
+from codiet.controllers.nutrients import IngredientNutrientsEditorCtrl
 
 
 class IngredientEditorCtrl:
@@ -50,6 +51,11 @@ class IngredientEditorCtrl:
             check_name_available=lambda name: name not in self._ingredient_names,
             on_name_accepted=self._on_ingredient_name_accepted,
         )
+        self.ingredient_nutrient_editor_ctrl = IngredientNutrientsEditorCtrl(
+            view=self.view.nutrient_editor,
+            get_nutrient_data=lambda: self.ingredient.nutrient_quantities,
+            on_nutrient_qty_changed=self._on_nutrient_qty_changed,
+        )
 
         # Connect the handler functions to the view signals
         self._connect_toolbar()
@@ -59,7 +65,6 @@ class IngredientEditorCtrl:
         self._connect_bulk_editor()
         self._connect_flag_editor()
         self.view.txt_gi.textChanged.connect(self._on_gi_value_changed)
-        self._connect_nutrient_editor()
 
     @property
     def leaf_nutrient_names(self) -> list[str]:
@@ -396,86 +401,18 @@ class IngredientEditorCtrl:
                 db_service.update_ingredient(self.ingredient)
                 db_service.commit()
 
-    def _on_nutrient_filter_changed(self, search_term: str):
-        """Handler for changes to the nutrient filter."""
-        # Clear the nutrient editor
-        self.view.nutrient_editor.remove_all_nutrients()
-        # If the search term is empty
-        if search_term.strip() == "":
-            # Add all leaf nutrients back into the view
-            for nutrient_name in self.leaf_nutrient_names:
-                self.view.nutrient_editor.add_nutrient(nutrient_name)
-            # Populate with the nutrient quantities from the ingredient instance
-            self.view.nutrient_editor.update_nutrients(self.ingredient.nutrient_quantities)
-        else:
-            # Get the filtered list of nutrients
-            filtered_nutrients = filter_text(search_term, self.leaf_nutrient_names, 3)
-            # Add each of the filtered nutrients into the view
-            for nutrient_name in filtered_nutrients:
-                self.view.nutrient_editor.add_nutrient(nutrient_name)
-            # Populate with the nutrient quantities from the ingredient instance
-            for nutrient_name in filtered_nutrients:
-                self.view.nutrient_editor.update_nutrient(
-                    nutrient_name, self.ingredient.nutrient_quantities[nutrient_name]
+    def _on_nutrient_qty_changed(self, nutrient_quantity: IngredientNutrientQuantity):
+        """Handler for changes to the ingredient nutrient quantities."""
+        # Update the nutrient quantity on the ingredient
+        self.ingredient.update_nutrient_quantity(nutrient_quantity)
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient_nutrient_quantity(
+                    ingredient_id=self.ingredient.id, 
+                    nutrient_quantity=nutrient_quantity
                 )
-
-    def _on_nutrient_filter_cleared(self):
-        """Handler for clearing the nutrient filter."""
-        # Clear the text from the search filter
-        self.view.nutrient_editor.search_term_widget.clear()
-        # Clear the nutrient editor
-        self.view.nutrient_editor.remove_all_nutrients()
-        # Add all leaf nutrients back into the view
-        for nutrient_name in self.leaf_nutrient_names:
-            self.view.nutrient_editor.add_nutrient(nutrient_name)
-
-    def _on_nutrient_mass_changed(self, nutrient_name: str, mass: float | None):
-        """Handler for changes to the nutrient mass."""
-        # Grab the nutrient quantity from the ingredient
-        nutrient_quantity = self.ingredient.nutrient_quantities[nutrient_name]
-        # Update the nutrient mass
-        nutrient_quantity.nutrient_mass = mass
-        # If the ingredient id is not None, update the database
-        if self.ingredient.id is not None:
-            with DatabaseService() as db_service:
-                db_service.update_ingredient(self.ingredient)
                 db_service.commit()
-
-    def _on_nutrient_mass_units_changed(self, nutrient_name: str, units: str):
-        """Handler for changes to the nutrient mass units."""
-        # Grab the nutrient quantity from the ingredient
-        nutrient_quantity = self.ingredient.nutrient_quantities[nutrient_name]
-        # Update the nutrient mass units
-        nutrient_quantity.nutrient_mass_unit = units
-        # If the ingredient id is not None, update the database
-        if self.ingredient.id is not None:
-            with DatabaseService() as db_service:
-                db_service.update_ingredient(self.ingredient)
-                db_service.commit()        
-
-    def _on_nutrient_ingredient_qty_changed(self, nutrient_name: str, qty: float | None):
-        """Handler for changes to the ingredient quantity defining a nutrient mass."""
-        # Grab the nutrient quantity from the ingredient
-        nutrient_quantity = self.ingredient.nutrient_quantities[nutrient_name]
-        # Update the ingredient quantity
-        nutrient_quantity.ingredient_quantity = qty
-        # If the ingredient id is not None, update the database
-        if self.ingredient.id is not None:
-            with DatabaseService() as db_service:
-                db_service.update_ingredient(self.ingredient)
-                db_service.commit()        
-
-    def _on_nutrient_ingredient_qty_units_changed(self, nutrient_name: str, units: str):
-        """Handler for changes to the ingredient quantity units used to define a nutrient mass."""
-        # Grab the nutrient quantity from the ingredient
-        nutrient_quantity = self.ingredient.nutrient_quantities[nutrient_name]
-        # Update the ingredient mass units
-        nutrient_quantity.ingredient_quantity_unit = units
-        # If the ingredient id is not None, update the database
-        if self.ingredient.id is not None:
-            with DatabaseService() as db_service:
-                db_service.update_ingredient(self.ingredient)
-                db_service.commit()        
 
     def _connect_delete_ingredient_dialog(self) -> None:
         """Connect the signals for the delete ingredient dialog."""
@@ -554,25 +491,4 @@ class IngredientEditorCtrl:
         )
         self.view.flag_editor.onClearSelectionFlagsClicked.connect(
             self._on_clear_selection_flags_clicked
-        )
-
-    def _connect_nutrient_editor(self) -> None:
-        """Connect the signals for the nutrient editor."""
-        self.view.nutrient_editor.nutrientFilterChanged.connect(
-            self._on_nutrient_filter_changed
-        )
-        self.view.nutrient_editor.nutrientFilterCleared.connect(
-            self._on_nutrient_filter_cleared
-        )
-        self.view.nutrient_editor.nutrientMassChanged.connect(
-            self._on_nutrient_mass_changed
-        )
-        self.view.nutrient_editor.nutrientMassUnitsChanged.connect(
-            self._on_nutrient_mass_units_changed
-        )
-        self.view.nutrient_editor.ingredientQtyChanged.connect(
-            self._on_nutrient_ingredient_qty_changed
-        )
-        self.view.nutrient_editor.ingredientQtyUnitsChanged.connect(
-            self._on_nutrient_ingredient_qty_units_changed
         )

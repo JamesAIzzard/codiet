@@ -463,43 +463,38 @@ class Repository:
             (gi, ingredient_id),
         )
 
-    def update_ingredient_nutrients(
-        self,
-        ingredient_id: int,
-        nutrients: dict[str, dict],
+    def update_ingredient_nutrient_quantity(
+            self,
+            ingredient_id: int,
+            nutrient_name: str,
+            ntr_qty_unit: str,
+            ntr_qty_value: float|None,
+            ing_qty_unit: str,
+            ing_qty_value: float|None,
     ) -> None:
-        """Updates the nutrients of the ingredient associated with the given ID."""
-        # Clear the existing nutrients
+        """Updates the nutrient quantity of the ingredient associated with the given ID."""
+        # Get the nutrient ID
+        nutrient_id = self._db.execute(
+            """
+            SELECT nutrient_id FROM global_leaf_nutrients WHERE nutrient_name = ?;
+        """,
+            (nutrient_name,),
+        ).fetchone()[0]
+        # Clear the existing nutrient
         self._db.execute(
             """
-            DELETE FROM ingredient_nutrients WHERE ingredient_id = ?;
+            DELETE FROM ingredient_nutrients WHERE ingredient_id = ? AND nutrient_id = ?;
         """,
-            (ingredient_id,),
+            (ingredient_id, nutrient_id),
         )
-        # Add the new nutrients
-        for nutrient, data in nutrients.items():
-            # Get the nutrient ID
-            nutrient_id = self._db.execute(
-                """
-                SELECT nutrient_id FROM global_leaf_nutrients WHERE nutrient_name = ?;
-            """,
-                (nutrient,),
-            ).fetchone()[0]
-            # Add the nutrient
-            self._db.execute(
-                """
-                INSERT INTO ingredient_nutrients (ingredient_id, nutrient_id, ntr_qty_unit, ntr_qty_value, ing_qty_unit, ing_qty_value)
-                VALUES (?, ?, ?, ?, ?, ?);
-            """,
-                (
-                    ingredient_id,
-                    nutrient_id,
-                    data["ntr_qty_unit"],
-                    data["ntr_qty_value"],
-                    data["ing_qty_unit"],
-                    data["ing_qty_value"],
-                ),
-            )
+        # Add the new nutrient
+        self._db.execute(
+            """
+            INSERT INTO ingredient_nutrients (ingredient_id, nutrient_id, ntr_qty_unit, ntr_qty_value, ing_qty_unit, ing_qty_value)
+            VALUES (?, ?, ?, ?, ?, ?);
+        """,
+            (ingredient_id, nutrient_id, ntr_qty_unit, ntr_qty_value, ing_qty_unit, ing_qty_value),
+        )
 
     def update_recipe_name(self, recipe_id: int, name: str) -> None:
         """Updates the name of the recipe associated with the given ID."""

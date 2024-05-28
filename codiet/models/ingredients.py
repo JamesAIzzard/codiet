@@ -59,8 +59,8 @@ class Ingredient:
     def update_nutrient_quantity(
         self, ingredient_nutrient: IngredientNutrientQuantity
     ) -> None:
-        """Adds a nutrient to the ingredient."""
-        self._nutrients[ingredient_nutrient.name] = ingredient_nutrient
+        """Updates a nutrient quantity on the ingredient."""
+        self._nutrients[ingredient_nutrient.nutrient_name] = ingredient_nutrient
 
 
 class IngredientQuantity:

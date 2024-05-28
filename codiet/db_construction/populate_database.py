@@ -129,7 +129,7 @@ def _load_ingredient_nutrient_qty_from_json(nutrient_name:str, nutrient_data:dic
     """Load an ingredient nutrient quantity object from a json data dict."""
     # Create the ingredient nutrient quantity instance
     nutrient_qty = IngredientNutrientQuantity(
-        name=nutrient_name,
+        nutrient_name=nutrient_name,
         ntr_mass_value=nutrient_data["ntr_qty_value"],
         ntr_mass_unit=nutrient_data["ntr_qty_unit"],
         ing_qty_value=nutrient_data["ing_qty_value"],
