@@ -6,6 +6,8 @@ def flatten_tree(tree: dict, parent_key='') -> list[str]:
         path = f"{parent_key}/{key}" if parent_key else key
         # Check if the value is a non-empty dictionary
         if isinstance(value, dict) and value:
+            # Add the path to the list
+            flat_list.append(path)
             # Recursively flatten the nested dictionary
             flat_list.extend(flatten_tree(value, path))
         else:
