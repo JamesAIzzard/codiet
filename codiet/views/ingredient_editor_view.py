@@ -6,8 +6,6 @@ from PyQt6.QtWidgets import (
     QToolBar,
     QLabel,
     QGroupBox,
-    QLineEdit,
-    QTextEdit,
     QComboBox
 )
 from PyQt6.QtCore import pyqtSignal, QVariant
@@ -15,7 +13,7 @@ from PyQt6.QtCore import pyqtSignal, QVariant
 from codiet.utils.pyqt import block_signals
 from codiet.views.buttons import AddButton, DeleteButton, EditButton, SaveJSONButton, AutopopulateButton
 from codiet.views.search_views import SearchColumnView
-from codiet.views.text_editors import NumericLineEdit
+from codiet.views.text_editors import LineEdit, MultilineEdit, NumericLineEdit
 from codiet.views.flag_editor_view import FlagEditorView
 from codiet.views.ingredient_nutrients_editor_view import IngredientNutrientsEditorView
 
@@ -232,7 +230,7 @@ class IngredientEditorView(QWidget):
         label = QLabel("Name:")
         lyt_ingredient_name.addWidget(label)
         # Create a textbox and add it to the layout
-        self.txt_ingredient_name = QLineEdit()
+        self.txt_ingredient_name = LineEdit()
         # Make the line edit not editable
         self.txt_ingredient_name.setReadOnly(True)
         lyt_ingredient_name.addWidget(self.txt_ingredient_name)
@@ -246,9 +244,9 @@ class IngredientEditorView(QWidget):
         # Add a description field and multiline textbox
         label = QLabel("Description:")
         lyt_basic_info.addWidget(label)
-        self.txt_description = QTextEdit()
+        self.txt_description = MultilineEdit()
         lyt_basic_info.addWidget(self.txt_description)
-        self.txt_description.textChanged.connect(
+        self.txt_description.lostFocus.connect(
             lambda: self.ingredientDescriptionChanged.emit(self.txt_description.toPlainText())
         )
 
@@ -270,7 +268,7 @@ class IngredientEditorView(QWidget):
         # Create a textbox for the cost of the ingredient
         self.txt_cost = NumericLineEdit()
         lyt_cost.addWidget(self.txt_cost)
-        self.txt_cost.valueChanged.connect(self.ingredientCostValueChanged.emit)
+        self.txt_cost.lostFocus.connect(self.ingredientCostValueChanged.emit)
 
         # Create a second label
         label = QLabel(" per ")
@@ -279,7 +277,7 @@ class IngredientEditorView(QWidget):
         # Create a textbox and add it to the layout
         self.txt_cost_quantity = NumericLineEdit()
         lyt_cost.addWidget(self.txt_cost_quantity)
-        self.txt_cost_quantity.valueChanged.connect(self.ingredientCostQuantityChanged.emit)
+        self.txt_cost_quantity.lostFocus.connect(self.ingredientCostQuantityChanged.emit)
 
         # Create a units dropdown
         self.cmb_cost_qty_unit = QComboBox()
@@ -310,7 +308,7 @@ class IngredientEditorView(QWidget):
         # Create the density volume textbox and add it to the layout
         self.txt_dens_vol = NumericLineEdit()
         lyt_density.addWidget(self.txt_dens_vol)
-        self.txt_dens_vol.valueChanged.connect(self.ingredientDensityVolChanged.emit)
+        self.txt_dens_vol.lostFocus.connect(self.ingredientDensityVolChanged.emit)
 
         # Create a density volume units dropdown and add it to the layout
         self.cmb_dens_vol_unit = QComboBox()
@@ -327,7 +325,7 @@ class IngredientEditorView(QWidget):
         # Create a textbox and add it to the layout
         self.txt_dens_mass = NumericLineEdit()
         lyt_density.addWidget(self.txt_dens_mass)
-        self.txt_dens_mass.valueChanged.connect(self.ingredientDensityMassChanged.emit)
+        self.txt_dens_mass.lostFocus.connect(self.ingredientDensityMassChanged.emit)
 
         # Create a mass units dropdown and add it to the layout
         self.cmb_dens_mass_unit = QComboBox()
@@ -348,7 +346,7 @@ class IngredientEditorView(QWidget):
         # Create a textbox and add it to the layout
         self.txt_num_pieces = NumericLineEdit()
         lyt_piece_mass.addWidget(self.txt_num_pieces)
-        self.txt_num_pieces.valueChanged.connect(self.ingredientNumPiecesChanged.emit)
+        self.txt_num_pieces.lostFocus.connect(self.ingredientNumPiecesChanged.emit)
 
         # Create another label
         label = QLabel(" piece(s) weighs ")
@@ -357,7 +355,7 @@ class IngredientEditorView(QWidget):
         # Create a textbox and add it to the layout
         self.txt_pc_mass_value = NumericLineEdit()
         lyt_piece_mass.addWidget(self.txt_pc_mass_value)
-        self.txt_pc_mass_value.valueChanged.connect(self.ingredientPieceMassChanged.emit)
+        self.txt_pc_mass_value.lostFocus.connect(self.ingredientPieceMassChanged.emit)
 
         # Create a mass units dropdown and add it to the layout
         self.cmb_pc_mass_unit = QComboBox()
@@ -384,7 +382,7 @@ class IngredientEditorView(QWidget):
         # Create a line edit and add it to the layout
         self.txt_gi = NumericLineEdit()
         column_layout.addWidget(self.txt_gi)
-        self.txt_gi.valueChanged.connect(self.ingredientGIChanged.emit)
+        self.txt_gi.lostFocus.connect(self.ingredientGIChanged.emit)
 
 
 

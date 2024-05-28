@@ -220,61 +220,121 @@ class IngredientEditorCtrl:
         """Handler for changes to the ingredient description."""
         # Update the ingredient description
         self.ingredient.description = description
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()
 
     def _on_ingredient_cost_value_changed(self, value: float|None):
         """Handler for changes to the ingredient cost."""
         # Update the ingredient cost
         self.ingredient.cost_value = value
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()
 
     def _on_ingredient_cost_quantity_changed(self, value: float|None):
         """Handler for changes to the ingredient quantity associated with the cost data."""
         # Update the ingredient cost quantity
         self.ingredient.cost_qty_value = value
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()
 
     def _on_ingredient_cost_qty_unit_changed(self, unit: str):
         """Handler for changes to the ingredient cost unit."""
         # Update the ingredient cost unit
         self.ingredient.cost_qty_unit = unit
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()
 
     def _on_ingredient_density_vol_value_changed(self, value: float|None):
         """Handler for changes to the ingredient density volume value."""
         # Update the ingredient density volume value
         self.ingredient.density_vol_value = value
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()
 
     def _on_ingredient_density_vol_unit_changed(self, value: str):
         """Handler for changes to the ingredient density volume unit."""
         # Update the ingredient density volume unit
         self.ingredient.density_vol_unit = value
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()
 
     def _on_ingredient_density_mass_value_changed(self, value: float|None):
         """Handler for changes to the ingredient density mass value."""
         # Update the ingredient density mass value
         self.ingredient.density_mass_value = value
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()
 
     def _on_ingredient_density_mass_unit_changed(self, value: str):
         """Handler for changes to the ingredient density mass unit."""
         # Update the ingredient density mass unit
         self.ingredient.density_mass_unit = value
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()
 
     def _on_ingredient_num_pieces_changed(self, value: float|None):
         """Handler for changes to the ingredient piece count."""
         # Update the ingredient piece count
         self.ingredient.pc_qty = value
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()
 
     def _on_ingredient_pc_mass_value_changed(self, value: float|None):
         """Handler for changes to the ingredient piece mass value."""
         # Update the ingredient piece mass value
         self.ingredient.pc_mass_value = value
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()
 
     def _on_ingredient_pc_mass_unit_changed(self, value: str):
         """Handler for changes to the ingredient piece mass unit."""
         # Update the ingredient piece mass unit
         self.ingredient.pc_mass_unit = value
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()
 
     def _on_flag_changed(self, flag_name: str, flag_value: bool):
         """Handler for changes to the ingredient flags."""
         # Update the ingredient flags
         self.ingredient.set_flag(flag_name, flag_value)
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()
 
     def _on_select_all_flags_clicked(self):
         """Handler for selecting all flags."""
@@ -282,6 +342,11 @@ class IngredientEditorCtrl:
         self.ingredient.set_all_flags_true()
         # Select all flags on the view
         self.view.flag_editor.set_all_flags_true()
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()
 
     def _on_deselect_all_flags_clicked(self):
         """Handler for deselecting all flags."""
@@ -289,6 +354,11 @@ class IngredientEditorCtrl:
         self.ingredient.set_all_flags_false()
         # Deselect all flags on the view
         self.view.flag_editor.set_all_flags_false()
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()
 
     def _on_invert_selection_flags_clicked(self):
         """Handler for inverting the selected flags."""
@@ -298,6 +368,11 @@ class IngredientEditorCtrl:
             self.ingredient.set_flag(flag, not self.ingredient.flags[flag])
         # Invert on the view
         self.view.flag_editor.invert_flags()
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()
 
     def _on_clear_selection_flags_clicked(self):
         """Handler for clearing the selected flags."""
@@ -305,11 +380,21 @@ class IngredientEditorCtrl:
         self.ingredient.set_all_flags_false()
         # Clear all flags on the view
         self.view.flag_editor.set_all_flags_false()
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()
 
     def _on_gi_value_changed(self, value:float|None):
         """Handler for changes to the ingredient GI value."""
         # Update the ingredient GI value
         self.ingredient.gi = value
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()
 
     def _on_nutrient_filter_changed(self, search_term: str):
         """Handler for changes to the nutrient filter."""
@@ -350,6 +435,11 @@ class IngredientEditorCtrl:
         nutrient_quantity = self.ingredient.nutrient_quantities[nutrient_name]
         # Update the nutrient mass
         nutrient_quantity.nutrient_mass = mass
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()
 
     def _on_nutrient_mass_units_changed(self, nutrient_name: str, units: str):
         """Handler for changes to the nutrient mass units."""
@@ -357,6 +447,11 @@ class IngredientEditorCtrl:
         nutrient_quantity = self.ingredient.nutrient_quantities[nutrient_name]
         # Update the nutrient mass units
         nutrient_quantity.nutrient_mass_unit = units
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()        
 
     def _on_nutrient_ingredient_qty_changed(self, nutrient_name: str, qty: float | None):
         """Handler for changes to the ingredient quantity defining a nutrient mass."""
@@ -364,6 +459,11 @@ class IngredientEditorCtrl:
         nutrient_quantity = self.ingredient.nutrient_quantities[nutrient_name]
         # Update the ingredient quantity
         nutrient_quantity.ingredient_quantity = qty
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()        
 
     def _on_nutrient_ingredient_qty_units_changed(self, nutrient_name: str, units: str):
         """Handler for changes to the ingredient quantity units used to define a nutrient mass."""
@@ -371,6 +471,11 @@ class IngredientEditorCtrl:
         nutrient_quantity = self.ingredient.nutrient_quantities[nutrient_name]
         # Update the ingredient mass units
         nutrient_quantity.ingredient_quantity_unit = units
+        # If the ingredient id is not None, update the database
+        if self.ingredient.id is not None:
+            with DatabaseService() as db_service:
+                db_service.update_ingredient(self.ingredient)
+                db_service.commit()        
 
     def _connect_delete_ingredient_dialog(self) -> None:
         """Connect the signals for the delete ingredient dialog."""
