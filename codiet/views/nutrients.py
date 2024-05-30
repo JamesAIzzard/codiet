@@ -1,30 +1,57 @@
 from PyQt6.QtWidgets import (
     QWidget,
+    QVBoxLayout,
     QHBoxLayout,
     QLabel,
-    QComboBox,
+    QComboBox
 )
 from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.utils.pyqt import block_signals
 from codiet.views.text_editors import NumericLineEdit
+from codiet.views.search import SearchColumnView
 
+class NutrientQuantitiesEditorView(QWidget):
+    """UI element for editing the quantities of nutrients in an ingredient."""
+    nutrientQuantityChanged = pyqtSignal(str, QVariant, str)
 
-class IngredientNutrientEditorView(QWidget):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._build_ui(*args, **kwargs)
+
+    def _build_ui(self):
+        """Build the UI elements."""
+        # Create a vertical layout
+        lyt_top_level = QVBoxLayout()
+        self.setLayout(lyt_top_level)
+        # Add a horizontal layout to hold the ingredient reference qty
+        lyt_ingredient_ref_qty = QHBoxLayout()
+        lyt_top_level.addLayout(lyt_ingredient_ref_qty)
+        # Add the ingredient reference qty label
+        lbl_ingredient_ref_qty = QLabel("Ingredient Reference Quantity:")
+        lyt_ingredient_ref_qty.addWidget(lbl_ingredient_ref_qty)
+        # Add the ingredient reference qty editor
+        self.txt_ingredient_ref_qty = NumericLineEdit()
+        lyt_ingredient_ref_qty.addWidget(self.txt_ingredient_ref_qty)
+        # Add the ingredient reference qty units combobox
+        self.cmb_ingredient_ref_qty_units = QComboBox()
+        lyt_ingredient_ref_qty.addWidget(self.cmb_ingredient_ref_qty_units)
+        # Add a stretch
+        lyt_ingredient_ref_qty.addStretch(1)
+        # Add the search column
+        self.search_column = SearchColumnView()
+        lyt_top_level.addWidget(self.search_column)
+
+class NutrientQuantityEditorView(QWidget):
     """UI element for quantity of a nutrient in an ingredient."""
 
     # Define signals
     nutrientMassChanged = pyqtSignal(str, QVariant)
     nutrientMassUnitsChanged = pyqtSignal(str, str)
-    ingredientMassChanged = pyqtSignal(str, QVariant)
-    ingredientMassUnitsChanged = pyqtSignal(str, str)
 
-    def __init__(self, nutrient_name: str):
-        super().__init__()
-
+    def __init__(self, nutrient_name: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.nutrient_name = nutrient_name
-
-        # Construct the UI
         self._build_ui()
 
     @property
@@ -37,16 +64,6 @@ class IngredientNutrientEditorView(QWidget):
         """Returns the nutrient mass units."""
         return self.cmb_mass_units.currentText()
 
-    @property
-    def ingredient_mass(self) -> float | None:
-        """Returns the ingredient mass."""
-        return self.txt_ingredient_mass.text()
-
-    @property
-    def ingredient_mass_units(self) -> str:
-        """Returns the ingredient mass units."""
-        return self.cmb_ingredient_mass_units.currentText()
-
     def update_nutrient_mass(self, mass: float | None):
         """Updates the nutrient mass."""
         with block_signals(self.txt_nutrient_mass):
@@ -56,16 +73,6 @@ class IngredientNutrientEditorView(QWidget):
         """Updates the nutrient mass units."""
         with block_signals(self.cmb_mass_units):
             self.cmb_mass_units.setCurrentText(units)
-
-    def update_ingredient_mass(self, mass: float | None):
-        """Updates the ingredient mass."""
-        with block_signals(self.txt_ingredient_mass):
-            self.txt_ingredient_mass.setText(mass)
-
-    def update_ingredient_mass_units(self, units: str):
-        """Updates the ingredient mass units."""
-        with block_signals(self.cmb_ingredient_mass_units):
-            self.cmb_ingredient_mass_units.setCurrentText(units)
 
     def _build_ui(self):
         """Initializes the UI elements."""
@@ -102,32 +109,6 @@ class IngredientNutrientEditorView(QWidget):
         # Connect the currentTextChanged signal to the nutrientMassUnitsChanged signal
         self.cmb_mass_units.currentTextChanged.connect(
             lambda units: self.nutrientMassUnitsChanged.emit(self.nutrient_name, units)
-        )
-
-        # Create a label
-        label = QLabel(" per ")
-        layout.addWidget(label)
-
-        # Create a textbox for ignredient mass
-        self.txt_ingredient_mass = NumericLineEdit()
-        # Set the max width of the textbox
-        self.txt_ingredient_mass.setMaximumWidth(60)
-        layout.addWidget(self.txt_ingredient_mass)
-        # Connect the valueChanged signal to the ingredientMassChanged signal
-        self.txt_ingredient_mass.valueChanged.connect(
-            lambda value: self.ingredientMassChanged.emit(self.nutrient_name, value)
-        )
-
-        # Create a dropdown for mass units
-        self.cmb_ingredient_mass_units = QComboBox()
-        # Add some mass units to the dropdown
-        # These will utimately get pulled from a config
-        # TODO - pull mass units from config
-        self.cmb_ingredient_mass_units.addItems(["g", "kg"])
-        layout.addWidget(self.cmb_ingredient_mass_units)
-        # Connect the currentTextChanged signal to the ingredientMassUnitsChanged signal
-        self.cmb_ingredient_mass_units.currentTextChanged.connect(
-            lambda units: self.ingredientMassUnitsChanged.emit(self.nutrient_name, units)
         )
 
         # Add a little space at either end of the widget

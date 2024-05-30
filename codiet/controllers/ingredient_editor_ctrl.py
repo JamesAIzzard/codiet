@@ -1,3 +1,5 @@
+from PyQt6.QtWidgets import QListWidgetItem
+
 from codiet.db.database_service import DatabaseService
 from codiet.models.ingredients import Ingredient
 from codiet.models.nutrients import IngredientNutrientQuantity
@@ -5,7 +7,7 @@ from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.views.dialog_box_views import ErrorDialogBoxView, ConfirmDialogBoxView, EntityNameDialogView
 from codiet.controllers.search import SearchColumnCtrl
 from codiet.controllers.entity_name_dialog_ctrl import EntityNameDialogCtrl
-from codiet.controllers.nutrients import IngredientNutrientsEditorCtrl
+from codiet.controllers.nutrients import NutrientQuantitiesEditorCtrl
 
 
 class IngredientEditorCtrl:
@@ -43,7 +45,7 @@ class IngredientEditorCtrl:
         # Connect the module controllers
         self.search_column_ctrl = SearchColumnCtrl(
             view=self.view.ingredient_search,
-            get_data=lambda: self._ingredient_names,
+            get_searchable_strings=lambda: self._ingredient_names,
             on_result_selected=self._on_ingredient_selected,
         )
         self.ingredient_name_editor_ctrl = EntityNameDialogCtrl(
@@ -51,8 +53,8 @@ class IngredientEditorCtrl:
             check_name_available=lambda name: name not in self._ingredient_names,
             on_name_accepted=self._on_ingredient_name_accepted,
         )
-        self.ingredient_nutrient_editor_ctrl = IngredientNutrientsEditorCtrl(
-            view=self.view.nutrient_editor,
+        self.ingredient_nutrient_editor_ctrl = NutrientQuantitiesEditorCtrl(
+            view=self.view.nutrient_quantities_editor,
             get_nutrient_data=lambda: self.ingredient.nutrient_quantities,
             on_nutrient_qty_changed=self._on_nutrient_qty_changed,
         )
@@ -105,23 +107,16 @@ class IngredientEditorCtrl:
         self.view.update_pc_mass_unit(self.ingredient.pc_mass_unit)
 
         # Set the flags
-        # Remove all old flags
         self.view.flag_editor.remove_all_flags_from_list()
-        # Add the new flags
         self.view.flag_editor.add_flags_to_list(list(self.ingredient.flags.keys()))
-        # Update the flag selections
+
         self.view.flag_editor.update_flags(self.ingredient.flags)
 
         # Update the GI field
         self.view.update_gi(self.ingredient.gi)
 
         # Set the nutrients        
-        # Remove all old nutrients
-        self.view.nutrient_editor.remove_all_nutrients()
-        # Add the new nutrients
-        self.view.nutrient_editor.add_nutrients(self.leaf_nutrient_names)
-        # Update their values
-        self.view.nutrient_editor.update_nutrients(self.ingredient.nutrient_quantities)
+        self.ingredient_nutrient_editor_ctrl.load_nutrient_quantities()
 
     def _cache_leaf_nutrient_names(self) -> None:
         """Cache the leaf nutrient names."""
@@ -133,8 +128,10 @@ class IngredientEditorCtrl:
         with DatabaseService() as db_service:
             self._ingredient_names = db_service.fetch_all_ingredient_names()
 
-    def _on_ingredient_selected(self, ingredient_name: str) -> None:
+    def _on_ingredient_selected(self, list_item:QListWidgetItem) -> None:
         """Handler for selecting an ingredient."""
+        # Grab the selected ingredient name from the search widget
+        ingredient_name = list_item.text()
         # Fetch the ingredient from the database
         with DatabaseService() as db_service:
             ingredient = db_service.fetch_ingredient_by_name(ingredient_name)

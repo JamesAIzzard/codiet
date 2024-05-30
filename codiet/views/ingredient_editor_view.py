@@ -12,10 +12,10 @@ from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.utils.pyqt import block_signals
 from codiet.views.buttons import AddButton, DeleteButton, EditButton, SaveJSONButton, AutopopulateButton
-from codiet.views.search_views import SearchColumnView
+from codiet.views.search import SearchColumnView
+from codiet.views.nutrients import NutrientQuantitiesEditorView
 from codiet.views.text_editors import LineEdit, MultilineEdit, NumericLineEdit
 from codiet.views.flag_editor_view import FlagEditorView
-from codiet.views.ingredient_nutrients_editor_view import IngredientNutrientsEditorView
 
 class IngredientEditorView(QWidget):
     """User interface for editing an ingredient."""
@@ -179,8 +179,14 @@ class IngredientEditorView(QWidget):
         # Create a second column for the nutrients editor
         lyt_nutrients_col = QVBoxLayout()
         lyt_columns.addLayout(lyt_nutrients_col, 2)
-        self.nutrient_editor = IngredientNutrientsEditorView()
-        lyt_nutrients_col.addWidget(self.nutrient_editor)
+        # Add a groupbox
+        gb_nutrients = QGroupBox("Nutrients")
+        lyt_nutrients_col.addWidget(gb_nutrients)
+        # Add a vertical layout to the groupbox
+        lyt_nutrients = QVBoxLayout()
+        gb_nutrients.setLayout(lyt_nutrients)
+        self.nutrient_quantities_editor = NutrientQuantitiesEditorView()
+        lyt_nutrients_col.addWidget(self.nutrient_quantities_editor)
 
     def _build_toolbar(self, container: QBoxLayout) -> None:
         """Builds the main page toolbar."""

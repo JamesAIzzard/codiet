@@ -1,5 +1,7 @@
 from typing import Callable
 
+from PyQt6.QtWidgets import QListWidgetItem
+
 from codiet.db.database_service import DatabaseService
 from codiet.views.dialog_box_views import OkDialogBoxView
 from codiet.views.tags import RecipeTagEditorView, RecipeTagSelectorPopup
@@ -25,7 +27,7 @@ class RecipeTagEditorCtrl():
         # Add the controller for the search column
         tag_search_ctrl = SearchColumnCtrl(
             view=self.recipe_tag_selector_popup.search_column,
-            get_data=lambda: self._recipe_tags,
+            get_searchable_strings=lambda: self._recipe_tags,
             on_result_selected=self._on_tag_selected,
         )
 
@@ -67,8 +69,10 @@ class RecipeTagEditorCtrl():
             # Call the callback
             self.on_tag_removed(tag)
 
-    def _on_tag_selected(self, tag: str) -> None:
+    def _on_tag_selected(self, tag_view:QListWidgetItem) -> None:
         """Handle the result selected event."""
+        # Grab the tag from the widget
+        tag = tag_view.text()
         # Handle the updates to the widget
         self.recipe_tag_editor_view.add_tag(tag)
         # Call the callback

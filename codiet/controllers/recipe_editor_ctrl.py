@@ -1,6 +1,9 @@
 from datetime import datetime
 
-from PyQt6.QtWidgets import QVBoxLayout
+from PyQt6.QtWidgets import (
+    QVBoxLayout,
+    QListWidgetItem,
+)
 
 from codiet.db.database_service import DatabaseService
 from codiet.utils.time import (
@@ -18,7 +21,7 @@ from codiet.views.dialog_box_views import (
     ConfirmDialogBoxView,
 )
 from codiet.views.recipe_editor_view import RecipeEditorView
-from codiet.views.search_views import SearchColumnView
+from codiet.views.search import SearchColumnView
 from codiet.views.dialog_box_views import ErrorDialogBoxView
 from codiet.views.time_interval_popup_view import TimeIntervalPopupView
 from codiet.views.tags import RecipeTagSelectorPopup
@@ -54,7 +57,7 @@ class RecipeEditorCtrl:
         # Configure search column controller
         self.search_column_ctrl = SearchColumnCtrl(
             view=self.view.recipe_search,
-            get_data=lambda: self._recipe_names,
+            get_searchable_strings=lambda: self._recipe_names,
             on_result_selected=self._on_recipe_selected,
         )   
 
@@ -63,7 +66,7 @@ class RecipeEditorCtrl:
         self.ingredient_search_column_view = SearchColumnView()
         self.ingredient_search_column_ctrl = SearchColumnCtrl(
             view=self.ingredient_search_column_view,
-            get_data=lambda: self._all_ingredient_names,
+            get_searchable_strings=lambda: self._all_ingredient_names,
             on_result_selected=self._on_ingredient_selected,
         )
         # Place into a dialog box
@@ -146,8 +149,9 @@ class RecipeEditorCtrl:
         with DatabaseService() as db_service:
             self._all_ingredient_names = db_service.fetch_all_ingredient_names()
 
-    def _on_recipe_selected(self, recipe_name: str) -> None:
+    def _on_recipe_selected(self, list_item: QListWidgetItem) -> None:
         """Handle a recipe being selected."""
+        recipe_name = list_item.text()
         # Fetch the recipe from the database
         with DatabaseService() as db_service:
             recipe = db_service.fetch_recipe_by_name(recipe_name)
@@ -178,7 +182,7 @@ class RecipeEditorCtrl:
             ok_dialog_box_view.show()
         else:
             # Grab the recipe name from the view
-            recipe_name = self.view.recipe_search.selected_result
+            recipe_name = self.view.recipe_search.selected_result.text()
             # Otherwise, show a confirmation dialog
             confirm_dialog_box_view = ConfirmDialogBoxView(
                 title="Delete Recipe",
@@ -324,8 +328,9 @@ class RecipeEditorCtrl:
         self.ingredient_search_column_view.clear_search_term()
         self.ingredients_editor_popup.show()
 
-    def _on_ingredient_selected(self, ingredient_name:str) -> None:
+    def _on_ingredient_selected(self, list_item: QListWidgetItem) -> None:
         """Handler for an ingredient being selected"""
+        ingredient_name = list_item.text()
         # Grab the id for the ingredient name
         with DatabaseService() as db_service:
             ingredient = db_service.fetch_ingredient_by_name(ingredient_name)

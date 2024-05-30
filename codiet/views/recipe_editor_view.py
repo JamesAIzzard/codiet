@@ -17,7 +17,7 @@ from PyQt6.QtCore import pyqtSignal, QVariant
 from codiet.views.text_editors import MultilineEdit
 from codiet.views.buttons import EditButton, AddButton, DeleteButton, SaveJSONButton, AutopopulateButton
 from codiet.views.dialog_box_views import OkDialogBoxView, ConfirmDialogBoxView
-from codiet.views.search_views import SearchColumnView
+from codiet.views.search import SearchColumnView
 from codiet.views.ingredients_editor_view import IngredientsEditorView
 from codiet.views.serve_time_intervals_editor_view import ServeTimeIntervalsEditorView
 from codiet.views.tags import RecipeTagEditorView, RecipeTagSelectorPopup

@@ -1,20 +1,43 @@
 from typing import Callable
 
-from codiet.utils.search import filter_text
-from codiet.views.search_views import SearchColumnView
+from PyQt6.QtWidgets import QListWidgetItem
 
-class SearchColumnCtrl:
+from codiet.utils.search import filter_text
+from codiet.views.search import SearchColumnView
+
+class SearchColumnCtrl():
     def __init__(
             self, 
             view: SearchColumnView, 
-            get_data: Callable[[], list[str]],
-            on_result_selected: Callable[[str], None]
+            get_searchable_strings: Callable[[], list[str]],
+            on_result_selected: Callable[[QListWidgetItem], None],
+            get_result_for_string: Callable[[str], QListWidgetItem]|None=None,
+            num_matches: int = 10
         ) -> None:
         self.view = view
-        self.get_data = get_data
+        self.get_searchable_strings = get_searchable_strings
         self.on_result_selected = on_result_selected
-        self._connect_signals()
-        self.view.update_results_list(self.get_data())
+        self.num_matches = num_matches
+        if get_result_for_string is None:
+            self.get_result_for_string = lambda result: result
+        # Connect the view up
+        self.view.searchTermChanged.connect(self._on_search_term_changed)
+        self.view.searchTermCleared.connect(self._on_search_term_cleared)
+        self.view.resultSelected.connect(
+            lambda: self.on_result_selected(self.view.selected_result) # type: ignore
+        )
+        # Initially populate the list
+        self.show_all_items()
+
+    def show_all_items(self) -> None:
+        """Show all items in the search column."""
+        self.view.update_results_list(
+            self._get_items_for_results(self.get_searchable_strings())
+        )
+
+    def _get_items_for_results(self, results: list[str]) -> list[QListWidgetItem]:
+        """Create QListWidgetItems for the results."""
+        return [self.get_result_for_string(result) for result in results]
 
     def _on_search_term_changed(self, search_term: str) -> None:
         """Handler for changes to the search column."""
@@ -22,13 +45,18 @@ class SearchColumnCtrl:
         self.view.clear_results_list()
         # If the search term is empty
         if search_term.strip() == "":
-            # Populate the list with all ingredient names
-            self.view.update_results_list(self.get_data())
+            self.show_all_items()
         else:
             # Find the 10x best matches
-            best_matches = filter_text(search_term, self.get_data(), 10)
+            best_matches = filter_text(
+                search_term, 
+                self.get_searchable_strings(), 
+                self.num_matches
+            )
+            # For each best match, get the corresponding list item
+            best_match_items = self._get_items_for_results(best_matches)
             # Add the best matches to the search column
-            self.view.update_results_list(best_matches)
+            self.view.update_results_list(best_match_items)
 
     def _on_search_term_cleared(self) -> None:
         """Handler for clearing the search term."""
@@ -37,12 +65,4 @@ class SearchColumnCtrl:
         # Clear the search term
         self.view.clear_search_term()
         # Populate the list with all ingredient names
-        self.view.update_results_list(self.get_data())
-
-    def _connect_signals(self) -> None:
-        """Connect the signals and slots to the search column."""
-        self.view.searchTermChanged.connect(self._on_search_term_changed)
-        self.view.searchTermCleared.connect(self._on_search_term_cleared)
-        self.view.resultSelected.connect(
-            lambda: self.on_result_selected(self.view.selected_result) # type: ignore
-        )
+        self.show_all_items()
