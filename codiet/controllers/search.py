@@ -1,6 +1,8 @@
 from typing import Callable
 
-from PyQt6.QtWidgets import QListWidgetItem
+from PyQt6.QtWidgets import (
+    QListWidgetItem
+)
 
 from codiet.utils.search import filter_text
 from codiet.views.search import SearchColumnView
@@ -19,7 +21,7 @@ class SearchColumnCtrl():
         self.on_result_selected = on_result_selected
         self.num_matches = num_matches
         if get_result_for_string is None:
-            self.get_result_for_string = lambda result: result
+            self.get_result_for_string = lambda result: QListWidgetItem(result)
         # Connect the view up
         self.view.searchTermChanged.connect(self._on_search_term_changed)
         self.view.searchTermCleared.connect(self._on_search_term_cleared)
@@ -31,13 +33,17 @@ class SearchColumnCtrl():
 
     def show_all_items(self) -> None:
         """Show all items in the search column."""
-        self.view.update_results_list(
-            self._get_items_for_results(self.get_searchable_strings())
-        )
+        # Get a list of items for all the searchable strings
+        items = self._get_items_for_results(self.get_searchable_strings())
+        self.view.update_results_list(items)
 
     def _get_items_for_results(self, results: list[str]) -> list[QListWidgetItem]:
         """Create QListWidgetItems for the results."""
-        return [self.get_result_for_string(result) for result in results]
+        items = []
+        for result in results:
+            item = self.get_result_for_string(result)
+            items.append(item)
+        return items
 
     def _on_search_term_changed(self, search_term: str) -> None:
         """Handler for changes to the search column."""

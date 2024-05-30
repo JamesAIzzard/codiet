@@ -1,7 +1,5 @@
 from typing import Callable
 
-from PyQt6.QtWidgets import QListWidgetItem
-
 from codiet.models.nutrients import IngredientNutrientQuantity
 from codiet.views.nutrients import (
     NutrientQuantitiesEditorView,
@@ -37,9 +35,11 @@ class NutrientQuantitiesEditorCtrl:
             raise ValueError(
                 "Either nutrient_name or nutrient_quantity must be provided."
             )
+        # If a nutrient quantity is not provided, use the name.
         if nutrient_quantity is None:
             assert nutrient_name is not None
             nutr_qty_view = NutrientQuantityEditorView(nutrient_name=nutrient_name)
+        # Otherwise, use the nutrient quantity object.
         else:
             nutr_qty_view = NutrientQuantityEditorView(
                 parent=self.view,
@@ -60,9 +60,7 @@ class NutrientQuantitiesEditorCtrl:
     ) -> None:
         """Add a new nutrient quantity to the view."""
         # Create a new nutrient editor view
-        nutr_qty = self.make_nutrient_quantity_view(
-            nutrient_quantity=nutrient_quantity
-        )
+        nutr_qty = self.make_nutrient_quantity_view(nutrient_quantity=nutrient_quantity)
         # Add the nutrient editor to the view
         self.view.search_column.add_result(nutr_qty)
 
@@ -71,5 +69,5 @@ class NutrientQuantitiesEditorCtrl:
         # Get the nutrient data
         nutrient_data = self.get_nutrient_data()
         # Load the data into the view
-        for nutrient_name, nutrient_quantity in nutrient_data.items():
+        for nutrient_quantity in nutrient_data.values():
             self.add_nutrient_quantity(nutrient_quantity)

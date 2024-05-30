@@ -80,41 +80,31 @@ class IngredientEditorCtrl:
 
     def load_ingredient_instance(self, ingredient: Ingredient):
         """Set the ingredient instance to edit."""
-
         # Update the stored instance
         self.ingredient = ingredient
-
         # Update ingredient name field
         self.view.update_name(self.ingredient.name)
-
         # Update description field
         self.view.update_description(self.ingredient.description)
-
         # Update cost fields
         self.view.update_cost_value(self.ingredient.cost_value)
         self.view.update_cost_qty_value(self.ingredient.cost_qty_value)
         self.view.update_cost_qty_unit(self.ingredient.cost_qty_unit)
-
         # Update the bulk properties fields
         self.view.update_density_vol_value(self.ingredient.density_vol_value)
         self.view.update_density_vol_unit(self.ingredient.density_vol_unit)
         self.view.update_density_mass_value(self.ingredient.density_mass_value)
         self.view.update_density_mass_unit(self.ingredient.density_mass_unit)
-
         # Update the piece mass fields
         self.view.update_pc_qty_value(self.ingredient.pc_qty)
         self.view.update_pc_mass_value(self.ingredient.pc_mass_value)
         self.view.update_pc_mass_unit(self.ingredient.pc_mass_unit)
-
         # Set the flags
         self.view.flag_editor.remove_all_flags_from_list()
         self.view.flag_editor.add_flags_to_list(list(self.ingredient.flags.keys()))
-
         self.view.flag_editor.update_flags(self.ingredient.flags)
-
         # Update the GI field
         self.view.update_gi(self.ingredient.gi)
-
         # Set the nutrients        
         self.ingredient_nutrient_editor_ctrl.load_nutrient_quantities()
 
