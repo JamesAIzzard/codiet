@@ -34,7 +34,7 @@ class RecipeEditorView(QWidget):
     saveJSONClicked = pyqtSignal()
     searchTextChanged = pyqtSignal(str)
     searchTextCleared = pyqtSignal()
-    recipeSelected = pyqtSignal(QVariant)
+    recipeSelected = pyqtSignal(str)
     editRecipeNameClicked = pyqtSignal()
     recipeDescriptionChanged = pyqtSignal(str)
     recipeInstructionsChanged = pyqtSignal(str)
@@ -145,7 +145,9 @@ class RecipeEditorView(QWidget):
         self.recipe_search = SearchColumnView()
         self.recipe_search.searchTermChanged.connect(self.searchTextChanged.emit)
         self.recipe_search.searchTermCleared.connect(self.searchTextCleared.emit)
-        self.recipe_search.resultSelected.connect(self.recipeSelected.emit)
+        self.recipe_search.resultSelected.connect(
+            lambda: self.recipeSelected.emit(self.recipe_search.selected_result.text()) # type: ignore
+        )
         container.addWidget(self.recipe_search)
 
     def _build_basic_info_ui(self, container: QBoxLayout) -> None:

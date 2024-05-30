@@ -215,7 +215,9 @@ class IngredientEditorView(QWidget):
         self.ingredient_search = SearchColumnView()
         self.ingredient_search.searchTermChanged.connect(self.searchTextChanged.emit)
         self.ingredient_search.searchTermCleared.connect(self.searchTextCleared.emit)
-        self.ingredient_search.resultSelected.connect(self.ingredientSelected.emit)
+        self.ingredient_search.resultSelected.connect(
+            lambda: self.ingredientSelected.emit(self.ingredient_search.selected_result.text()) # type: ignore
+        )
         container.addWidget(self.ingredient_search)
 
     def _build_basic_info_UI(self, container: QBoxLayout):
