@@ -91,7 +91,7 @@ class NutrientQuantityEditorView(QWidget):
 
         # Create a textbox for nutrient mass
         self.txt_nutrient_mass = NumericLineEdit()
-        # Limit the textbox to 10 chars
+        # Limit the textbox to 10 pixels
         self.txt_nutrient_mass.setMaximumWidth(60)
         layout.addWidget(self.txt_nutrient_mass)
         # Connect the valueChanged signal to the nutrientMassChanged signal

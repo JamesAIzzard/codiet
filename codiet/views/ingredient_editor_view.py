@@ -178,15 +178,17 @@ class IngredientEditorView(QWidget):
 
         # Create a second column for the nutrients editor
         lyt_nutrients_col = QVBoxLayout()
-        lyt_columns.addLayout(lyt_nutrients_col, 2)
+        lyt_nutrients_col.setContentsMargins(0, 0, 0, 0)
+        lyt_columns.addLayout(lyt_nutrients_col, 1)
         # Add a groupbox
         gb_nutrients = QGroupBox("Nutrients")
         lyt_nutrients_col.addWidget(gb_nutrients)
         # Add a vertical layout to the groupbox
         lyt_nutrients = QVBoxLayout()
+        lyt_nutrients.setContentsMargins(0, 0, 0, 0)
         gb_nutrients.setLayout(lyt_nutrients)
         self.nutrient_quantities_editor = NutrientQuantitiesEditorView()
-        lyt_nutrients_col.addWidget(self.nutrient_quantities_editor)
+        lyt_nutrients.addWidget(self.nutrient_quantities_editor)
 
     def _build_toolbar(self, container: QBoxLayout) -> None:
         """Builds the main page toolbar."""

@@ -24,23 +24,45 @@ class NutrientQuantitiesEditorCtrl:
         self.search_column_ctrl = SearchColumnCtrl(
             view=self.view.search_column,
             get_searchable_strings=lambda: list(get_nutrient_data().keys()),
-            on_result_selected=lambda i : None, # No action required.
+            on_result_selected=lambda i: None,  # No action required.
         )
-        # Load the nutrient quantities
-        self.load_nutrient_quantities()
+
+    def make_nutrient_quantity_view(
+        self,
+        nutrient_name: str | None = None,
+        nutrient_quantity: IngredientNutrientQuantity | None = None,
+    ) -> NutrientQuantityEditorView:
+        """Create a new nutrient quantity editor view."""
+        if nutrient_name is None and nutrient_quantity is None:
+            raise ValueError(
+                "Either nutrient_name or nutrient_quantity must be provided."
+            )
+        if nutrient_quantity is None:
+            assert nutrient_name is not None
+            nutr_qty_view = NutrientQuantityEditorView(nutrient_name=nutrient_name)
+        else:
+            nutr_qty_view = NutrientQuantityEditorView(
+                parent=self.view,
+                nutrient_name=nutrient_quantity.nutrient_name,
+            )
+            # Set the nutrient mass
+            nutr_qty_view.update_nutrient_mass(nutrient_quantity.nutrient_mass)
+            nutr_qty_view.update_nutrient_mass_units(
+                nutrient_quantity.nutrient_mass_unit
+            )
+        # Connect signals
+        nutr_qty_view.nutrientMassChanged.connect(self.on_nutrient_qty_changed)
+        nutr_qty_view.nutrientMassUnitsChanged.connect(self.on_nutrient_qty_changed)
+        return nutr_qty_view
 
     def add_nutrient_quantity(
         self, nutrient_quantity: IngredientNutrientQuantity
     ) -> None:
         """Add a new nutrient quantity to the view."""
         # Create a new nutrient editor view
-        nutr_qty = NutrientQuantityEditorView(
-            parent=self.view,
-            nutrient_name=nutrient_quantity.nutrient_name,
+        nutr_qty = self.make_nutrient_quantity_view(
+            nutrient_quantity=nutrient_quantity
         )
-        # Connect signals
-        nutr_qty.nutrientMassChanged.connect(self.on_nutrient_qty_changed)
-        nutr_qty.nutrientMassUnitsChanged.connect(self.on_nutrient_qty_changed)
         # Add the nutrient editor to the view
         self.view.search_column.add_result(nutr_qty)
 
