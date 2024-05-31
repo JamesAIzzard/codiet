@@ -33,9 +33,13 @@ class NutrientQuantitiesEditorView(QWidget):
         # Add the ingredient reference qty editor
         self.txt_ingredient_ref_qty = NumericLineEdit()
         lyt_ingredient_ref_qty.addWidget(self.txt_ingredient_ref_qty)
+        # Preload the textbox as 100
+        self.txt_ingredient_ref_qty.setText(100)
         # Add the ingredient reference qty units combobox
         self.cmb_ingredient_ref_qty_units = QComboBox()
         lyt_ingredient_ref_qty.addWidget(self.cmb_ingredient_ref_qty_units)
+        # Add some units
+        self.cmb_ingredient_ref_qty_units.addItems(["g", "kg", "mg", "ug", "ml", "l", "tsp", "tbsp", "cup", "fl oz", "pt", "qt", "gal"])
         # Add a stretch
         lyt_ingredient_ref_qty.addStretch(1)
         # Add the search column
