@@ -106,7 +106,7 @@ class IngredientEditorCtrl:
         # Update the GI field
         self.view.update_gi(self.ingredient.gi)
         # Set the nutrients        
-        self.ingredient_nutrient_editor_ctrl.load_nutrient_quantities()
+        self.ingredient_nutrient_editor_ctrl.load_all_nutrient_quantities()
 
     def _cache_leaf_nutrient_names(self) -> None:
         """Cache the leaf nutrient names."""

@@ -21,7 +21,7 @@ class NutrientQuantitiesEditorCtrl:
         # Bring in a search view controller to handle the search column
         self.search_column_ctrl = SearchColumnCtrl(
             view=self.view.search_column,
-            get_result_for_string=self._make_view_for_nutrient_qty,
+            get_result_for_string=self._make_nutrient_quantity_view,
             get_searchable_strings=lambda: list(get_nutrient_data().keys()),
             on_result_selected=lambda item: None,  # No action required.
         )
@@ -30,26 +30,20 @@ class NutrientQuantitiesEditorCtrl:
         self, nutrient_quantity: IngredientNutrientQuantity
     ) -> None:
         """Add a new nutrient quantity to the view."""
-        # Create a new nutrient editor view
+        # Create the view for the nutrient quantity
         nutr_qty = self._make_nutrient_quantity_view(nutrient_quantity=nutrient_quantity)
-        # Add the nutrient editor to the view
+        # Add the view to the search column
         self.view.search_column.add_result(nutr_qty)
 
-    def load_nutrient_quantities(self) -> None:
+    def load_all_nutrient_quantities(self) -> None:
         """Fetches the ingredient quantities data and loads it into the view."""
+        # Clear the existing data
+        self.search_column_ctrl.reset_search()
         # Get the nutrient data
         nutrient_data = self.get_nutrient_data()
         # Load the data into the view
         for nutrient_quantity in nutrient_data.values():
             self.add_nutrient_quantity(nutrient_quantity)
-
-    def _make_view_for_nutrient_qty(self, nutrient_name: str) -> NutrientQuantityEditorView:
-        """Create a new nutrient quantity editor widget."""
-        # Grab the nutrient qty
-        nutrient_qty = self.get_nutrient_data()[nutrient_name]
-        # Create a new view
-        view = self._make_nutrient_quantity_view(nutrient_quantity=nutrient_qty)
-        return view
     
     def _make_nutrient_quantity_view(
         self,
@@ -61,21 +55,21 @@ class NutrientQuantitiesEditorCtrl:
             raise ValueError(
                 "Either nutrient_name or nutrient_quantity must be provided."
             )
-        # If a nutrient quantity is not provided, use the name.
+        # If a nutrient quantity is not provided, use the name to fetch
+        # the required data.
         if nutrient_quantity is None:
             assert nutrient_name is not None
-            nutr_qty_view = NutrientQuantityEditorView(nutrient_name=nutrient_name)
-        # Otherwise, use the nutrient quantity object.
-        else:
-            nutr_qty_view = NutrientQuantityEditorView(
-                parent=self.view,
-                nutrient_name=nutrient_quantity.nutrient_name,
-            )
-            # Set the nutrient mass
-            nutr_qty_view.update_nutrient_mass(nutrient_quantity.nutrient_mass)
-            nutr_qty_view.update_nutrient_mass_units(
-                nutrient_quantity.nutrient_mass_unit
-            )
+            # Grab the data for the nutrient quantity
+            nutrient_quantity = self.get_nutrient_data()[nutrient_name]
+        nutr_qty_view = NutrientQuantityEditorView(
+            parent=self.view,
+            nutrient_name=nutrient_quantity.nutrient_name,
+        )
+        # Set the nutrient mass
+        nutr_qty_view.update_nutrient_mass(nutrient_quantity.nutrient_mass)
+        nutr_qty_view.update_nutrient_mass_units(
+            nutrient_quantity.nutrient_mass_unit
+        )
         # Connect signals
         nutr_qty_view.nutrientMassChanged.connect(self.on_nutrient_qty_changed)
         nutr_qty_view.nutrientMassUnitsChanged.connect(self.on_nutrient_qty_changed)
