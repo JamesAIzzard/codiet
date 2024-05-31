@@ -99,12 +99,12 @@ class SearchColumnView(QWidget):
 
     def add_result(self, result: QWidget | QListWidgetItem) -> None:
         """Add a result to the search column."""
-        if isinstance(result, QWidget):
+        if isinstance(result, QListWidgetItem):
+            self.lst_search_results.addItem(result)        
+        elif isinstance(result, QWidget):          
             item = QListWidgetItem(self.lst_search_results)
             item.setSizeHint(result.sizeHint())
             self.lst_search_results.setItemWidget(item, result)
-        elif isinstance(result, QListWidgetItem):
-            self.lst_search_results.addItem(result)
         else:
             raise ValueError(f"Unsupported result type: {type(result)}")
 

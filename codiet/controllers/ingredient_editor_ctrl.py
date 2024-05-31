@@ -164,7 +164,7 @@ class IngredientEditorCtrl:
         # Recache the ingredient names
         self._cache_ingredient_names()
         # Reset the search pane
-        self.view.ingredient_search.update_results_list(self._ingredient_names)
+        self.search_column_ctrl.reset_search()
         # Close the confirmation dialog
         self.delete_ingredient_confirmation_popup.hide()
 
@@ -201,8 +201,7 @@ class IngredientEditorCtrl:
         # Recache the ingredient names
         self._cache_ingredient_names()
         # Reset the search pane
-        self.view.ingredient_search.clear_search_term()
-        self.view.ingredient_search.update_results_list(self._ingredient_names)
+        self.search_column_ctrl.reset_search()
         # Clear the new ingredient dialog
         self.ingredient_name_editor_dialog.clear()
         # Hide the new ingredient dialog

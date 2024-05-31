@@ -37,6 +37,14 @@ class SearchColumnCtrl():
         items = self._get_items_for_results(self.get_searchable_strings())
         self.view.update_results_list(items)
 
+    def reset_search(self) -> None:
+        """Reset the search column.
+        Clears all search results and the search term, and
+        repopulates the list with all items.
+        """
+        self.view.clear_search_term()
+        self.show_all_items()
+
     def _get_items_for_results(self, results: list[str]) -> list[QListWidgetItem]:
         """Create QListWidgetItems for the results."""
         items = []

@@ -210,7 +210,7 @@ class RecipeEditorCtrl:
         # Recache the recipe names
         self._cache_recipe_names()
         # Update the view with the new recipe names
-        self.view.recipe_search.update_results_list(self._recipe_names)
+        self.search_column_ctrl.reset_search()
         # Clear the recipe editor
         self.load_recipe_instance(Recipe())
 
@@ -287,7 +287,7 @@ class RecipeEditorCtrl:
         # Recache the recipe names
         self._cache_recipe_names()
         # Update the view with any new recipe names
-        self.view.recipe_search.update_results_list(self._recipe_names)
+        self.search_column_ctrl.reset_search()
         # Clear the recipe name editor dialog
         self.recipe_name_editor_view.clear()
         # Hide the name editor dialog
