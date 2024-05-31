@@ -1,6 +1,7 @@
 from typing import Callable
 
 from PyQt6.QtWidgets import (
+    QWidget,
     QListWidgetItem
 )
 
@@ -13,15 +14,19 @@ class SearchColumnCtrl():
             view: SearchColumnView, 
             get_searchable_strings: Callable[[], list[str]],
             on_result_selected: Callable[[QListWidgetItem], None],
-            get_result_for_string: Callable[[str], QListWidgetItem]|None=None,
+            get_result_for_string: Callable[[str], QWidget|str]|None=None,
             num_matches: int = 10
         ) -> None:
         self.view = view
         self.get_searchable_strings = get_searchable_strings
         self.on_result_selected = on_result_selected
         self.num_matches = num_matches
+        # If there was no widget fetching function provided, just
+        # return the string
         if get_result_for_string is None:
-            self.get_result_for_string = lambda result: QListWidgetItem(result)
+            self.get_result_for_string = lambda result: result
+        else:
+            self.get_result_for_string = get_result_for_string
         # Connect the view up
         self.view.searchTermChanged.connect(self._on_search_term_changed)
         self.view.searchTermCleared.connect(self._on_search_term_cleared)
@@ -45,8 +50,10 @@ class SearchColumnCtrl():
         self.view.clear_search_term()
         self.show_all_items()
 
-    def _get_items_for_results(self, results: list[str]) -> list[QListWidgetItem]:
-        """Create QListWidgetItems for the results."""
+    def _get_items_for_results(self, results: list[str]) -> list[QWidget|str]:
+        """Convert the result strings into a list of widgets if
+        a conversion function was required. Otherwise just return
+        the strings."""
         items = []
         for result in results:
             item = self.get_result_for_string(result)

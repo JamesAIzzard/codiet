@@ -97,9 +97,11 @@ class SearchColumnView(QWidget):
         """Return True if a result is selected."""
         return self.selected_index != -1
 
-    def add_result(self, result: QWidget | QListWidgetItem) -> None:
+    def add_result(self, result: QWidget | str) -> None:
         """Add a result to the search column."""
-        if isinstance(result, QListWidgetItem):
+        if isinstance(result, str):
+            if result == "alanine":
+                breakpoint()
             self.lst_search_results.addItem(result)        
         elif isinstance(result, QWidget):          
             item = QListWidgetItem(self.lst_search_results)
@@ -108,8 +110,8 @@ class SearchColumnView(QWidget):
         else:
             raise ValueError(f"Unsupported result type: {type(result)}")
 
-    def update_results_list(self, matching_results: list[QListWidgetItem]|list[QWidget]):
-        """Update the list of ingredients."""
+    def update_results_list(self, matching_results: list[QWidget | str]):
+        """Update the results list to reflect the matching results."""
         # Clear the existing ingredients
         self.lst_search_results.clear()
         # Add the matching ingredients

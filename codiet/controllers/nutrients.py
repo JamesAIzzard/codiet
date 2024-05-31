@@ -21,11 +21,37 @@ class NutrientQuantitiesEditorCtrl:
         # Bring in a search view controller to handle the search column
         self.search_column_ctrl = SearchColumnCtrl(
             view=self.view.search_column,
+            get_result_for_string=self._make_view_for_nutrient_qty,
             get_searchable_strings=lambda: list(get_nutrient_data().keys()),
-            on_result_selected=lambda i: None,  # No action required.
+            on_result_selected=lambda item: None,  # No action required.
         )
 
-    def make_nutrient_quantity_view(
+    def add_nutrient_quantity(
+        self, nutrient_quantity: IngredientNutrientQuantity
+    ) -> None:
+        """Add a new nutrient quantity to the view."""
+        # Create a new nutrient editor view
+        nutr_qty = self._make_nutrient_quantity_view(nutrient_quantity=nutrient_quantity)
+        # Add the nutrient editor to the view
+        self.view.search_column.add_result(nutr_qty)
+
+    def load_nutrient_quantities(self) -> None:
+        """Fetches the ingredient quantities data and loads it into the view."""
+        # Get the nutrient data
+        nutrient_data = self.get_nutrient_data()
+        # Load the data into the view
+        for nutrient_quantity in nutrient_data.values():
+            self.add_nutrient_quantity(nutrient_quantity)
+
+    def _make_view_for_nutrient_qty(self, nutrient_name: str) -> NutrientQuantityEditorView:
+        """Create a new nutrient quantity editor widget."""
+        # Grab the nutrient qty
+        nutrient_qty = self.get_nutrient_data()[nutrient_name]
+        # Create a new view
+        view = self._make_nutrient_quantity_view(nutrient_quantity=nutrient_qty)
+        return view
+    
+    def _make_nutrient_quantity_view(
         self,
         nutrient_name: str | None = None,
         nutrient_quantity: IngredientNutrientQuantity | None = None,
@@ -53,21 +79,4 @@ class NutrientQuantitiesEditorCtrl:
         # Connect signals
         nutr_qty_view.nutrientMassChanged.connect(self.on_nutrient_qty_changed)
         nutr_qty_view.nutrientMassUnitsChanged.connect(self.on_nutrient_qty_changed)
-        return nutr_qty_view
-
-    def add_nutrient_quantity(
-        self, nutrient_quantity: IngredientNutrientQuantity
-    ) -> None:
-        """Add a new nutrient quantity to the view."""
-        # Create a new nutrient editor view
-        nutr_qty = self.make_nutrient_quantity_view(nutrient_quantity=nutrient_quantity)
-        # Add the nutrient editor to the view
-        self.view.search_column.add_result(nutr_qty)
-
-    def load_nutrient_quantities(self) -> None:
-        """Fetches the ingredient quantities data and loads it into the view."""
-        # Get the nutrient data
-        nutrient_data = self.get_nutrient_data()
-        # Load the data into the view
-        for nutrient_quantity in nutrient_data.values():
-            self.add_nutrient_quantity(nutrient_quantity)
+        return nutr_qty_view    
