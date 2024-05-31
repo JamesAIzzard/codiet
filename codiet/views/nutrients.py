@@ -51,7 +51,7 @@ class NutrientQuantityEditorView(QWidget):
 
     def __init__(self, nutrient_name: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.nutrient_name = nutrient_name
+        self._nutrient_name = nutrient_name
         self._build_ui()
 
     @property
@@ -83,7 +83,7 @@ class NutrientQuantityEditorView(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         # Create a label and add it to the layout
-        label = QLabel(self.nutrient_name + ":")
+        label = QLabel(self._nutrient_name + ":")
         layout.addWidget(label)
 
         # Add a stretch
@@ -95,8 +95,8 @@ class NutrientQuantityEditorView(QWidget):
         self.txt_nutrient_mass.setMaximumWidth(60)
         layout.addWidget(self.txt_nutrient_mass)
         # Connect the valueChanged signal to the nutrientMassChanged signal
-        self.txt_nutrient_mass.valueChanged.connect(
-            lambda value: self.nutrientMassChanged.emit(self.nutrient_name, value)
+        self.txt_nutrient_mass.lostFocus.connect(
+            lambda value: self.nutrientMassChanged.emit(self._nutrient_name, value)
         )
 
         # Create a dropdown for mass units
@@ -108,7 +108,7 @@ class NutrientQuantityEditorView(QWidget):
         layout.addWidget(self.cmb_mass_units)
         # Connect the currentTextChanged signal to the nutrientMassUnitsChanged signal
         self.cmb_mass_units.currentTextChanged.connect(
-            lambda units: self.nutrientMassUnitsChanged.emit(self.nutrient_name, units)
+            lambda units: self.nutrientMassUnitsChanged.emit(self._nutrient_name, units)
         )
 
         # Add a little space at either end of the widget

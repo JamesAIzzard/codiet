@@ -45,6 +45,24 @@ class NutrientQuantitiesEditorCtrl:
         for nutrient_quantity in nutrient_data.values():
             self.add_nutrient_quantity(nutrient_quantity)
     
+    def _on_nutrient_mass_changed(self, nutrient_name:str, nutrient_mass: float|None) -> None:
+        """Handle a nutrient mass being changed."""
+        # Grab the nutrient quantity
+        nutrient_data = self.get_nutrient_data()[nutrient_name]
+        # Update the mass
+        nutrient_data.nutrient_mass = nutrient_mass
+        # Call the callback
+        self.on_nutrient_qty_changed(nutrient_data)
+    
+    def _on_nutrient_mass_unit_changed(self, nutrient_name: str, nutrient_mass_unit: str) -> None:
+        """Handle a nutrient quantity unit being changed."""
+        # Grab the nutrient quantity
+        nutrient_data = self.get_nutrient_data()[nutrient_name]
+        # Update the mass unit
+        nutrient_data.nutrient_mass_unit = nutrient_mass_unit
+        # Call the callback
+        self.on_nutrient_qty_changed(nutrient_data)
+
     def _make_nutrient_quantity_view(
         self,
         nutrient_name: str | None = None,
@@ -71,6 +89,6 @@ class NutrientQuantitiesEditorCtrl:
             nutrient_quantity.nutrient_mass_unit
         )
         # Connect signals
-        nutr_qty_view.nutrientMassChanged.connect(self.on_nutrient_qty_changed)
-        nutr_qty_view.nutrientMassUnitsChanged.connect(self.on_nutrient_qty_changed)
+        nutr_qty_view.nutrientMassChanged.connect(self._on_nutrient_mass_changed)
+        nutr_qty_view.nutrientMassUnitsChanged.connect(self._on_nutrient_mass_unit_changed)
         return nutr_qty_view    
