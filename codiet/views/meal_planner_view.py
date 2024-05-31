@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
 )
 
 from codiet.views.buttons import AddButton, RemoveButton, SolveButton
-from codiet.views.search_views import SearchTermView
+from codiet.views.search import SearchTermView
 
 class MealPlannerView(QWidget):
     """UI element to allow the user to plan meals."""

@@ -168,7 +168,7 @@ class DatabaseService:
         for name, data in nutrient_data.items():
             # Create a new nutrient quantity
             nutrient_quantity = IngredientNutrientQuantity(
-                name=name,
+                nutrient_name=name,
                 ntr_mass_value=data["ntr_qty_value"],
                 ntr_mass_unit=data["ntr_qty_unit"],
                 ing_qty_value=data["ing_qty_value"],
@@ -323,23 +323,30 @@ class DatabaseService:
             self._repo.update_ingredient_flags(ingredient.id, ingredient.flags)
             # Update the ingredient GI
             self._repo.update_ingredient_gi(ingredient.id, ingredient.gi)
-            # Update the nutrients
-            # For a data dict for the nutrients
-            nutr_data = {}
+            # Update each nutrient
             for nutrient_name, nutrient_qty in ingredient.nutrient_quantities.items():
-                nutr_data[nutrient_name] = {
-                    "ntr_qty_unit": nutrient_qty.nutrient_mass_unit,
-                    "ntr_qty_value": nutrient_qty.nutrient_mass,
-                    "ing_qty_unit": nutrient_qty.ingredient_quantity_unit,
-                    "ing_qty_value": nutrient_qty.ingredient_quantity,
-                }
-            self._repo.update_ingredient_nutrients(ingredient.id, nutr_data)
+                self.update_ingredient_nutrient_quantity(ingredient.id, nutrient_qty)
 
         except Exception as e:
             # Roll back the transaction if an exception occurs
             self._repo._db.connection.rollback()
             # Re-raise any exceptions
             raise e
+
+    def update_ingredient_nutrient_quantity(
+            self, 
+            ingredient_id:int, 
+            nutrient_quantity:IngredientNutrientQuantity
+        ) -> None:
+        """Updates a nutrient quantity on the ingredient."""
+        self._repo.update_ingredient_nutrient_quantity(
+            ingredient_id=ingredient_id,
+            nutrient_name=nutrient_quantity.nutrient_name,
+            ntr_qty_value=nutrient_quantity.nutrient_mass,
+            ntr_qty_unit=nutrient_quantity.nutrient_mass_unit,
+            ing_qty_value=nutrient_quantity.ingredient_quantity,
+            ing_qty_unit=nutrient_quantity.ingredient_quantity_unit,
+        )
 
     def update_recipe(self, recipe: Recipe):
         """Updates the given recipe in the database."""

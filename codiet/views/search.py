@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (
     QHBoxLayout, 
     QVBoxLayout,
     QListWidget,
+    QListWidgetItem,
     QSizePolicy
 )
 from PyQt6.QtCore import pyqtSignal
@@ -70,7 +71,7 @@ class SearchTermView(QWidget):
 class SearchColumnView(QWidget):
     """UI element to allow the user to search and select a result."""
     # Define signals
-    resultSelected = pyqtSignal(str)
+    resultSelected = pyqtSignal(QListWidgetItem)
     searchTermChanged = pyqtSignal(str)
     searchTermCleared = pyqtSignal()
 
@@ -79,10 +80,10 @@ class SearchColumnView(QWidget):
         self._build_ui()
 
     @property
-    def selected_result(self) -> str | None:
+    def selected_result(self) -> QListWidgetItem|None:
         """Return the selected result."""
         if self.result_is_selected:
-            return self.lst_search_results.currentItem().text() # type: ignore
+            return self.lst_search_results.currentItem()
         else:
             return None
 
@@ -96,13 +97,26 @@ class SearchColumnView(QWidget):
         """Return True if a result is selected."""
         return self.selected_index != -1
 
-    def update_results_list(self, matching_results: list[str]):
-        """Update the list of ingredients."""
+    def add_result(self, result: QWidget | str) -> None:
+        """Add a result to the search column."""
+        if isinstance(result, str):
+            if result == "alanine":
+                breakpoint()
+            self.lst_search_results.addItem(result)        
+        elif isinstance(result, QWidget):          
+            item = QListWidgetItem(self.lst_search_results)
+            item.setSizeHint(result.sizeHint())
+            self.lst_search_results.setItemWidget(item, result)
+        else:
+            raise ValueError(f"Unsupported result type: {type(result)}")
+
+    def update_results_list(self, matching_results: list[QWidget | str]):
+        """Update the results list to reflect the matching results."""
         # Clear the existing ingredients
         self.lst_search_results.clear()
         # Add the matching ingredients
         for result in matching_results:
-            self.lst_search_results.addItem(result)
+            self.add_result(result)
 
     def clear_results_list(self):
         """Clear the search results."""
@@ -111,11 +125,6 @@ class SearchColumnView(QWidget):
     def clear_search_term(self):
         """Clear the search term."""
         self.search_term_textbox.clear()
-
-    def _on_result_selected(self, item) -> None:
-        """Handle the user selecting a result to edit."""
-        # Emit a signal with the selected text
-        self.resultSelected.emit(item.text())
 
     def _build_ui(self):
         lyt_top_level = QVBoxLayout()
@@ -131,7 +140,7 @@ class SearchColumnView(QWidget):
         # Create a dropdown and add it to the layout
         self.lst_search_results = QListWidget()
         # Connect the itemClicked signal to the _on_result_selected method
-        self.lst_search_results.itemClicked.connect(self._on_result_selected)
+        self.lst_search_results.itemClicked.connect(self.resultSelected.emit)
         # Make the dropdown fill the space
         self.lst_search_results.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
