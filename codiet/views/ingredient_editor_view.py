@@ -11,7 +11,14 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.utils.pyqt import block_signals
-from codiet.views.buttons import AddButton, DeleteButton, EditButton, SaveJSONButton, AutopopulateButton
+from codiet.views.buttons import (
+    AddButton, 
+    RemoveButton, 
+    DeleteButton, 
+    EditButton, 
+    SaveJSONButton, 
+    AutopopulateButton
+)
 from codiet.views.search import SearchColumnView
 from codiet.views.nutrients import NutrientQuantitiesEditorView
 from codiet.views.text_editors import LineEdit, MultilineEdit, NumericLineEdit
@@ -167,7 +174,7 @@ class IngredientEditorView(QWidget):
         # Add the cost editor to the column 1 layout
         self._build_cost_UI(lyt_basic_info)
         # Add the bulk properties widget to the column1 layout
-        self._build_bulk_properties_UI(lyt_basic_info)
+        self._build_measurement_units_UI(lyt_basic_info)
         # Add the flags widget to the column1 layout
         self.flag_editor = FlagEditorView()
         lyt_basic_info.addWidget(self.flag_editor)
@@ -297,15 +304,28 @@ class IngredientEditorView(QWidget):
         lyt_cost.addWidget(self.cmb_cost_qty_unit)
         self.cmb_cost_qty_unit.currentTextChanged.connect(self.ingredientCostQuantityUnitChanged.emit)
 
-    def _build_bulk_properties_UI(self, container: QBoxLayout):
-        """Build the UI for the bulk properties section of the ingredient editor page."""
+    def _build_measurement_units_UI(self, container: QBoxLayout):
+        """Build the UI to configure the measurement units
+        for the ingredient."""
         # Create the bulk properties groupbox
-        gb_bulk_properties = QGroupBox("Bulk Properties")
-        container.addWidget(gb_bulk_properties)
+        gb_measurement_units = QGroupBox("Measurement Units")
+        container.addWidget(gb_measurement_units)
 
         # Add a vertical layout inside the groubox
         lyt_top_level = QVBoxLayout()
-        gb_bulk_properties.setLayout(lyt_top_level)
+        gb_measurement_units.setLayout(lyt_top_level)
+
+        # Add a horizontal layout for the buttons
+        lyt_buttons = QHBoxLayout()
+        lyt_top_level.addLayout(lyt_buttons)
+        # Add an add and remove button
+        btn_add = AddButton()
+        btn_add.setToolTip("Add a new measurement unit.")
+        lyt_buttons.addWidget(btn_add)
+        btn_remove = RemoveButton()
+        btn_remove.setToolTip("Remove the selected measurement unit.")
+        lyt_buttons.addWidget(btn_remove)
+        lyt_buttons.addStretch(1)
 
         # Add a horizontal layout for the density editor
         lyt_density = QHBoxLayout()
