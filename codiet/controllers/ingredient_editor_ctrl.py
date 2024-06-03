@@ -54,13 +54,13 @@ class IngredientEditorCtrl:
             check_name_available=lambda name: name not in self._ingredient_names,
             on_name_accepted=self._on_ingredient_name_accepted,
         )
-        # self.custom_measurements_ctrl = MeasurementsDefinitionCtrl(
-        #     view=self.view.measurement_definition_view,
-        #     get_custom_measurements=lambda: self.ingredient.custom_measurements,
-        #     add_custom_measurement=lambda measurement: self.ingredient.add_custom_measurement(measurement),
-        #     remove_custom_measurement=lambda measurement: self.ingredient.remove_custom_measurement(measurement_name),
-        #     update_custom_measurement=lambda measurement: self.ingredient.update_custom_measurement(measurement),
-        # )
+        self.custom_measurements_ctrl = MeasurementsDefinitionCtrl(
+            view=self.view.measurement_definition_view,
+            get_current_measurements=lambda: self.ingredient.custom_measurements,
+            add_measurement=lambda measurement: self.ingredient.add_custom_measurement(measurement),
+            remove_measurement=lambda measurement: self.ingredient.remove_custom_measurement(measurement_name),
+            update_measurement=lambda measurement: self.ingredient.update_custom_measurement(measurement),
+        )
         self.ingredient_nutrient_editor_ctrl = NutrientQuantitiesEditorCtrl(
             view=self.view.nutrient_quantities_editor,
             get_nutrient_data=lambda: self.ingredient.nutrient_quantities,
