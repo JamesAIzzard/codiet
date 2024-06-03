@@ -19,7 +19,7 @@ from codiet.views.buttons import EditButton, AddButton, DeleteButton, SaveJSONBu
 from codiet.views.dialog_box_views import OkDialogBoxView, ConfirmDialogBoxView
 from codiet.views.search import SearchColumnView
 from codiet.views.ingredients_editor_view import IngredientsEditorView
-from codiet.views.serve_time_intervals_editor_view import ServeTimeIntervalsEditorView
+from codiet.views.times import ServeTimeIntervalsEditorView
 from codiet.views.tags import RecipeTagEditorView, RecipeTagSelectorPopup
 from codiet.controllers.tags import RecipeTagEditorCtrl
 from codiet.utils.pyqt import block_signals
@@ -146,7 +146,7 @@ class RecipeEditorView(QWidget):
         self.recipe_search.searchTermChanged.connect(self.searchTextChanged.emit)
         self.recipe_search.searchTermCleared.connect(self.searchTextCleared.emit)
         self.recipe_search.resultSelected.connect(
-            lambda: self.recipeSelected.emit(self.recipe_search.selected_result.text()) # type: ignore
+            lambda: self.recipeSelected.emit(self.recipe_search.results_list.selected_item.text()) # type: ignore
         )
         container.addWidget(self.recipe_search)
 

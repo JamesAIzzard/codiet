@@ -12,6 +12,7 @@ from PyQt6.QtCore import pyqtSignal
 from codiet.utils.pyqt import block_signals
 from codiet.views.buttons import ClearButton
 from codiet.views.labels import SearchIconLabel
+from codiet.views.listbox import ListBox
 
 class SearchTermView(QWidget):
     # Define singals
@@ -80,47 +81,9 @@ class SearchColumnView(QWidget):
         self._build_ui()
 
     @property
-    def selected_result(self) -> QListWidgetItem|None:
-        """Return the selected result."""
-        if self.result_is_selected:
-            return self.lst_search_results.currentItem()
-        else:
-            return None
-
-    @property
-    def selected_index(self) -> int:
-        """Return the index of the selected result."""
-        return self.lst_search_results.currentRow()
-
-    @property
-    def result_is_selected(self) -> bool:
-        """Return True if a result is selected."""
-        return self.selected_index != -1
-
-    def add_result(self, result: QWidget | str) -> None:
-        """Add a result to the search column."""
-        if isinstance(result, str):
-            if result == "alanine":
-                breakpoint()
-            self.lst_search_results.addItem(result)        
-        elif isinstance(result, QWidget):          
-            item = QListWidgetItem(self.lst_search_results)
-            item.setSizeHint(result.sizeHint())
-            self.lst_search_results.setItemWidget(item, result)
-        else:
-            raise ValueError(f"Unsupported result type: {type(result)}")
-
-    def update_results_list(self, matching_results: list[QWidget | str]):
-        """Update the results list to reflect the matching results."""
-        # Clear the existing ingredients
-        self.lst_search_results.clear()
-        # Add the matching ingredients
-        for result in matching_results:
-            self.add_result(result)
-
-    def clear_results_list(self):
-        """Clear the search results."""
-        self.lst_search_results.clear()
+    def results_list(self) -> ListBox:
+        """Return the list of search results."""
+        return self.lst_search_results
 
     def clear_search_term(self):
         """Clear the search term."""
@@ -138,7 +101,7 @@ class SearchColumnView(QWidget):
         self.search_term_textbox.searchTermChanged.connect(self.searchTermChanged.emit)
         self.search_term_textbox.clearSearchTermClicked.connect(self.searchTermCleared.emit)
         # Create a dropdown and add it to the layout
-        self.lst_search_results = QListWidget()
+        self.lst_search_results = ListBox(parent=self)
         # Connect the itemClicked signal to the _on_result_selected method
         self.lst_search_results.itemClicked.connect(self.resultSelected.emit)
         # Make the dropdown fill the space

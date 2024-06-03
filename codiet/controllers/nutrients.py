@@ -33,7 +33,7 @@ class NutrientQuantitiesEditorCtrl:
         # Create the view for the nutrient quantity
         nutr_qty = self._make_nutrient_quantity_view(nutrient_quantity=nutrient_quantity)
         # Add the view to the search column
-        self.view.search_column.add_result(nutr_qty)
+        self.view.search_column.results_list.add_item(nutr_qty)
 
     def load_all_nutrient_quantities(self) -> None:
         """Fetches the ingredient quantities data and loads it into the view."""

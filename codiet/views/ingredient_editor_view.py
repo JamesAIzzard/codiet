@@ -13,7 +13,6 @@ from PyQt6.QtCore import pyqtSignal, QVariant
 from codiet.utils.pyqt import block_signals
 from codiet.views.buttons import (
     AddButton, 
-    RemoveButton, 
     DeleteButton, 
     EditButton, 
     SaveJSONButton, 
@@ -22,7 +21,8 @@ from codiet.views.buttons import (
 from codiet.views.search import SearchColumnView
 from codiet.views.nutrients import NutrientQuantitiesEditorView
 from codiet.views.text_editors import LineEdit, MultilineEdit, NumericLineEdit
-from codiet.views.flag_editor_view import FlagEditorView
+from codiet.views.flags import FlagEditorView
+from codiet.views.measurements import MeasurementsDefinitionView
 
 class IngredientEditorView(QWidget):
     """User interface for editing an ingredient."""
@@ -39,13 +39,6 @@ class IngredientEditorView(QWidget):
     ingredientCostValueChanged = pyqtSignal(QVariant)
     ingredientCostQuantityChanged = pyqtSignal(QVariant)
     ingredientCostQuantityUnitChanged = pyqtSignal(str)
-    ingredientDensityVolChanged = pyqtSignal(QVariant)
-    ingredientDensityVolUnitChanged = pyqtSignal(str)
-    ingredientDensityMassChanged = pyqtSignal(QVariant)
-    ingredientDensityMassUnitChanged = pyqtSignal(str)
-    ingredientNumPiecesChanged = pyqtSignal(QVariant)
-    ingredientPieceMassChanged = pyqtSignal(QVariant)
-    ingredientPieceMassUnitChanged = pyqtSignal(str)
     ingredientGIChanged = pyqtSignal(QVariant)
 
 
@@ -90,53 +83,6 @@ class IngredientEditorView(QWidget):
         with block_signals(self.cmb_cost_qty_unit):
             self.cmb_cost_qty_unit.setCurrentText(cost_qty_unit)
 
-    def update_density_vol_value(self, density_vol: float | None):
-        """Set the density volume value."""
-        with block_signals(self.txt_dens_vol):
-            if density_vol is not None:
-                self.txt_dens_vol.setText(density_vol)
-            else:
-                self.txt_dens_vol.clear()
-
-    def update_density_vol_unit(self, density_vol_unit: str):
-        """Set the density volume unit."""
-        with block_signals(self.cmb_dens_vol_unit):
-            self.cmb_dens_vol_unit.setCurrentText(density_vol_unit)
-
-    def update_density_mass_value(self, density_mass: float | None):
-        """Set the density mass value."""
-        with block_signals(self.txt_dens_mass):
-            if density_mass is not None:
-                self.txt_dens_mass.setText(density_mass)
-            else:
-                self.txt_dens_mass.clear()
-
-    def update_density_mass_unit(self, density_mass_unit: str):
-        """Set the density mass unit."""
-        with block_signals(self.cmb_dens_mass_unit):
-            self.cmb_dens_mass_unit.setCurrentText(density_mass_unit)
-
-    def update_pc_qty_value(self, num_pieces: float | None):
-        """Set the number of pieces value."""
-        with block_signals(self.txt_num_pieces):
-            if num_pieces is not None:
-                self.txt_num_pieces.setText(num_pieces)
-            else:
-                self.txt_num_pieces.clear()
-
-    def update_pc_mass_value(self, piece_mass: float | None):
-        """Set the piece mass value."""
-        with block_signals(self.txt_pc_mass_value):
-            if piece_mass is not None:
-                self.txt_pc_mass_value.setText(piece_mass)
-            else:
-                self.txt_pc_mass_value.clear()
-
-    def update_pc_mass_unit(self, piece_mass_unit: str):
-        """Set the piece mass unit."""
-        with block_signals(self.cmb_pc_mass_unit):
-            self.cmb_pc_mass_unit.setCurrentText(piece_mass_unit)
-
     def update_gi(self, gi: float | None):
         """Set the GI value in the GI textbox."""
         with block_signals(self.txt_gi):
@@ -168,20 +114,21 @@ class IngredientEditorView(QWidget):
         self._build_search_ui(lyt_search_column)
 
         # Create a col for the basic info, cost, flags and GI
-        lyt_basic_info = QVBoxLayout()
-        lyt_columns.addLayout(lyt_basic_info, 2)
-        self._build_basic_info_UI(lyt_basic_info)
+        lyt_first_col = QVBoxLayout()
+        lyt_columns.addLayout(lyt_first_col, 2)
+        self._build_basic_info_UI(lyt_first_col)
         # Add the cost editor to the column 1 layout
-        self._build_cost_UI(lyt_basic_info)
-        # Add the bulk properties widget to the column1 layout
-        self._build_measurement_units_UI(lyt_basic_info)
+        self._build_cost_UI(lyt_first_col)
+        # Add the measurement definition view
+        self.measurement_definition_view = MeasurementsDefinitionView()
+        lyt_first_col.addWidget(self.measurement_definition_view)
         # Add the flags widget to the column1 layout
         self.flag_editor = FlagEditorView()
-        lyt_basic_info.addWidget(self.flag_editor)
+        lyt_first_col.addWidget(self.flag_editor)
         # Add the GI widget to the column1 layout
-        self._build_gi_UI(lyt_basic_info)
+        self._build_gi_UI(lyt_first_col)
         # Add stretch to end of layout
-        lyt_basic_info.addStretch(1)
+        lyt_first_col.addStretch(1)
 
         # Create a second column for the nutrients editor
         lyt_nutrients_col = QVBoxLayout()
@@ -225,7 +172,9 @@ class IngredientEditorView(QWidget):
         self.ingredient_search.searchTermChanged.connect(self.searchTextChanged.emit)
         self.ingredient_search.searchTermCleared.connect(self.searchTextCleared.emit)
         self.ingredient_search.resultSelected.connect(
-            lambda: self.ingredientSelected.emit(self.ingredient_search.selected_result.text()) # type: ignore
+            lambda: self.ingredientSelected.emit(
+                self.ingredient_search.results_list.selected_item.text() # type: ignore
+            )
         )
         container.addWidget(self.ingredient_search)
 
@@ -303,97 +252,6 @@ class IngredientEditorView(QWidget):
         self.cmb_cost_qty_unit.addItems(["g", "kg", "ml", "l"])
         lyt_cost.addWidget(self.cmb_cost_qty_unit)
         self.cmb_cost_qty_unit.currentTextChanged.connect(self.ingredientCostQuantityUnitChanged.emit)
-
-    def _build_measurement_units_UI(self, container: QBoxLayout):
-        """Build the UI to configure the measurement units
-        for the ingredient."""
-        # Create the bulk properties groupbox
-        gb_measurement_units = QGroupBox("Measurement Units")
-        container.addWidget(gb_measurement_units)
-
-        # Add a vertical layout inside the groubox
-        lyt_top_level = QVBoxLayout()
-        gb_measurement_units.setLayout(lyt_top_level)
-
-        # Add a horizontal layout for the buttons
-        lyt_buttons = QHBoxLayout()
-        lyt_top_level.addLayout(lyt_buttons)
-        # Add an add and remove button
-        btn_add = AddButton()
-        btn_add.setToolTip("Add a new measurement unit.")
-        lyt_buttons.addWidget(btn_add)
-        btn_remove = RemoveButton()
-        btn_remove.setToolTip("Remove the selected measurement unit.")
-        lyt_buttons.addWidget(btn_remove)
-        lyt_buttons.addStretch(1)
-
-        # Add a horizontal layout for the density editor
-        lyt_density = QHBoxLayout()
-        lyt_top_level.addLayout(lyt_density)
-
-        # Create a label and add it to the layout
-        label = QLabel("Density:")
-        lyt_density.addWidget(label)
-
-        # Create the density volume textbox and add it to the layout
-        self.txt_dens_vol = NumericLineEdit()
-        lyt_density.addWidget(self.txt_dens_vol)
-        self.txt_dens_vol.lostFocus.connect(self.ingredientDensityVolChanged.emit)
-
-        # Create a density volume units dropdown and add it to the layout
-        self.cmb_dens_vol_unit = QComboBox()
-        # Temporarily add units, these will get pulled from config file later
-        # TODO - pull units from config file
-        self.cmb_dens_vol_unit.addItems(["ml", "l"])
-        lyt_density.addWidget(self.cmb_dens_vol_unit)
-        self.cmb_dens_vol_unit.currentTextChanged.connect(self.ingredientDensityVolUnitChanged.emit)
-
-        # Create another label and add it to the layout
-        label = QLabel(" weighs ")
-        lyt_density.addWidget(label)
-
-        # Create a textbox and add it to the layout
-        self.txt_dens_mass = NumericLineEdit()
-        lyt_density.addWidget(self.txt_dens_mass)
-        self.txt_dens_mass.lostFocus.connect(self.ingredientDensityMassChanged.emit)
-
-        # Create a mass units dropdown and add it to the layout
-        self.cmb_dens_mass_unit = QComboBox()
-        # Temporarily add units, these will get pulled from config file later
-        # TODO - pull units from config file
-        self.cmb_dens_mass_unit.addItems(["g", "kg"])
-        lyt_density.addWidget(self.cmb_dens_mass_unit)
-        self.cmb_dens_mass_unit.currentTextChanged.connect(self.ingredientDensityMassUnitChanged.emit)
-        
-        # Add a horizontal layout for the piece mass editor
-        lyt_piece_mass = QHBoxLayout()
-        lyt_top_level.addLayout(lyt_piece_mass)
-
-        # Create a label and add it to the layout
-        label = QLabel("Piece Mass:")
-        lyt_piece_mass.addWidget(label)
-
-        # Create a textbox and add it to the layout
-        self.txt_num_pieces = NumericLineEdit()
-        lyt_piece_mass.addWidget(self.txt_num_pieces)
-        self.txt_num_pieces.lostFocus.connect(self.ingredientNumPiecesChanged.emit)
-
-        # Create another label
-        label = QLabel(" piece(s) weighs ")
-        lyt_piece_mass.addWidget(label)
-
-        # Create a textbox and add it to the layout
-        self.txt_pc_mass_value = NumericLineEdit()
-        lyt_piece_mass.addWidget(self.txt_pc_mass_value)
-        self.txt_pc_mass_value.lostFocus.connect(self.ingredientPieceMassChanged.emit)
-
-        # Create a mass units dropdown and add it to the layout
-        self.cmb_pc_mass_unit = QComboBox()
-        # Temporarily add units, these will get pulled from config file later
-        # TODO - pull units from config file
-        self.cmb_pc_mass_unit.addItems(["g", "kg"])
-        lyt_piece_mass.addWidget(self.cmb_pc_mass_unit)
-        self.cmb_pc_mass_unit.currentTextChanged.connect(self.ingredientPieceMassUnitChanged.emit)
 
     def _build_gi_UI(self, container: QBoxLayout):
         """Build the UI for the GI section of the ingredient editor page."""

@@ -1,7 +1,7 @@
 {
     "name": "Porridge Oats",
     "description": "Breakfast cereal made of oats and milk.",
-    "instructions": "1. Measure 1 cup of rolled oats.\n2. Measure 2 cups of water or milk (or a combination of both).\n3. In a medium-sized pot, combine the oats and the liquid.\n4. Add a pinch of salt.\n5. Place the pot on the stove over medium-high heat.\n6. Bring the mixture to a boil, stirring occasionally.\n7. Once boiling, reduce the heat to low and let it simmer.\n8. Cook for about 5-7 minutes, stirring frequently.\n9. Adjust the consistency by cooking longer for thicker porridge or adding more liquid for thinner porridge.\n10. Remove the pot from the heat and let it sit for a minute.\n11. Transfer the porridge to a bowl.\n12. Add your favorite toppings (e.g., fruits, nuts, honey, cinnamon).\n13. Serve immediately while warm.\n14. For a microwave option, combine oats, liquid, and salt in a microwave-safe bowl and microwave on high for 2-3 minutes, stirring halfway through.\n15. For overnight oats, combine oats, liquid, and any desired sweeteners or spices in a jar and refrigerate overnight. Enjoy cold with toppings in the morning.",
+    "instructions": "1. Gather Ingredients:\n   - 100 grams of rolled oats\n   - 50 grams of full-fat milk\n   - 15 grams of raisins\n   - 10 grams of honey\n\n2. Combine Ingredients:\n   - In a saucepan, add 100 grams of rolled oats.\n   - Pour 50 grams of full-fat milk over the oats.\n   - Add 15 grams of raisins to the mixture.\n\n3. Cook the Porridge:\n   - Place the saucepan on the stove.\n   - Heat the mixture over medium heat, stirring occasionally.\n\n4. Monitor Cooking:\n   - Continue to cook until the mixture thickens and the oats are tender, typically for about 5-7 minutes.\n   - Stir frequently to prevent sticking and ensure even cooking.\n\n5. Serve:\n   - Once the porridge reaches the desired consistency, remove the saucepan from the heat.\n   - Transfer the porridge to a bowl.\n\n6. Optional Additions:\n   - Add sweeteners such as honey or sugar if desired.\n   - Top with fresh fruit or nuts for added flavor and texture.\n\n7. Enjoy:\n   - Serve warm and enjoy your homemade porridge.",
     "ingredients": {
         "70": {
             "id": 70,
@@ -13,16 +13,33 @@
         "37": {
             "id": 37,
             "qty_unit": "g",
-            "qty_value": 80.0,
+            "qty_value": 50.0,
+            "qty_upper_tol": 0.0,
+            "qty_lower_tol": 0.0
+        },
+        "65": {
+            "id": 65,
+            "qty_unit": "g",
+            "qty_value": 15.0,
+            "qty_upper_tol": 0.0,
+            "qty_lower_tol": 0.0
+        },
+        "43": {
+            "id": 43,
+            "qty_unit": "g",
+            "qty_value": 10.0,
             "qty_upper_tol": 0.0,
             "qty_lower_tol": 0.0
         }
     },
     "serve_times": [
-        "06:00-12:00"
+        "05:00-11:00"
     ],
     "tags": [
         "meal/savory/breakfast/cereal",
-        "meal/savory/breakfast/cooked"
+        "meal/savory/breakfast",
+        "meal/savory/breakfast/cooked",
+        "meal/savory",
+        "meal"
     ]
 }

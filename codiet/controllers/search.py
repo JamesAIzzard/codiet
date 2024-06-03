@@ -31,7 +31,7 @@ class SearchColumnCtrl():
         self.view.searchTermChanged.connect(self._on_search_term_changed)
         self.view.searchTermCleared.connect(self._on_search_term_cleared)
         self.view.resultSelected.connect(
-            lambda: self.on_result_selected(self.view.selected_result) # type: ignore
+            lambda: self.on_result_selected(self.view.results_list.selected_item) # type: ignore
         )
         # Initially populate the list
         self.show_all_items()
@@ -40,7 +40,7 @@ class SearchColumnCtrl():
         """Show all items in the search column."""
         # Get a list of items for all the searchable strings
         items = self._get_items_for_results(self.get_searchable_strings())
-        self.view.update_results_list(items)
+        self.view.results_list.update_list(items)
 
     def reset_search(self) -> None:
         """Reset the search column.
@@ -63,7 +63,7 @@ class SearchColumnCtrl():
     def _on_search_term_changed(self, search_term: str) -> None:
         """Handler for changes to the search column."""
         # Clear the search UI
-        self.view.clear_results_list()
+        self.view.results_list.clear_list()
         # If the search term is empty
         if search_term.strip() == "":
             self.show_all_items()
@@ -77,12 +77,12 @@ class SearchColumnCtrl():
             # For each best match, get the corresponding list item
             best_match_items = self._get_items_for_results(best_matches)
             # Add the best matches to the search column
-            self.view.update_results_list(best_match_items)
+            self.view.results_list.update_list(best_match_items)
 
     def _on_search_term_cleared(self) -> None:
         """Handler for clearing the search term."""
         # Clear the search column
-        self.view.clear_results_list()
+        self.view.results_list.clear_list()
         # Clear the search term
         self.view.clear_search_term()
         # Populate the list with all ingredient names

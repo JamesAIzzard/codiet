@@ -7,6 +7,7 @@ from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.views.dialog_box_views import ErrorDialogBoxView, ConfirmDialogBoxView, EntityNameDialogView
 from codiet.controllers.search import SearchColumnCtrl
 from codiet.controllers.entity_name_dialog_ctrl import EntityNameDialogCtrl
+from codiet.controllers.measurements import MeasurementsDefinitionCtrl
 from codiet.controllers.nutrients import NutrientQuantitiesEditorCtrl
 
 
@@ -53,6 +54,13 @@ class IngredientEditorCtrl:
             check_name_available=lambda name: name not in self._ingredient_names,
             on_name_accepted=self._on_ingredient_name_accepted,
         )
+        # self.custom_measurements_ctrl = MeasurementsDefinitionCtrl(
+        #     view=self.view.measurement_definition_view,
+        #     get_custom_measurements=lambda: self.ingredient.custom_measurements,
+        #     add_custom_measurement=lambda measurement: self.ingredient.add_custom_measurement(measurement),
+        #     remove_custom_measurement=lambda measurement: self.ingredient.remove_custom_measurement(measurement_name),
+        #     update_custom_measurement=lambda measurement: self.ingredient.update_custom_measurement(measurement),
+        # )
         self.ingredient_nutrient_editor_ctrl = NutrientQuantitiesEditorCtrl(
             view=self.view.nutrient_quantities_editor,
             get_nutrient_data=lambda: self.ingredient.nutrient_quantities,
@@ -64,7 +72,6 @@ class IngredientEditorCtrl:
         self._connect_delete_ingredient_dialog()
         self._connect_basic_info_editors()
         self._connect_cost_editor()
-        self._connect_bulk_editor()
         self._connect_flag_editor()
         self.view.txt_gi.textChanged.connect(self._on_gi_value_changed)
 
@@ -90,15 +97,8 @@ class IngredientEditorCtrl:
         self.view.update_cost_value(self.ingredient.cost_value)
         self.view.update_cost_qty_value(self.ingredient.cost_qty_value)
         self.view.update_cost_qty_unit(self.ingredient.cost_qty_unit)
-        # Update the bulk properties fields
-        self.view.update_density_vol_value(self.ingredient.density_vol_value)
-        self.view.update_density_vol_unit(self.ingredient.density_vol_unit)
-        self.view.update_density_mass_value(self.ingredient.density_mass_value)
-        self.view.update_density_mass_unit(self.ingredient.density_mass_unit)
-        # Update the piece mass fields
-        self.view.update_pc_qty_value(self.ingredient.pc_qty)
-        self.view.update_pc_mass_value(self.ingredient.pc_mass_value)
-        self.view.update_pc_mass_unit(self.ingredient.pc_mass_unit)
+        # Update the measurements fields
+        # TODO: Update the measurement fields
         # Set the flags
         self.view.flag_editor.remove_all_flags_from_list()
         self.view.flag_editor.add_flags_to_list(list(self.ingredient.flags.keys()))
@@ -143,12 +143,12 @@ class IngredientEditorCtrl:
         """Handler for deleting an ingredient."""
         # If no ingredient is selected, show the info box to tell the user
         # to select an ingredient.
-        if self.view.ingredient_search.result_is_selected is False:
+        if self.view.ingredient_search.results_list.item_is_selected is False:
             self.delete_ingredient_selection_needed_popup.show()
         else:
             # Set the ingredient name in the confirmation dialog
             self.delete_ingredient_confirmation_popup.message = (
-                f"Are you sure you want to delete {self.view.ingredient_search.selected_result}?"
+                f"Are you sure you want to delete {self.view.ingredient_search.results_list.selected_item.text()}?" # type: ignore
             )
             # Show the confirmation dialog
             self.delete_ingredient_confirmation_popup.show()
@@ -156,7 +156,7 @@ class IngredientEditorCtrl:
     def _on_confirm_delete_ingredient_clicked(self) -> None:
         """Handler for confirming the deletion of an ingredient."""
         # Grab the selected ingredient name from the search widget
-        ingredient_name = self.view.ingredient_search.selected_result
+        ingredient_name = self.view.ingredient_search.results_list.selected_item.text() # type: ignore
         # Delete the ingredient from the database
         with DatabaseService() as db_service:
             db_service.delete_ingredient_by_name(ingredient_name) # type: ignore
@@ -433,33 +433,6 @@ class IngredientEditorCtrl:
         self.view.ingredientCostQuantityChanged.connect(self._on_ingredient_cost_quantity_changed)
         self.view.cmb_cost_qty_unit.currentTextChanged.connect(
             self._on_ingredient_cost_qty_unit_changed
-        )
-
-    def _connect_bulk_editor(self) -> None:
-        """Connect the signals for the bulk editor."""
-        # Connect the density fields
-        self.view.txt_dens_vol.textChanged.connect(
-            self._on_ingredient_density_vol_value_changed
-        )
-        self.view.cmb_dens_vol_unit.currentTextChanged.connect(
-            self._on_ingredient_density_vol_unit_changed
-        )
-        self.view.txt_dens_mass.textChanged.connect(
-            self._on_ingredient_density_mass_value_changed
-        )
-        self.view.cmb_dens_mass_unit.currentTextChanged.connect(
-            self._on_ingredient_density_mass_unit_changed
-        )
-
-        # Connect the piece mass fields
-        self.view.txt_num_pieces.textChanged.connect(
-            self._on_ingredient_num_pieces_changed
-        )
-        self.view.txt_pc_mass_value.textChanged.connect(
-            self._on_ingredient_pc_mass_value_changed
-        )
-        self.view.cmb_pc_mass_unit.currentTextChanged.connect(
-            self._on_ingredient_pc_mass_unit_changed
         )
 
     def _connect_flag_editor(self) -> None:
