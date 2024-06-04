@@ -68,6 +68,12 @@ class Ingredient:
         self, existing_unit_name: str, custom_unit: CustomUnit
     ) -> None:
         """Updates a custom unit."""
+        # Rename the custom unit if the name has changed
+        if existing_unit_name != custom_unit.unit_name:
+            self._custom_units[custom_unit.unit_name] = self._custom_units.pop(
+                existing_unit_name
+            )
+        # Update the custom unit
         self._custom_units[custom_unit.unit_name] = custom_unit
 
     def update_nutrient_quantity(

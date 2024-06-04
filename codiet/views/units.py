@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
     QComboBox
 )
 
+from codiet.views import load_stylesheet
 from codiet.views.buttons import AddButton, RemoveButton, EditButton
 from codiet.views.text_editors import NumericLineEdit
 from codiet.views.listbox import ListBox
@@ -54,8 +55,8 @@ class CustomUnitsDefinitionView(QWidget):
         lyt_top_level.addWidget(self.lst_measurements)
 
 
-class CustomMeasurementView(QWidget):
-    """A widget for defining a custom measurement unit."""
+class CustomUnitView(QWidget):
+    """A widget for defining a custom unit."""
     customQtyValueChanged = pyqtSignal(str, float)
     stdQtyValueChanged = pyqtSignal(str, float)
     stdQtyUnitChanged = pyqtSignal(str, str)
@@ -63,12 +64,21 @@ class CustomMeasurementView(QWidget):
     def __init__(self, qty_name:str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.quantity_name = qty_name
+        self.build_ui()
+        self.setStyleSheet(load_stylesheet("custom_unit_view.qss"))
         
     def build_ui(self):
         """Constructs the user interface."""
         # Create a top level horizontal layout
-        layout = QVBoxLayout()
+        layout = QHBoxLayout()
         self.setLayout(layout)
+        # Remove margins
+        layout.setContentsMargins(0, 0, 0, 0)
+        # Add a label with the quantity name
+        self.lbl_qty_name = QLabel(f"{self.quantity_name}:")
+        # Give it a class of unit-title
+        self.lbl_qty_name.setProperty("class", "unit-title")
+        layout.addWidget(self.lbl_qty_name)
         # Add a numeric line edit
         self.txt_custom_unit_qty = NumericLineEdit()
         layout.addWidget(self.txt_custom_unit_qty)
@@ -79,7 +89,7 @@ class CustomMeasurementView(QWidget):
             )
         )
         # Add a label with the quantity name
-        self.lbl_qty_name = QLabel(f"{self.quantity_name} = ")
+        self.lbl_qty_name = QLabel(f"{self.quantity_name} weighs  ")
         layout.addWidget(self.lbl_qty_name)
         # Add a numeric line edit for the standard unit quantity
         self.txt_std_unit_qty = NumericLineEdit()

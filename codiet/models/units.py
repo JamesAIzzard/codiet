@@ -1,8 +1,9 @@
 class CustomUnit():
     """A custom measurement unit."""
-    def __init__(self, unit_name: str, unit_to_grams_ratio: float):
+    def __init__(self, unit_name: str, unit_to_grams_ratio: float, unit_id: int | None = None):
         self.unit_name = unit_name
         self.unit_to_grams_ratio = unit_to_grams_ratio
+        self.unit_id = unit_id
 
     def custom_to_grams(self, custom_value: float) -> float:
         """Converts a custom value to grams."""
