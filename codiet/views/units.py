@@ -12,7 +12,7 @@ from codiet.views.buttons import AddButton, RemoveButton, EditButton
 from codiet.views.text_editors import NumericLineEdit
 from codiet.views.listbox import ListBox
 
-class MeasurementsDefinitionView(QWidget):
+class CustomUnitsDefinitionView(QWidget):
     """A widget for defining custom measurement units."""
     addMeasurementClicked = pyqtSignal()
     removeMeasurementClicked = pyqtSignal(str)

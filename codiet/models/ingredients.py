@@ -1,4 +1,5 @@
 from codiet.models.nutrients import IngredientNutrientQuantity
+from codiet.models.units import CustomUnit
 
 
 class Ingredient:
@@ -12,13 +13,7 @@ class Ingredient:
         self.cost_value: float | None = None
         self.cost_qty_unit: str = "g"
         self.cost_qty_value: float | None = None
-        self.density_mass_unit: str = "g"
-        self.density_mass_value: float | None = None
-        self.density_vol_unit: str = "ml"
-        self.density_vol_value: float | None = None
-        self.pc_qty: float | None = None
-        self.pc_mass_unit: str = "g"
-        self.pc_mass_value: float | None = None
+        self._custom_units: dict[str, CustomUnit] = {}
         self._flags: dict[str, bool] = {}
         self.gi: float | None = None
         self._nutrients: dict[str, IngredientNutrientQuantity] = {}
@@ -27,7 +22,12 @@ class Ingredient:
     def flags(self) -> dict[str, bool]:
         """Returns the flags."""
         return self._flags
-    
+
+    @property
+    def custom_units(self) -> dict[str, CustomUnit]:
+        """Returns the custom units."""
+        return self._custom_units
+
     @property
     def nutrient_quantities(self) -> dict[str, IngredientNutrientQuantity]:
         """Returns the nutrient quantities."""
@@ -55,6 +55,20 @@ class Ingredient:
         """Sets all flags to False."""
         for flag in self._flags:
             self.set_flag(flag, False)
+
+    def add_custom_unit(self, custom_unit: CustomUnit) -> None:
+        """Adds a custom unit."""
+        self._custom_units[custom_unit.unit_name] = custom_unit
+
+    def remove_custom_unit(self, custom_unit_name: str) -> None:
+        """Removes a custom unit."""
+        del self._custom_units[custom_unit_name]
+
+    def update_custom_unit(
+        self, existing_unit_name: str, custom_unit: CustomUnit
+    ) -> None:
+        """Updates a custom unit."""
+        self._custom_units[custom_unit.unit_name] = custom_unit
 
     def update_nutrient_quantity(
         self, ingredient_nutrient: IngredientNutrientQuantity

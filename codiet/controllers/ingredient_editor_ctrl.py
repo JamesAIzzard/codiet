@@ -4,10 +4,14 @@ from codiet.db.database_service import DatabaseService
 from codiet.models.ingredients import Ingredient
 from codiet.models.nutrients import IngredientNutrientQuantity
 from codiet.views.ingredient_editor_view import IngredientEditorView
-from codiet.views.dialog_box_views import ErrorDialogBoxView, ConfirmDialogBoxView, EntityNameDialogView
+from codiet.views.dialog_box_views import (
+    ErrorDialogBoxView,
+    ConfirmDialogBoxView,
+    EntityNameDialogView,
+)
 from codiet.controllers.search import SearchColumnCtrl
 from codiet.controllers.entity_name_dialog_ctrl import EntityNameDialogCtrl
-from codiet.controllers.measurements import MeasurementsDefinitionCtrl
+from codiet.controllers.units import CustomUnitsDefinitionCtrl
 from codiet.controllers.nutrients import NutrientQuantitiesEditorCtrl
 
 
@@ -33,8 +37,7 @@ class IngredientEditorCtrl:
             parent=self.view,
         )
         self.ingredient_name_editor_dialog = EntityNameDialogView(
-            entity_name="Ingredient", 
-            parent=self.view
+            entity_name="Ingredient", parent=self.view
         )
 
         # Cache searchable lists
@@ -54,12 +57,18 @@ class IngredientEditorCtrl:
             check_name_available=lambda name: name not in self._ingredient_names,
             on_name_accepted=self._on_ingredient_name_accepted,
         )
-        self.custom_measurements_ctrl = MeasurementsDefinitionCtrl(
-            view=self.view.measurement_definition_view,
-            get_current_measurements=lambda: self.ingredient.custom_measurements,
-            add_measurement=lambda measurement: self.ingredient.add_custom_measurement(measurement),
-            remove_measurement=lambda measurement: self.ingredient.remove_custom_measurement(measurement_name),
-            update_measurement=lambda measurement: self.ingredient.update_custom_measurement(measurement),
+        self.custom_units_ctrl = CustomUnitsDefinitionCtrl(
+            view=self.view.custom_units_view,
+            get_current_measurements=lambda: self.ingredient.custom_units,
+            add_measurement=lambda custom_unit: self.ingredient.add_custom_unit(
+                custom_unit
+            ),
+            remove_measurement=lambda custom_unit_name: self.ingredient.remove_custom_unit(
+                custom_unit_name
+            ),
+            update_measurement=lambda existing_unit_name, updated_custom_unit: self.ingredient.update_custom_unit(
+                existing_unit_name, updated_custom_unit
+            ),
         )
         self.ingredient_nutrient_editor_ctrl = NutrientQuantitiesEditorCtrl(
             view=self.view.nutrient_quantities_editor,
@@ -105,7 +114,7 @@ class IngredientEditorCtrl:
         self.view.flag_editor.update_flags(self.ingredient.flags)
         # Update the GI field
         self.view.update_gi(self.ingredient.gi)
-        # Set the nutrients        
+        # Set the nutrients
         self.ingredient_nutrient_editor_ctrl.load_all_nutrient_quantities()
 
     def _cache_leaf_nutrient_names(self) -> None:
@@ -118,7 +127,7 @@ class IngredientEditorCtrl:
         with DatabaseService() as db_service:
             self._ingredient_names = db_service.fetch_all_ingredient_names()
 
-    def _on_ingredient_selected(self, list_item:QListWidgetItem) -> None:
+    def _on_ingredient_selected(self, list_item: QListWidgetItem) -> None:
         """Handler for selecting an ingredient."""
         # Grab the selected ingredient name from the search widget
         ingredient_name = list_item.text()
@@ -137,7 +146,7 @@ class IngredientEditorCtrl:
         self.load_ingredient_instance(ingredient)
         # Open the create new ingredient dialog box
         self.ingredient_name_editor_dialog.clear()
-        self.ingredient_name_editor_dialog.show()        
+        self.ingredient_name_editor_dialog.show()
 
     def _on_delete_ingredient_clicked(self) -> None:
         """Handler for deleting an ingredient."""
@@ -147,19 +156,17 @@ class IngredientEditorCtrl:
             self.delete_ingredient_selection_needed_popup.show()
         else:
             # Set the ingredient name in the confirmation dialog
-            self.delete_ingredient_confirmation_popup.message = (
-                f"Are you sure you want to delete {self.view.ingredient_search.results_list.selected_item.text()}?" # type: ignore
-            )
+            self.delete_ingredient_confirmation_popup.message = f"Are you sure you want to delete {self.view.ingredient_search.results_list.selected_item.text()}?"  # type: ignore
             # Show the confirmation dialog
             self.delete_ingredient_confirmation_popup.show()
 
     def _on_confirm_delete_ingredient_clicked(self) -> None:
         """Handler for confirming the deletion of an ingredient."""
         # Grab the selected ingredient name from the search widget
-        ingredient_name = self.view.ingredient_search.results_list.selected_item.text() # type: ignore
+        ingredient_name = self.view.ingredient_search.results_list.selected_item.text()  # type: ignore
         # Delete the ingredient from the database
         with DatabaseService() as db_service:
-            db_service.delete_ingredient_by_name(ingredient_name) # type: ignore
+            db_service.delete_ingredient_by_name(ingredient_name)  # type: ignore
             db_service.commit()
         # Recache the ingredient names
         self._cache_ingredient_names()
@@ -183,7 +190,7 @@ class IngredientEditorCtrl:
         # Show the dialog
         self.ingredient_name_editor_dialog.show()
 
-    def _on_ingredient_name_accepted(self, name:str) -> None:
+    def _on_ingredient_name_accepted(self, name: str) -> None:
         """Handler for accepting the new ingredient name."""
         # Set the name on the ingredient
         self.ingredient.name = self.ingredient_name_editor_dialog.name
@@ -217,7 +224,7 @@ class IngredientEditorCtrl:
                 db_service.update_ingredient(self.ingredient)
                 db_service.commit()
 
-    def _on_ingredient_cost_value_changed(self, value: float|None):
+    def _on_ingredient_cost_value_changed(self, value: float | None):
         """Handler for changes to the ingredient cost."""
         # Update the ingredient cost
         self.ingredient.cost_value = value
@@ -227,7 +234,7 @@ class IngredientEditorCtrl:
                 db_service.update_ingredient(self.ingredient)
                 db_service.commit()
 
-    def _on_ingredient_cost_quantity_changed(self, value: float|None):
+    def _on_ingredient_cost_quantity_changed(self, value: float | None):
         """Handler for changes to the ingredient quantity associated with the cost data."""
         # Update the ingredient cost quantity
         self.ingredient.cost_qty_value = value
@@ -241,76 +248,6 @@ class IngredientEditorCtrl:
         """Handler for changes to the ingredient cost unit."""
         # Update the ingredient cost unit
         self.ingredient.cost_qty_unit = unit
-        # If the ingredient id is not None, update the database
-        if self.ingredient.id is not None:
-            with DatabaseService() as db_service:
-                db_service.update_ingredient(self.ingredient)
-                db_service.commit()
-
-    def _on_ingredient_density_vol_value_changed(self, value: float|None):
-        """Handler for changes to the ingredient density volume value."""
-        # Update the ingredient density volume value
-        self.ingredient.density_vol_value = value
-        # If the ingredient id is not None, update the database
-        if self.ingredient.id is not None:
-            with DatabaseService() as db_service:
-                db_service.update_ingredient(self.ingredient)
-                db_service.commit()
-
-    def _on_ingredient_density_vol_unit_changed(self, value: str):
-        """Handler for changes to the ingredient density volume unit."""
-        # Update the ingredient density volume unit
-        self.ingredient.density_vol_unit = value
-        # If the ingredient id is not None, update the database
-        if self.ingredient.id is not None:
-            with DatabaseService() as db_service:
-                db_service.update_ingredient(self.ingredient)
-                db_service.commit()
-
-    def _on_ingredient_density_mass_value_changed(self, value: float|None):
-        """Handler for changes to the ingredient density mass value."""
-        # Update the ingredient density mass value
-        self.ingredient.density_mass_value = value
-        # If the ingredient id is not None, update the database
-        if self.ingredient.id is not None:
-            with DatabaseService() as db_service:
-                db_service.update_ingredient(self.ingredient)
-                db_service.commit()
-
-    def _on_ingredient_density_mass_unit_changed(self, value: str):
-        """Handler for changes to the ingredient density mass unit."""
-        # Update the ingredient density mass unit
-        self.ingredient.density_mass_unit = value
-        # If the ingredient id is not None, update the database
-        if self.ingredient.id is not None:
-            with DatabaseService() as db_service:
-                db_service.update_ingredient(self.ingredient)
-                db_service.commit()
-
-    def _on_ingredient_num_pieces_changed(self, value: float|None):
-        """Handler for changes to the ingredient piece count."""
-        # Update the ingredient piece count
-        self.ingredient.pc_qty = value
-        # If the ingredient id is not None, update the database
-        if self.ingredient.id is not None:
-            with DatabaseService() as db_service:
-                db_service.update_ingredient(self.ingredient)
-                db_service.commit()
-
-    def _on_ingredient_pc_mass_value_changed(self, value: float|None):
-        """Handler for changes to the ingredient piece mass value."""
-        # Update the ingredient piece mass value
-        self.ingredient.pc_mass_value = value
-        # If the ingredient id is not None, update the database
-        if self.ingredient.id is not None:
-            with DatabaseService() as db_service:
-                db_service.update_ingredient(self.ingredient)
-                db_service.commit()
-
-    def _on_ingredient_pc_mass_unit_changed(self, value: str):
-        """Handler for changes to the ingredient piece mass unit."""
-        # Update the ingredient piece mass unit
-        self.ingredient.pc_mass_unit = value
         # If the ingredient id is not None, update the database
         if self.ingredient.id is not None:
             with DatabaseService() as db_service:
@@ -377,7 +314,7 @@ class IngredientEditorCtrl:
                 db_service.update_ingredient(self.ingredient)
                 db_service.commit()
 
-    def _on_gi_value_changed(self, value:float|None):
+    def _on_gi_value_changed(self, value: float | None):
         """Handler for changes to the ingredient GI value."""
         # Update the ingredient GI value
         self.ingredient.gi = value
@@ -395,8 +332,8 @@ class IngredientEditorCtrl:
         if self.ingredient.id is not None:
             with DatabaseService() as db_service:
                 db_service.update_ingredient_nutrient_quantity(
-                    ingredient_id=self.ingredient.id, 
-                    nutrient_quantity=nutrient_quantity
+                    ingredient_id=self.ingredient.id,
+                    nutrient_quantity=nutrient_quantity,
                 )
                 db_service.commit()
 
@@ -420,7 +357,9 @@ class IngredientEditorCtrl:
     def _connect_basic_info_editors(self) -> None:
         """Connect the signals for the basic info editors."""
         # Connect the edit name button
-        self.view.editIngredientNameClicked.connect(self._on_edit_ingredient_name_clicked)
+        self.view.editIngredientNameClicked.connect(
+            self._on_edit_ingredient_name_clicked
+        )
         # Connect the description field
         self.view.ingredientDescriptionChanged.connect(
             self._on_ingredient_description_changed
@@ -429,8 +368,12 @@ class IngredientEditorCtrl:
     def _connect_cost_editor(self) -> None:
         """Connect the signals for the cost editor."""
         # Connect the cost fields
-        self.view.ingredientCostValueChanged.connect(self._on_ingredient_cost_value_changed)
-        self.view.ingredientCostQuantityChanged.connect(self._on_ingredient_cost_quantity_changed)
+        self.view.ingredientCostValueChanged.connect(
+            self._on_ingredient_cost_value_changed
+        )
+        self.view.ingredientCostQuantityChanged.connect(
+            self._on_ingredient_cost_quantity_changed
+        )
         self.view.cmb_cost_qty_unit.currentTextChanged.connect(
             self._on_ingredient_cost_qty_unit_changed
         )

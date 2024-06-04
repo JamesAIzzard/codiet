@@ -22,7 +22,7 @@ from codiet.views.search import SearchColumnView
 from codiet.views.nutrients import NutrientQuantitiesEditorView
 from codiet.views.text_editors import LineEdit, MultilineEdit, NumericLineEdit
 from codiet.views.flags import FlagEditorView
-from codiet.views.measurements import MeasurementsDefinitionView
+from codiet.views.units import CustomUnitsDefinitionView
 
 class IngredientEditorView(QWidget):
     """User interface for editing an ingredient."""
@@ -120,8 +120,8 @@ class IngredientEditorView(QWidget):
         # Add the cost editor to the column 1 layout
         self._build_cost_UI(lyt_first_col)
         # Add the measurement definition view
-        self.measurement_definition_view = MeasurementsDefinitionView()
-        lyt_first_col.addWidget(self.measurement_definition_view)
+        self.custom_units_view = CustomUnitsDefinitionView()
+        lyt_first_col.addWidget(self.custom_units_view)
         # Add the flags widget to the column1 layout
         self.flag_editor = FlagEditorView()
         lyt_first_col.addWidget(self.flag_editor)
