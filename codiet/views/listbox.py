@@ -38,6 +38,20 @@ class ListBox(QListWidget):
             self.setItemWidget(item, result)
         else:
             raise ValueError(f"Unsupported result type: {type(result)}")
+        
+    def remove_item(self, index: int|None=None, item: QListWidgetItem|None=None) -> None:
+        """Remove a result from the search column."""
+        if item is not None:
+            self.takeItem(self.row(item))
+        elif index is not None:
+            self.takeItem(index)
+        else:
+            raise ValueError("You must provide either an index or an item to remove.")
+        
+    def remove_selected_item(self) -> None:
+        """Remove the selected result from the search column."""
+        if self.item_is_selected:
+            self.remove_item(index=self.selected_index)
 
     def update_list(self, matching_results: list[QWidget | str]):
         """Update the results list to reflect the matching results."""
