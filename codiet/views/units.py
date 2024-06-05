@@ -1,4 +1,4 @@
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, QVariant
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -24,9 +24,20 @@ class CustomUnitView(QWidget):
 
     def __init__(self, qty_name: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.quantity_name = qty_name
+        self._quantity_name = qty_name
         self.build_ui()
         self.setStyleSheet(load_stylesheet("custom_unit_view.qss"))
+
+    @property
+    def quantity_name(self) -> str:
+        """Return the name of the quantity."""
+        return self._quantity_name
+    
+    @quantity_name.setter
+    def quantity_name(self, name: str) -> None:
+        """Set the name of the quantity."""
+        self._quantity_name = name
+        self.lbl_qty_name.setText(f"{self.quantity_name} = ")
 
     def build_ui(self):
         """Constructs the user interface."""
@@ -37,7 +48,7 @@ class CustomUnitView(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         # Add a label with the weight icon
         lbl_icon = IconTextLabel(
-            icon_filename="weight-icon.png", text=f"{self.quantity_name}: "
+            icon_filename="weight-icon.png", text=f"{self._quantity_name}: "
         )
         # Set a fixed width
         lbl_icon.setFixedWidth(100)
@@ -48,11 +59,11 @@ class CustomUnitView(QWidget):
         layout.addWidget(self.txt_custom_unit_qty)
         self.txt_custom_unit_qty.lostFocus.connect(
             lambda: self.customQtyValueChanged.emit(
-                self.quantity_name, self.txt_custom_unit_qty.text
+                self._quantity_name, self.txt_custom_unit_qty.text
             )
         )
         # Add a label with the quantity name
-        self.lbl_qty_name = QLabel(f"{self.quantity_name} = ")
+        self.lbl_qty_name = QLabel(f"{self._quantity_name} = ")
         self.lbl_qty_name.setFixedWidth(100)
         layout.addWidget(self.lbl_qty_name)
         # Add a numeric line edit for the standard unit quantity
@@ -61,7 +72,7 @@ class CustomUnitView(QWidget):
         layout.addWidget(self.txt_std_unit_qty)
         self.txt_std_unit_qty.lostFocus.connect(
             lambda: self.stdQtyValueChanged.emit(
-                self.quantity_name, self.txt_std_unit_qty.text
+                self._quantity_name, self.txt_std_unit_qty.text
             )
         )
         # Add a combo box for the standard unit
@@ -71,7 +82,7 @@ class CustomUnitView(QWidget):
         self.cmb_std_unit.addItems(["g", "kg", "lb", "oz"])
         self.cmb_std_unit.currentTextChanged.connect(
             lambda: self.stdQtyUnitChanged.emit(
-                self.quantity_name, self.cmb_std_unit.currentText()
+                self._quantity_name, self.cmb_std_unit.currentText()
             )
         )
         # Add a spacer to push the combo box to the right
@@ -82,8 +93,8 @@ class CustomUnitsDefinitionView(QWidget):
     """A widget for defining custom measurement units."""
 
     addMeasurementClicked = pyqtSignal()
-    removeMeasurementClicked = pyqtSignal()
-    editMeasurementClicked = pyqtSignal(str)
+    removeMeasurementClicked = pyqtSignal(QVariant)
+    editMeasurementClicked = pyqtSignal()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -106,7 +117,16 @@ class CustomUnitsDefinitionView(QWidget):
     def selected_measurement_name(self) -> str | None:
         """Return the name of the selected custom measurement."""
         if self.selected_measurement_view is not None:
-            return self.selected_measurement_view.quantity_name
+            return self.selected_measurement_view._quantity_name
+
+    def _on_remove_measurement_clicked(self):
+        """Called when the remove measurement button is clicked."""
+        # If nothing is selected, emit signal with None
+        if not self.lst_measurements.item_is_selected:
+            self.removeMeasurementClicked.emit(None)
+        else:
+            # Emit the signal with the name of the selected measurement
+            self.removeMeasurementClicked.emit(self.selected_measurement_name)
 
     def _build_ui(self):
         """Constructs the user interface."""
@@ -129,10 +149,10 @@ class CustomUnitsDefinitionView(QWidget):
         self.btn_add.clicked.connect(self.addMeasurementClicked.emit)
         self.btn_remove = RemoveButton()
         lyt_buttons.addWidget(self.btn_remove)
-        self.btn_remove.clicked.connect(self.removeMeasurementClicked.emit)
+        self.btn_remove.clicked.connect(self._on_remove_measurement_clicked)
         self.btn_edit = EditButton()
         lyt_buttons.addWidget(self.btn_edit)
-        # TODO: Connect edit button, providing custom unit name
+        self.btn_edit.clicked.connect(self.editMeasurementClicked.emit)
         # Drop in a spacer to push buttons to lhs
         lyt_buttons.addStretch()
         # Add a listbox of custom measurements

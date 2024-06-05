@@ -252,7 +252,7 @@ class RecipeEditorCtrl:
         # If the name is not whitespace
         if self.recipe_name_editor_view.name_is_set:
             # Check if the name is in the cached list of ingredient names
-            if self.recipe_name_editor_view.name in self._recipe_names:
+            if self.recipe_name_editor_view.entity_name in self._recipe_names:
                 # Show the name unavailable message
                 self.recipe_name_editor_view.show_name_unavailable()
                 # Disable the OK button

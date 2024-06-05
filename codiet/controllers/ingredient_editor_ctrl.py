@@ -186,14 +186,14 @@ class IngredientEditorCtrl:
         self.ingredient_name_editor_dialog.clear()
         # If the ingredient has a name already, write it into the box
         if self.ingredient.name is not None:
-            self.ingredient_name_editor_dialog.name = self.ingredient.name
+            self.ingredient_name_editor_dialog.entity_name = self.ingredient.name
         # Show the dialog
         self.ingredient_name_editor_dialog.show()
 
     def _on_ingredient_name_accepted(self, name: str) -> None:
         """Handler for accepting the new ingredient name."""
         # Set the name on the ingredient
-        self.ingredient.name = self.ingredient_name_editor_dialog.name
+        self.ingredient.name = self.ingredient_name_editor_dialog.entity_name
         # If the ingredient has an id already, then we must be updating
         if self.ingredient.id is not None:
             with DatabaseService() as db_service:

@@ -1,11 +1,10 @@
+from PyQt6.QtCore import Qt
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import (
-    QWidget,
     QVBoxLayout,
     QDialog,
     QVBoxLayout,
     QHBoxLayout,
-    QLineEdit,
     QPushButton,
     QStackedWidget
 )
@@ -20,6 +19,9 @@ class DialogBoxView(QDialog):
     """A base class for dialog boxes with the codiet logo."""
     def __init__(self, title:str = "Title", parent=None):
         super().__init__(parent=parent)
+
+        # Make the dialog modal
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
 
         # Set the window title
         self.setWindowTitle(title)
@@ -187,15 +189,15 @@ class EntityNameDialogView(DialogBoxView):
         self.btn_cancel.clicked.connect(self.nameCancelled)
 
     @property
-    def name(self) -> str | None:
+    def entity_name(self) -> str | None:
         """Returns the name if set, otherwise None."""
         if self.txt_name.text() == "":
             return None
         else:
             return self.txt_name.text()
     
-    @name.setter
-    def name(self, name: str):
+    @entity_name.setter
+    def entity_name(self, name: str):
         """Set the name in the text box."""
         with block_signals(self.txt_name):
             self.txt_name.setText(name)
@@ -203,7 +205,7 @@ class EntityNameDialogView(DialogBoxView):
     @property
     def name_is_set(self) -> bool:
         """Returns True/False to indicate if the name is set."""
-        return self.name != None
+        return self.entity_name != None
     
     def show_instructions(self) -> None:
         """Show the instructions label."""
