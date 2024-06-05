@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import (
 )
 
 from codiet.views import load_stylesheet
+from codiet.views.labels import IconLabel
 from codiet.views.buttons import AddButton, RemoveButton, EditButton
 from codiet.views.text_editors import NumericLineEdit
 from codiet.views.listbox import ListBox
@@ -74,13 +75,12 @@ class CustomUnitView(QWidget):
         self.setLayout(layout)
         # Remove margins
         layout.setContentsMargins(0, 0, 0, 0)
-        # Add a label with the quantity name
-        self.lbl_qty_name = QLabel(f"{self.quantity_name}:")
-        # Give it a class of unit-title
-        self.lbl_qty_name.setProperty("class", "unit-title")
-        layout.addWidget(self.lbl_qty_name)
+        # Add a label with the weight icon
+        lbl_icon = IconLabel(icon_filename="weight-icon.png")
+        layout.addWidget(lbl_icon)
         # Add a numeric line edit
         self.txt_custom_unit_qty = NumericLineEdit()
+        self.txt_custom_unit_qty.setFixedWidth(60)
         layout.addWidget(self.txt_custom_unit_qty)
         self.txt_custom_unit_qty.lostFocus.connect(
             lambda: self.customQtyValueChanged.emit(
@@ -89,10 +89,11 @@ class CustomUnitView(QWidget):
             )
         )
         # Add a label with the quantity name
-        self.lbl_qty_name = QLabel(f"{self.quantity_name} weighs  ")
+        self.lbl_qty_name = QLabel(f"{self.quantity_name} = ")
         layout.addWidget(self.lbl_qty_name)
         # Add a numeric line edit for the standard unit quantity
         self.txt_std_unit_qty = NumericLineEdit()
+        self.txt_std_unit_qty.setFixedWidth(60)
         layout.addWidget(self.txt_std_unit_qty)
         self.txt_std_unit_qty.lostFocus.connect(
             lambda: self.stdQtyValueChanged.emit(
@@ -111,5 +112,7 @@ class CustomUnitView(QWidget):
                 self.cmb_std_unit.currentText()
             )
         )
+        # Add a spacer to push the combo box to the right
+        layout.addStretch()
 
         

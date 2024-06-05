@@ -115,7 +115,7 @@ class IngredientEditorView(QWidget):
 
         # Create a col for the basic info, cost, flags and GI
         lyt_first_col = QVBoxLayout()
-        lyt_columns.addLayout(lyt_first_col, 2)
+        lyt_columns.addLayout(lyt_first_col, 1)
         self._build_basic_info_UI(lyt_first_col)
         # Add the cost editor to the column 1 layout
         self._build_cost_UI(lyt_first_col)

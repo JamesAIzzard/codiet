@@ -1,6 +1,0 @@
-QLabel.unit-title {
-    font-weight: bold;
-    border-radius: 2px;
-    background-color: #dcdcdc;
-    padding: 1px;
-}
