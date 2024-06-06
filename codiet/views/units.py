@@ -37,6 +37,7 @@ class CustomUnitView(QWidget):
     def quantity_name(self, name: str) -> None:
         """Set the name of the quantity."""
         self._quantity_name = name
+        self.lbl_icon.text = f"{self._quantity_name}: "
         self.lbl_qty_name.setText(f"{self.quantity_name} = ")
 
     def build_ui(self):
@@ -47,12 +48,12 @@ class CustomUnitView(QWidget):
         # Remove margins
         layout.setContentsMargins(0, 0, 0, 0)
         # Add a label with the weight icon
-        lbl_icon = IconTextLabel(
+        self.lbl_icon = IconTextLabel(
             icon_filename="weight-icon.png", text=f"{self._quantity_name}: "
         )
         # Set a fixed width
-        lbl_icon.setFixedWidth(100)
-        layout.addWidget(lbl_icon)
+        self.lbl_icon.setFixedWidth(100)
+        layout.addWidget(self.lbl_icon)
         # Add a numeric line edit
         self.txt_custom_unit_qty = NumericLineEdit()
         self.txt_custom_unit_qty.setFixedWidth(60)

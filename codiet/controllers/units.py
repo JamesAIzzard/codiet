@@ -39,7 +39,7 @@ class CustomUnitsDefinitionCtrl:
     def _on_add_measurement_clicked(self):
         """Called when the add measurement button is clicked."""
         # Set the name dialog handler to add a new unit
-        self.unit_name_dialog_ctrl.on_name_accepted = self._on_accept_new_name_clicked
+        self.unit_name_dialog_ctrl.set_accept_handler(self._on_accept_new_name_clicked)
         # Clear the name dialog
         self.unit_name_dialog.clear()
         # Show the dialog
@@ -79,7 +79,7 @@ class CustomUnitsDefinitionCtrl:
             popup.show()
         else:
             # Set the name dialog handler to edit the selected unit
-            self.unit_name_dialog_ctrl.on_name_accepted = self._on_accept_edited_name_clicked
+            self.unit_name_dialog_ctrl.set_accept_handler(self._on_accept_edited_name_clicked)
             # Grab the existing measurement name
             existing_name = self.view.selected_measurement_name
             assert existing_name is not None

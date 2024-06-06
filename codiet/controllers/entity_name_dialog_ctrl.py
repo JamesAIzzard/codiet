@@ -11,23 +11,26 @@ class EntityNameDialogCtrl:
             on_name_accepted:Callable[[str], None]
     ):
         self.view = view
-        self.check_name_available = check_name_available
-        self.on_name_accepted = on_name_accepted
+        self._check_name_available = check_name_available
+        self._on_name_accepted = on_name_accepted
         self.view.nameChanged.connect(self._on_name_changed)
-        self.view.nameAccepted.connect(on_name_accepted)
+        self.view.nameAccepted.connect(lambda name: self._on_name_accepted(name))
         self.view.nameCancelled.connect(self._on_name_edit_cancelled)
-        # On initialization, show the instructions, clear the box and disable the OK button
+        # On initialisation, show the instructions, clear the box and disable the OK button
         self.view.show_instructions()
         self.view.clear()
         self.view.disable_ok_button()
         
+    def set_accept_handler(self, handler:Callable[[str], None]) -> None:
+        """Set the handler for accepting the name."""
+        self._on_name_accepted = handler
 
     def _on_name_changed(self, name: str) -> None:
         """Handler for changes to the name."""
         # If the name is not whitespace
         if self.view.name_is_set:
             # Check if the name is in the cached list of ingredient names
-            if not self.check_name_available(name):
+            if not self._check_name_available(name):
                 # Show the name unavailable message
                 self.view.show_name_unavailable()
                 # Disable the OK button
