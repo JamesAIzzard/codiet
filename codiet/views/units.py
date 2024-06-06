@@ -18,9 +18,9 @@ from codiet.views.listbox import ListBox
 class CustomUnitView(QWidget):
     """A widget for defining a custom unit."""
 
-    customQtyValueChanged = pyqtSignal(str, float)
-    stdQtyValueChanged = pyqtSignal(str, float)
-    stdQtyUnitChanged = pyqtSignal(str, str)
+    customUnitQtyChanged = pyqtSignal(str, QVariant)
+    stdUnitQtyChanged = pyqtSignal(str, QVariant)
+    stdUnitChanged = pyqtSignal(str, str)
 
     def __init__(self, qty_name: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -59,7 +59,7 @@ class CustomUnitView(QWidget):
         self.txt_custom_unit_qty.setFixedWidth(60)
         layout.addWidget(self.txt_custom_unit_qty)
         self.txt_custom_unit_qty.lostFocus.connect(
-            lambda: self.customQtyValueChanged.emit(
+            lambda: self.customUnitQtyChanged.emit(
                 self._quantity_name, self.txt_custom_unit_qty.text
             )
         )
@@ -72,7 +72,7 @@ class CustomUnitView(QWidget):
         self.txt_std_unit_qty.setFixedWidth(60)
         layout.addWidget(self.txt_std_unit_qty)
         self.txt_std_unit_qty.lostFocus.connect(
-            lambda: self.stdQtyValueChanged.emit(
+            lambda: self.stdUnitQtyChanged.emit(
                 self._quantity_name, self.txt_std_unit_qty.text
             )
         )
@@ -82,7 +82,7 @@ class CustomUnitView(QWidget):
         # TODO: Add standard units from database, but add a few for now
         self.cmb_std_unit.addItems(["g", "kg", "lb", "oz"])
         self.cmb_std_unit.currentTextChanged.connect(
-            lambda: self.stdQtyUnitChanged.emit(
+            lambda: self.stdUnitChanged.emit(
                 self._quantity_name, self.cmb_std_unit.currentText()
             )
         )

@@ -59,16 +59,7 @@ class IngredientEditorCtrl:
         )
         self.custom_units_ctrl = CustomUnitsDefinitionCtrl(
             view=self.view.custom_units_view,
-            get_current_measurements=lambda: self.ingredient.custom_units,
-            add_measurement=lambda custom_unit: self.ingredient.add_custom_unit(
-                custom_unit
-            ),
-            remove_measurement=lambda custom_unit_name: self.ingredient.remove_custom_unit(
-                custom_unit_name
-            ),
-            update_measurement=lambda existing_unit_name, updated_custom_unit: self.ingredient.update_custom_unit(
-                existing_unit_name, updated_custom_unit
-            ),
+            get_custom_measurements=lambda: self.ingredient.custom_units
         )
         self.ingredient_nutrient_editor_ctrl = NutrientQuantitiesEditorCtrl(
             view=self.view.nutrient_quantities_editor,

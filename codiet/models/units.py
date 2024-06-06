@@ -1,14 +1,15 @@
 class CustomUnit():
     """A custom measurement unit."""
-    def __init__(self, unit_name: str, unit_to_grams_ratio: float, unit_id: int | None = None):
+    def __init__(
+            self, 
+            unit_name: str, 
+            custom_unit_qty: float|None = None,
+            std_unit_qty: float|None = None,
+            std_unit_name: str = 'g', 
+            unit_id: int | None = None
+        ):
         self.unit_name = unit_name
-        self.unit_to_grams_ratio = unit_to_grams_ratio
+        self.custom_unit_qty = custom_unit_qty
+        self.std_unit_qty = std_unit_qty
+        self.std_unit_name = std_unit_name
         self.unit_id = unit_id
-
-    def custom_to_grams(self, custom_value: float) -> float:
-        """Converts a custom value to grams."""
-        return custom_value * self.unit_to_grams_ratio
-    
-    def grams_to_custom(self, grams: float) -> float:
-        """Converts grams to a custom value."""
-        return grams / self.unit_to_grams_ratio
