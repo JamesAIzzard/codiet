@@ -57,9 +57,11 @@ class IngredientEditorCtrl:
             check_name_available=lambda name: name not in self._ingredient_names,
             on_name_accepted=self._on_ingredient_name_accepted,
         )
+        # TODO: Pass in a seperate custom unit changed function to make the database update
         self.custom_units_ctrl = CustomUnitsDefinitionCtrl(
             view=self.view.custom_units_view,
-            get_custom_measurements=lambda: self.ingredient.custom_units
+            get_custom_measurements=lambda: self.ingredient.custom_units,
+            on_custom_unit_changed=self._on_custom_unit_changed
         )
         self.ingredient_nutrient_editor_ctrl = NutrientQuantitiesEditorCtrl(
             view=self.view.nutrient_quantities_editor,
@@ -98,7 +100,7 @@ class IngredientEditorCtrl:
         self.view.update_cost_qty_value(self.ingredient.cost_qty_value)
         self.view.update_cost_qty_unit(self.ingredient.cost_qty_unit)
         # Update the measurements fields
-        # TODO: Update the measurement fields
+        self.custom_units_ctrl.load_custom_units_into_view(ingredient.custom_units)
         # Set the flags
         self.view.flag_editor.remove_all_flags_from_list()
         self.view.flag_editor.add_flags_to_list(list(self.ingredient.flags.keys()))

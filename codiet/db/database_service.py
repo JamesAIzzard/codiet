@@ -7,6 +7,7 @@ from codiet.models.ingredients import (
     IngredientNutrientQuantity,
     IngredientQuantity,
 )
+from codiet.models.units import CustomUnit
 from codiet.models.recipes import Recipe
 from codiet.db.repository import Repository
 from codiet.db import DB_PATH
@@ -80,6 +81,16 @@ class DatabaseService:
             # Re-raise any exceptions
             raise e
 
+    def insert_custom_measurement(self, ingredient_id: int, measurement:CustomUnit) -> int:
+        """Inserts a custom measurement into the database and returns the new ID."""
+        return self._repo.insert_custom_measurement(
+            ingredient_id=ingredient_id,
+            unit_name=measurement.unit_name,
+            custom_unit_qty=measurement.custom_unit_qty,
+            std_unit_name=measurement.std_unit_name,
+            std_unit_qty=measurement.std_unit_qty,
+        )
+
     def insert_new_recipe(self, recipe: Recipe) -> None:
         """Saves the given recipe to the database."""
         # Check the recipe name is set, otherwise raise an exception
@@ -148,17 +159,7 @@ class DatabaseService:
         ingredient.cost_value = cost_data[0]
         ingredient.cost_qty_unit = cost_data[1]
         ingredient.cost_qty_value = cost_data[2]
-        # Fetch the density data
-        density_data = self._repo.fetch_ingredient_density(ingredient.id)
-        ingredient.density_mass_unit = density_data[0]
-        ingredient.density_mass_value = density_data[1]
-        ingredient.density_vol_unit = density_data[2]
-        ingredient.density_vol_value = density_data[3]
-        # Fetch the piece mass data
-        pc_mass_data = self._repo.fetch_ingredient_pc_mass(ingredient.id)
-        ingredient.pc_qty = pc_mass_data[0]
-        ingredient.pc_mass_unit = pc_mass_data[1]
-        ingredient.pc_mass_value = pc_mass_data[2]
+        # TODO: Fetch the custom measurements
         # Fetch the flags
         ingredient.set_flags(self.fetch_ingredient_flags(ingredient_id=ingredient.id))
         # Fetch the GI
@@ -193,6 +194,28 @@ class DatabaseService:
     def fetch_ingredient_id_by_name(self, name: str) -> int:
         """Returns the ID of the ingredient with the given name."""
         return self._repo.fetch_ingredient_id_by_name(name)
+
+    def fetch_custom_measurements_by_ingredient_id(self, ingredient_id: int) -> list[CustomUnit]:
+        """Returns a list of custom measurements for the given ingredient."""
+        # Init a list to hold the custom measurements
+        custom_measurements = []
+        # Fetch the raw data from the repo
+        raw_custom_measurements = self._repo.fetch_custom_measurements_by_ingredient_id(
+            ingredient_id
+        )
+        # Cycle through the raw data
+        for data in raw_custom_measurements:
+            # Create a new custom measurement
+            custom_measurement = CustomUnit(
+                unit_name=data[0],
+                custom_unit_qty=data[1],
+                std_unit_qty=data[2],
+                std_unit_name=data[3],
+                unit_id=data[4],
+            )
+            # Add it to the list
+            custom_measurements.append(custom_measurement)
+        return custom_measurements
 
     def fetch_ingredient_flags(
         self, ingredient_name: str | None = None, ingredient_id: int | None = None
@@ -304,21 +327,12 @@ class DatabaseService:
                 qty_unit=ingredient.cost_qty_unit,
                 qty_value=ingredient.cost_qty_value,
             )
-            # Update the ingredient density data
-            self._repo.update_ingredient_density(
-                ingredient_id=ingredient.id,
-                dens_mass_unit=ingredient.density_mass_unit,
-                dens_mass_value=ingredient.density_mass_value,
-                dens_vol_unit=ingredient.density_vol_unit,
-                dens_vol_value=ingredient.density_vol_value,
-            )
-            # Update the ingredient piece mass data
-            self._repo.update_ingredient_pc_mass(
-                ingredient_id=ingredient.id,
-                pc_qty=ingredient.pc_qty,
-                pc_mass_unit=ingredient.pc_mass_unit,
-                pc_mass_value=ingredient.pc_mass_value,
-            )
+            # Update the custom measurements
+            for custom_measurement in ingredient.custom_units.values():
+                if custom_measurement.unit_id is None:
+                    self.insert_custom_measurement(ingredient.id, custom_measurement)
+                else:
+                    self.update_custom_measurement(custom_measurement)
             # Update the flags
             self._repo.update_ingredient_flags(ingredient.id, ingredient.flags)
             # Update the ingredient GI
@@ -327,6 +341,27 @@ class DatabaseService:
             for nutrient_name, nutrient_qty in ingredient.nutrient_quantities.items():
                 self.update_ingredient_nutrient_quantity(ingredient.id, nutrient_qty)
 
+        except Exception as e:
+            # Roll back the transaction if an exception occurs
+            self._repo._db.connection.rollback()
+            # Re-raise any exceptions
+            raise e
+
+    def update_custom_measurement(self, measurement: CustomUnit):
+        """Updates the given custom measurement in the database."""
+        # If the measurement ID is not set, raise an exception
+        if measurement.unit_id is None:
+            raise ValueError("Measurement ID must be set.")
+        # If the measurement unit name is not set, raise an exception
+        if measurement.unit_name is None:
+            raise ValueError("Measurement unit name must be set.")
+        try:
+            self._repo.update_custom_measurement(
+                measurement_id=measurement.unit_id,
+                custom_unit_qty=measurement.custom_unit_qty,
+                std_unit_qty=measurement.std_unit_qty,
+                std_unit_name=measurement.std_unit_name,
+            )
         except Exception as e:
             # Roll back the transaction if an exception occurs
             self._repo._db.connection.rollback()
@@ -414,6 +449,10 @@ class DatabaseService:
     def delete_ingredient_by_name(self, ingredient_name: str):
         """Deletes the given ingredient from the database."""
         self._repo.delete_ingredient_by_name(ingredient_name)
+
+    def delete_custom_measurement(self, measurement_id: int):
+        """Deletes the given custom measurement from the database."""
+        self._repo.delete_custom_measurement(measurement_id)
 
     def delete_recipe_by_name(self, recipe_name: str):
         """Deletes the given recipe from the database."""

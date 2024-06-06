@@ -2,6 +2,7 @@ import sqlite3
 
 from codiet.exceptions import ingredient_exceptions as ingredient_exceptions
 
+
 class Repository:
     def __init__(self, db):
         self._db = db
@@ -10,7 +11,7 @@ class Repository:
     def connection(self) -> sqlite3.Connection:
         """Returns the connection to the database."""
         return self._db.connection
-    
+
     @property
     def cursor(self) -> sqlite3.Cursor:
         """Returns the cursor for the database."""
@@ -52,7 +53,7 @@ class Repository:
         ).fetchall()
         return [row[0] for row in rows]
 
-    def fetch_ingredient_name(self, id:int) -> str:
+    def fetch_ingredient_name(self, id: int) -> str:
         """Returns the name of the ingredient associated with the given ID."""
         return self._db.execute(
             """
@@ -79,28 +80,6 @@ class Repository:
         ).fetchall()
         return [row[0] for row in rows]
 
-    def fetch_all_global_recipe_tags(self) -> list[str]:
-        """Returns a list of all global recipe tags in the database."""
-        rows = self._db.execute(
-            """
-            SELECT recipe_tag_name FROM global_recipe_tags;
-        """
-        ).fetchall()
-        return [row[0] for row in rows]
-    
-    def fetch_recipe_tags_for_recipe(self, recipe_id: int) -> list[str]:
-        """Returns a list of all recipe tags for the given recipe ID."""
-        rows = self._db.execute(
-            """
-            SELECT recipe_tag_name
-            FROM global_recipe_tags
-            JOIN recipe_tags ON global_recipe_tags.recipe_tag_id = recipe_tags.recipe_tag_id
-            WHERE recipe_id = ?;
-        """,
-            (recipe_id,),
-        ).fetchall()
-        return [row[0] for row in rows]
-
     def fetch_ingredient_description(self, id: int) -> str | None:
         """Returns the description of the ingredient associated with the given ID."""
         return self._db.execute(
@@ -121,27 +100,26 @@ class Repository:
             (id,),
         ).fetchone()
 
-    def fetch_ingredient_density(self, id: int) -> tuple[str, float | None, str, float | None]:
-        """Returns the density data of the ingredient associated with the given ID."""
-        return self._db.execute(
+    def fetch_custom_measurements_by_ingredient_id(self, ingredient_id: int) -> list[dict]:
+        """Returns a list of custom measurements for the given ingredient ID."""
+        rows = self._db.execute(
             """
-            SELECT density_mass_unit, density_mass_value, density_vol_unit, density_vol_value
-            FROM ingredient_base
+            SELECT custom_unit_id, unit_name, custom_unit_qty, std_unit_qty, std_unit_name
+            FROM ingredient_custom_units
             WHERE ingredient_id = ?;
         """,
-            (id,),
-        ).fetchone()
-
-    def fetch_ingredient_pc_mass(self, id: int) -> tuple[float | None, str, float | None]:
-        """Returns the piece mass data of the ingredient associated with the given ID."""
-        return self._db.execute(
-            """
-            SELECT pc_qty, pc_mass_unit, pc_mass_value
-            FROM ingredient_base
-            WHERE ingredient_id = ?;
-        """,
-            (id,),
-        ).fetchone()
+            (ingredient_id,),
+        ).fetchall()
+        return [
+            {
+                "custom_unit_id": row[0],
+                "unit_name": row[1],
+                "custom_unit_qty": row[2],
+                "std_unit_qty": row[3],
+                "std_unit_name": row[4],
+            }
+            for row in rows
+        ]
 
     def fetch_ingredient_flags(self, id: int) -> dict[str, int]:
         """Returns the flags of the ingredient associated with the given ID.
@@ -167,9 +145,7 @@ class Repository:
             (id,),
         ).fetchone()[0]
 
-    def fetch_ingredient_nutrients(
-        self, ingredient_id: int
-    ) -> dict[str, dict]:
+    def fetch_ingredient_nutrients(self, ingredient_id: int) -> dict[str, dict]:
         """Returns a dict of nutrients for the given ingredient ID."""
         rows = self._db.execute(
             """
@@ -265,6 +241,28 @@ class Repository:
         ).fetchall()
         return [row[0] for row in rows]
 
+    def fetch_all_global_recipe_tags(self) -> list[str]:
+        """Returns a list of all global recipe tags in the database."""
+        rows = self._db.execute(
+            """
+            SELECT recipe_tag_name FROM global_recipe_tags;
+        """
+        ).fetchall()
+        return [row[0] for row in rows]
+
+    def fetch_recipe_tags_for_recipe(self, recipe_id: int) -> list[str]:
+        """Returns a list of all recipe tags for the given recipe ID."""
+        rows = self._db.execute(
+            """
+            SELECT recipe_tag_name
+            FROM global_recipe_tags
+            JOIN recipe_tags ON global_recipe_tags.recipe_tag_id = recipe_tags.recipe_tag_id
+            WHERE recipe_id = ?;
+        """,
+            (recipe_id,),
+        ).fetchall()
+        return [row[0] for row in rows]
+
     def insert_global_flag(self, name: str) -> int:
         """Adds a flag to the global flag table and returns the ID."""
         cursor = self._db.execute(
@@ -274,8 +272,10 @@ class Repository:
             (name,),
         )
         return cursor.lastrowid
-    
-    def insert_global_leaf_nutrient(self, name: str, parent_id: int | None = None) -> int:
+
+    def insert_global_leaf_nutrient(
+        self, name: str, parent_id: int | None = None
+    ) -> int:
         """Adds a nutrient to the global leaf nutrient table and returns the ID."""
         cursor = self._db.execute(
             """
@@ -285,7 +285,9 @@ class Repository:
         )
         return cursor.lastrowid
 
-    def insert_global_group_nutrient(self, name: str, parent_id: int | None = None) -> int:
+    def insert_global_group_nutrient(
+        self, name: str, parent_id: int | None = None
+    ) -> int:
         """Adds a nutrient to the global group nutrient table and returns the ID."""
         cursor = self._db.execute(
             """
@@ -295,7 +297,9 @@ class Repository:
         )
         return cursor.lastrowid
 
-    def insert_global_group_nutrient_alias(self, alias: str, primary_nutrient_id: int) -> None:
+    def insert_global_group_nutrient_alias(
+        self, alias: str, primary_nutrient_id: int
+    ) -> None:
         """Adds an alias into the global group nutrient alias table."""
         self._db.execute(
             """
@@ -304,7 +308,9 @@ class Repository:
             (alias, primary_nutrient_id),
         )
 
-    def insert_global_leaf_nutrient_alias(self, alias: str, primary_nutrient_id: int) -> None:
+    def insert_global_leaf_nutrient_alias(
+        self, alias: str, primary_nutrient_id: int
+    ) -> None:
         """Adds an alias into the global leaf nutrient alias table."""
         self._db.execute(
             """
@@ -327,6 +333,24 @@ class Repository:
                 raise ingredient_exceptions.IngredientNameExistsError(name)
             else:
                 raise e
+
+    def insert_custom_measurement(
+        self,
+        ingredient_id: int,
+        unit_name: str,
+        custom_unit_qty: float | None,
+        std_unit_qty: float | None,
+        std_unit_name: str,
+    ) -> int:
+        """Adds a custom measurement to the database and returns the ID."""
+        cursor = self._db.execute(
+            """
+            INSERT INTO ingredient_custom_units (ingredient_id, unit_name, custom_unit_qty, std_unit_qty, std_unit_name)
+            VALUES (?, ?, ?, ?, ?);
+        """,
+            (ingredient_id, unit_name, custom_unit_qty, std_unit_qty, std_unit_name),
+        )
+        return cursor.lastrowid
 
     def insert_recipe_name(self, name: str) -> int:
         """Adds a recipe name to the database and returns the ID."""
@@ -390,45 +414,21 @@ class Repository:
             (cost_value, cost_unit, qty_unit, qty_value, ingredient_id),
         )
 
-    def update_ingredient_density(
+    def update_custom_measurement(
         self,
-        ingredient_id: int,
-        dens_mass_unit: str,
-        dens_mass_value: float | None,
-        dens_vol_unit: str,
-        dens_vol_value: float | None,
+        measurement_id: int,
+        custom_unit_qty: float | None,
+        std_unit_qty: float | None,
+        std_unit_name: str,
     ) -> None:
-        """Updates the density data of the ingredient associated with the given ID."""
+        """Updates the custom measurement associated with the given ID."""
         self._db.execute(
             """
-            UPDATE ingredient_base
-            SET density_mass_unit = ?, density_mass_value = ?, density_vol_unit = ?, density_vol_value = ?
-            WHERE ingredient_id = ?;
+            UPDATE ingredient_custom_units
+            SET custom_unit_qty = ?, std_unit_qty = ?, std_unit_name = ?
+            WHERE custom_unit_id = ?;
         """,
-            (
-                dens_mass_unit,
-                dens_mass_value,
-                dens_vol_unit,
-                dens_vol_value,
-                ingredient_id,
-            ),
-        )
-
-    def update_ingredient_pc_mass(
-        self,
-        ingredient_id: int,
-        pc_qty: float | None,
-        pc_mass_unit: str | None,
-        pc_mass_value: float | None,
-    ) -> None:
-        """Updates the piece mass data of the ingredient associated with the given ID."""
-        self._db.execute(
-            """
-            UPDATE ingredient_base
-            SET pc_qty = ?, pc_mass_unit = ?, pc_mass_value = ?
-            WHERE ingredient_id = ?;
-        """,
-            (pc_qty, pc_mass_unit, pc_mass_value, ingredient_id),
+            (custom_unit_qty, std_unit_qty, std_unit_name, measurement_id),
         )
 
     def update_ingredient_flags(
@@ -464,13 +464,13 @@ class Repository:
         )
 
     def update_ingredient_nutrient_quantity(
-            self,
-            ingredient_id: int,
-            nutrient_name: str,
-            ntr_qty_unit: str,
-            ntr_qty_value: float|None,
-            ing_qty_unit: str,
-            ing_qty_value: float|None,
+        self,
+        ingredient_id: int,
+        nutrient_name: str,
+        ntr_qty_unit: str,
+        ntr_qty_value: float | None,
+        ing_qty_unit: str,
+        ing_qty_value: float | None,
     ) -> None:
         """Updates the nutrient quantity of the ingredient associated with the given ID."""
         # Get the nutrient ID
@@ -493,7 +493,14 @@ class Repository:
             INSERT INTO ingredient_nutrients (ingredient_id, nutrient_id, ntr_qty_unit, ntr_qty_value, ing_qty_unit, ing_qty_value)
             VALUES (?, ?, ?, ?, ?, ?);
         """,
-            (ingredient_id, nutrient_id, ntr_qty_unit, ntr_qty_value, ing_qty_unit, ing_qty_value),
+            (
+                ingredient_id,
+                nutrient_id,
+                ntr_qty_unit,
+                ntr_qty_value,
+                ing_qty_unit,
+                ing_qty_value,
+            ),
         )
 
     def update_recipe_name(self, recipe_id: int, name: str) -> None:
@@ -507,7 +514,9 @@ class Repository:
             (name, recipe_id),
         )
 
-    def update_recipe_description(self, recipe_id: int, description: str | None) -> None:
+    def update_recipe_description(
+        self, recipe_id: int, description: str | None
+    ) -> None:
         """Updates the description of the recipe associated with the given ID."""
         self._db.execute(
             """
@@ -518,7 +527,9 @@ class Repository:
             (description, recipe_id),
         )
 
-    def update_recipe_instructions(self, recipe_id: int, instructions: str | None) -> None:
+    def update_recipe_instructions(
+        self, recipe_id: int, instructions: str | None
+    ) -> None:
         """Updates the instructions of the recipe associated with the given ID."""
         self._db.execute(
             """
@@ -558,9 +569,7 @@ class Repository:
                 ),
             )
 
-    def update_recipe_serve_times(
-        self, recipe_id: int, serve_times: list[str]
-    ) -> None:
+    def update_recipe_serve_times(self, recipe_id: int, serve_times: list[str]) -> None:
         """Updates the serve times of the recipe associated with the given ID."""
         # Clear the existing serve times
         self._db.execute(
@@ -580,9 +589,7 @@ class Repository:
                 (recipe_id, serve_time),
             )
 
-    def update_recipe_tags(
-        self, recipe_id: int, recipe_tags: list[str]
-    ) -> None:
+    def update_recipe_tags(self, recipe_id: int, recipe_tags: list[str]) -> None:
         """Updates the recipe tags of the recipe associated with the given ID."""
         # Clear the existing recipe tags
         self._db.execute(
@@ -635,7 +642,17 @@ class Repository:
                 self._db.commit()
         except Exception as e:
             self._db.connection.rollback()
-            raise e       
+            raise e
+
+    def delete_custom_measurement(self, measurement_id:int) -> None:
+        """Deletes the given custom measurement from the database."""
+        self._db.execute(
+            """
+            DELETE FROM ingredient_custom_units
+            WHERE custom_unit_id = ?;
+            """,
+            (measurement_id,),
+        )
 
     def delete_recipe_by_name(self, recipe_name: str) -> None:
         """Deletes the given recipe from the database."""
@@ -667,4 +684,4 @@ class Repository:
                 self._db.commit()
         except Exception as e:
             self._db.connection.rollback()
-            raise e     
+            raise e

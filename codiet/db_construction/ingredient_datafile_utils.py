@@ -94,13 +94,6 @@ def reset_ingredient_cost_data(ingredient_data:dict) -> None:
     # Reset the cost data to the template
     ingredient_data["cost"] = get_ingredient_template()["cost"]
 
-def reset_ingredient_density_data(ingredient_data:dict) -> None:
-    """Remove the density data from an ingredient .json file."""
-    # Reset the density data to the template
-    ingredient_data["bulk"]["density"] = get_ingredient_template()["bulk"][
-        "density"
-    ]
-
 def reset_ingredient_flag_data(ingredient_data:dict) -> None:
     """Remove all flag data from the ingredient .json file."""
     # Reset the flag data to an empty dict
@@ -121,6 +114,19 @@ def title_case_ingredient_name(ingredient_data: dict) -> None:
     # Title case the name of the ingredient
     ingredient_data["name"] = ingredient_data["name"].title()
 
+def remove_redundant_top_level_fields_from_datafile(ingredient_data: dict) -> None:
+    """Removes any redundant top level fields from the ingredient data."""
+    # Take a copy of all of the keys in the datafile
+    ingredient_keys = list(ingredient_data.keys())
+    # Grab a copy of the ingredient template
+    ingredient_template = get_ingredient_template()
+    # Check each key in the datafile
+    for key in ingredient_keys:
+        # Delete the key from the datafile if it doesn't exist in the template
+        if key not in ingredient_template.keys():
+            print(f"Deleting key {key} from {ingredient_data["name"]}")
+            del ingredient_data[key]
+
 def remove_redundant_flags_from_datafile(ingredient_data: dict) -> None:
     """Removes any redundant flags from the ingredient data."""
     # Take a copy of all of the keys in data["flags"]
@@ -131,7 +137,7 @@ def remove_redundant_flags_from_datafile(ingredient_data: dict) -> None:
             print(f"Deleting flag {flag} from {ingredient_data["name"]}")
             del ingredient_data["flags"][flag]
 
-def remove_redundant_nutrients_from_ingredient_datafile(ingredient_data: dict) -> None:
+def remove_redundant_nutrients_from_datafile(ingredient_data: dict) -> None:
     """Removes any redundant leaf nutrients from the ingredient data.
     IMPORTANT: Only leaf nutrients are stored in the ingredient datafiles. All group
     nutrient data is calculated from the leaf nutrient data.

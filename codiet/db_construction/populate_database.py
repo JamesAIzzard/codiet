@@ -13,6 +13,7 @@ from codiet.db_construction import (
     GLOBAL_RECIPE_TAG_DATA_FILEPATH
 )
 from codiet.utils.tags import flatten_tree
+from codiet.models.units import CustomUnit
 from codiet.models.ingredients import Ingredient, IngredientNutrientQuantity
 from codiet.models.recipes import Recipe
 from codiet.db.database_service import DatabaseService
@@ -112,10 +113,14 @@ def _load_ingredient_from_json(json_data) -> Ingredient:
     ingredient.cost_value = json_data["cost"]["cost_value"]
     ingredient.cost_qty_unit = json_data["cost"]["qty_unit"]
     ingredient.cost_qty_value = json_data["cost"]["qty_value"]
-    ingredient.density_mass_unit = json_data["bulk"]["density"]["mass_unit"]
-    ingredient.density_mass_value = json_data["bulk"]["density"]["mass_value"]
-    ingredient.density_vol_unit = json_data["bulk"]["density"]["vol_unit"]
-    ingredient.density_vol_value = json_data["bulk"]["density"]["vol_value"]
+    for custom_unit_name, custom_unit_data in json_data["custom_units"].items():
+        custom_unit = CustomUnit(
+            unit_name=custom_unit_name,
+            custom_unit_qty=custom_unit_data["custom_unit_qty"],
+            std_unit_qty=custom_unit_data["std_unit_qty"],
+            std_unit_name=custom_unit_data["std_unit_name"]
+        )
+        ingredient.custom_units[custom_unit_name] = custom_unit
     ingredient.set_flags(json_data["flags"])
     ingredient.gi = json_data["GI"]
     # For each of the nutrient dicts, create an IngredientNutrientQuantity

@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
     QComboBox,
 )
 
+from codiet.utils.pyqt import block_signals # TODO: Update this to live in the views __init__ file.
 from codiet.views import load_stylesheet
 from codiet.views.labels import IconTextLabel
 from codiet.views.buttons import AddButton, RemoveButton, EditButton
@@ -39,6 +40,39 @@ class CustomUnitView(QWidget):
         self._quantity_name = name
         self.lbl_icon.text = f"{self._quantity_name}: "
         self.lbl_qty_name.setText(f"{self.quantity_name} = ")
+
+    @property
+    def custom_unit_qty(self) -> float | None:
+        """Return the custom unit quantity."""
+        return self.txt_custom_unit_qty.text()
+    
+    @custom_unit_qty.setter
+    def custom_unit_qty(self, value: float | None) -> None:
+        """Set the custom unit quantity."""
+        with block_signals(self.txt_custom_unit_qty):
+            self.txt_custom_unit_qty.setText(value)
+
+    @property
+    def std_unit_qty(self) -> float | None:
+        """Return the standard unit quantity."""
+        return self.txt_std_unit_qty.text()
+    
+    @std_unit_qty.setter
+    def std_unit_qty(self, value: float | None) -> None:
+        """Set the standard unit quantity."""
+        with block_signals(self.txt_std_unit_qty):
+            self.txt_std_unit_qty.setText(value)
+
+    @property
+    def std_unit_name(self) -> str:
+        """Return the standard unit."""
+        return self.cmb_std_unit.currentText()
+    
+    @std_unit_name.setter
+    def std_unit_name(self, value: str) -> None:
+        """Set the standard unit."""
+        with block_signals(self.cmb_std_unit):
+            self.cmb_std_unit.setCurrentText(value)
 
     def build_ui(self):
         """Constructs the user interface."""

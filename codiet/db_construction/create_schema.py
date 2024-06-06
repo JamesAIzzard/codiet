@@ -21,6 +21,7 @@ def create_schema() -> None:
     create_global_group_nutrient_table(cursor)
     create_nutrient_alias_table(cursor)
     create_ingredient_base_table(cursor)
+    create_ingredient_custom_measurement_table(cursor)
     create_ingredient_flag_table(cursor)
     create_ingredient_nutrient_table(cursor)
     create_recipe_base_table(cursor)
@@ -84,14 +85,21 @@ def create_ingredient_base_table(cursor:sqlite3.Cursor) -> None:
             cost_unit TEXT,
             cost_value REAL,
             cost_qty_unit TEXT,
-            cost_qty_value REAL,
-            density_mass_unit TEXT,
-            density_mass_value REAL,
-            density_vol_unit TEXT,
-            density_vol_value REAL,
-            pc_qty REAL,
-            pc_mass_unit TEXT,
-            pc_mass_value REAL
+            cost_qty_value REAL
+        )
+    """)
+
+def create_ingredient_custom_measurement_table(cursor:sqlite3.Cursor) -> None:
+    """Create the table to associate custom measurements with ingredients."""
+    cursor.execute(""" 
+        CREATE TABLE IF NOT EXISTS ingredient_custom_units (
+            unit_id INTEGER PRIMARY KEY,
+            ingredient_id INTEGER,
+            unit_name TEXT,
+            custom_unit_qty REAL,
+            std_unit_qty REAL,
+            std_unit_name TEXT,
+            FOREIGN KEY (ingredient_id) REFERENCES ingredient_base(ingredient_id)
         )
     """)
 

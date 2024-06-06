@@ -19,8 +19,9 @@ if __name__ == '__main__':
     # files up to date with the current flags and nutrients.
     # Work through the existing datafiles and remove any redundant flags and nutrients
     print("Processing existing datafiles...")
+    for_all_ingredients(ingredient_datafile_utils.remove_redundant_top_level_fields_from_datafile)
     for_all_ingredients(ingredient_datafile_utils.remove_redundant_flags_from_datafile)
-    for_all_ingredients(ingredient_datafile_utils.remove_redundant_nutrients_from_ingredient_datafile)
+    for_all_ingredients(ingredient_datafile_utils.remove_redundant_nutrients_from_datafile)
     # Make sure all existing ingredients have title case names
     for_all_ingredients(ingredient_datafile_utils.title_case_ingredient_name)
     print("Initialising new datafiles...")

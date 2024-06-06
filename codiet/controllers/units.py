@@ -30,6 +30,29 @@ class CustomUnitsDefinitionCtrl:
         self.view.removeMeasurementClicked.connect(self._on_remove_measurement_clicked)
         self.view.editMeasurementClicked.connect(self._on_edit_measurement_clicked)
 
+    def load_custom_units_into_view(self, custom_units: dict[str, CustomUnit]):
+        """Load the custom units into the view."""
+        for unit in custom_units.values():
+            # Create a new view
+            new_unit_view = self._create_new_unit_view(unit.unit_name, unit)
+            # Add the new view
+            self.view.lst_measurements.add_item(new_unit_view)
+
+    def _create_new_unit_view(self, unit_name: str, unit: CustomUnit | None = None):
+        """Create a new unit view."""
+        # Init a new view
+        new_unit_view = CustomUnitView(qty_name=unit_name)
+        # If a unit is provided, set the values
+        if unit is not None:
+            new_unit_view.custom_unit_qty = unit.custom_unit_qty
+            new_unit_view.std_unit_qty = unit.std_unit_qty
+            new_unit_view.std_unit_name = unit.std_unit_name
+        # Connect the new view signals to its handlers
+        new_unit_view.customUnitQtyChanged.connect(self._on_custom_unit_qty_changed)
+        new_unit_view.stdUnitQtyChanged.connect(self._on_std_unit_qty_changed)
+        new_unit_view.stdUnitChanged.connect(self._on_std_unit_changed)
+        return new_unit_view
+
     def _on_add_measurement_clicked(self):
         """Called when the add measurement button is clicked."""
         # Set the name dialog handler to add a new unit
@@ -88,13 +111,8 @@ class CustomUnitsDefinitionCtrl:
         """Called when the name dialog is accepted."""
         # Create a new custom unit
         new_unit = CustomUnit(unit_name=name)
-        # Add the new unit to the view
-        # Init a new view
-        new_unit_view = CustomUnitView(qty_name=name)
-        # Connect the new view signals to its handlers
-        new_unit_view.customUnitQtyChanged.connect(self._on_custom_unit_qty_changed)
-        new_unit_view.stdUnitQtyChanged.connect(self._on_std_unit_qty_changed)
-        new_unit_view.stdUnitChanged.connect(self._on_std_unit_changed)
+        # Create a new view
+        new_unit_view = self._create_new_unit_view(name, new_unit)
         # Add the new view
         self.view.lst_measurements.add_item(new_unit_view)
         # Add the measurement to the model
