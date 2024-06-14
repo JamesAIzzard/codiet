@@ -2,6 +2,7 @@ from codiet.utils.time import (
     convert_datetime_interval_to_time_string_interval,
     convert_time_string_interval_to_datetime_interval,
 )
+from codiet.utils.map import BidirectionalMap
 from codiet.models.ingredients import (
     Ingredient,
     IngredientNutrientQuantity,
@@ -31,10 +32,12 @@ class DatabaseService:
         # Close the connection
         self._repo._db.connection.close()
 
-    def create_empty_ingredient(self) -> Ingredient:
+    def create_empty_ingredient(
+        self, ingredient_name: str, ingredient_id: int
+    ) -> Ingredient:
         """Creates an ingredient."""
         # Init the ingredient
-        ingredient = Ingredient()
+        ingredient = Ingredient(ingredient_name, ingredient_id)
 
         # Populate the flag dict
         flags = self._repo.fetch_all_global_flag_names()
@@ -42,13 +45,17 @@ class DatabaseService:
             ingredient._flags[flag] = False
 
         # Populate the nutrient dict
-        # Grab all the leaf nutrients
-        nutrients = self._repo.fetch_all_leaf_nutrient_names()
+        # Get an ID to name map
+        nutrient_names_to_ids = self.fetch_leaf_nutrient_id_name_map()
         # Cycle through them, and create a nutrient quantity for each
         # and add it to the ingredient's nutrient dict
-        for nutrient in nutrients:
-            ingredient._nutrients[nutrient] = IngredientNutrientQuantity(nutrient)
-
+        for leaf_nutrient_id in nutrient_names_to_ids.int_values:
+            ingredient._nutrient_quantities[leaf_nutrient_id] = (
+                IngredientNutrientQuantity(
+                    global_nutrient_id=leaf_nutrient_id,
+                    ingredient_id=ingredient_id,
+                )
+            )
         # Return the ingredient
         return ingredient
 
@@ -61,35 +68,36 @@ class DatabaseService:
         for flag in flags:
             self.insert_global_flag(flag)
 
-    def insert_new_ingredient(self, ingredient: Ingredient) -> int:
+    def insert_new_ingredient(self, name: str) -> Ingredient:
         """Saves the given ingredient to the database."""
         # If the ingredient name is not set on the ingredient, raise an exception
-        if ingredient.name is None:
+        if name is None:
             raise ValueError("Ingredient name must be set.")
-        try:
-            # Add the ingredient name to the database, getting primary key
-            self._repo.insert_ingredient_name(ingredient.name)
-            # Get the ingredient ID from the database and set it on the ingredient
-            ingredient.id = self._repo.fetch_ingredient_id_by_name(ingredient.name)
-            # Now we can use the update method, becuase the ID is set.
-            self.update_ingredient(ingredient)
-            # Return the ID
-            return ingredient.id
-        except Exception as e:
-            # Roll back the transaction if an exception occurs
-            self._repo._db.connection.rollback()
-            # Re-raise any exceptions
-            raise e
+        # Add the ingredient name to the database, getting primary key
+        id = self._repo.insert_ingredient_name(name)
+        # Create a new ingredient with this name and ID
+        ingredient = self.create_empty_ingredient(name, id)
+        # Return the ingredient
+        return ingredient
 
-    def insert_custom_measurement(self, ingredient_id: int, measurement:CustomUnit) -> int:
+    def insert_custom_unit(self, ingredient_id: int, unit_name: str) -> CustomUnit:
         """Inserts a custom measurement into the database and returns the new ID."""
-        return self._repo.insert_custom_measurement(
-            ingredient_id=ingredient_id,
-            unit_name=measurement.unit_name,
-            custom_unit_qty=measurement.custom_unit_qty,
-            std_unit_name=measurement.std_unit_name,
-            std_unit_qty=measurement.std_unit_qty,
+        id = self._repo.insert_custom_unit(ingredient_id, unit_name)
+        custom_unit = CustomUnit(unit_name, id)
+        return custom_unit
+
+    def insert_ingredient_nutrient_quantity(
+        self, ingredient_id: int, global_nutrient_id: int
+    ) -> IngredientNutrientQuantity:
+        """Inserts a nutrient quantity into the database and returns the new ID."""
+        self._repo.insert_ingredient_nutrient_quantity(
+            ingredient_id=ingredient_id, nutrient_id=global_nutrient_id
         )
+        nutrient_quantity = IngredientNutrientQuantity(
+            global_nutrient_id=global_nutrient_id,
+            ingredient_id=ingredient_id,
+        )
+        return nutrient_quantity
 
     def insert_new_recipe(self, recipe: Recipe) -> None:
         """Saves the given recipe to the database."""
@@ -130,9 +138,30 @@ class DatabaseService:
         """Returns a list of all the leaf nutrients in the database."""
         return self._repo.fetch_all_leaf_nutrient_names()
 
+    def fetch_leaf_nutrient_id_from_name(self, name: str) -> int:
+        """Returns the ID of the leaf nutrient with the given name."""
+        return self._repo.fetch_leaf_nutrient_id_from_name(name)
+
+    def fetch_leaf_nutrient_name_from_id(self, id: int) -> str:
+        """Returns the name of the leaf nutrient with the given ID."""
+        return self._repo.fetch_leaf_nutrient_name_from_id(id)
+
     def fetch_all_group_nutrient_names(self) -> list[str]:
         """Returns a list of all the group nutrients in the database."""
         return self._repo.fetch_all_group_nutrient_names()
+
+    def fetch_leaf_nutrient_id_name_map(self) -> BidirectionalMap:
+        """Returns a bidirectional map of nutrient IDs to names."""
+        # Create a new bidirectional map
+        nutrient_id_name_map = BidirectionalMap()
+        # Fetch the raw data from the repo
+        leaf_nutrient_names = self.fetch_all_leaf_nutrient_names()
+        # For each name
+        for nutrient_name in leaf_nutrient_names:
+            # Lookup the ID
+            nutrient_id = self.fetch_leaf_nutrient_id_from_name(nutrient_name)
+            nutrient_id_name_map.add_mapping(nutrient_id, nutrient_name)
+        return nutrient_id_name_map
 
     def insert_global_group_nutrient(
         self, nutrient_name: str, parent_id: int | None = None
@@ -146,12 +175,13 @@ class DatabaseService:
 
     def fetch_ingredient_by_name(self, name: str) -> Ingredient:
         """Returns the ingredient with the given name."""
+        # Grab the ingredient ID
+        id = self._repo.fetch_ingredient_id_by_name(name)
         # Init a fresh ingredient instance
-        ingredient = self.create_empty_ingredient()
-        # Set the name
-        ingredient.name = name
-        # Set the ID
-        ingredient.id = self._repo.fetch_ingredient_id_by_name(name)
+        ingredient = self.create_empty_ingredient(
+            ingredient_name=name,
+            ingredient_id=id,
+        )
         # Fetch the description
         ingredient.description = self._repo.fetch_ingredient_description(ingredient.id)
         # Fetch the cost data
@@ -159,24 +189,19 @@ class DatabaseService:
         ingredient.cost_value = cost_data[0]
         ingredient.cost_qty_unit = cost_data[1]
         ingredient.cost_qty_value = cost_data[2]
-        # TODO: Fetch the custom measurements
+        # Fetch the custom units
+        custom_units = self.fetch_custom_units_by_ingredient_id(ingredient.id)
+        for custom_unit in custom_units.values():
+            ingredient.add_custom_unit(custom_unit)
         # Fetch the flags
         ingredient.set_flags(self.fetch_ingredient_flags(ingredient_id=ingredient.id))
         # Fetch the GI
         ingredient.gi = self._repo.fetch_ingredient_gi(ingredient.id)
         # Fetch the nutrients
-        nutrient_data = self._repo.fetch_ingredient_nutrients(ingredient.id)
-        for name, data in nutrient_data.items():
-            # Create a new nutrient quantity
-            nutrient_quantity = IngredientNutrientQuantity(
-                nutrient_name=name,
-                ntr_mass_value=data["ntr_qty_value"],
-                ntr_mass_unit=data["ntr_qty_unit"],
-                ing_qty_value=data["ing_qty_value"],
-                ing_qty_unit=data["ing_qty_unit"],
-            )
-            # Add to the ingredient
-            ingredient.update_nutrient_quantity(nutrient_quantity)
+        nutrient_quantities = self.fetch_nutrient_quantities_by_ingredient_id(
+            ingredient_id=ingredient.id
+        )
+        ingredient._nutrient_quantities = nutrient_quantities
         # Return the completed ingredient
         return ingredient
 
@@ -195,18 +220,30 @@ class DatabaseService:
         """Returns the ID of the ingredient with the given name."""
         return self._repo.fetch_ingredient_id_by_name(name)
 
-    def fetch_custom_measurements_by_ingredient_id(self, ingredient_id: int) -> list[CustomUnit]:
-        """Returns a list of custom measurements for the given ingredient."""
-        # Init a list to hold the custom measurements
-        custom_measurements = []
+    def fetch_ingredient_cost(self, ingredient_id: int) -> dict:
+        """Returns the cost data for the given ingredient."""
+        # Grab the raw data
+        cost_data = self._repo.fetch_ingredient_cost(ingredient_id)
+        # Convert the raw data to a dict
+        cost_dict = {
+            "cost_value": cost_data[0],
+            "cost_qty_unit": cost_data[1],
+            "cost_qty_value": cost_data[2],
+        }
+        return cost_dict
+
+    def fetch_custom_units_by_ingredient_id(
+        self, ingredient_id: int
+    ) -> dict[int, CustomUnit]:
+        """Returns a list of custom units for the given ingredient."""
+        # Init a list to hold the custom units
+        custom_units = {}
         # Fetch the raw data from the repo
-        raw_custom_measurements = self._repo.fetch_custom_measurements_by_ingredient_id(
-            ingredient_id
-        )
+        raw_custom_units = self._repo.fetch_custom_units_by_ingredient_id(ingredient_id)
         # Cycle through the raw data
-        for data in raw_custom_measurements:
-            # Create a new custom measurement
-            custom_measurement = CustomUnit(
+        for data in raw_custom_units:
+            # Create a new custom unit
+            custom_unit = CustomUnit(
                 unit_name=data[0],
                 custom_unit_qty=data[1],
                 std_unit_qty=data[2],
@@ -214,8 +251,8 @@ class DatabaseService:
                 unit_id=data[4],
             )
             # Add it to the list
-            custom_measurements.append(custom_measurement)
-        return custom_measurements
+            custom_units[custom_unit.unit_id] = custom_unit
+        return custom_units
 
     def fetch_ingredient_flags(
         self, ingredient_name: str | None = None, ingredient_id: int | None = None
@@ -236,6 +273,33 @@ class DatabaseService:
         for flag_name, flag_value in flags_data.items():
             flags[flag_name] = bool(flag_value)
         return flags
+
+    def fetch_nutrient_quantities_by_ingredient_id(
+        self, ingredient_id: int
+    ) -> dict[int, IngredientNutrientQuantity]:
+        """Returns the nutrient quantities for the given ingredient."""
+        # Init a dict to hold the nutrient quantities
+        nutrient_quantities = {}
+        # Fetch the raw data from the repo
+        raw_nutrient_quantities = self._repo.fetch_ingredient_nutrient_quantities(
+            ingredient_id
+        )
+        # Cycle through the raw data
+        for nutrient_id, nutrient_data in raw_nutrient_quantities.items():
+            # Create a new nutrient quantity
+            nutrient_quantity = IngredientNutrientQuantity(
+                global_nutrient_id=nutrient_id,
+                ingredient_id=ingredient_id,
+                ntr_mass_value=nutrient_data[1],
+                ntr_mass_unit=nutrient_data[0],
+                ing_qty_value=nutrient_data[3],
+                ing_qty_unit=nutrient_data[2],
+            )
+            # Add it to the list
+            nutrient_quantities[nutrient_id] = (
+                nutrient_quantity
+            )
+        return nutrient_quantities
 
     def fetch_recipe_name_using_id(self, id: int) -> str:
         """Returns the name of the recipe with the given ID."""
@@ -269,10 +333,10 @@ class DatabaseService:
             # Create a new ingredient quantity
             ingredient_quantity = IngredientQuantity(
                 ingredient=ingredient,
-                qty_value=data['qty_value'],
-                qty_unit=data['qty_unit'],
-                qty_utol=data['qty_utol'],
-                qty_ltol=data['qty_ltol'],
+                qty_value=data["qty_value"],
+                qty_unit=data["qty_unit"],
+                qty_utol=data["qty_utol"],
+                qty_ltol=data["qty_ltol"],
             )
             # Add it to the list
             ingredient_quantities[ingredient_id] = ingredient_quantity
@@ -299,68 +363,43 @@ class DatabaseService:
         """Returns a list of all the recipe tags in the database."""
         return self._repo.fetch_all_global_recipe_tags()
 
-    def update_ingredient(self, ingredient: Ingredient):
-        """Updates the given ingredient in the database."""
-        # If the ingredient ID is not present, raise an exception
-        if ingredient.id is None:
-            raise ValueError("Ingredient ID must be set.")
-        # An ingredient cannot be edited to not have a name,
-        # so if the name is not set, raise an exception
-        if ingredient.name is None:
-            raise ValueError("Ingredient name must be set.")
-        try:
-            # Update the ingredient name
-            self._repo.update_ingredient_name(
-                ingredient_id=ingredient.id,
-                name=ingredient.name,
-            )
-            # Update the ingredient description
-            self._repo.update_ingredient_description(
-                ingredient_id=ingredient.id,
-                description=ingredient.description,
-            )
-            # Update the ingredient cost data
-            self._repo.update_ingredient_cost(
-                ingredient_id=ingredient.id,
-                cost_value=ingredient.cost_value,
-                cost_unit=ingredient.cost_unit,
-                qty_unit=ingredient.cost_qty_unit,
-                qty_value=ingredient.cost_qty_value,
-            )
-            # Update the custom measurements
-            for custom_measurement in ingredient.custom_units.values():
-                if custom_measurement.unit_id is None:
-                    self.insert_custom_measurement(ingredient.id, custom_measurement)
-                else:
-                    self.update_custom_measurement(custom_measurement)
-            # Update the flags
-            self._repo.update_ingredient_flags(ingredient.id, ingredient.flags)
-            # Update the ingredient GI
-            self._repo.update_ingredient_gi(ingredient.id, ingredient.gi)
-            # Update each nutrient
-            for nutrient_name, nutrient_qty in ingredient.nutrient_quantities.items():
-                self.update_ingredient_nutrient_quantity(ingredient.id, nutrient_qty)
+    def update_ingredient_description(
+        self, ingredient_id: int, description: str
+    ) -> None:
+        """Updates the description of the given ingredient."""
+        self._repo.update_ingredient_description(ingredient_id, description)
 
-        except Exception as e:
-            # Roll back the transaction if an exception occurs
-            self._repo._db.connection.rollback()
-            # Re-raise any exceptions
-            raise e
+    def update_ingredient_cost(
+        self,
+        ingredient_id: int,
+        cost_unit: str = "GBP",
+        cost_value: float | None = None,
+        cost_qty_unit: str = "g",
+        cost_qty_value: float | None = None,
+    ) -> None:
+        """Updates the cost value of the given ingredient."""
+        self._repo.update_ingredient_cost(
+            ingredient_id=ingredient_id,
+            cost_value=cost_value,
+            cost_unit=cost_unit,
+            cost_qty_unit=cost_qty_unit,
+            cost_qty_value=cost_qty_value,
+        )
 
-    def update_custom_measurement(self, measurement: CustomUnit):
+    def update_custom_unit(self, custom_unit: CustomUnit):
         """Updates the given custom measurement in the database."""
         # If the measurement ID is not set, raise an exception
-        if measurement.unit_id is None:
+        if custom_unit.unit_id is None:
             raise ValueError("Measurement ID must be set.")
         # If the measurement unit name is not set, raise an exception
-        if measurement.unit_name is None:
+        if custom_unit.unit_name is None:
             raise ValueError("Measurement unit name must be set.")
         try:
             self._repo.update_custom_measurement(
-                measurement_id=measurement.unit_id,
-                custom_unit_qty=measurement.custom_unit_qty,
-                std_unit_qty=measurement.std_unit_qty,
-                std_unit_name=measurement.std_unit_name,
+                unit_id=custom_unit.unit_id,
+                custom_unit_qty=custom_unit.custom_unit_qty,
+                std_unit_qty=custom_unit.std_unit_qty,
+                std_unit_name=custom_unit.std_unit_name,
             )
         except Exception as e:
             # Roll back the transaction if an exception occurs
@@ -368,18 +407,26 @@ class DatabaseService:
             # Re-raise any exceptions
             raise e
 
+    def update_ingredient_flag(
+        self, ingredient_id: int, flag_name: str, flag_value: bool
+    ) -> None:
+        """Updates a flag on the ingredient."""
+        self._repo.update_ingredient_flag(ingredient_id, flag_name, flag_value)
+
+    def update_ingredient_gi(self, ingredient_id: int, gi_value: float | None) -> None:
+        """Updates the GI value of the given ingredient."""
+        self._repo.update_ingredient_gi(ingredient_id, gi_value)
+
     def update_ingredient_nutrient_quantity(
-            self, 
-            ingredient_id:int, 
-            nutrient_quantity:IngredientNutrientQuantity
-        ) -> None:
+        self, nutrient_quantity: IngredientNutrientQuantity
+    ) -> None:
         """Updates a nutrient quantity on the ingredient."""
         self._repo.update_ingredient_nutrient_quantity(
-            ingredient_id=ingredient_id,
-            nutrient_name=nutrient_quantity.nutrient_name,
-            ntr_qty_value=nutrient_quantity.nutrient_mass,
-            ntr_qty_unit=nutrient_quantity.nutrient_mass_unit,
-            ing_qty_value=nutrient_quantity.ingredient_quantity,
+            ingredient_id=nutrient_quantity.ingredient_id,
+            global_nutrient_id=nutrient_quantity.global_nutrient_id,
+            ntr_mass_value=nutrient_quantity.nutrient_mass_value,
+            ntr_mass_unit=nutrient_quantity.nutrient_mass_unit,
+            ing_qty_value=nutrient_quantity.ingredient_quantity_value,
             ing_qty_unit=nutrient_quantity.ingredient_quantity_unit,
         )
 
@@ -411,7 +458,10 @@ class DatabaseService:
             # Form a dict to represent the ingredients
             ingredient_quantities = {}
             # For each ingredient in the recipe, add it to the dict
-            for ingredient_name, ingredient_quantity in recipe.ingredient_quantities.items():
+            for (
+                ingredient_name,
+                ingredient_quantity,
+            ) in recipe.ingredient_quantities.items():
                 ingredient_quantities[ingredient_name] = {
                     "qty_value": ingredient_quantity.qty_value,
                     "qty_unit": ingredient_quantity.qty_unit,
@@ -450,9 +500,9 @@ class DatabaseService:
         """Deletes the given ingredient from the database."""
         self._repo.delete_ingredient_by_name(ingredient_name)
 
-    def delete_custom_measurement(self, measurement_id: int):
+    def delete_custom_unit(self, unit_id: int):
         """Deletes the given custom measurement from the database."""
-        self._repo.delete_custom_measurement(measurement_id)
+        self._repo.delete_custom_unit(unit_id)
 
     def delete_recipe_by_name(self, recipe_name: str):
         """Deletes the given recipe from the database."""

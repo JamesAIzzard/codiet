@@ -5,8 +5,7 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QToolBar,
     QLabel,
-    QGroupBox,
-    QComboBox
+    QGroupBox
 )
 from PyQt6.QtCore import pyqtSignal, QVariant
 
@@ -19,6 +18,7 @@ from codiet.views.buttons import (
     AutopopulateButton
 )
 from codiet.views.search import SearchColumnView
+from codiet.views.cost import CostEditorView
 from codiet.views.nutrients import NutrientQuantitiesEditorView
 from codiet.views.text_editors import LineEdit, MultilineEdit, NumericLineEdit
 from codiet.views.flags import FlagEditorView
@@ -62,27 +62,6 @@ class IngredientEditorView(QWidget):
             else:
                 self.txt_description.clear()
 
-    def update_cost_value(self, cost: float | None):
-        """Set the cost value."""
-        with block_signals(self.txt_cost):
-            if cost is not None:
-                self.txt_cost.setText(cost)
-            else:
-                self.txt_cost.clear()
-
-    def update_cost_qty_value(self, cost_qty: float | None):
-        """Set the cost quantity value."""
-        with block_signals(self.txt_cost_quantity):
-            if cost_qty is not None:
-                self.txt_cost_quantity.setText(cost_qty)
-            else:
-                self.txt_cost_quantity.clear()
-
-    def update_cost_qty_unit(self, cost_qty_unit: str):
-        """Set the cost quantity unit."""
-        with block_signals(self.cmb_cost_qty_unit):
-            self.cmb_cost_qty_unit.setCurrentText(cost_qty_unit)
-
     def update_gi(self, gi: float | None):
         """Set the GI value in the GI textbox."""
         with block_signals(self.txt_gi):
@@ -118,10 +97,11 @@ class IngredientEditorView(QWidget):
         lyt_columns.addLayout(lyt_first_col, 1)
         self._build_basic_info_UI(lyt_first_col)
         # Add the cost editor to the column 1 layout
-        self._build_cost_UI(lyt_first_col)
+        self.cost_editor = CostEditorView()
+        lyt_first_col.addWidget(self.cost_editor)
         # Add the measurement definition view
-        self.custom_units_view = CustomUnitsDefinitionView()
-        lyt_first_col.addWidget(self.custom_units_view)
+        self.custom_units_editor = CustomUnitsDefinitionView()
+        lyt_first_col.addWidget(self.custom_units_editor)
         # Add the flags widget to the column1 layout
         self.flag_editor = FlagEditorView()
         lyt_first_col.addWidget(self.flag_editor)
@@ -215,44 +195,7 @@ class IngredientEditorView(QWidget):
         self.txt_description.lostFocus.connect(
             lambda: self.ingredientDescriptionChanged.emit(self.txt_description.toPlainText())
         )
-
-    def _build_cost_UI(self, container: QBoxLayout):
-        """Build the UI for the cost section of the ingredient editor page."""
         
-        # Create the cost groupbox
-        gb_cost = QGroupBox("Cost")
-        container.addWidget(gb_cost)
-
-        # Create a horizontal layout for the cost section
-        lyt_cost = QHBoxLayout()
-        gb_cost.setLayout(lyt_cost)
-
-        # Create the first label
-        label = QLabel("Cost: £")
-        lyt_cost.addWidget(label)
-
-        # Create a textbox for the cost of the ingredient
-        self.txt_cost = NumericLineEdit()
-        lyt_cost.addWidget(self.txt_cost)
-        self.txt_cost.lostFocus.connect(self.ingredientCostValueChanged.emit)
-
-        # Create a second label
-        label = QLabel(" per ")
-        lyt_cost.addWidget(label)
-
-        # Create a textbox and add it to the layout
-        self.txt_cost_quantity = NumericLineEdit()
-        lyt_cost.addWidget(self.txt_cost_quantity)
-        self.txt_cost_quantity.lostFocus.connect(self.ingredientCostQuantityChanged.emit)
-
-        # Create a units dropdown
-        self.cmb_cost_qty_unit = QComboBox()
-        # Temporarily add units, these will get pulled from config file later
-        # TODO - pull units from config file
-        self.cmb_cost_qty_unit.addItems(["g", "kg", "ml", "l"])
-        lyt_cost.addWidget(self.cmb_cost_qty_unit)
-        self.cmb_cost_qty_unit.currentTextChanged.connect(self.ingredientCostQuantityUnitChanged.emit)
-
     def _build_gi_UI(self, container: QBoxLayout):
         """Build the UI for the GI section of the ingredient editor page."""
         # Create the GI groupbox

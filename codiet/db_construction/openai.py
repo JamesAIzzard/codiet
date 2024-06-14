@@ -286,8 +286,8 @@ def get_openai_ingredient_nutrients(
 
     # Define a nutrient dict template with comments to help the model
     nutrient_json_str = '''{
-        "ntr_qty_value": null,  # quantity of the nutrient
-        "ntr_qty_unit": "g",  # units used to measure nutrient quantity, must be a mass, can be [g, mg, ug]
+        "ntr_mass_value": null,  # quantity of the nutrient
+        "ntr_mass_unit": "g",  # units used to measure nutrient quantity, must be a mass, can be [g, mg, ug]
         "ing_qty_value": null,  # quantity of the ingredient
         "ing_qty_unit": "g",  # units used to measure ingredient quantity, can be mass or vol [g, kg, ml, l]
     }'''
@@ -340,7 +340,7 @@ def get_openai_ingredient_nutrients(
                     raise KeyError
 
                 # Check the nutrient qty unit is on the approve list
-                if output_dict[nutrient]["ntr_qty_unit"] not in ["g", "mg", "ug"]:
+                if output_dict[nutrient]["ntr_mass_unit"] not in ["g", "mg", "ug"]:
                     raise ValueError
                 
                 # Check the ingredient qty unit is on the approve list
@@ -348,13 +348,13 @@ def get_openai_ingredient_nutrients(
                     raise ValueError
                 
                 # Check the nutrient qty value is a float
-                _ = float(output_dict[nutrient]["ntr_qty_value"])
+                _ = float(output_dict[nutrient]["ntr_mass_value"])
 
                 # Check the ingredient qty value is a float
                 _ = float(output_dict[nutrient]["ing_qty_value"])
 
                 # Check the nutrient qty value is positive or zero
-                if output_dict[nutrient]["ntr_qty_value"] < 0:
+                if output_dict[nutrient]["ntr_mass_value"] < 0:
                     raise ValueError
                 
                 # Check the ingredient qty value is positive or zero
@@ -362,13 +362,13 @@ def get_openai_ingredient_nutrients(
                     raise ValueError
                 
                 # If the ingredient qty is zero, check the nutrient qty is zero
-                if output_dict[nutrient]["ing_qty_value"] == 0 and output_dict[nutrient]["ntr_qty_value"] != 0:
+                if output_dict[nutrient]["ing_qty_value"] == 0 and output_dict[nutrient]["ntr_mass_value"] != 0:
                     raise ValueError
                 
                 # Populate the output dict
                 output_dict[nutrient] = {
-                    "ntr_qty_value": float(output_dict[nutrient]["ntr_qty_value"]),
-                    "ntr_qty_unit": output_dict[nutrient]["ntr_qty_unit"],
+                    "ntr_mass_value": float(output_dict[nutrient]["ntr_mass_value"]),
+                    "ntr_mass_unit": output_dict[nutrient]["ntr_mass_unit"],
                     "ing_qty_value": float(output_dict[nutrient]["ing_qty_value"]),
                     "ing_qty_unit": output_dict[nutrient]["ing_qty_unit"],
                 }

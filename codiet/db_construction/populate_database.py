@@ -18,7 +18,7 @@ from codiet.models.ingredients import Ingredient, IngredientNutrientQuantity
 from codiet.models.recipes import Recipe
 from codiet.db.database_service import DatabaseService
 
-def push_flags_to_db():
+def push_global_flags_to_db():
     """Populate the flags table in the database using the 
     .json flag list file."""
     # Read the flags from the datafile
@@ -30,7 +30,7 @@ def push_flags_to_db():
         # Save changes
         db_service.commit()
 
-def push_nutrients_to_db():
+def push_global_nutrients_to_db():
     """Populate the database with nutrient data."""
     # Read the nutrient data from the file
     with open(GLOBAL_NUTRIENT_DATA_FILEPATH) as file:
@@ -62,14 +62,62 @@ def push_ingredients_to_db():
         for file in os.listdir(INGREDIENT_DATA_DIR):
             # Open the file and load the data
             with open(os.path.join(INGREDIENT_DATA_DIR, file)) as f:
-                data = json.load(f)
-            # Convert the data into an ingredient instance
-            ingredient = _load_ingredient_from_json(data)
-            # Save the ingredient to the database
-            db_service.insert_new_ingredient(ingredient)
-            # Save changes
-            db_service.commit()
+                ingredient_data = json.load(f)
+                push_ingredient_to_db(ingredient_data)
 
+def push_ingredient_to_db(ingredient_data:dict):
+    """Push the ingredient from the datafile into the database."""
+    with DatabaseService() as db_service:
+        # Init the ingredient in the database
+        ingredient = db_service.insert_new_ingredient(
+            name=ingredient_data["name"]
+        )
+        # Set the description
+        db_service.update_ingredient_description(ingredient.id, ingredient_data["description"])
+        # Set the cost
+        db_service.update_ingredient_cost(
+            ingredient.id,
+            cost_unit=ingredient_data["cost"]["cost_unit"],
+            cost_value=ingredient_data["cost"]["cost_value"],
+            cost_qty_value=ingredient_data["cost"]["qty_value"],
+            cost_qty_unit=ingredient_data["cost"]["qty_unit"]
+        )
+        # Add the custom units
+        for unit_name, custom_unit_data in ingredient_data["custom_units"].values():
+            # Init the custom unit in the database
+            custom_unit = db_service.insert_custom_unit(ingredient.id, unit_name=unit_name)
+            # Set the custom unit data
+            custom_unit.custom_unit_qty = custom_unit_data["custom_unit_qty"]
+            custom_unit.std_unit_qty = custom_unit_data["std_unit_qty"]
+            custom_unit.std_unit_name = custom_unit_data["std_unit_name"]
+            # Update the custom unit in the database
+            db_service.update_custom_unit(custom_unit)
+        # Add the flags
+        for flag_name, flag_value in ingredient_data["flags"].items():
+            db_service.update_ingredient_flag(ingredient.id, flag_name, flag_value)
+        # Set the GI
+        db_service.update_ingredient_gi(ingredient.id, ingredient_data["GI"])
+        # Add the nutrients
+        # Create a dict relating global nutrient ID's to names
+        nutrient_IDs = {}
+        for nutrient_name in ingredient_data["nutrients"].keys():
+            nutrient_IDs[nutrient_name] = db_service.fetch_leaf_nutrient_id_from_name(nutrient_name)
+        # Add the nutrient quantities to the database
+        for nutrient_name, nutrient_data in ingredient_data["nutrients"].items():
+            # Init the nutrient in the database
+            nutrient = db_service.insert_ingredient_nutrient_quantity(
+                ingredient_id=ingredient.id,
+                global_nutrient_id=nutrient_IDs[nutrient_name]
+            )
+            # Set the nutrient data
+            nutrient.nutrient_mass_value = nutrient_data["ntr_mass_value"]
+            nutrient.ntr_mass_unit = nutrient_data["ntr_mass_unit"]
+            nutrient.ing_qty_value = nutrient_data["ing_qty_value"]
+            nutrient.ing_qty_unit = nutrient_data["ing_qty_unit"]
+            # Update the nutrient in the database
+            db_service.update_ingredient_nutrient_quantity(nutrient)
+        # Save changes
+        db_service.commit()
 
 def push_global_recipe_tags_to_db():
     """Push the global recipe tags to the database."""
@@ -101,42 +149,13 @@ def push_recipes_to_db():
             # Save changes
             db_service.commit()
 
-def _load_ingredient_from_json(json_data) -> Ingredient:
-    """Load an ingredient object from a json data dict."""
-    # Create the ingredient instance
-    with DatabaseService() as db_service:
-        ingredient = db_service.create_empty_ingredient()
-    # Move the ingredient data into the instance
-    ingredient.name = json_data["name"]
-    ingredient.description = json_data["description"]
-    ingredient.cost_unit = json_data["cost"]["cost_unit"]
-    ingredient.cost_value = json_data["cost"]["cost_value"]
-    ingredient.cost_qty_unit = json_data["cost"]["qty_unit"]
-    ingredient.cost_qty_value = json_data["cost"]["qty_value"]
-    for custom_unit_name, custom_unit_data in json_data["custom_units"].items():
-        custom_unit = CustomUnit(
-            unit_name=custom_unit_name,
-            custom_unit_qty=custom_unit_data["custom_unit_qty"],
-            std_unit_qty=custom_unit_data["std_unit_qty"],
-            std_unit_name=custom_unit_data["std_unit_name"]
-        )
-        ingredient.custom_units[custom_unit_name] = custom_unit
-    ingredient.set_flags(json_data["flags"])
-    ingredient.gi = json_data["GI"]
-    # For each of the nutrient dicts, create an IngredientNutrientQuantity
-    # instance and add it to the ingredient
-    for nutrient_name, nutrient_data in json_data["nutrients"].items():
-        nutrient_qty = _load_ingredient_nutrient_qty_from_json(nutrient_name, nutrient_data)
-        ingredient.update_nutrient_quantity(nutrient_qty)
-    return ingredient
-
 def _load_ingredient_nutrient_qty_from_json(nutrient_name:str, nutrient_data:dict) -> IngredientNutrientQuantity:
     """Load an ingredient nutrient quantity object from a json data dict."""
     # Create the ingredient nutrient quantity instance
     nutrient_qty = IngredientNutrientQuantity(
         nutrient_name=nutrient_name,
-        ntr_mass_value=nutrient_data["ntr_qty_value"],
-        ntr_mass_unit=nutrient_data["ntr_qty_unit"],
+        ntr_mass_value=nutrient_data["ntr_mass_value"],
+        ntr_mass_unit=nutrient_data["ntr_mass_unit"],
         ing_qty_value=nutrient_data["ing_qty_value"],
         ing_qty_unit=nutrient_data["ing_qty_unit"]
     )

@@ -14,7 +14,7 @@ class SearchColumnCtrl():
             view: SearchColumnView, 
             get_searchable_strings: Callable[[], list[str]],
             on_result_selected: Callable[[QListWidgetItem], None],
-            get_result_for_string: Callable[[str], QWidget|str]|None=None,
+            get_view_item_for_string: Callable[[str], QWidget|str]|None=None,
             num_matches: int = 10
         ) -> None:
         self.view = view
@@ -23,10 +23,10 @@ class SearchColumnCtrl():
         self.num_matches = num_matches
         # If there was no widget fetching function provided, just
         # return the string
-        if get_result_for_string is None:
+        if get_view_item_for_string is None:
             self.get_result_for_string = lambda result: result
         else:
-            self.get_result_for_string = get_result_for_string
+            self.get_result_for_string = get_view_item_for_string
         # Connect the view up
         self.view.searchTermChanged.connect(self._on_search_term_changed)
         self.view.searchTermCleared.connect(self._on_search_term_cleared)
@@ -39,7 +39,7 @@ class SearchColumnCtrl():
     def show_all_items(self) -> None:
         """Show all items in the search column."""
         # Get a list of items for all the searchable strings
-        items = self._get_items_for_results(self.get_searchable_strings())
+        items = self._get_view_items_for_results(self.get_searchable_strings())
         self.view.results_list.update_list(items)
 
     def reset_search(self) -> None:
@@ -50,7 +50,7 @@ class SearchColumnCtrl():
         self.view.clear_search_term()
         self.show_all_items()
 
-    def _get_items_for_results(self, results: list[str]) -> list[QWidget|str]:
+    def _get_view_items_for_results(self, results: list[str]) -> list[QWidget|str]:
         """Convert the result strings into a list of widgets if
         a conversion function was required. Otherwise just return
         the strings."""
@@ -75,7 +75,7 @@ class SearchColumnCtrl():
                 self.num_matches
             )
             # For each best match, get the corresponding list item
-            best_match_items = self._get_items_for_results(best_matches)
+            best_match_items = self._get_view_items_for_results(best_matches)
             # Add the best matches to the search column
             self.view.results_list.update_list(best_match_items)
 

@@ -1,3 +1,7 @@
+"""This module contains the Repository class, which is responsible for interacting with the database.
+Since the methods are tightly coupled to the database, the API should be kept as narrow as possible.
+"""
+
 import sqlite3
 
 from codiet.exceptions import ingredient_exceptions as ingredient_exceptions
@@ -53,6 +57,24 @@ class Repository:
         ).fetchall()
         return [row[0] for row in rows]
 
+    def fetch_leaf_nutrient_id_from_name(self, name: str) -> int:
+        """Returns the ID of the leaf nutrient associated with the given name."""
+        return self._db.execute(
+            """
+            SELECT nutrient_id FROM global_leaf_nutrients WHERE nutrient_name = ?;
+        """,
+            (name,),
+        ).fetchone()[0]
+    
+    def fetch_leaf_nutrient_name_from_id(self, id: int) -> str:
+        """Returns the name of the leaf nutrient associated with the given ID."""
+        return self._db.execute(
+            """
+            SELECT nutrient_name FROM global_leaf_nutrients WHERE nutrient_id = ?;
+        """,
+            (id,),
+        ).fetchone()[0]
+
     def fetch_ingredient_name(self, id: int) -> str:
         """Returns the name of the ingredient associated with the given ID."""
         return self._db.execute(
@@ -100,7 +122,7 @@ class Repository:
             (id,),
         ).fetchone()
 
-    def fetch_custom_measurements_by_ingredient_id(self, ingredient_id: int) -> list[dict]:
+    def fetch_custom_units_by_ingredient_id(self, ingredient_id: int) -> list[dict]:
         """Returns a list of custom measurements for the given ingredient ID."""
         rows = self._db.execute(
             """
@@ -145,21 +167,20 @@ class Repository:
             (id,),
         ).fetchone()[0]
 
-    def fetch_ingredient_nutrients(self, ingredient_id: int) -> dict[str, dict]:
+    def fetch_ingredient_nutrient_quantities(self, ingredient_id: int) -> dict[int, dict]:
         """Returns a dict of nutrients for the given ingredient ID."""
         rows = self._db.execute(
             """
-            SELECT nutrient_name, ntr_qty_unit, ntr_qty_value, ing_qty_unit, ing_qty_value
-            FROM global_leaf_nutrients
-            JOIN ingredient_nutrients ON global_leaf_nutrients.nutrient_id = ingredient_nutrients.nutrient_id
+            SELECT nutrient_id, ntr_mass_unit, ntr_mass_value, ing_qty_unit, ing_qty_value
+            FROM ingredient_nutrients
             WHERE ingredient_id = ?;
         """,
             (ingredient_id,),
         ).fetchall()
         return {
             row[0]: {
-                "ntr_qty_unit": row[1],
-                "ntr_qty_value": row[2],
+                "ntr_mass_unit": row[1],
+                "ntr_mass_value": row[2],
                 "ing_qty_unit": row[3],
                 "ing_qty_value": row[4],
             }
@@ -319,38 +340,45 @@ class Repository:
             (alias, primary_nutrient_id),
         )
 
-    def insert_ingredient_name(self, name: str) -> None:
-        """Adds an ingredient name to the database."""
+    def insert_ingredient_name(self, name: str) -> int:
+        """Adds an ingredient name to the database and returns the ID."""
+        cost_unit = "GBP" # NOTE: One day if we want to support other currencies, this will need to be a parameter.
         try:
-            self._db.execute(
+            cursor = self._db.execute(
                 """
-                INSERT INTO ingredient_base (ingredient_name) VALUES (?);
-            """,
-                (name,),
+                INSERT INTO ingredient_base (ingredient_name, cost_unit) VALUES (?, ?);
+                """,
+                (name, cost_unit),
             )
+            return cursor.lastrowid
         except sqlite3.IntegrityError as e:
             if "UNIQUE constraint failed" in str(e):
                 raise ingredient_exceptions.IngredientNameExistsError(name)
             else:
                 raise e
 
-    def insert_custom_measurement(
+    def insert_custom_unit(
         self,
         ingredient_id: int,
         unit_name: str,
-        custom_unit_qty: float | None,
-        std_unit_qty: float | None,
-        std_unit_name: str,
     ) -> int:
         """Adds a custom measurement to the database and returns the ID."""
         cursor = self._db.execute(
             """
-            INSERT INTO ingredient_custom_units (ingredient_id, unit_name, custom_unit_qty, std_unit_qty, std_unit_name)
-            VALUES (?, ?, ?, ?, ?);
+            INSERT INTO ingredient_custom_units (ingredient_id, unit_name) VALUES (?, ?);
         """,
-            (ingredient_id, unit_name, custom_unit_qty, std_unit_qty, std_unit_name),
+            (ingredient_id, unit_name),
         )
         return cursor.lastrowid
+
+    def insert_ingredient_nutrient_quantity(self, ingredient_id: int, nutrient_id:int) -> None:
+        """Adds a nutrient quantity to the ingredient."""
+        self._db.execute(
+            """
+            INSERT INTO ingredient_nutrients (ingredient_id, nutrient_id) VALUES (?, ?);
+        """,
+            (ingredient_id, nutrient_id),
+        )
 
     def insert_recipe_name(self, name: str) -> int:
         """Adds a recipe name to the database and returns the ID."""
@@ -400,9 +428,9 @@ class Repository:
         self,
         ingredient_id: int,
         cost_value: float | None,
-        cost_unit: str | None,
-        qty_unit: str | None,
-        qty_value: float | None,
+        cost_unit: str,
+        cost_qty_unit: str | None,
+        cost_qty_value: float | None,
     ) -> None:
         """Updates the cost data of the ingredient associated with the given ID."""
         self._db.execute(
@@ -411,12 +439,12 @@ class Repository:
             SET cost_value = ?, cost_unit = ?, cost_qty_unit = ?, cost_qty_value = ?
             WHERE ingredient_id = ?;
         """,
-            (cost_value, cost_unit, qty_unit, qty_value, ingredient_id),
+            (cost_value, cost_unit, cost_qty_unit, cost_qty_value, ingredient_id),
         )
 
     def update_custom_measurement(
         self,
-        measurement_id: int,
+        unit_id: int,
         custom_unit_qty: float | None,
         std_unit_qty: float | None,
         std_unit_name: str,
@@ -428,29 +456,27 @@ class Repository:
             SET custom_unit_qty = ?, std_unit_qty = ?, std_unit_name = ?
             WHERE custom_unit_id = ?;
         """,
-            (custom_unit_qty, std_unit_qty, std_unit_name, measurement_id),
+            (custom_unit_qty, std_unit_qty, std_unit_name, unit_id),
         )
 
-    def update_ingredient_flags(
-        self, ingredient_id: int, flags: dict[str, bool]
-    ) -> None:
-        """Updates the flags for the ingredient associated with the given ID."""
-        # Clear the existing flags
+    def update_ingredient_flag(self, ingredient_id: int, flag: str, value: bool) -> None:
+        """Updates the flag for the ingredient associated with the given ID."""
+        # Get the flag ID
+        flag_id = self.fetch_flag_id(flag)
+        # Clear the existing flag
         self._db.execute(
             """
-            DELETE FROM ingredient_flags WHERE ingredient_id = ?;
+            DELETE FROM ingredient_flags WHERE ingredient_id = ? AND flag_id = ?;
         """,
-            (ingredient_id,),
+            (ingredient_id, flag_id),
         )
-        # Add the new flags
-        for flag, value in flags.items():
-            flag_id = self.fetch_flag_id(flag)
-            self._db.execute(
-                """
-                INSERT INTO ingredient_flags (ingredient_id, flag_id, flag_value) VALUES (?, ?, ?);
-            """,
-                (ingredient_id, flag_id, value),
-            )
+        # Add the new flag
+        self._db.execute(
+            """
+            INSERT INTO ingredient_flags (ingredient_id, flag_id, flag_value) VALUES (?, ?, ?);
+        """,
+            (ingredient_id, flag_id, value),
+        )
 
     def update_ingredient_gi(self, ingredient_id: int, gi: float | None) -> None:
         """Updates the GI of the ingredient associated with the given ID."""
@@ -466,41 +492,20 @@ class Repository:
     def update_ingredient_nutrient_quantity(
         self,
         ingredient_id: int,
-        nutrient_name: str,
-        ntr_qty_unit: str,
-        ntr_qty_value: float | None,
+        global_nutrient_id: int,
+        ntr_mass_unit: str,
+        ntr_mass_value: float | None,
         ing_qty_unit: str,
         ing_qty_value: float | None,
     ) -> None:
         """Updates the nutrient quantity of the ingredient associated with the given ID."""
-        # Get the nutrient ID
-        nutrient_id = self._db.execute(
-            """
-            SELECT nutrient_id FROM global_leaf_nutrients WHERE nutrient_name = ?;
-        """,
-            (nutrient_name,),
-        ).fetchone()[0]
-        # Clear the existing nutrient
         self._db.execute(
             """
-            DELETE FROM ingredient_nutrients WHERE ingredient_id = ? AND nutrient_id = ?;
+            UPDATE ingredient_nutrients
+            SET ntr_mass_unit = ?, ntr_mass_value = ?, ing_qty_unit = ?, ing_qty_value = ?
+            WHERE ingredient_id = ? AND nutrient_id = ?;
         """,
-            (ingredient_id, nutrient_id),
-        )
-        # Add the new nutrient
-        self._db.execute(
-            """
-            INSERT INTO ingredient_nutrients (ingredient_id, nutrient_id, ntr_qty_unit, ntr_qty_value, ing_qty_unit, ing_qty_value)
-            VALUES (?, ?, ?, ?, ?, ?);
-        """,
-            (
-                ingredient_id,
-                nutrient_id,
-                ntr_qty_unit,
-                ntr_qty_value,
-                ing_qty_unit,
-                ing_qty_value,
-            ),
+            (ntr_mass_unit, ntr_mass_value, ing_qty_unit, ing_qty_value, ingredient_id, global_nutrient_id),
         )
 
     def update_recipe_name(self, recipe_id: int, name: str) -> None:
@@ -644,7 +649,7 @@ class Repository:
             self._db.connection.rollback()
             raise e
 
-    def delete_custom_measurement(self, measurement_id:int) -> None:
+    def delete_custom_unit(self, measurement_id:int) -> None:
         """Deletes the given custom measurement from the database."""
         self._db.execute(
             """

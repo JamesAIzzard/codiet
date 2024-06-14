@@ -38,12 +38,7 @@ class MainWindowCtrl:
         self.recipe_names = []
 
         # Since the ingredient editor is showing first, 
-        # load an ingredient instance into the editor
-        with DatabaseService() as db_service:
-            self.ingredient_editor_ctrl.load_ingredient_instance(
-                db_service.create_empty_ingredient()
-            )
-        # Select the ingredient button on the nav bar
+        # select the ingredient button on the nav bar
         self.view.btn_ingredients.select()
 
     def _on_ingredients_clicked(self):

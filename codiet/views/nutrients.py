@@ -13,7 +13,7 @@ from codiet.views.search import SearchColumnView
 
 class NutrientQuantitiesEditorView(QWidget):
     """UI element for editing the quantities of nutrients in an ingredient."""
-    nutrientQuantityChanged = pyqtSignal(str, QVariant, str)
+    nutrientQuantityChanged = pyqtSignal(int, QVariant, str)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -53,30 +53,41 @@ class NutrientQuantityEditorView(QWidget):
     nutrientMassChanged = pyqtSignal(str, QVariant)
     nutrientMassUnitsChanged = pyqtSignal(str, str)
 
-    def __init__(self, nutrient_name: str, *args, **kwargs):
+    def __init__(
+            self,
+            global_nutrient_id: int,
+            nutrient_name: str,
+            nutrient_mass_value: float | None = None,
+            nutrient_mass_units: str = "g",
+            *args, **kwargs
+        ):
         super().__init__(*args, **kwargs)
         self._nutrient_name = nutrient_name
+        self.nutrient_mass_value = nutrient_mass_value
+        self.nutrient_mass_units = nutrient_mass_units
         self._build_ui()
 
     @property
-    def nutrient_mass(self) -> float | None:
+    def nutrient_mass_value(self) -> float | None:
         """Returns the nutrient mass."""
         return self.txt_nutrient_mass.text()
+
+    @nutrient_mass_value.setter
+    def nutrient_mass_value(self, value: float | None):
+        """Sets the nutrient mass."""
+        with block_signals(self.txt_nutrient_mass):
+            self.txt_nutrient_mass.setText(value)
 
     @property
     def nutrient_mass_units(self) -> str:
         """Returns the nutrient mass units."""
         return self.cmb_mass_units.currentText()
-
-    def update_nutrient_mass(self, mass: float | None):
-        """Updates the nutrient mass."""
-        with block_signals(self.txt_nutrient_mass):
-            self.txt_nutrient_mass.setText(mass)
-
-    def update_nutrient_mass_units(self, units: str):
-        """Updates the nutrient mass units."""
+    
+    @nutrient_mass_units.setter
+    def nutrient_mass_units(self, value: str):
+        """Sets the nutrient mass units."""
         with block_signals(self.cmb_mass_units):
-            self.cmb_mass_units.setCurrentText(units)
+            self.cmb_mass_units.setCurrentText(value)
 
     def _build_ui(self):
         """Initializes the UI elements."""

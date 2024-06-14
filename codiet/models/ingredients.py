@@ -5,18 +5,18 @@ from codiet.models.units import CustomUnit
 class Ingredient:
     """Ingredient model."""
 
-    def __init__(self):
-        self.name: str | None = None
-        self.id: int | None = None
+    def __init__(self, name:str, id:int):
+        self.name: str = name
+        self.id: int = id
         self.description: str | None = None
         self.cost_unit: str = "GBP"
         self.cost_value: float | None = None
         self.cost_qty_unit: str = "g"
         self.cost_qty_value: float | None = None
-        self._custom_units: dict[str, CustomUnit] = {}
+        self._custom_units: dict[int, CustomUnit] = {}
         self._flags: dict[str, bool] = {}
         self.gi: float | None = None
-        self._nutrients: dict[str, IngredientNutrientQuantity] = {}
+        self._nutrient_quantities: dict[int, IngredientNutrientQuantity] = {}
 
     @property
     def flags(self) -> dict[str, bool]:
@@ -24,14 +24,34 @@ class Ingredient:
         return self._flags
 
     @property
-    def custom_units(self) -> dict[str, CustomUnit]:
+    def custom_units(self) -> dict[int, CustomUnit]:
         """Returns the custom units."""
         return self._custom_units
 
     @property
-    def nutrient_quantities(self) -> dict[str, IngredientNutrientQuantity]:
+    def nutrient_quantities(self) -> dict[int, IngredientNutrientQuantity]:
         """Returns the nutrient quantities."""
-        return self._nutrients
+        return self._nutrient_quantities
+
+    def add_custom_unit(self, custom_unit: CustomUnit) -> None:
+        """Adds a custom unit."""
+        # Raise an exception if the custom unit is already in the custom units list
+        if custom_unit.unit_id in self._custom_units:
+            raise ValueError(f"Custom unit '{custom_unit.unit_id}' already in custom units list.")
+        # All OK, so add the custom unit
+        self._custom_units[custom_unit.unit_id] = custom_unit
+
+    def update_custom_unit(self, custom_unit: CustomUnit) -> None:
+        """Updates a custom unit."""
+        # Raise an exception if the custom unit isn't in the custom units list
+        if custom_unit.unit_id not in self._custom_units:
+            raise ValueError(f"Custom unit '{custom_unit.unit_id}' not in custom units list.")
+        # All OK, so update the custom unit
+        self._custom_units[custom_unit.unit_id] = custom_unit
+
+    def delete_custom_unit(self, unit_id: int) -> None:
+        """Delete a custom unit."""
+        self._custom_units.pop(unit_id)
 
     def set_flag(self, flag: str, value: bool) -> None:
         """Sets a flag."""
@@ -60,7 +80,7 @@ class Ingredient:
         self, ingredient_nutrient: IngredientNutrientQuantity
     ) -> None:
         """Updates a nutrient quantity on the ingredient."""
-        self._nutrients[ingredient_nutrient.nutrient_name] = ingredient_nutrient
+        self._nutrient_quantities[ingredient_nutrient.global_nutrient_id] = ingredient_nutrient
 
 
 class IngredientQuantity:

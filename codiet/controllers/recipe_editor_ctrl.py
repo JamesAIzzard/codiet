@@ -172,7 +172,7 @@ class RecipeEditorCtrl:
         """Handler for deleting a recipe."""
         # If no recipe is selected, show the info box to tell the user
         # to select a recipe
-        if self.view.recipe_search.selected_result is None:
+        if self.view.recipe_search.lst_search_results.selected_item is None:
             ok_dialog_box_view = OkDialogBoxView(
                 title="No Recipe Selected",
                 message="Please select a recipe to delete.",
@@ -182,7 +182,7 @@ class RecipeEditorCtrl:
             ok_dialog_box_view.show()
         else:
             # Grab the recipe name from the view
-            recipe_name = self.view.recipe_search.selected_result.text()
+            recipe_name = self.view.recipe_search.lst_search_results.selected_item.text()
             # Otherwise, show a confirmation dialog
             confirm_dialog_box_view = ConfirmDialogBoxView(
                 title="Delete Recipe",

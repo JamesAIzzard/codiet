@@ -2,7 +2,7 @@
 
 def ingredient_nutrient_data_is_complete(ingredient_nutrient_data: dict) -> bool:
     """Check if the nutrient data is complete."""
-    if ingredient_nutrient_data["ntr_qty_value"] is None:
+    if ingredient_nutrient_data["ntr_mass_value"] is None:
         return False
     if ingredient_nutrient_data["ing_qty_value"] is None:
         return False
