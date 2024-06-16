@@ -195,32 +195,34 @@ class Repository:
         self, ingredient_id: int, description: str | None
     ) -> None:
         """Updates the description of the ingredient associated with the given ID."""
-        self.database.execute(
-            """
-            UPDATE ingredient_base
-            SET ingredient_description = ?
-            WHERE ingredient_id = ?;
-            """,
-            (description, ingredient_id),
-        )
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE ingredients
+                SET ingredient_description = ?
+                WHERE id = ?;
+                """,
+                (description, ingredient_id),
+            )
 
     def update_ingredient_cost(
         self,
         ingredient_id: int,
         cost_value: float | None,
-        cost_unit: str,
         cost_qty_unit: str | None,
         cost_qty_value: float | None,
     ) -> None:
+        cost_unit = "GBP" # Hardcoded for now
         """Updates the cost data of the ingredient associated with the given ID."""
-        self.database.execute(
-            """
-            UPDATE ingredient_base
-            SET cost_value = ?, cost_unit = ?, cost_qty_unit = ?, cost_qty_value = ?
-            WHERE ingredient_id = ?;
-        """,
-            (cost_value, cost_unit, cost_qty_unit, cost_qty_value, ingredient_id),
-        )
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE ingredients
+                SET cost_value = ?, cost_qty_unit = ?, cost_qty_value = ?
+                WHERE id = ?;
+            """,
+                (cost_value, cost_qty_unit, cost_qty_value, ingredient_id),
+            )
 
     def update_ingredient_flag(
         self, ingredient_id: int, flag: str, value: bool
@@ -530,23 +532,46 @@ class Repository:
 
     def fetch_ingredient_description(self, id: int) -> str | None:
         """Returns the description of the ingredient associated with the given ID."""
-        return self.database.execute(
-            """
-            SELECT ingredient_description FROM ingredient_base WHERE ingredient_id = ?;
-        """,
-            (id,),
-        ).fetchone()[0]
+        with self.get_cursor() as cursor:
+            rows = cursor.execute(
+                """
+                SELECT ingredient_description FROM ingredients WHERE id = ?;
+            """,
+                (id,),
+            ).fetchall()
+        return rows[0][0] if rows else None
 
-    def fetch_ingredient_cost(self, id: int) -> tuple[float | None, str, float | None]:
-        """Returns the cost data of the ingredient associated with the given ID."""
-        return self.database.execute(
-            """
-            SELECT cost_value, cost_qty_unit, cost_qty_value
-            FROM ingredient_base
-            WHERE ingredient_id = ?;
-        """,
-            (id,),
-        ).fetchone()
+    def fetch_ingredient_cost(self, id: int) -> dict:
+        """
+        Return the cost data of the ingredient associated with the given ID.
+
+        The data structure returned is a dictionary:
+        {
+            'cost_value': float | None,
+            'cost_qty_unit': str,
+            'cost_qty_value': float | None
+        }
+
+        Parameters:
+        id (int): The ID of the ingredient.
+
+        Returns:
+        dict: A dictionary containing the cost data of the ingredient.
+        """
+        with self.get_cursor() as cursor:
+            rows = cursor.execute(
+                """
+                SELECT cost_value, cost_qty_unit, cost_qty_value
+                FROM ingredients
+                WHERE id = ?;
+            """,
+                (id,),
+            ).fetchall()
+        return {
+            "cost_value": rows[0][0],
+            "cost_qty_unit": rows[0][1],
+            "cost_qty_value": rows[0][2],
+        }
 
     def fetch_custom_units_by_ingredient_id(self, ingredient_id: int) -> list[dict]:
         """Returns a list of custom measurements for the given ingredient ID."""

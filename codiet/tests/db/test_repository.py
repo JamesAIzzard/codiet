@@ -53,7 +53,6 @@ class TestInsertGlobalUnit(RepositoryTestCase):
         self.assertEqual(global_units[kg_id]["conversions"][g_id], 1000)
         self.assertEqual(global_units[g_id]["conversions"], {})
 
-
 class TestInsertGlobalFlag(RepositoryTestCase):
     """Test the insert_global_flag method of the Repository class."""
 
@@ -232,3 +231,69 @@ class TestUpdateIngredientName(RepositoryTestCase):
         self.assertIn(new_ingredient_name, all_ingredient_names)
         # Check the old ingredient name is not in the database
         self.assertNotIn(ingredient_name, all_ingredient_names)
+
+class TestUpdateIngredientDescription(RepositoryTestCase):
+    """Test the update_ingredient_description method of the Repository class."""
+
+    def test_update_ingredient_description_updates_description(self):
+        """Test that the method updates an ingredient description in the database."""
+        ingredient_name = 'test_ingredient'
+        description_1 = 'test_description'
+        description_2 = 'new_test_description'
+        # Insert the ingredient
+        id = self.repository.insert_ingredient_name(
+            name=ingredient_name,
+        )
+        # Check the description is none
+        description = self.repository.fetch_ingredient_description(id)
+        self.assertIsNone(description)
+        # Update the ingredient description
+        self.repository.update_ingredient_description(
+            ingredient_id=id,
+            description=description_1,
+        )
+        # Fetch the ingredient description again
+        description = self.repository.fetch_ingredient_description(id)
+        # Check the new ingredient description is in the database
+        self.assertEqual(description, description_1)
+        # Update the ingredient description again
+        self.repository.update_ingredient_description(
+            ingredient_id=id,
+            description=description_2,
+        )
+        # Fetch the ingredient description again
+        description = self.repository.fetch_ingredient_description(id)
+        # Check the new ingredient description is in the database
+        self.assertEqual(description, description_2)
+
+class TestUpdateIngredientCost(RepositoryTestCase):
+    """Test the update_ingredient_cost method of the Repository class."""
+
+    def test_update_ingredient_cost_updates_cost(self):
+        """Test that the method updates an ingredient cost in the database."""
+        ingredient_name = 'test_ingredient'
+        cost_value = 2.50
+        cost_qty_unit = 'g'
+        cost_qty_value = 100
+        # Insert the ingredient
+        ingredient_id = self.repository.insert_ingredient_name(
+            name=ingredient_name,
+        )
+        # Check the cost is none
+        cost = self.repository.fetch_ingredient_cost(ingredient_id)
+        self.assertIsNone(cost["cost_value"])
+        self.assertIsNone(cost["cost_qty_unit"])
+        self.assertIsNone(cost["cost_qty_value"])
+        # Update the ingredient cost
+        self.repository.update_ingredient_cost(
+            ingredient_id=ingredient_id,
+            cost_value=cost_value,
+            cost_qty_unit=cost_qty_unit,
+            cost_qty_value=cost_qty_value,
+        )
+        # Fetch the ingredient cost again
+        cost = self.repository.fetch_ingredient_cost(ingredient_id)
+        # Check the new ingredient cost is in the database
+        self.assertEqual(cost["cost_value"], cost_value)
+        self.assertEqual(cost["cost_qty_unit"], cost_qty_unit)
+        self.assertEqual(cost["cost_qty_value"], cost_qty_value)
