@@ -1,0 +1,152 @@
+{
+    "gram": {
+        "type": "mass",
+        "aliases": ["gram", "grams", "g"],
+        "plural": "grams",
+        "conversions": {}
+    },
+    "kilogram": {
+        "type": "mass",
+        "aliases": ["kilogram", "kilograms", "kg"],
+        "plural": "kilograms",
+        "conversions": {"gram": 1000}
+    },
+    "milligram": {
+        "type": "mass",
+        "aliases": ["milligram", "milligrams", "mg"],
+        "plural": "milligrams",
+        "conversions": {"gram": 0.001}
+    },
+    "microgram": {
+        "type": "mass",
+        "aliases": ["microgram", "micrograms", "mcg", "ug"],
+        "plural": "micrograms",
+        "conversions": {"gram": 0.000001}
+    },
+    "ounce": {
+        "type": "mass",
+        "aliases": ["ounce", "ounces", "oz"],
+        "plural": "ounces",
+        "conversions": {"gram": 28.3495}
+    },
+    "pound": {
+        "type": "mass",
+        "aliases": ["pound", "pounds", "lb", "lbs"],
+        "plural": "pounds",
+        "conversions": {"gram": 453.592}
+    },
+    "litre": {
+        "type": "volume",
+        "aliases": ["litre", "litres", "l", "L"],
+        "plural": "litres",
+        "conversions": {"millilitre": 1000}
+    },
+    "millilitre": {
+        "type": "volume",
+        "aliases": ["millilitre", "millilitres", "ml", "mL"],
+        "plural": "millilitres",
+        "conversions": {}
+    },
+    "fluid ounce": {
+        "type": "volume",
+        "aliases": ["fluid ounce", "fluid ounces", "fl oz", "fl. oz."],
+        "plural": "fluid ounces",
+        "conversions": {"millilitre": 29.5735}
+    },
+    "pint": {
+        "type": "volume",
+        "aliases": ["pint", "pints", "pt", "p"],
+        "plural": "pints",
+        "conversions": {"millilitre": 473.176}
+    },
+    "quart": {
+        "type": "volume",
+        "aliases": ["quart", "quarts", "qt", "q"],
+        "plural": "quarts",
+        "conversions": {"millilitre": 946.353}
+    },
+    "gallon": {
+        "type": "volume",
+        "aliases": ["gallon", "gallons", "gal"],
+        "plural": "gallons",
+        "conversions": {"millilitre": 3785.41}
+    },
+    "cup": {
+        "type": "volume",
+        "aliases": ["cup", "cups", "c"],
+        "plural": "cups",
+        "conversions": {"millilitre": 236.588}
+    },
+    "tbsp": {
+        "type": "volume",
+        "aliases": ["tbsp", "tablespoon", "tablespoons"],
+        "plural": "tablespoons",
+        "conversions": {"millilitre": 14.7868}
+    },
+    "tsp": {
+        "type": "volume",
+        "aliases": ["tsp", "teaspoon", "teaspoons"],
+        "plural": "teaspoons",
+        "conversions": {"millilitre": 4.92892}
+    },
+    "pinch": {
+        "type": "volume",
+        "aliases": ["pinch", "pinches"],
+        "plural": "pinches",
+        "conversions": {"millilitre": 0.616115}
+    },
+    "dash": {
+        "type": "volume",
+        "aliases": ["dash", "dashes"],
+        "plural": "dashes",
+        "conversions": {"millilitre": 1.23223}
+    },
+    "whole": {
+        "type": "grouping",
+        "aliases": ["whole"],
+        "plural": "whole",
+        "conversions": {}
+    },
+    "slice": {
+        "type": "grouping",
+        "aliases": ["slice", "slices"],
+        "plural": "slices",
+        "conversions": {}
+    },
+    "piece": {
+        "type": "grouping",
+        "aliases": ["piece", "pieces"],
+        "plural": "pieces",
+        "conversions": {}
+    },
+    "clove": {
+        "type": "grouping",
+        "aliases": ["clove", "cloves"],
+        "plural": "cloves",
+        "conversions": {}
+    },
+    "head": {
+        "type": "grouping",
+        "aliases": ["head", "heads"],
+        "plural": "heads",
+        "conversions": {}
+    },
+    "stalk": {
+        "type": "grouping",
+        "aliases": ["stalk", "stalks"],
+        "plural": "stalks",
+        "conversions": {}
+    },
+    "bunch": {
+        "type": "grouping",
+        "aliases": ["bunch", "bunches"],
+        "plural": "bunches",
+        "conversions": {}
+    },
+    "sprig": {
+        "type": "grouping",
+        "aliases": ["sprig", "sprigs"],
+        "plural": "sprigs",
+        "conversions": {}
+    }
+}

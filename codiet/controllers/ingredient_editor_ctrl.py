@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QListWidgetItem
 
 from codiet.db.database_service import DatabaseService
-from codiet.models.units import CustomUnit
+from codiet.models.units import GlobalUnit
 from codiet.models.ingredients import Ingredient
 from codiet.models.nutrients import IngredientNutrientQuantity
 from codiet.views.ingredient_editor_view import IngredientEditorView
@@ -247,11 +247,11 @@ class IngredientEditorCtrl:
             )
             db_service.commit()
 
-    def _on_custom_unit_added(self, unit_name: str) -> CustomUnit:
+    def _on_custom_unit_added(self, unit_name: str) -> GlobalUnit:
         """Handler for adding a custom unit."""
         # Insert the custom unit into the database
         with DatabaseService() as db_service:
-            custom_unit = db_service.insert_custom_unit(
+            custom_unit = db_service.insert_ingredient_custom_unit(
                 ingredient_id=self.ingredient.id,
                 unit_name=unit_name,
             )
@@ -261,7 +261,7 @@ class IngredientEditorCtrl:
         # Return the custom unit instance
         return custom_unit
 
-    def _on_custom_unit_edited(self, custom_unit: CustomUnit):
+    def _on_custom_unit_edited(self, custom_unit: GlobalUnit):
         """Handler for editing a custom unit."""
         # Update the custom unit on the ingredient
         self.ingredient.update_custom_unit(custom_unit)

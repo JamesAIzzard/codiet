@@ -1,6 +1,6 @@
 from typing import Callable
 
-from codiet.models.units import CustomUnit
+from codiet.models.units import GlobalUnit
 from codiet.views.units import CustomUnitsDefinitionView, CustomUnitView
 from codiet.views.dialog_box_views import EntityNameDialogView, OkDialogBoxView
 from codiet.controllers.entity_name_dialog_ctrl import EntityNameDialogCtrl
@@ -10,9 +10,9 @@ class CustomUnitsDefinitionCtrl:
     def __init__(
         self,
         view: CustomUnitsDefinitionView,
-        get_custom_measurements: Callable[[], dict[int, CustomUnit]],
-        on_custom_unit_added: Callable[[str], CustomUnit],
-        on_custom_unit_edited: Callable[[CustomUnit], None],
+        get_custom_measurements: Callable[[], dict[int, GlobalUnit]],
+        on_custom_unit_added: Callable[[str], GlobalUnit],
+        on_custom_unit_edited: Callable[[GlobalUnit], None],
         on_custom_unit_removed: Callable[[int], None],
     ):
         self.view = view
@@ -37,7 +37,7 @@ class CustomUnitsDefinitionCtrl:
         self.view.removeUnitClicked.connect(self._on_remove_unit_clicked)
         self.view.editUnitClicked.connect(self._on_rename_unit_clicked)
 
-    def load_custom_units_into_view(self, custom_units: dict[int, CustomUnit]):
+    def load_custom_units_into_view(self, custom_units: dict[int, GlobalUnit]):
         """Load the custom units into the view."""
         for unit in custom_units.values():
             # Create a new view
@@ -45,7 +45,7 @@ class CustomUnitsDefinitionCtrl:
             # Add the new view
             self.view.lst_measurements.add_item(new_unit_view)
 
-    def _create_new_unit_view(self, custom_unit: CustomUnit):
+    def _create_new_unit_view(self, custom_unit: GlobalUnit):
         """Create a new unit view."""
         # Init a new view
         new_unit_view = CustomUnitView(unit_id=custom_unit.unit_id, unit_name=custom_unit.unit_name)

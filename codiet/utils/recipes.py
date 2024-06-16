@@ -3,7 +3,7 @@ import json, os, copy
 from codiet.utils.strings import convert_to_snake_case
 from codiet.utils.time import convert_datetime_interval_to_time_string_interval
 from codiet.models.recipes import Recipe
-from codiet.db_construction import (
+from codiet.db_population import (
     RECIPE_TEMPLATE_FILEPATH, 
     RECIPE_INGREDIENT_TEMPLATE_FILEPATH,
     RECIPE_DATA_DIR

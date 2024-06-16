@@ -1,5 +1,5 @@
 from codiet.models.nutrients import IngredientNutrientQuantity
-from codiet.models.units import CustomUnit
+from codiet.models.units import GlobalUnit
 
 
 class Ingredient:
@@ -13,7 +13,7 @@ class Ingredient:
         self.cost_value: float | None = None
         self.cost_qty_unit: str = "g"
         self.cost_qty_value: float | None = None
-        self._custom_units: dict[int, CustomUnit] = {}
+        self._custom_units: dict[int, GlobalUnit] = {}
         self._flags: dict[str, bool] = {}
         self.gi: float | None = None
         self._nutrient_quantities: dict[int, IngredientNutrientQuantity] = {}
@@ -24,7 +24,7 @@ class Ingredient:
         return self._flags
 
     @property
-    def custom_units(self) -> dict[int, CustomUnit]:
+    def custom_units(self) -> dict[int, GlobalUnit]:
         """Returns the custom units."""
         return self._custom_units
 
@@ -33,7 +33,7 @@ class Ingredient:
         """Returns the nutrient quantities."""
         return self._nutrient_quantities
 
-    def add_custom_unit(self, custom_unit: CustomUnit) -> None:
+    def add_custom_unit(self, custom_unit: GlobalUnit) -> None:
         """Adds a custom unit."""
         # Raise an exception if the custom unit is already in the custom units list
         if custom_unit.unit_id in self._custom_units:
@@ -41,7 +41,7 @@ class Ingredient:
         # All OK, so add the custom unit
         self._custom_units[custom_unit.unit_id] = custom_unit
 
-    def update_custom_unit(self, custom_unit: CustomUnit) -> None:
+    def update_custom_unit(self, custom_unit: GlobalUnit) -> None:
         """Updates a custom unit."""
         # Raise an exception if the custom unit isn't in the custom units list
         if custom_unit.unit_id not in self._custom_units:

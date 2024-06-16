@@ -8,29 +8,27 @@ from codiet.models.ingredients import (
     IngredientNutrientQuantity,
     IngredientQuantity,
 )
-from codiet.models.units import CustomUnit
+from codiet.models.units import GlobalUnit
 from codiet.models.recipes import Recipe
 from codiet.db.repository import Repository
-from codiet.db import DB_PATH
-from codiet.db.database import Database
 from codiet.db.repository import Repository
 
 
 class DatabaseService:
     """Service for interacting with the database."""
 
-    def __init__(self):
+    def __init__(self, repository: Repository):
         # Init the database
-        self._repo = Repository(Database(DB_PATH))
+        self._repo = repository
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         # Rollback any unsaved changes
-        self._repo._db.connection.rollback()
+        self._repo.database.connection.rollback()
         # Close the connection
-        self._repo._db.connection.close()
+        self._repo.database.connection.close()
 
     def create_empty_ingredient(
         self, ingredient_name: str, ingredient_id: int
@@ -40,7 +38,7 @@ class DatabaseService:
         ingredient = Ingredient(ingredient_name, ingredient_id)
 
         # Populate the flag dict
-        flags = self._repo.fetch_all_global_flag_names()
+        flags = self._repo.fetch_all_global_flags()
         for flag in flags:
             ingredient._flags[flag] = False
 
@@ -80,10 +78,14 @@ class DatabaseService:
         # Return the ingredient
         return ingredient
 
-    def insert_custom_unit(self, ingredient_id: int, unit_name: str) -> CustomUnit:
+    def insert_global_custom_unit(self, unit_name: str) -> int:
+        """Inserts a global custom measurement into the database."""
+        return self._repo.insert_global_custom_unit(unit_name)
+
+    def insert_ingredient_custom_unit(self, ingredient_id: int, unit_name: str) -> GlobalUnit:
         """Inserts a custom measurement into the database and returns the new ID."""
         id = self._repo.insert_custom_unit(ingredient_id, unit_name)
-        custom_unit = CustomUnit(unit_name, id)
+        custom_unit = GlobalUnit(unit_name, id)
         return custom_unit
 
     def insert_ingredient_nutrient_quantity(
@@ -113,7 +115,7 @@ class DatabaseService:
             self.update_recipe(recipe)
         except Exception as e:
             # Roll back the transaction if an exception occurs
-            self._repo._db.connection.rollback()
+            self._repo.database.connection.rollback()
             # Re-raise any exceptions
             raise e
 
@@ -132,7 +134,7 @@ class DatabaseService:
 
     def fetch_all_global_flag_names(self) -> list[str]:
         """Returns a list of all the flags in the database."""
-        return self._repo.fetch_all_global_flag_names()
+        return self._repo.fetch_all_global_flags()
 
     def fetch_all_leaf_nutrient_names(self) -> list[str]:
         """Returns a list of all the leaf nutrients in the database."""
@@ -234,7 +236,7 @@ class DatabaseService:
 
     def fetch_custom_units_by_ingredient_id(
         self, ingredient_id: int
-    ) -> dict[int, CustomUnit]:
+    ) -> dict[int, GlobalUnit]:
         """Returns a list of custom units for the given ingredient."""
         # Init a list to hold the custom units
         custom_units = {}
@@ -243,12 +245,12 @@ class DatabaseService:
         # Cycle through the raw data
         for data in raw_custom_units:
             # Create a new custom unit
-            custom_unit = CustomUnit(
+            custom_unit = GlobalUnit(
                 unit_name=data[0],
                 custom_unit_qty=data[1],
                 std_unit_qty=data[2],
                 std_unit_name=data[3],
-                unit_id=data[4],
+                global_unit_id=data[4],
             )
             # Add it to the list
             custom_units[custom_unit.unit_id] = custom_unit
@@ -386,7 +388,7 @@ class DatabaseService:
             cost_qty_value=cost_qty_value,
         )
 
-    def update_custom_unit(self, custom_unit: CustomUnit):
+    def update_custom_unit(self, custom_unit: GlobalUnit):
         """Updates the given custom measurement in the database."""
         # If the measurement ID is not set, raise an exception
         if custom_unit.unit_id is None:
@@ -403,7 +405,7 @@ class DatabaseService:
             )
         except Exception as e:
             # Roll back the transaction if an exception occurs
-            self._repo._db.connection.rollback()
+            self._repo.database.connection.rollback()
             # Re-raise any exceptions
             raise e
 
@@ -492,7 +494,7 @@ class DatabaseService:
             )
         except Exception as e:
             # Roll back the transaction if an exception occurs
-            self._repo._db.connection.rollback()
+            self._repo.database.connection.rollback()
             # Re-raise any exceptions
             raise e
 
