@@ -760,23 +760,16 @@ class Repository:
             ).fetchall()
         return {row[0]: row[1] for row in rows}
 
-    def fetch_recipe_tags(self, recipe_id: int) -> dict[int, str]:
-        """Returns a list of all recipe tags for the given recipe ID.
-        Data structure returned is a dictionary:
-        {
-            recipe_tag_id: recipe_tag_name
-        }
-        """
+    def fetch_recipe_tags(self, recipe_id: int) -> list[int]:
+        """Returns a list of all recipe tags for the given recipe ID."""
         with self.get_cursor() as cursor:
             rows = cursor.execute(
                 """
-                SELECT recipe_tag_id, recipe_tag_name
-                FROM recipe_tags
-                WHERE recipe_id = ?;
+                SELECT recipe_tag_id FROM recipe_tags WHERE recipe_id = ?;
             """,
                 (recipe_id,),
             ).fetchall()
-        return {row[0]: row[1] for row in rows}
+        return [row[0] for row in rows]
 
     def delete_ingredient(self, ingredient_id: int) -> None:
         """Deletes the given ingredient from the database."""

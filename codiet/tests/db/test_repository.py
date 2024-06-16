@@ -641,3 +641,46 @@ class TestUpdateRecipeServeTimeWindow(RepositoryTestCase):
         self.assertIn(serve_time_id, serve_time_windows.keys())
         # Check the new recipe serve time is correct
         self.assertEqual(serve_time_windows[serve_time_id], serve_time_window_2)
+
+class TestUpdateRecipeTags(RepositoryTestCase):
+    """Test the update_recipe_tags method of the Repository class."""
+
+    def test_update_recipe_tags_updates_tags(self):
+        """Test that the method updates a recipe tags in the database."""
+        recipe_name = 'test_recipe'
+        tag_1 = 'test_tag_1'
+        tag_2 = 'test_tag_2'
+        tag_3 = 'test_tag_3'
+        # Insert the recipe
+        recipe_id = self.repository.insert_recipe_name(
+            name=recipe_name,
+        )
+        # Insert the global tags
+        tag_id_1 = self.repository.insert_global_recipe_tag(tag_1)
+        tag_id_2 = self.repository.insert_global_recipe_tag(tag_2)
+        tag_id_3 = self.repository.insert_global_recipe_tag(tag_3)
+        # Attach tags 1 and 2 to the recipe
+        self.repository.update_recipe_tags(
+            recipe_id=recipe_id,
+            recipe_tag_ids=[tag_id_1, tag_id_2],
+        )
+        # Check the tags went into the recipe
+        recipe_tags = self.repository.fetch_recipe_tags(recipe_id)
+        self.assertEqual(len(recipe_tags), 2)
+        # Check both tag ID's are in the list
+        self.assertIn(tag_id_1, recipe_tags)
+        self.assertIn(tag_id_2, recipe_tags)
+        # Update the tags to 2 and 3
+        self.repository.update_recipe_tags(
+            recipe_id=recipe_id,
+            recipe_tag_ids=[tag_id_2, tag_id_3],
+        )
+        # Check the tags went into the recipe
+        recipe_tags = self.repository.fetch_recipe_tags(recipe_id)
+        self.assertEqual(len(recipe_tags), 2)
+        # Check both tag ID's are in the list
+        self.assertIn(tag_id_2, recipe_tags)
+        self.assertIn(tag_id_3, recipe_tags)
+
+
+        
