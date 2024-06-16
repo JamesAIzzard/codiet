@@ -139,9 +139,9 @@ class Database:
                 ingredient_name TEXT NOT NULL UNIQUE,
                 ingredient_description TEXT,
                 ingredient_gi REAL,
-                cost_unit TEXT,
+                cost_unit_id INTEGER,
                 cost_value REAL,
-                cost_qty_unit TEXT,
+                cost_qty_unit_id INTEGER,
                 cost_qty_value REAL
             )
         """)
@@ -182,12 +182,14 @@ class Database:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 ingredient_id INTEGER NOT NULL,
                 nutrient_id INTEGER NOT NULL,
-                ntr_mass_unit TEXT,
+                ntr_mass_unit_id INTEGER,
                 ntr_mass_value REAL,
-                ing_qty_unit TEXT,
+                ing_qty_unit_id INTEGER,
                 ing_qty_value REAL,
                 FOREIGN KEY (ingredient_id) REFERENCES ingredients(id),
-                FOREIGN KEY (nutrient_id) REFERENCES nutrient_list(id)
+                FOREIGN KEY (nutrient_id) REFERENCES nutrient_list(id),
+                FOREIGN KEY (ntr_mass_unit_id) REFERENCES global_units(id),
+                FOREIGN KEY (ing_qty_unit_id) REFERENCES global_units(id)
             )
         """)
 

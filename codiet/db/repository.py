@@ -141,18 +141,6 @@ class Repository:
         assert id is not None 
         return id
 
-    def insert_ingredient_nutrient_quantity(
-        self, ingredient_id: int, nutrient_id: int
-    ) -> None:
-        """Adds a nutrient quantity to the ingredient."""
-        with self.get_cursor() as cursor:
-            cursor.execute(
-                """
-                INSERT INTO ingredient_nutrients (ingredient_id, nutrient_id) VALUES (?, ?);
-            """,
-                (ingredient_id, nutrient_id),
-            )
-
     def insert_recipe_name(self, name: str) -> int:
         """Adds a recipe name to the database and returns the ID."""
         with self.get_cursor() as cursor:
@@ -209,19 +197,19 @@ class Repository:
         self,
         ingredient_id: int,
         cost_value: float | None,
-        cost_qty_unit: str | None,
+        cost_qty_unit_id: int | None,
         cost_qty_value: float | None,
     ) -> None:
-        cost_unit = "GBP" # Hardcoded for now
         """Updates the cost data of the ingredient associated with the given ID."""
+        cost_unit_id = 1 # This will refer to currency codes in future.
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
                 UPDATE ingredients
-                SET cost_value = ?, cost_qty_unit = ?, cost_qty_value = ?
+                SET cost_unit_id = ?, cost_value = ?, cost_qty_unit_id = ?, cost_qty_value = ?
                 WHERE id = ?;
             """,
-                (cost_value, cost_qty_unit, cost_qty_value, ingredient_id),
+                (cost_unit_id, cost_value, cost_qty_unit_id, cost_qty_value, ingredient_id),
             )
 
     def update_ingredient_flag(
@@ -239,40 +227,42 @@ class Repository:
 
     def update_ingredient_gi(self, ingredient_id: int, gi: float | None) -> None:
         """Updates the GI of the ingredient associated with the given ID."""
-        self.database.execute(
-            """
-            UPDATE ingredient_base
-            SET ingredient_gi = ?
-            WHERE ingredient_id = ?;
-        """,
-            (gi, ingredient_id),
-        )
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE ingredients
+                SET ingredient_gi = ?
+                WHERE id = ?;
+            """,
+                (gi, ingredient_id),
+            )
 
     def update_ingredient_nutrient_quantity(
-        self,
-        ingredient_id: int,
-        global_nutrient_id: int,
-        ntr_mass_unit: str,
-        ntr_mass_value: float | None,
-        ing_qty_unit: str,
-        ing_qty_value: float | None,
-    ) -> None:
-        """Updates the nutrient quantity of the ingredient associated with the given ID."""
-        self.database.execute(
-            """
-            UPDATE ingredient_nutrients
-            SET ntr_mass_unit = ?, ntr_mass_value = ?, ing_qty_unit = ?, ing_qty_value = ?
-            WHERE ingredient_id = ? AND nutrient_id = ?;
-        """,
-            (
-                ntr_mass_unit,
-                ntr_mass_value,
-                ing_qty_unit,
-                ing_qty_value,
-                ingredient_id,
-                global_nutrient_id,
-            ),
-        )
+            self,
+            ingredient_id: int,
+            global_nutrient_id: int,
+            ntr_mass_unit_id: int | None,
+            ntr_mass_value: float | None,
+            ing_qty_unit_id: int | None,
+            ing_qty_value: float | None,
+        ) -> None:
+            """Inserts or updates the nutrient quantity of the ingredient associated with the given ID."""
+            with self.get_cursor() as cursor:
+                cursor.execute(
+                    """
+                    INSERT OR REPLACE INTO ingredient_nutrients
+                    (ingredient_id, nutrient_id, ntr_mass_unit_id, ntr_mass_value, ing_qty_unit_id, ing_qty_value)
+                    VALUES (?, ?, ?, ?, ?, ?);
+                    """,
+                    (
+                        ingredient_id,
+                        global_nutrient_id,
+                        ntr_mass_unit_id,
+                        ntr_mass_value,
+                        ing_qty_unit_id,
+                        ing_qty_value,
+                    ),
+                )
 
     def update_recipe_name(self, recipe_id: int, name: str) -> None:
         """Updates the name of the recipe associated with the given ID."""
@@ -540,7 +530,7 @@ class Repository:
         The data structure returned is a dictionary:
         {
             'cost_value': float | None,
-            'cost_qty_unit': str,
+            'cost_qty_unit_id': int | None,
             'cost_qty_value': float | None
         }
 
@@ -553,7 +543,7 @@ class Repository:
         with self.get_cursor() as cursor:
             rows = cursor.execute(
                 """
-                SELECT cost_value, cost_qty_unit, cost_qty_value
+                SELECT cost_value, cost_qty_unit_id, cost_qty_value
                 FROM ingredients
                 WHERE id = ?;
             """,
@@ -561,7 +551,7 @@ class Repository:
             ).fetchall()
         return {
             "cost_value": rows[0][0],
-            "cost_qty_unit": rows[0][1],
+            "cost_qty_unit_id": rows[0][1],
             "cost_qty_value": rows[0][2],
         }
 
@@ -617,23 +607,36 @@ class Repository:
                 result[row[0]] = bool(row[1])
         return result
 
-    def fetch_ingredient_gi(self, id: int) -> float | None:
+    def fetch_ingredient_gi(self, ingredient_id: int) -> float | None:
         """Returns the GI of the ingredient associated with the given ID."""
-        return self.database.execute(
-            """
-            SELECT ingredient_gi FROM ingredient_base WHERE ingredient_id = ?;
-        """,
-            (id,),
-        ).fetchone()[0]
+        with self.get_cursor() as cursor:
+            rows = cursor.execute(
+                """
+                SELECT ingredient_gi FROM ingredients WHERE id = ?;
+            """,
+                (ingredient_id,),
+            ).fetchall()
+        return rows[0][0] if rows else None
 
     def fetch_ingredient_nutrient_quantities(
         self, ingredient_id: int
     ) -> dict[int, dict]:
-        """Returns a dict of nutrients for the given ingredient ID."""
+        """Returns a dict of nutrients for the given ingredient ID.
+        
+        The data structure returned is a dictionary:
+        {
+            nutrient_id: {
+                'ntr_mass_unit_id': int|None,
+                'ntr_mass_value': float|None,
+                'ing_qty_unit_id': int|None,
+                'ing_qty_value': float|None
+            }
+        }
+        """
         with self.get_cursor() as cursor:
             rows = cursor.execute(
                 """
-                SELECT nutrient_id, ntr_mass_unit, ntr_mass_value, ing_qty_unit, ing_qty_value
+                SELECT nutrient_id, ntr_mass_unit_id, ntr_mass_value, ing_qty_unit_id, ing_qty_value
                 FROM ingredient_nutrients
                 WHERE ingredient_id = ?;
             """,
@@ -641,9 +644,9 @@ class Repository:
             ).fetchall()
         return {
             row[0]: {
-                "ntr_mass_unit": row[1],
+                "ntr_mass_unit_id": row[1],
                 "ntr_mass_value": row[2],
-                "ing_qty_unit": row[3],
+                "ing_qty_unit_id": row[3],
                 "ing_qty_value": row[4],
             }
             for row in rows
