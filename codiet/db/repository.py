@@ -128,6 +128,19 @@ class Repository:
                 (alias, primary_nutrient_id),
             )
 
+    def insert_global_recipe_tag(self, tag_name: str) -> int:
+        """Adds a recipe tag to the global recipe tag table and returns the ID."""
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO global_recipe_tags (recipe_tag_name) VALUES (?);
+            """,
+                (tag_name,),
+            )
+            id = cursor.lastrowid
+        assert id is not None
+        return id
+
     def insert_ingredient_name(self, name: str) -> int:
         """Adds an ingredient name to the database and returns the ID."""
         with self.get_cursor() as cursor:
@@ -154,14 +167,14 @@ class Repository:
         assert id is not None
         return id
 
-    def insert_global_recipe_tag(self, tag_name: str) -> int:
-        """Adds a recipe tag to the global recipe tag table and returns the ID."""
+    def insert_recipe_serve_time_window(self, recipe_id: int, serve_time_window: str) -> int:
+        """Adds a serve window to the database and returns the ID."""
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO global_recipe_tags (recipe_tag_name) VALUES (?);
+                INSERT INTO recipe_serve_time_windows (recipe_id, serve_time_window) VALUES (?, ?);
             """,
-                (tag_name,),
+                (recipe_id, serve_time_window),
             )
             id = cursor.lastrowid
         assert id is not None
@@ -325,24 +338,16 @@ class Repository:
                 (recipe_id, ingredient_id, qty_unit_id, qty_value, qty_utol, qty_ltol),
             )
 
-    def update_recipe_serve_times(self, recipe_id: int, serve_times: list[str]) -> None:
+    def update_recipe_serve_time_window(self, serve_time_id:int, serve_time_window:str) -> None:
         """Updates the serve times of the recipe associated with the given ID."""
-        # Clear the existing serve times
-        self.database.execute(
-            """
-            DELETE FROM recipe_serve_times WHERE recipe_id = ?;
-        """,
-            (recipe_id,),
-        )
-        # Add the new serve times
-        for serve_time in serve_times:
-            # Add the serve time
-            self.database.execute(
+        with self.get_cursor() as cursor:
+            cursor.execute(
                 """
-                INSERT INTO recipe_serve_times (recipe_id, serve_time_window)
-                VALUES (?, ?);
+                UPDATE recipe_serve_time_windows
+                SET serve_time_window = ?
+                WHERE id = ?;
             """,
-                (recipe_id, serve_time),
+                (serve_time_window, serve_time_id),
             )
 
     def update_recipe_tags(self, recipe_id: int, recipe_tags: list[str]) -> None:
@@ -729,15 +734,23 @@ class Repository:
             for row in rows
         }
 
-    def fetch_recipe_serve_times(self, id: int) -> list[str]:
-        """Returns the serve times of the recipe associated with the given ID."""
-        rows = self.database.execute(
-            """
-            SELECT serve_time_window FROM recipe_serve_times WHERE recipe_id = ?;
-        """,
-            (id,),
-        ).fetchall()
-        return [row[0] for row in rows]
+    def fetch_recipe_serve_time_windows(self, recipe_id: int) -> dict[int, str]:
+        """Returns the serve times of the recipe associated with the given ID.
+        Data structure returned is a dictionary:
+        {
+            serve_time_id: serve_time_window
+        }
+        """
+        with self.get_cursor() as cursor:
+            rows = cursor.execute(
+                """
+                SELECT id, serve_time_window
+                FROM recipe_serve_time_windows
+                WHERE recipe_id = ?;
+            """,
+                (recipe_id,),
+            ).fetchall()
+        return {row[0]: row[1] for row in rows}
 
     def fetch_all_global_recipe_tags(self) -> list[str]:
         """Returns a list of all global recipe tags in the database."""

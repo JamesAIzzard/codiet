@@ -51,7 +51,7 @@ class Database:
         # Recipes tables
         self.create_recipe_table(cursor)
         self.create_recipe_ingredients_table(cursor)
-        self.create_recipe_serve_times_table(cursor)
+        self.create_recipe_serve_time_windows_table(cursor)
         self.create_recipe_tags_table(cursor)
         # Commit the changes
         connection.commit()
@@ -220,10 +220,10 @@ class Database:
             )
         """)
 
-    def create_recipe_serve_times_table(self, cursor:sqlite3.Cursor) -> None:
+    def create_recipe_serve_time_windows_table(self, cursor:sqlite3.Cursor) -> None:
         """Create the table to associate serve times with recipes."""
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS recipe_serve_times (
+            CREATE TABLE IF NOT EXISTS recipe_serve_time_windows (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 recipe_id INTEGER,
                 serve_time_window TEXT,

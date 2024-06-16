@@ -119,6 +119,24 @@ class TestInsertNutrientAlias(RepositoryTestCase):
         # Check the alias listed against the nutrient
         assert alias in all_nutrients[id]["aliases"]
 
+class TestInsertGlobalRecipeTag(RepositoryTestCase):
+    """Test the insert_global_recipe_tag method of the Repository class."""
+
+    def test_insert_global_recipe_tag_inserts_tag(self):
+        """Test that the method inserts a global recipe tag into the database."""
+        tag_name = 'test_tag'
+        # Assert the tag name is not in the database
+        all_tags = self.repository.fetch_all_global_recipe_tags()
+        self.assertNotIn(tag_name, all_tags)
+        # Insert the tag
+        id = self.repository.insert_global_recipe_tag(
+            tag_name=tag_name,
+        )
+        # Fetch all the tags again
+        all_tags = self.repository.fetch_all_global_recipe_tags()
+        # Check the tag name is in the database
+        self.assertIn(tag_name, all_tags)
+
 class TestInsertIngredientName(RepositoryTestCase):
     """Test the insert_ingredient_name method of the Repository class."""
 
@@ -157,23 +175,35 @@ class TestInsertRecipeName(RepositoryTestCase):
         # Check the recipe name is in the database
         self.assertIn(recipe_name, all_recipe_names)
 
-class TestInsertGlobalRecipeTag(RepositoryTestCase):
-    """Test the insert_global_recipe_tag method of the Repository class."""
+class TestInsertRecipeServeTimeWindow(RepositoryTestCase):
+    """Test the insert_recipe_serve_time_window method of the Repository class."""
 
-    def test_insert_global_recipe_tag_inserts_tag(self):
-        """Test that the method inserts a global recipe tag into the database."""
-        tag_name = 'test_tag'
-        # Assert the tag name is not in the database
-        all_tags = self.repository.fetch_all_global_recipe_tags()
-        self.assertNotIn(tag_name, all_tags)
-        # Insert the tag
-        id = self.repository.insert_global_recipe_tag(
-            tag_name=tag_name,
+    def test_insert_recipe_serve_time_inserts_serve_time_window(self):
+        """Test that the method inserts a recipe serve time into the database."""
+        recipe_name = 'test_recipe'
+        serve_time_window = "06:00 - 10:00"
+        # Insert the recipe
+        recipe_id = self.repository.insert_recipe_name(
+            name=recipe_name,
         )
-        # Fetch all the tags again
-        all_tags = self.repository.fetch_all_global_recipe_tags()
-        # Check the tag name is in the database
-        self.assertIn(tag_name, all_tags)
+        # Check There are currently no serve times
+        serve_time_windows = self.repository.fetch_recipe_serve_time_windows(
+            recipe_id=recipe_id,
+        )
+        self.assertEqual(len(serve_time_windows), 0)
+        # Insert the serve time
+        serve_time_id = self.repository.insert_recipe_serve_time_window(
+            recipe_id=recipe_id,
+            serve_time_window=serve_time_window,
+        )
+        # Fetch the recipe serve time again
+        serve_time_windows = self.repository.fetch_recipe_serve_time_windows(
+            recipe_id=recipe_id,
+        )
+        # Check the new recipe serve time is in the database
+        self.assertIn(serve_time_id, serve_time_windows.keys())
+        # Check the new recipe serve time is correct
+        self.assertEqual(serve_time_windows[serve_time_id], serve_time_window)
 
 class TestUpdateIngredientName(RepositoryTestCase):
     """Test the update_ingredient_name method of the Repository class."""
@@ -539,3 +569,42 @@ class TestUpdateRecipeIngredient(RepositoryTestCase):
         self.assertEqual(ingredients[ingredient_id]["qty_value"], ingredient_qty_value)
         # Check the ingredient quantity unit is correct
         self.assertEqual(ingredients[ingredient_id]["qty_unit_id"], g_id)
+
+class TestUpdateRecipeServeTimeWindow(RepositoryTestCase):
+    """Test the update_recipe_serve_time_window method of the Repository class."""
+
+    def test_update_recipe_serve_time_updates_serve_time_window(self):
+        """Test that the method updates a recipe serve time in the database."""
+        recipe_name = 'test_recipe'
+        serve_time_window_1 = "06:00 - 10:00"
+        serve_time_window_2 = "12:00 - 16:00"
+        # Insert the recipe
+        recipe_id = self.repository.insert_recipe_name(
+            name=recipe_name,
+        )
+        # Insert the serve time
+        serve_time_id = self.repository.insert_recipe_serve_time_window(
+            recipe_id=recipe_id,
+            serve_time_window=serve_time_window_1,
+        )
+        # Fetch the recipe serve time again
+        serve_time_windows = self.repository.fetch_recipe_serve_time_windows(
+            recipe_id=recipe_id,
+        )
+        # Check the new recipe serve time is in the database
+        self.assertIn(serve_time_id, serve_time_windows.keys())
+        # Check the new recipe serve time is correct
+        self.assertEqual(serve_time_windows[serve_time_id], serve_time_window_1)
+        # Update the serve time
+        self.repository.update_recipe_serve_time_window(
+            serve_time_id=serve_time_id,
+            serve_time_window=serve_time_window_2,
+        )
+        # Fetch the recipe serve time again
+        serve_time_windows = self.repository.fetch_recipe_serve_time_windows(
+            recipe_id=recipe_id,
+        )
+        # Check the new recipe serve time is in the database
+        self.assertIn(serve_time_id, serve_time_windows.keys())
+        # Check the new recipe serve time is correct
+        self.assertEqual(serve_time_windows[serve_time_id], serve_time_window_2)
