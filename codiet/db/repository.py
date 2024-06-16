@@ -155,23 +155,29 @@ class Repository:
 
     def insert_recipe_name(self, name: str) -> int:
         """Adds a recipe name to the database and returns the ID."""
-        cursor = self.database.execute(
-            """
-            INSERT INTO recipe_base (recipe_name) VALUES (?);
-        """,
-            (name,),
-        )
-        return cursor.lastrowid
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO recipes (recipe_name) VALUES (?);
+            """,
+                (name,),
+            )
+            id = cursor.lastrowid
+        assert id is not None
+        return id
 
-    def insert_global_recipe_tag(self, name: str) -> int:
+    def insert_global_recipe_tag(self, tag_name: str) -> int:
         """Adds a recipe tag to the global recipe tag table and returns the ID."""
-        cursor = self.database.execute(
-            """
-            INSERT INTO global_recipe_tags (recipe_tag_name) VALUES (?);
-        """,
-            (name,),
-        )
-        return cursor.lastrowid
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO global_recipe_tags (recipe_tag_name) VALUES (?);
+            """,
+                (tag_name,),
+            )
+            id = cursor.lastrowid
+        assert id is not None
+        return id
 
     def update_ingredient_name(self, ingredient_id: int, name: str) -> None:
         """Updates the name of the ingredient associated with the given ID."""
@@ -629,11 +635,12 @@ class Repository:
 
     def fetch_all_recipe_names(self) -> list[str]:
         """Returns a list of all the recipe names in the database."""
-        rows = self.database.execute(
+        with self.get_cursor() as cursor:
+            rows = cursor.execute(
+                """
+                SELECT recipe_name FROM recipes;
             """
-            SELECT recipe_name FROM recipe_base;
-        """
-        ).fetchall()
+            ).fetchall()
         return [row[0] for row in rows]
 
     def fetch_recipe_description(self, id: int) -> str | None:

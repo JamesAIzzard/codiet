@@ -169,3 +169,47 @@ class TestInsertIngredientNutrientQuantity(RepositoryTestCase):
         self.assertIn(nutrient_id, ingredient_nutrients)
         # Assert there is only one nutrient in the ingredient
         self.assertEqual(len(ingredient_nutrients), 1)
+
+class TestInsertRecipeName(RepositoryTestCase):
+    """Test the insert_recipe_name method of the Repository class."""
+
+    def test_insert_recipe_name_inserts_name(self):
+        """Test that the method inserts a recipe name into the database."""
+        recipe_name = 'test_recipe'
+        # Assert the recipe name is not in the database
+        all_recipe_names = self.repository.fetch_all_recipe_names()
+        for recipe_name in all_recipe_names:
+            self.assertNotIn(recipe_name, all_recipe_names)
+        # Insert the recipe
+        id = self.repository.insert_recipe_name(
+            name=recipe_name,
+        )
+        # Fetch all the recipes again
+        all_recipe_names = self.repository.fetch_all_recipe_names()
+        # Check the recipe name is in the database
+        self.assertIn(recipe_name, all_recipe_names)
+
+class TestInsertGlobalRecipeTag(RepositoryTestCase):
+    """Test the insert_global_recipe_tag method of the Repository class."""
+
+    def test_insert_global_recipe_tag_inserts_tag(self):
+        """Test that the method inserts a global recipe tag into the database."""
+        tag_name = 'test_tag'
+        # Assert the tag name is not in the database
+        all_tags = self.repository.fetch_all_global_recipe_tags()
+        for tag_id, tag_data in all_tags.items():
+            self.assertNotEqual(tag_data["tag_name"], tag_name)
+        # Insert the tag
+        id = self.repository.insert_global_recipe_tag(
+            name=tag_name,
+        )
+        # Fetch all the tags again
+        all_tags = self.repository.fetch_all_global_recipe_tags()
+        # Check the tag name is in the database
+        name_in_db = False
+        for tag_id, tag_data in all_tags.items():
+            if tag_data["tag_name"] == tag_name:
+                name_in_db = True
+                assert id == tag_id # Check the ID was set correctly
+                break
+        self.assertTrue(name_in_db)
