@@ -181,14 +181,15 @@ class Repository:
 
     def update_ingredient_name(self, ingredient_id: int, name: str) -> None:
         """Updates the name of the ingredient associated with the given ID."""
-        self.database.execute(
-            """
-            UPDATE ingredient_base
-            SET ingredient_name = ?
-            WHERE ingredient_id = ?;
-        """,
-            (name, ingredient_id),
-        )
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE ingredients
+                SET ingredient_name = ?
+                WHERE id = ?;
+            """,
+                (name, ingredient_id),
+            )
 
     def update_ingredient_description(
         self, ingredient_id: int, description: str | None

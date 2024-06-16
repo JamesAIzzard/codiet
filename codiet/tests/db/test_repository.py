@@ -206,3 +206,29 @@ class TestInsertGlobalRecipeTag(RepositoryTestCase):
         all_tags = self.repository.fetch_all_global_recipe_tags()
         # Check the tag name is in the database
         self.assertIn(tag_name, all_tags)
+
+class TestUpdateIngredientName(RepositoryTestCase):
+    """Test the update_ingredient_name method of the Repository class."""
+
+    def test_update_ingredient_name_updates_name(self):
+        """Test that the method updates an ingredient name in the database."""
+        ingredient_name = 'test_ingredient'
+        new_ingredient_name = 'new_test_ingredient'
+        # Insert the ingredient
+        id = self.repository.insert_ingredient_name(
+            name=ingredient_name,
+        )
+        # Check the name is in the database
+        all_ingredient_names = self.repository.fetch_all_ingredient_names()
+        self.assertIn(ingredient_name, all_ingredient_names)
+        # Update the ingredient name
+        self.repository.update_ingredient_name(
+            ingredient_id=id,
+            name=new_ingredient_name,
+        )
+        # Fetch all the ingredients again
+        all_ingredient_names = self.repository.fetch_all_ingredient_names()
+        # Check the new ingredient name is in the database
+        self.assertIn(new_ingredient_name, all_ingredient_names)
+        # Check the old ingredient name is not in the database
+        self.assertNotIn(ingredient_name, all_ingredient_names)
