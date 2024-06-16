@@ -682,5 +682,42 @@ class TestUpdateRecipeTags(RepositoryTestCase):
         self.assertIn(tag_id_2, recipe_tags)
         self.assertIn(tag_id_3, recipe_tags)
 
+class TestDeleteIngredient(RepositoryTestCase):
+    """Test the delete_ingredient method of the Repository class."""
 
-        
+    def test_delete_ingredient_deletes_ingredient(self):
+        """Test that the method deletes an ingredient in the database."""
+        ingredient_name = 'test_ingredient'
+        # Insert the ingredient
+        ingredient_id = self.repository.insert_ingredient_name(
+            name=ingredient_name,
+        )
+        # Check the ingredient is in the database
+        all_ingredients = self.repository.fetch_all_ingredient_names()
+        self.assertIn(ingredient_id, all_ingredients.keys())
+        # Delete the ingredient
+        self.repository.delete_ingredient(ingredient_id)
+        # Fetch all the ingredients again
+        all_ingredients = self.repository.fetch_all_ingredient_names()
+        # Check the ingredient is not in the database
+        self.assertNotIn(ingredient_id, all_ingredients.keys())
+
+class TestDeleteRecipe(RepositoryTestCase):
+    """Test the delete_recipe method of the Repository class."""
+
+    def test_delete_recipe_deletes_recipe(self):
+        """Test that the method deletes a recipe in the database."""
+        recipe_name = 'test_recipe'
+        # Insert the recipe
+        recipe_id = self.repository.insert_recipe_name(
+            name=recipe_name,
+        )
+        # Check the recipe is in the database
+        all_recipes = self.repository.fetch_all_recipe_names()
+        self.assertIn(recipe_id, all_recipes.keys())
+        # Delete the recipe
+        self.repository.delete_recipe(recipe_id)
+        # Fetch all the recipes again
+        all_recipes = self.repository.fetch_all_recipe_names()
+        # Check the recipe is not in the database
+        self.assertNotIn(recipe_id, all_recipes.keys())

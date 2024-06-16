@@ -788,7 +788,7 @@ class Repository:
             WHERE ingredient_id = ?;
             """,
             """
-            DELETE FROM ingredient_custom_units
+            DELETE FROM ingredient_units
             WHERE ingredient_id = ?;
             """,
         ]
