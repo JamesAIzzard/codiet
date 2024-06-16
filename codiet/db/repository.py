@@ -225,25 +225,17 @@ class Repository:
             )
 
     def update_ingredient_flag(
-        self, ingredient_id: int, flag: str, value: bool
+        self, ingredient_id: int, flag_id: int, value: bool|None
     ) -> None:
-        """Updates the flag for the ingredient associated with the given ID."""
-        # Get the flag ID
-        flag_id = self.fetch_flag_id(flag)
-        # Clear the existing flag
-        self.database.execute(
-            """
-            DELETE FROM ingredient_flags WHERE ingredient_id = ? AND flag_id = ?;
-        """,
-            (ingredient_id, flag_id),
-        )
-        # Add the new flag
-        self.database.execute(
-            """
-            INSERT INTO ingredient_flags (ingredient_id, flag_id, flag_value) VALUES (?, ?, ?);
-        """,
-            (ingredient_id, flag_id, value),
-        )
+        """Update (or insert if not exists) the flag for the ingredient associated with the given ID."""
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT OR REPLACE INTO ingredient_flags (ingredient_id, flag_id, flag_value)
+                VALUES (?, ?, ?);
+            """,
+                (ingredient_id, flag_id, value),
+            )
 
     def update_ingredient_gi(self, ingredient_id: int, gi: float | None) -> None:
         """Updates the GI of the ingredient associated with the given ID."""
@@ -594,20 +586,36 @@ class Repository:
             for row in rows
         ]
 
-    def fetch_ingredient_flags(self, id: int) -> dict[str, int]:
-        """Returns the flags of the ingredient associated with the given ID.
-        SQLite stores flags as integers, where 0 is False and 1 is True.
+    def fetch_ingredient_flags(self, ingredient_id: int) -> dict[int, bool|None]:
         """
-        rows = self.database.execute(
-            """
-            SELECT flag_name, flag_value
-            FROM global_flag_list
-            JOIN ingredient_flags ON global_flag_list.flag_id = ingredient_flags.flag_id
-            WHERE ingredient_id = ?;
-        """,
-            (id,),
-        ).fetchall()
-        return {row[0]: row[1] for row in rows}
+        Return the flags of the ingredient associated with the given ingredient ID.
+    
+        SQLite stores flags as integers, where 0 is False and 1 is True.
+        The data structure returned is a dictionary:
+        {
+            flag_id: flag_value
+        }
+    
+        Args:
+            id (int): The ID of the ingredient.
+    
+        Returns:
+            dict: A dictionary mapping flag IDs to their values.
+        """
+        with self.get_cursor() as cursor:
+            rows = cursor.execute(
+                """
+                SELECT flag_id, flag_value FROM ingredient_flags WHERE ingredient_id = ?;
+            """,
+                (ingredient_id,),
+            ).fetchall()
+        result = {}
+        for row in rows:
+            if row[1] is None:
+                result[row[0]] = None
+            else:
+                result[row[0]] = bool(row[1])
+        return result
 
     def fetch_ingredient_gi(self, id: int) -> float | None:
         """Returns the GI of the ingredient associated with the given ID."""

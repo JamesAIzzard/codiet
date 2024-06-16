@@ -297,3 +297,53 @@ class TestUpdateIngredientCost(RepositoryTestCase):
         self.assertEqual(cost["cost_value"], cost_value)
         self.assertEqual(cost["cost_qty_unit"], cost_qty_unit)
         self.assertEqual(cost["cost_qty_value"], cost_qty_value)
+
+class TestUpdateIngredientFlag(RepositoryTestCase):
+    """Test the update_ingredient_flag method of the Repository class."""
+
+    def test_update_ingredient_flag_updates_flag(self):
+        """Test that the method updates an ingredient flag in the database."""
+        ingredient_name = 'test_ingredient'
+        flag_name = 'test_flag'
+        # Insert the ingredient
+        ingredient_id = self.repository.insert_ingredient_name(
+            name=ingredient_name,
+        )
+        # Insert the flag
+        flag_id = self.repository.insert_global_flag(flag_name)
+        # Check the flag is not on the ingredient
+        flags = self.repository.fetch_ingredient_flags(ingredient_id)
+        self.assertNotIn(flag_id, flags)
+        # Update the ingredient flag
+        self.repository.update_ingredient_flag(
+            ingredient_id=ingredient_id,
+            flag_id=flag_id,
+            value=True,
+        )
+        # Fetch the ingredient flags again
+        flags = self.repository.fetch_ingredient_flags(ingredient_id)
+        self.repository.connection.commit()
+        # Check the flag is on the ingredient
+        self.assertIn(flag_id, flags)
+        # Check the flag value is True
+        self.assertTrue(flags[flag_id])
+        # Update the ingredient flag again
+        self.repository.update_ingredient_flag(
+            ingredient_id=ingredient_id,
+            flag_id=flag_id,
+            value=False,
+        )
+        # Fetch the ingredient flags again
+        flags = self.repository.fetch_ingredient_flags(ingredient_id)
+        # Check the flag value is False
+        self.assertFalse(flags[flag_id])
+        # Update the flag to None
+        self.repository.update_ingredient_flag(
+            ingredient_id=ingredient_id,
+            flag_id=flag_id,
+            value=None,
+        )
+        # Fetch the ingredient flags again
+        flags = self.repository.fetch_ingredient_flags(ingredient_id)
+        # Check the flag value is None
+        self.assertIsNone(flags[flag_id])
