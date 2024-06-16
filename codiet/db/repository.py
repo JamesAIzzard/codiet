@@ -693,11 +693,12 @@ class Repository:
 
     def fetch_all_global_recipe_tags(self) -> list[str]:
         """Returns a list of all global recipe tags in the database."""
-        rows = self.database.execute(
+        with self.get_cursor() as cursor:
+            rows = cursor.execute(
+                """
+                SELECT recipe_tag_name FROM global_recipe_tags;
             """
-            SELECT recipe_tag_name FROM global_recipe_tags;
-        """
-        ).fetchall()
+            ).fetchall()
         return [row[0] for row in rows]
 
     def fetch_recipe_tags_for_recipe(self, recipe_id: int) -> list[str]:

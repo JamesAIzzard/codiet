@@ -197,19 +197,12 @@ class TestInsertGlobalRecipeTag(RepositoryTestCase):
         tag_name = 'test_tag'
         # Assert the tag name is not in the database
         all_tags = self.repository.fetch_all_global_recipe_tags()
-        for tag_id, tag_data in all_tags.items():
-            self.assertNotEqual(tag_data["tag_name"], tag_name)
+        self.assertNotIn(tag_name, all_tags)
         # Insert the tag
         id = self.repository.insert_global_recipe_tag(
-            name=tag_name,
+            tag_name=tag_name,
         )
         # Fetch all the tags again
         all_tags = self.repository.fetch_all_global_recipe_tags()
         # Check the tag name is in the database
-        name_in_db = False
-        for tag_id, tag_data in all_tags.items():
-            if tag_data["tag_name"] == tag_name:
-                name_in_db = True
-                assert id == tag_id # Check the ID was set correctly
-                break
-        self.assertTrue(name_in_db)
+        self.assertIn(tag_name, all_tags)
