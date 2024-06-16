@@ -46,12 +46,33 @@ class TestInsertGlobalUnit(RepositoryTestCase):
         # Assert the unit types are correct
         self.assertEqual(global_units[g_id]["unit_type"], 'mass')
         self.assertEqual(global_units[kg_id]["unit_type"], 'mass')
-        # Assert the aliases are there
-        self.assertIn('g', global_units[g_id]["aliases"])
-        self.assertIn('kg', global_units[kg_id]["aliases"])
+        # Assert the aliases are correct
+        # Grab the alias IDs
+        alias_ids = self.repository.fetch_global_unit_aliases(g_id)
+        # Find the alias ID where the string is 'g'
+        g_alias_id = None
+        for alias_id, alias in alias_ids.items():
+            if alias == 'g':
+                g_alias_id = alias_id
+                break
+        # Find the alias ID where the string is 'kg'
+        kg_alias_id = None
+        alias_ids = self.repository.fetch_global_unit_aliases(kg_id)
+        for alias_id, alias in alias_ids.items():
+            if alias == 'kg':
+                kg_alias_id = alias_id
+                break
+        # Assert the g alias is there
+        self.assertIn(g_alias_id, global_units[g_id]["aliases"].keys())
+        self.assertEqual(global_units[g_id]["aliases"][g_alias_id], 'g')
+        # Assert the kg alias is there
+        self.assertIn(kg_alias_id, global_units[kg_id]["aliases"].keys())
+        self.assertEqual(global_units[kg_id]["aliases"][kg_alias_id], 'kg')
         # Assert the conversions are there
+        # Check there is a conversion for g_id in kg conversions
+        self.assertIn(g_id, global_units[kg_id]["conversions"])
+        # Check the conversion is correct
         self.assertEqual(global_units[kg_id]["conversions"][g_id], 1000)
-        self.assertEqual(global_units[g_id]["conversions"], {})
 
 class TestInsertGlobalFlag(RepositoryTestCase):
     """Test the insert_global_flag method of the Repository class."""
@@ -59,10 +80,14 @@ class TestInsertGlobalFlag(RepositoryTestCase):
     def test_insert_global_flag_inserts_flag(self):
         """Test that the method inserts a global flag into the database."""
         flag_name = 'test_flag'
-
-        self.repository.insert_global_flag(flag_name)
-
-        self.assertIn(flag_name, self.repository.fetch_all_global_flags())
+        # Insert the flag
+        flag_id = self.repository.insert_global_flag(flag_name)
+        # Fetch all the flags
+        flags = self.repository.fetch_all_global_flags()
+        # Check the flag ID is in the keys
+        self.assertIn(flag_id, flags.keys())
+        # Check the flag name is under the correct key
+        self.assertEqual(flags[flag_id], flag_name)
 
 class TestInsertGlobalNutrient(RepositoryTestCase):
     """Test the insert_global_nutrient method of the Repository class."""
@@ -125,17 +150,18 @@ class TestInsertGlobalRecipeTag(RepositoryTestCase):
     def test_insert_global_recipe_tag_inserts_tag(self):
         """Test that the method inserts a global recipe tag into the database."""
         tag_name = 'test_tag'
-        # Assert the tag name is not in the database
+        # Fetch all the tags
         all_tags = self.repository.fetch_all_global_recipe_tags()
-        self.assertNotIn(tag_name, all_tags)
+        # Assert there are no tags yet
+        self.assertEqual(len(all_tags), 0)
         # Insert the tag
-        id = self.repository.insert_global_recipe_tag(
-            tag_name=tag_name,
-        )
+        tag_id = self.repository.insert_global_recipe_tag(tag_name)
         # Fetch all the tags again
         all_tags = self.repository.fetch_all_global_recipe_tags()
-        # Check the tag name is in the database
-        self.assertIn(tag_name, all_tags)
+        # Check the tag ID is in the keys
+        self.assertIn(tag_id, all_tags.keys())
+        # Check the tag name is under the correct key
+        self.assertEqual(all_tags[tag_id], tag_name)
 
 class TestInsertIngredientName(RepositoryTestCase):
     """Test the insert_ingredient_name method of the Repository class."""
@@ -143,18 +169,19 @@ class TestInsertIngredientName(RepositoryTestCase):
     def test_insert_ingredient_name_inserts_name(self):
         """Test that the method inserts an ingredient name into the database."""
         ingredient_name = 'test_ingredient'
-        # Assert the ingredient name is not in the database
-        all_ingredient_names = self.repository.fetch_all_ingredient_names()
-        for ingredient_name in all_ingredient_names:
-            self.assertNotIn(ingredient_name, all_ingredient_names)
+        # Assert there are no ingredient names in the database
+        all_ingredients = self.repository.fetch_all_ingredient_names()
+        self.assertEqual(len(all_ingredients), 0)
         # Insert the ingredient
-        id = self.repository.insert_ingredient_name(
+        ingredient_id = self.repository.insert_ingredient_name(
             name=ingredient_name,
         )
         # Fetch all the ingredients again
-        all_ingredient_names = self.repository.fetch_all_ingredient_names()
+        all_ingredients = self.repository.fetch_all_ingredient_names()
         # Check the ingredient name is in the database
-        self.assertIn(ingredient_name, all_ingredient_names)
+        self.assertIn(ingredient_id, all_ingredients.keys())
+        # Check the ingredient name is correct
+        self.assertEqual(all_ingredients[ingredient_id], ingredient_name)
 
 class TestInsertRecipeName(RepositoryTestCase):
     """Test the insert_recipe_name method of the Repository class."""
@@ -162,18 +189,19 @@ class TestInsertRecipeName(RepositoryTestCase):
     def test_insert_recipe_name_inserts_name(self):
         """Test that the method inserts a recipe name into the database."""
         recipe_name = 'test_recipe'
-        # Assert the recipe name is not in the database
-        all_recipe_names = self.repository.fetch_all_recipe_names()
-        for recipe_name in all_recipe_names:
-            self.assertNotIn(recipe_name, all_recipe_names)
+        # Assert there are no recipe names in the database
+        all_recipes = self.repository.fetch_all_recipe_names()
+        self.assertEqual(len(all_recipes), 0)
         # Insert the recipe
-        id = self.repository.insert_recipe_name(
+        recipe_id = self.repository.insert_recipe_name(
             name=recipe_name,
         )
         # Fetch all the recipes again
-        all_recipe_names = self.repository.fetch_all_recipe_names()
+        all_recipes = self.repository.fetch_all_recipe_names()
         # Check the recipe name is in the database
-        self.assertIn(recipe_name, all_recipe_names)
+        self.assertIn(recipe_id, all_recipes.keys())
+        # Check the recipe name is correct
+        self.assertEqual(all_recipes[recipe_id], recipe_name)
 
 class TestInsertRecipeServeTimeWindow(RepositoryTestCase):
     """Test the insert_recipe_serve_time_window method of the Repository class."""
@@ -217,19 +245,23 @@ class TestUpdateIngredientName(RepositoryTestCase):
             name=ingredient_name,
         )
         # Check the name is in the database
-        all_ingredient_names = self.repository.fetch_all_ingredient_names()
-        self.assertIn(ingredient_name, all_ingredient_names)
+        all_ingredients = self.repository.fetch_all_ingredient_names()
+        self.assertIn(id, all_ingredients.keys())
+        # Check the name is correct
+        self.assertEqual(all_ingredients[id], ingredient_name)
         # Update the ingredient name
         self.repository.update_ingredient_name(
             ingredient_id=id,
             name=new_ingredient_name,
         )
         # Fetch all the ingredients again
-        all_ingredient_names = self.repository.fetch_all_ingredient_names()
+        all_ingredients = self.repository.fetch_all_ingredient_names()
         # Check the new ingredient name is in the database
-        self.assertIn(new_ingredient_name, all_ingredient_names)
+        self.assertIn(id, all_ingredients.keys())
         # Check the old ingredient name is not in the database
-        self.assertNotIn(ingredient_name, all_ingredient_names)
+        self.assertNotIn(ingredient_name, all_ingredients.values())
+        # Check the new ingredient name is correct
+        self.assertEqual(all_ingredients[id], new_ingredient_name)
 
 class TestUpdateIngredientDescription(RepositoryTestCase):
     """Test the update_ingredient_description method of the Repository class."""
@@ -434,27 +466,28 @@ class TestUpdateRecipeName(RepositoryTestCase):
         """Test that the method updates a recipe name in the database."""
         recipe_name = 'test_recipe'
         new_recipe_name = 'new_test_recipe'
-        # Check the name is not in the database
-        recipe_names = self.repository.fetch_all_recipe_names()
-        self.assertNotIn(recipe_name, recipe_names)
         # Insert the recipe
         recipe_id = self.repository.insert_recipe_name(
             name=recipe_name,
         )
         # Check the name is in the database
-        all_recipe_names = self.repository.fetch_all_recipe_names()
-        self.assertIn(recipe_name, all_recipe_names)
+        all_recipes = self.repository.fetch_all_recipe_names()
+        self.assertIn(recipe_id, all_recipes.keys())
+        # Check the name is correct
+        self.assertEqual(all_recipes[recipe_id], recipe_name)
         # Update the recipe name
         self.repository.update_recipe_name(
             recipe_id=recipe_id,
             name=new_recipe_name,
         )
         # Fetch all the recipes again
-        all_recipe_names = self.repository.fetch_all_recipe_names()
+        all_recipes = self.repository.fetch_all_recipe_names()
         # Check the new recipe name is in the database
-        self.assertIn(new_recipe_name, all_recipe_names)
+        self.assertIn(recipe_id, all_recipes.keys())
         # Check the old recipe name is not in the database
-        self.assertNotIn(recipe_name, all_recipe_names)
+        self.assertNotIn(recipe_name, all_recipes.values())
+        # Check the new recipe name is correct
+        self.assertEqual(all_recipes[recipe_id], new_recipe_name)
 
 class TestUpdateRecipeDescription(RepositoryTestCase):
     """Test the update_recipe_description method of the Repository class."""

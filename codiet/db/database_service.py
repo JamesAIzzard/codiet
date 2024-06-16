@@ -241,7 +241,7 @@ class DatabaseService:
         # Init a list to hold the custom units
         custom_units = {}
         # Fetch the raw data from the repo
-        raw_custom_units = self._repo.fetch_custom_units_by_ingredient_id(ingredient_id)
+        raw_custom_units = self._repo.fetch_ingredient_units(ingredient_id)
         # Cycle through the raw data
         for data in raw_custom_units:
             # Create a new custom unit

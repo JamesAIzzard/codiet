@@ -350,35 +350,37 @@ class Repository:
                 (serve_time_window, serve_time_id),
             )
 
-    def update_recipe_tags(self, recipe_id: int, recipe_tags: list[str]) -> None:
+    def update_recipe_tags(self, recipe_id: int, recipe_tag_ids: list[int]) -> None:
         """Updates the recipe tags of the recipe associated with the given ID."""
-        # Clear the existing recipe tags
-        self.database.execute(
-            """
-            DELETE FROM recipe_tags WHERE recipe_id = ?;
-        """,
-            (recipe_id,),
-        )
-        # Add the new recipe tags
-        for tag in recipe_tags:
-            # Get the tag ID
-            tag_id = self.database.execute(
+        with self.get_cursor() as cursor:
+            cursor.execute(
                 """
-                SELECT recipe_tag_id FROM global_recipe_tags WHERE recipe_tag_name = ?;
+                DELETE FROM recipe_tags
+                WHERE recipe_id = ?;
             """,
-                (tag,),
-            ).fetchone()[0]
-            # Add the tag
-            self.database.execute(
-                """
-                INSERT INTO recipe_tags (recipe_id, recipe_tag_id)
-                VALUES (?, ?);
-            """,
-                (recipe_id, tag_id),
+                (recipe_id,),
             )
+            for tag_id in recipe_tag_ids:
+                cursor.execute(
+                    """
+                    INSERT INTO recipe_tags (recipe_id, recipe_tag_id) VALUES (?, ?);
+                """,
+                    (recipe_id, tag_id),
+                )
 
     def fetch_all_global_units(self) -> dict[int, dict]:
-        """Returns a dictionary of all global units in the database."""
+        """Returns a dictionary of all global units in the database.
+        Data structure returned is a dictionary:
+        {
+            unit_id: {
+                'unit_name': str,
+                'plural_name': str,
+                'unit_type': str,
+                'aliases': dict[int, str],
+                'conversions': dict[int, float]
+            }
+        }
+        """
         with self.get_cursor() as cursor:
             rows = cursor.execute(
                 """
@@ -396,16 +398,21 @@ class Repository:
             for row in rows
         }
     
-    def fetch_global_unit_aliases(self, unit_id: int) -> list[str]:
-        """Returns a list of aliases for the given global unit ID."""
+    def fetch_global_unit_aliases(self, unit_id: int) -> dict[int, str]:
+        """Returns a list of aliases for the given global unit ID.
+        Data structure returned is a dictionary:
+        {
+            alias_id: alias_name
+        }
+        """
         with self.get_cursor() as cursor:
             rows = cursor.execute(
                 """
-                SELECT alias FROM global_unit_aliases WHERE primary_unit_id = ?;
+                SELECT id, alias FROM global_unit_aliases WHERE primary_unit_id = ?;
             """,
                 (unit_id,),
             ).fetchall()
-        return [row[0] for row in rows]
+        return {row[0]: row[1] for row in rows}
     
     def fetch_global_unit_conversions(self, unit_id: int) -> dict[int, float]:
         """Returns a dictionary of conversions for the given global unit ID."""
@@ -418,33 +425,35 @@ class Repository:
             ).fetchall()
         return {row[0]: row[1] for row in rows}
 
-    def fetch_all_global_unit_names(self) -> list[str]:
-        """Returns a list of all global units in the database."""
-        rows = self.database.execute(
-            """
-            SELECT unit_name FROM global_units;
+    def fetch_all_global_unit_names(self) -> dict[int, str]:
+        """Returns a list of all global units in the database.
+        Data structure returned is a dictionary:
+        {
+            unit_id: unit_name
+        }
         """
-        ).fetchall()
-        return [row[0] for row in rows]
-
-    def fetch_flag_id(self, name: str) -> int:
-        """Returns the ID of the given flag name."""
-        return self.database.execute(
-            """
-            SELECT flag_id FROM global_flag_list WHERE flag_name = ?;
-        """,
-            (name,),
-        ).fetchone()[0]
-
-    def fetch_all_global_flags(self) -> list[str]:
-        """Returns a list of all global flags in the database."""
         with self.get_cursor() as cursor:
             rows = cursor.execute(
                 """
-                SELECT flag_name FROM global_flags;
+                SELECT id, unit_name FROM global_units;
             """
             ).fetchall()
-            return [row[0] for row in rows]
+        return {row[0]: row[1] for row in rows}
+
+    def fetch_all_global_flags(self) -> dict[int, str]:
+        """Returns a list of all global flags in the database.
+        Data structure returned is a dictionary:
+        {
+            flag_id: flag_name
+        }
+        """
+        with self.get_cursor() as cursor:
+            rows = cursor.execute(
+                """
+                SELECT id, flag_name FROM global_flags;
+            """
+            ).fetchall()
+        return {row[0]: row[1] for row in rows}
 
     def fetch_all_global_nutrients(self) -> dict[int, dict]:
         """
@@ -484,46 +493,48 @@ class Repository:
             for row in base_rows
         }
 
-    def fetch_ingredient_name(self, id: int) -> str:
-        """Returns the name of the ingredient associated with the given ID."""
-        return self.database.execute(
-            """
-            SELECT ingredient_name FROM ingredient_base WHERE ingredient_id = ?;
-        """,
-            (id,),
-        ).fetchone()[0]
-
-    def fetch_ingredient_id_by_name(self, name: str) -> int:
-        """Returns the ID of the ingredient associated with the given name."""
-        return self.database.execute(
-            """
-            SELECT ingredient_id FROM ingredient_base WHERE ingredient_name = ?;
-        """,
-            (name,),
-        ).fetchone()[0]
-
-    def fetch_all_ingredient_names(self) -> list[str]:
-        """Returns a list of all the ingredient names in the database."""
+    def fetch_all_global_recipe_tags(self) -> dict[int, str]:
+        """Returns a list of all global recipe tags in the database.
+        Data structure returned is a dictionary:
+        {
+            recipe_tag_id: recipe_tag_name
+        }
+        """
         with self.get_cursor() as cursor:
             rows = cursor.execute(
                 """
-                SELECT ingredient_name FROM ingredients;
+                SELECT id, recipe_tag_name FROM global_recipe_tags;
             """
             ).fetchall()
-        return [row[0] for row in rows]
+        return {row[0]: row[1] for row in rows}
 
-    def fetch_ingredient_description(self, id: int) -> str | None:
+    def fetch_all_ingredient_names(self) -> dict[int, str]:
+        """Returns a list of all the ingredient names in the database.
+        Data structure returned is a dictionary:
+        {
+            ingredient_id: ingredient_name
+        }
+        """
+        with self.get_cursor() as cursor:
+            rows = cursor.execute(
+                """
+                SELECT id, ingredient_name FROM ingredients;
+            """
+            ).fetchall()
+        return {row[0]: row[1] for row in rows}
+
+    def fetch_ingredient_description(self, ingredient_id: int) -> str | None:
         """Returns the description of the ingredient associated with the given ID."""
         with self.get_cursor() as cursor:
             rows = cursor.execute(
                 """
                 SELECT ingredient_description FROM ingredients WHERE id = ?;
             """,
-                (id,),
+                (ingredient_id,),
             ).fetchall()
         return rows[0][0] if rows else None
 
-    def fetch_ingredient_cost(self, id: int) -> dict:
+    def fetch_ingredient_cost(self, ingredient_id: int) -> dict:
         """
         Return the cost data of the ingredient associated with the given ID.
 
@@ -547,7 +558,7 @@ class Repository:
                 FROM ingredients
                 WHERE id = ?;
             """,
-                (id,),
+                (ingredient_id,),
             ).fetchall()
         return {
             "cost_value": rows[0][0],
@@ -555,26 +566,36 @@ class Repository:
             "cost_qty_value": rows[0][2],
         }
 
-    def fetch_custom_units_by_ingredient_id(self, ingredient_id: int) -> list[dict]:
-        """Returns a list of custom measurements for the given ingredient ID."""
-        rows = self.database.execute(
-            """
-            SELECT custom_unit_id, unit_name, custom_unit_qty, std_unit_qty, std_unit_name
-            FROM ingredient_custom_units
-            WHERE ingredient_id = ?;
-        """,
-            (ingredient_id,),
-        ).fetchall()
-        return [
-            {
-                "custom_unit_id": row[0],
-                "unit_name": row[1],
-                "custom_unit_qty": row[2],
-                "std_unit_qty": row[3],
-                "std_unit_name": row[4],
+    def fetch_ingredient_units(self, ingredient_id: int) -> dict[int, dict]:
+        """Returns a list of custom measurements for the given ingredient ID.
+        Data structure returned is a dictionary:
+        {
+            ingredient_unit_id: {
+                'target_unit_global_id': int,
+                'ref_unit_global_id': int,
+                'target_unit_qty': float,
+                'ref_unit_qty': float
+            }
+        }
+        """
+        with self.get_cursor() as cursor:
+            rows = cursor.execute(
+                """
+                SELECT custom_unit_id, target_unit_global_id, ref_unit_global_id, target_unit_qty, ref_unit_qty
+                FROM ingredient_custom_units
+                WHERE ingredient_id = ?;
+            """,
+                (ingredient_id,),
+            ).fetchall()
+        return {
+            row[0]: {
+                "target_unit_global_id": row[1],
+                "ref_unit_global_id": row[2],
+                "target_unit_qty": row[3],
+                "ref_unit_qty": row[4],
             }
             for row in rows
-        ]
+        }
 
     def fetch_ingredient_flags(self, ingredient_id: int) -> dict[int, bool|None]:
         """
@@ -652,33 +673,20 @@ class Repository:
             for row in rows
         }
 
-    def fetch_recipe_name(self, recipe_id: int) -> str:
-        """Returns the name of the recipe associated with the given ID."""
-        return self.database.execute(
-            """
-            SELECT recipe_name FROM recipe_base WHERE recipe_id = ?;
-        """,
-            (recipe_id,),
-        ).fetchone()[0]
-
-    def fetch_recipe_id(self, name: str) -> int:
-        """Returns the ID of the recipe associated with the given name."""
-        return self.database.execute(
-            """
-            SELECT recipe_id FROM recipe_base WHERE recipe_name = ?;
-        """,
-            (name,),
-        ).fetchone()[0]
-
-    def fetch_all_recipe_names(self) -> list[str]:
-        """Returns a list of all the recipe names in the database."""
+    def fetch_all_recipe_names(self) -> dict[int, str]:
+        """Returns a list of all the recipe names in the database.
+        Data structure returned is a dictionary:
+        {
+            recipe_id: recipe_name
+        }
+        """
         with self.get_cursor() as cursor:
             rows = cursor.execute(
                 """
-                SELECT recipe_name FROM recipes;
+                SELECT id, recipe_name FROM recipes;
             """
             ).fetchall()
-        return [row[0] for row in rows]
+        return {row[0]: row[1] for row in rows}
 
     def fetch_recipe_description(self, recipe_id: int) -> str | None:
         """Returns the description of the recipe associated with the given ID."""
@@ -752,38 +760,34 @@ class Repository:
             ).fetchall()
         return {row[0]: row[1] for row in rows}
 
-    def fetch_all_global_recipe_tags(self) -> list[str]:
-        """Returns a list of all global recipe tags in the database."""
+    def fetch_recipe_tags(self, recipe_id: int) -> dict[int, str]:
+        """Returns a list of all recipe tags for the given recipe ID.
+        Data structure returned is a dictionary:
+        {
+            recipe_tag_id: recipe_tag_name
+        }
+        """
         with self.get_cursor() as cursor:
             rows = cursor.execute(
                 """
-                SELECT recipe_tag_name FROM global_recipe_tags;
-            """
+                SELECT recipe_tag_id, recipe_tag_name
+                FROM recipe_tags
+                WHERE recipe_id = ?;
+            """,
+                (recipe_id,),
             ).fetchall()
-        return [row[0] for row in rows]
+        return {row[0]: row[1] for row in rows}
 
-    def fetch_recipe_tags_for_recipe(self, recipe_id: int) -> list[str]:
-        """Returns a list of all recipe tags for the given recipe ID."""
-        rows = self.database.execute(
-            """
-            SELECT recipe_tag_name
-            FROM global_recipe_tags
-            JOIN recipe_tags ON global_recipe_tags.recipe_tag_id = recipe_tags.recipe_tag_id
-            WHERE recipe_id = ?;
-        """,
-            (recipe_id,),
-        ).fetchall()
-        return [row[0] for row in rows]
-
-    def delete_ingredient_by_name(self, ingredient_name: str) -> None:
+    def delete_ingredient(self, ingredient_id: int) -> None:
         """Deletes the given ingredient from the database."""
-        # Grab the ID of the ingredient
-        ingredient_id = self.fetch_ingredient_id_by_name(ingredient_name)
-
         # Remove all entries against the ID from all ingredient tables.
         queries = [
             """
-            DELETE FROM ingredient_base
+            DELETE FROM ingredients
+            WHERE id = ?;
+            """,
+            """
+            DELETE FROM ingredient_flags
             WHERE ingredient_id = ?;
             """,
             """
@@ -791,56 +795,35 @@ class Repository:
             WHERE ingredient_id = ?;
             """,
             """
-            DELETE FROM ingredient_flags
+            DELETE FROM ingredient_custom_units
             WHERE ingredient_id = ?;
             """,
         ]
-        try:
+        with self.get_cursor() as cursor:
             for query in queries:
-                self.database.execute(query, (ingredient_id,))
-                self.database.commit()
-        except Exception as e:
-            self.database.connection.rollback()
-            raise e
+                cursor.execute(query, (ingredient_id,))
 
-    def delete_custom_unit(self, measurement_id: int) -> None:
-        """Deletes the given custom measurement from the database."""
-        self.database.execute(
-            """
-            DELETE FROM ingredient_custom_units
-            WHERE custom_unit_id = ?;
-            """,
-            (measurement_id,),
-        )
-
-    def delete_recipe_by_name(self, recipe_name: str) -> None:
+    def delete_recipe(self, recipe_id: int) -> None:
         """Deletes the given recipe from the database."""
-        # Grab the ID of the recipe
-        recipe_id = self.fetch_recipe_id(recipe_name)
-
         # Remove all entries against the ID from all recipe tables.
         queries = [
             """
-            DELETE FROM recipe_base
-            WHERE recipe_id = ?;
+            DELETE FROM recipes
+            WHERE id = ?;
             """,
             """
             DELETE FROM recipe_ingredients
             WHERE recipe_id = ?;
             """,
             """
-            DELETE FROM recipe_serve_times
-            WHERE recipe_id = ?;
-            """,
-            """
             DELETE FROM recipe_tags
             WHERE recipe_id = ?;
             """,
+            """
+            DELETE FROM recipe_serve_time_windows
+            WHERE recipe_id = ?;
+            """,
         ]
-        try:
+        with self.get_cursor() as cursor:
             for query in queries:
-                self.database.execute(query, (recipe_id,))
-                self.database.commit()
-        except Exception as e:
-            self.database.connection.rollback()
-            raise e
+                cursor.execute(query, (recipe_id,))
