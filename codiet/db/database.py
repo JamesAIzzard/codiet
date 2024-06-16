@@ -211,10 +211,10 @@ class Database:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 recipe_id INTEGER,
                 ingredient_id INTEGER,
-                qty_unit TEXT,
+                qty_unit_id INTEGER,
                 qty_value REAL,
-                qty_tol_upper REAL,
-                qty_tol_lower REAL,
+                qty_utol REAL,
+                qty_ltol REAL,
                 FOREIGN KEY (recipe_id) REFERENCES recipes(id),
                 FOREIGN KEY (ingredient_id) REFERENCES ingredients(id)
             )

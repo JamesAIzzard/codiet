@@ -212,7 +212,7 @@ class Repository:
                 (cost_unit_id, cost_value, cost_qty_unit_id, cost_qty_value, ingredient_id),
             )
 
-    def update_ingredient_flag(
+    def upsert_ingredient_flag(
         self, ingredient_id: int, flag_id: int, value: bool|None
     ) -> None:
         """Update (or insert if not exists) the flag for the ingredient associated with the given ID."""
@@ -237,7 +237,7 @@ class Repository:
                 (gi, ingredient_id),
             )
 
-    def update_ingredient_nutrient_quantity(
+    def upsert_ingredient_nutrient_quantity(
             self,
             ingredient_id: int,
             global_nutrient_id: int,
@@ -266,68 +266,63 @@ class Repository:
 
     def update_recipe_name(self, recipe_id: int, name: str) -> None:
         """Updates the name of the recipe associated with the given ID."""
-        self.database.execute(
-            """
-            UPDATE recipe_base
-            SET recipe_name = ?
-            WHERE recipe_id = ?;
-        """,
-            (name, recipe_id),
-        )
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE recipes
+                SET recipe_name = ?
+                WHERE id = ?;
+            """,
+                (name, recipe_id),
+            )
 
     def update_recipe_description(
         self, recipe_id: int, description: str | None
     ) -> None:
         """Updates the description of the recipe associated with the given ID."""
-        self.database.execute(
-            """
-            UPDATE recipe_base
-            SET recipe_description = ?
-            WHERE recipe_id = ?;
-        """,
-            (description, recipe_id),
-        )
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE recipes
+                SET recipe_description = ?
+                WHERE id = ?;
+            """,
+                (description, recipe_id),
+            )
 
     def update_recipe_instructions(
         self, recipe_id: int, instructions: str | None
     ) -> None:
         """Updates the instructions of the recipe associated with the given ID."""
-        self.database.execute(
-            """
-            UPDATE recipe_base
-            SET recipe_instructions = ?
-            WHERE recipe_id = ?;
-        """,
-            (instructions, recipe_id),
-        )
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE recipes
+                SET recipe_instructions = ?
+                WHERE id = ?;
+            """,
+                (instructions, recipe_id),
+            )
 
-    def update_recipe_ingredients(
-        self, recipe_id: int, ingredients: dict[str, dict]
+    def upsert_recipe_ingredient(
+        self,
+        recipe_id: int,
+        ingredient_id: int,
+        qty_unit_id: int|None,
+        qty_value: float|None,
+        qty_utol: float|None,
+        qty_ltol: float|None
+
     ) -> None:
         """Updates the ingredients of the recipe associated with the given ID."""
-        # Clear the existing ingredients
-        self.database.execute(
-            """
-            DELETE FROM recipe_ingredients WHERE recipe_id = ?;
-        """,
-            (recipe_id,),
-        )
-        # Add the new ingredients
-        for ingredient_id, data in ingredients.items():
-            # Add the ingredient
-            self.database.execute(
+        with self.get_cursor() as cursor:
+            cursor.execute(
                 """
-                INSERT INTO recipe_ingredients (recipe_id, ingredient_id, qty_value, qty_unit, qty_tol_upper, qty_tol_lower)
+                INSERT OR REPLACE INTO recipe_ingredients
+                (recipe_id, ingredient_id, qty_unit_id, qty_value, qty_utol, qty_ltol)
                 VALUES (?, ?, ?, ?, ?, ?);
             """,
-                (
-                    recipe_id,
-                    ingredient_id,
-                    data["qty_value"],
-                    data["qty_unit"],
-                    data["qty_utol"],
-                    data["qty_ltol"],
-                ),
+                (recipe_id, ingredient_id, qty_unit_id, qty_value, qty_utol, qty_ltol),
             )
 
     def update_recipe_serve_times(self, recipe_id: int, serve_times: list[str]) -> None:
@@ -652,13 +647,13 @@ class Repository:
             for row in rows
         }
 
-    def fetch_recipe_name(self, id: int) -> str:
+    def fetch_recipe_name(self, recipe_id: int) -> str:
         """Returns the name of the recipe associated with the given ID."""
         return self.database.execute(
             """
             SELECT recipe_name FROM recipe_base WHERE recipe_id = ?;
         """,
-            (id,),
+            (recipe_id,),
         ).fetchone()[0]
 
     def fetch_recipe_id(self, name: str) -> int:
@@ -680,38 +675,54 @@ class Repository:
             ).fetchall()
         return [row[0] for row in rows]
 
-    def fetch_recipe_description(self, id: int) -> str | None:
+    def fetch_recipe_description(self, recipe_id: int) -> str | None:
         """Returns the description of the recipe associated with the given ID."""
-        return self.database.execute(
-            """
-            SELECT recipe_description FROM recipe_base WHERE recipe_id = ?;
-        """,
-            (id,),
-        ).fetchone()[0]
+        with self.get_cursor() as cursor:
+            rows = cursor.execute(
+                """
+                SELECT recipe_description FROM recipes WHERE id = ?;
+            """,
+                (recipe_id,),
+            ).fetchall()
+        return rows[0][0] if rows else None
 
-    def fetch_recipe_instructions(self, id: int) -> str | None:
+    def fetch_recipe_instructions(self, recipe_id: int) -> str | None:
         """Returns the instructions of the recipe associated with the given ID."""
-        return self.database.execute(
-            """
-            SELECT recipe_instructions FROM recipe_base WHERE recipe_id = ?;
-        """,
-            (id,),
-        ).fetchone()[0]
+        with self.get_cursor() as cursor:
+            rows = cursor.execute(
+                """
+                SELECT recipe_instructions FROM recipes WHERE id = ?;
+            """,
+                (recipe_id,),
+            ).fetchall()
+        return rows[0][0] if rows else None
 
     def fetch_recipe_ingredients(self, recipe_id: int) -> dict[int, dict]:
-        """Returns the ingredients of the recipe associated with the given ID."""
-        rows = self.database.execute(
-            """
-            SELECT ingredient_id, qty_value, qty_unit, qty_tol_upper, qty_tol_lower
-            FROM recipe_ingredients
-            WHERE recipe_id = ?;
-        """,
-            (recipe_id,),
-        ).fetchall()
+        """
+        Returns the ingredients of the recipe associated with the given ID.
+        Data structure returned is a dictionary:
+        {
+            ingredient_id: {
+                'qty_value': float|None,
+                'qty_unit_id': int|None,
+                'qty_utol': float|None,
+                'qty_ltol': float|None
+            }
+        }
+        """
+        with self.get_cursor() as cursor:
+            rows = cursor.execute(
+                """
+                SELECT ingredient_id, qty_value, qty_unit_id, qty_utol, qty_ltol
+                FROM recipe_ingredients
+                WHERE recipe_id = ?;
+            """,
+                (recipe_id,),
+            ).fetchall()
         return {
             row[0]: {
                 "qty_value": row[1],
-                "qty_unit": row[2],
+                "qty_unit_id": row[2],
                 "qty_utol": row[3],
                 "qty_ltol": row[4],
             }

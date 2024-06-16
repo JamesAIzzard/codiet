@@ -413,7 +413,7 @@ class DatabaseService:
         self, ingredient_id: int, flag_name: str, flag_value: bool
     ) -> None:
         """Updates a flag on the ingredient."""
-        self._repo.update_ingredient_flag(ingredient_id, flag_name, flag_value)
+        self._repo.upsert_ingredient_flag(ingredient_id, flag_name, flag_value)
 
     def update_ingredient_gi(self, ingredient_id: int, gi_value: float | None) -> None:
         """Updates the GI value of the given ingredient."""
@@ -423,7 +423,7 @@ class DatabaseService:
         self, nutrient_quantity: IngredientNutrientQuantity
     ) -> None:
         """Updates a nutrient quantity on the ingredient."""
-        self._repo.update_ingredient_nutrient_quantity(
+        self._repo.upsert_ingredient_nutrient_quantity(
             ingredient_id=nutrient_quantity.ingredient_id,
             global_nutrient_id=nutrient_quantity.global_nutrient_id,
             ntr_mass_value=nutrient_quantity.nutrient_mass_value,
