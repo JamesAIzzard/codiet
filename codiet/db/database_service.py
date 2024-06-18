@@ -124,50 +124,19 @@ class DatabaseService:
         # Return the ID
         return id
 
-    def insert_global_leaf_nutrient(
-        self, nutrient_name: str, parent_id: int | None = None
-    ) -> int:
-        """Inserts a global leaf nutrient into the database."""
-        return self._repo.insert_global_leaf_nutrient(nutrient_name, parent_id)
-
     def fetch_all_global_flag_names(self) -> list[str]:
         """Returns a list of all the flags in the database."""
         return self._repo.fetch_all_global_flags()
 
-    def fetch_all_leaf_nutrient_names(self) -> dict[int, str]:
-        """Returns a list of all the leaf nutrients in the database."""
-        return self._repo.fetch_all_leaf_nutrient_names()
-
-    def fetch_leaf_nutrient_id_from_name(self, name: str) -> int:
-        """Returns the ID of the leaf nutrient with the given name."""
-        return self._repo.fetch_leaf_nutrient_id_from_name(name)
-
-    def fetch_leaf_nutrient_name_from_id(self, id: int) -> str:
-        """Returns the name of the leaf nutrient with the given ID."""
-        return self._repo.fetch_leaf_nutrient_name_from_id(id)
-
-    def fetch_all_group_nutrient_names(self) -> list[str]:
-        """Returns a list of all the group nutrients in the database."""
-        return self._repo.fetch_all_group_nutrient_names()
-
-    def fetch_leaf_nutrient_id_name_map(self) -> BidirectionalMap:
+    def fetch_nutrient_id_name_map(self) -> BidirectionalMap:
         """Returns a bidirectional map of nutrient IDs to names."""
         # Create a new bidirectional map
-        nutrient_id_name_map = BidirectionalMap()
+        map = BidirectionalMap()
         # Fetch the raw data from the repo
-        leaf_nutrient_names = self.fetch_all_leaf_nutrient_names()
-        # For each name
-        for nutrient_name in leaf_nutrient_names:
-            # Lookup the ID
-            nutrient_id = self.fetch_leaf_nutrient_id_from_name(nutrient_name)
-            nutrient_id_name_map.add_mapping(nutrient_id, nutrient_name)
-        return nutrient_id_name_map
-
-    def insert_global_group_nutrient(
-        self, nutrient_name: str, parent_id: int | None = None
-    ) -> int:
-        """Inserts a global group nutrient into the database."""
-        return self._repo.insert_global_group_nutrient(nutrient_name, parent_id)
+        global_nutrients = self._repo.fetch_all_global_nutrients()
+        for nutrient_id, nutrient_data in global_nutrients.items():
+            map.add_mapping(integer=nutrient_id, string=nutrient_data['nutrient_name'])
+        return map
 
     def fetch_all_ingredient_names(self) -> list[str]:
         """Returns a list of all the ingredients in the database."""

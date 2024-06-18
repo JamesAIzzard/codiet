@@ -14,4 +14,4 @@ class IngredientNutrientQuantity:
         self.nutrient_mass_value = ntr_mass_value
         self.nutrient_mass_unit_id = ntr_mass_unit_id
         self.ingredient_quantity_value = ing_qty_value
-        self.ingredient_quantity_unit = ing_qty_unit_id
+        self.ingredient_quantity_unit_id = ing_qty_unit_id
