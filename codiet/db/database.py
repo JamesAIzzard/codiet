@@ -19,17 +19,6 @@ class Database:
             self._connection.close()
             self._connection = None
 
-    def reset_database(self) -> None:
-        """Reset the database by deleting and recreating it."""
-        self.close_connection()
-        self._delete_database()
-        self._create_database()
-
-    def _delete_database(self) -> None:
-        """Delete the database file."""
-        if os.path.exists(self.db_path):
-            os.remove(self.db_path)
-
     def _create_database(self) -> None:
         """Create the database file."""
         connection = self.connection

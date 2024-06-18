@@ -1,5 +1,5 @@
 from codiet.models.nutrients import IngredientNutrientQuantity
-from codiet.models.units import GlobalUnit
+from codiet.models.units import Unit
 
 
 class Ingredient:
@@ -9,49 +9,49 @@ class Ingredient:
         self.name: str = name
         self.id: int = id
         self.description: str | None = None
-        self.cost_unit: str = "GBP"
+        self.cost_unit_id: int | None = None
         self.cost_value: float | None = None
-        self.cost_qty_unit: str = "g"
+        self.cost_qty_unit_id: int | None = None
         self.cost_qty_value: float | None = None
-        self._custom_units: dict[int, GlobalUnit] = {}
-        self._flags: dict[str, bool] = {}
+        self._units: dict[int, Unit] = {}
+        self._flags: dict[int, bool|None] = {}
         self.gi: float | None = None
         self._nutrient_quantities: dict[int, IngredientNutrientQuantity] = {}
 
     @property
-    def flags(self) -> dict[str, bool]:
+    def flags(self) -> dict[int, bool|None]:
         """Returns the flags."""
         return self._flags
 
     @property
-    def custom_units(self) -> dict[int, GlobalUnit]:
+    def units(self) -> dict[int, Unit]:
         """Returns the custom units."""
-        return self._custom_units
+        return self._units
 
     @property
     def nutrient_quantities(self) -> dict[int, IngredientNutrientQuantity]:
         """Returns the nutrient quantities."""
         return self._nutrient_quantities
 
-    def add_custom_unit(self, custom_unit: GlobalUnit) -> None:
+    def add_custom_unit(self, custom_unit: Unit) -> None:
         """Adds a custom unit."""
         # Raise an exception if the custom unit is already in the custom units list
-        if custom_unit.unit_id in self._custom_units:
+        if custom_unit.unit_id in self._units:
             raise ValueError(f"Custom unit '{custom_unit.unit_id}' already in custom units list.")
         # All OK, so add the custom unit
-        self._custom_units[custom_unit.unit_id] = custom_unit
+        self._units[custom_unit.unit_id] = custom_unit
 
-    def update_custom_unit(self, custom_unit: GlobalUnit) -> None:
+    def update_custom_unit(self, custom_unit: Unit) -> None:
         """Updates a custom unit."""
         # Raise an exception if the custom unit isn't in the custom units list
-        if custom_unit.unit_id not in self._custom_units:
+        if custom_unit.unit_id not in self._units:
             raise ValueError(f"Custom unit '{custom_unit.unit_id}' not in custom units list.")
         # All OK, so update the custom unit
-        self._custom_units[custom_unit.unit_id] = custom_unit
+        self._units[custom_unit.unit_id] = custom_unit
 
     def delete_custom_unit(self, unit_id: int) -> None:
         """Delete a custom unit."""
-        self._custom_units.pop(unit_id)
+        self._units.pop(unit_id)
 
     def set_flag(self, flag: str, value: bool) -> None:
         """Sets a flag."""

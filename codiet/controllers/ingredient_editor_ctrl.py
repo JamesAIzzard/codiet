@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QListWidgetItem
 
 from codiet.db.database_service import DatabaseService
-from codiet.models.units import GlobalUnit
+from codiet.models.units import Unit
 from codiet.models.ingredients import Ingredient
 from codiet.models.nutrients import IngredientNutrientQuantity
 from codiet.views.ingredient_editor_view import IngredientEditorView
@@ -49,7 +49,7 @@ class IngredientEditorCtrl:
         )
         self.custom_units_ctrl = CustomUnitsDefinitionCtrl(
             view=self.view.custom_units_editor,
-            get_custom_measurements=lambda: self.ingredient.custom_units,
+            get_custom_measurements=lambda: self.ingredient.units,
             on_custom_unit_added=self._on_custom_unit_added,
             on_custom_unit_edited=self._on_custom_unit_edited,
             on_custom_unit_removed=self._on_custom_unit_deleted,
@@ -97,7 +97,7 @@ class IngredientEditorCtrl:
         self.view.cost_editor.cost_quantity_value = self.ingredient.cost_qty_value
         self.view.cost_editor.cost_quantity_unit = self.ingredient.cost_qty_unit
         # Update the measurements fields
-        self.custom_units_ctrl.load_custom_units_into_view(ingredient.custom_units)
+        self.custom_units_ctrl.load_custom_units_into_view(ingredient.units)
         # Set the flags
         self.view.flag_editor.remove_all_flags_from_list()
         self.view.flag_editor.add_flags_to_list(list(self.ingredient.flags.keys()))
@@ -247,7 +247,7 @@ class IngredientEditorCtrl:
             )
             db_service.commit()
 
-    def _on_custom_unit_added(self, unit_name: str) -> GlobalUnit:
+    def _on_custom_unit_added(self, unit_name: str) -> Unit:
         """Handler for adding a custom unit."""
         # Insert the custom unit into the database
         with DatabaseService() as db_service:
@@ -261,7 +261,7 @@ class IngredientEditorCtrl:
         # Return the custom unit instance
         return custom_unit
 
-    def _on_custom_unit_edited(self, custom_unit: GlobalUnit):
+    def _on_custom_unit_edited(self, custom_unit: Unit):
         """Handler for editing a custom unit."""
         # Update the custom unit on the ingredient
         self.ingredient.update_custom_unit(custom_unit)

@@ -1,4 +1,4 @@
-class GlobalUnit:
+class Unit:
     """A global measurement unit."""
 
     def __init__(
@@ -15,7 +15,7 @@ class GlobalUnit:
         self.type = type
         self.convertions = conversions
 
-class IngredientUnit(GlobalUnit):
+class IngredientUnit(Unit):
     """An measurement unit associated with an ingredient."""
 
     def __init__(

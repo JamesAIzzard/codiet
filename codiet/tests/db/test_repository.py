@@ -1,20 +1,7 @@
-import unittest
+from . import DatabaseTestCase
 
-from . import get_repository
 
-class RepositoryTestCase(unittest.TestCase):
-    """Base class for Repository test cases."""
-
-    def setUp(self):
-        """Set up the test case."""
-        self.repository = get_repository()
-        self.repository.database.reset_database()
-
-    def tearDown(self) -> None:
-        """Tear down the test case."""
-        self.repository.close_connection()
-
-class TestInsertGlobalUnit(RepositoryTestCase):
+class TestInsertGlobalUnit(DatabaseTestCase):
     """Test the insert_global_unit method of the Repository class."""
 
     def test_insert_global_unit_inserts_unit(self):
@@ -74,7 +61,7 @@ class TestInsertGlobalUnit(RepositoryTestCase):
         # Check the conversion is correct
         self.assertEqual(global_units[kg_id]["conversions"][g_id], 1000)
 
-class TestInsertGlobalFlag(RepositoryTestCase):
+class TestInsertGlobalFlag(DatabaseTestCase):
     """Test the insert_global_flag method of the Repository class."""
 
     def test_insert_global_flag_inserts_flag(self):
@@ -89,7 +76,7 @@ class TestInsertGlobalFlag(RepositoryTestCase):
         # Check the flag name is under the correct key
         self.assertEqual(flags[flag_id], flag_name)
 
-class TestInsertGlobalNutrient(RepositoryTestCase):
+class TestInsertGlobalNutrient(DatabaseTestCase):
     """Test the insert_global_nutrient method of the Repository class."""
 
     def test_insert_global_nutrient_inserts_nutrient(self):
@@ -118,7 +105,7 @@ class TestInsertGlobalNutrient(RepositoryTestCase):
         # Check the parent_id is correct
         self.assertEqual(all_nutrients[id]["parent_id"], parent_id)
 
-class TestInsertNutrientAlias(RepositoryTestCase):
+class TestInsertNutrientAlias(DatabaseTestCase):
     """Test the insert_nutrient_alias method of the Repository class."""
 
     def test_insert_nutrient_alias_inserts_alias(self):
@@ -144,7 +131,7 @@ class TestInsertNutrientAlias(RepositoryTestCase):
         # Check the alias listed against the nutrient
         assert alias in all_nutrients[id]["aliases"]
 
-class TestInsertGlobalRecipeTag(RepositoryTestCase):
+class TestInsertGlobalRecipeTag(DatabaseTestCase):
     """Test the insert_global_recipe_tag method of the Repository class."""
 
     def test_insert_global_recipe_tag_inserts_tag(self):
@@ -163,7 +150,7 @@ class TestInsertGlobalRecipeTag(RepositoryTestCase):
         # Check the tag name is under the correct key
         self.assertEqual(all_tags[tag_id], tag_name)
 
-class TestInsertIngredientName(RepositoryTestCase):
+class TestInsertIngredientName(DatabaseTestCase):
     """Test the insert_ingredient_name method of the Repository class."""
 
     def test_insert_ingredient_name_inserts_name(self):
@@ -183,7 +170,7 @@ class TestInsertIngredientName(RepositoryTestCase):
         # Check the ingredient name is correct
         self.assertEqual(all_ingredients[ingredient_id], ingredient_name)
 
-class TestInsertRecipeName(RepositoryTestCase):
+class TestInsertRecipeName(DatabaseTestCase):
     """Test the insert_recipe_name method of the Repository class."""
 
     def test_insert_recipe_name_inserts_name(self):
@@ -203,7 +190,7 @@ class TestInsertRecipeName(RepositoryTestCase):
         # Check the recipe name is correct
         self.assertEqual(all_recipes[recipe_id], recipe_name)
 
-class TestInsertRecipeServeTimeWindow(RepositoryTestCase):
+class TestInsertRecipeServeTimeWindow(DatabaseTestCase):
     """Test the insert_recipe_serve_time_window method of the Repository class."""
 
     def test_insert_recipe_serve_time_inserts_serve_time_window(self):
@@ -233,7 +220,7 @@ class TestInsertRecipeServeTimeWindow(RepositoryTestCase):
         # Check the new recipe serve time is correct
         self.assertEqual(serve_time_windows[serve_time_id], serve_time_window)
 
-class TestUpdateIngredientName(RepositoryTestCase):
+class TestUpdateIngredientName(DatabaseTestCase):
     """Test the update_ingredient_name method of the Repository class."""
 
     def test_update_ingredient_name_updates_name(self):
@@ -263,7 +250,7 @@ class TestUpdateIngredientName(RepositoryTestCase):
         # Check the new ingredient name is correct
         self.assertEqual(all_ingredients[id], new_ingredient_name)
 
-class TestUpdateIngredientDescription(RepositoryTestCase):
+class TestUpdateIngredientDescription(DatabaseTestCase):
     """Test the update_ingredient_description method of the Repository class."""
 
     def test_update_ingredient_description_updates_description(self):
@@ -297,7 +284,7 @@ class TestUpdateIngredientDescription(RepositoryTestCase):
         # Check the new ingredient description is in the database
         self.assertEqual(description, description_2)
 
-class TestUpdateIngredientCost(RepositoryTestCase):
+class TestUpdateIngredientCost(DatabaseTestCase):
     """Test the update_ingredient_cost method of the Repository class."""
 
     def test_update_ingredient_cost_updates_cost(self):
@@ -335,7 +322,7 @@ class TestUpdateIngredientCost(RepositoryTestCase):
         self.assertEqual(cost["cost_qty_unit_id"], g_id)
         self.assertEqual(cost["cost_qty_value"], cost_qty_value)
 
-class TestUpdateIngredientFlag(RepositoryTestCase):
+class TestUpdateIngredientFlag(DatabaseTestCase):
     """Test the update_ingredient_flag method of the Repository class."""
 
     def test_update_ingredient_flag_updates_flag(self):
@@ -385,7 +372,7 @@ class TestUpdateIngredientFlag(RepositoryTestCase):
         # Check the flag value is None
         self.assertIsNone(flags[flag_id])
 
-class TestUpdateIngredientGI(RepositoryTestCase):
+class TestUpdateIngredientGI(DatabaseTestCase):
     """Test the update_ingredient_gi method of the Repository class."""
 
     def test_update_ingredient_gi_updates_gi(self):
@@ -409,7 +396,7 @@ class TestUpdateIngredientGI(RepositoryTestCase):
         # Check the new ingredient GI is in the database
         self.assertEqual(gi_in_db, gi)
 
-class TestUpdateIngredientNutrientQuantity(RepositoryTestCase):
+class TestUpdateIngredientNutrientQuantity(DatabaseTestCase):
     """Test the update_ingredient_nutrient_quantity method of the Repository class."""
 
     def test_update_ingredient_nutrient_quantity_updates_nutrient_quantity(self):
@@ -459,7 +446,7 @@ class TestUpdateIngredientNutrientQuantity(RepositoryTestCase):
         # Check the ingredient quantity unit is correct
         self.assertEqual(nutrients[nutrient_id]["ing_qty_unit_id"], g_id)
 
-class TestUpdateRecipeName(RepositoryTestCase):
+class TestUpdateRecipeName(DatabaseTestCase):
     """Test the update_recipe_name method of the Repository class."""
 
     def test_update_recipe_name_updates_name(self):
@@ -489,7 +476,7 @@ class TestUpdateRecipeName(RepositoryTestCase):
         # Check the new recipe name is correct
         self.assertEqual(all_recipes[recipe_id], new_recipe_name)
 
-class TestUpdateRecipeDescription(RepositoryTestCase):
+class TestUpdateRecipeDescription(DatabaseTestCase):
     """Test the update_recipe_description method of the Repository class."""
 
     def test_update_recipe_description_updates_description(self):
@@ -523,7 +510,7 @@ class TestUpdateRecipeDescription(RepositoryTestCase):
         # Check the new recipe description is in the database
         self.assertEqual(description, description_2)
 
-class TestRecipeInstructions(RepositoryTestCase):
+class TestRecipeInstructions(DatabaseTestCase):
     """Test the recipe_instructions method of the Repository class."""
 
     def test_recipe_instructions_updates_instructions(self):
@@ -557,7 +544,7 @@ class TestRecipeInstructions(RepositoryTestCase):
         # Check the new recipe instructions are in the database
         self.assertEqual(instructions, instructions_2)
 
-class TestUpdateRecipeIngredient(RepositoryTestCase):
+class TestUpdateRecipeIngredient(DatabaseTestCase):
     """Test the update_recipe_ingredient method of the Repository class."""
 
     def test_update_recipe_ingredient_updates_ingredient(self):
@@ -603,7 +590,7 @@ class TestUpdateRecipeIngredient(RepositoryTestCase):
         # Check the ingredient quantity unit is correct
         self.assertEqual(ingredients[ingredient_id]["qty_unit_id"], g_id)
 
-class TestUpdateRecipeServeTimeWindow(RepositoryTestCase):
+class TestUpdateRecipeServeTimeWindow(DatabaseTestCase):
     """Test the update_recipe_serve_time_window method of the Repository class."""
 
     def test_update_recipe_serve_time_updates_serve_time_window(self):
@@ -642,7 +629,7 @@ class TestUpdateRecipeServeTimeWindow(RepositoryTestCase):
         # Check the new recipe serve time is correct
         self.assertEqual(serve_time_windows[serve_time_id], serve_time_window_2)
 
-class TestUpdateRecipeTags(RepositoryTestCase):
+class TestUpdateRecipeTags(DatabaseTestCase):
     """Test the update_recipe_tags method of the Repository class."""
 
     def test_update_recipe_tags_updates_tags(self):
@@ -682,7 +669,7 @@ class TestUpdateRecipeTags(RepositoryTestCase):
         self.assertIn(tag_id_2, recipe_tags)
         self.assertIn(tag_id_3, recipe_tags)
 
-class TestDeleteIngredient(RepositoryTestCase):
+class TestDeleteIngredient(DatabaseTestCase):
     """Test the delete_ingredient method of the Repository class."""
 
     def test_delete_ingredient_deletes_ingredient(self):
@@ -702,7 +689,7 @@ class TestDeleteIngredient(RepositoryTestCase):
         # Check the ingredient is not in the database
         self.assertNotIn(ingredient_id, all_ingredients.keys())
 
-class TestDeleteRecipe(RepositoryTestCase):
+class TestDeleteRecipe(DatabaseTestCase):
     """Test the delete_recipe method of the Repository class."""
 
     def test_delete_recipe_deletes_recipe(self):

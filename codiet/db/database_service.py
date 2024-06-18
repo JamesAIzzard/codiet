@@ -1,3 +1,6 @@
+from typing import Any
+
+from codiet.db.repository import Repository
 from codiet.utils.time import (
     convert_datetime_interval_to_time_string_interval,
     convert_time_string_interval_to_datetime_interval,
@@ -8,63 +11,58 @@ from codiet.models.ingredients import (
     IngredientNutrientQuantity,
     IngredientQuantity,
 )
-from codiet.models.units import GlobalUnit
+from codiet.models.units import Unit
 from codiet.models.recipes import Recipe
-from codiet.db.repository import Repository
-from codiet.db.repository import Repository
-
 
 class DatabaseService:
     """Service for interacting with the database."""
 
     def __init__(self, repository: Repository):
-        # Init the database
         self._repo = repository
 
-    def __enter__(self):
-        return self
+    @property
+    def repository(self) -> Repository:
+        return self._repo
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        # Rollback any unsaved changes
-        self._repo.database.connection.rollback()
-        # Close the connection
-        self._repo.database.connection.close()
+    def insert_global_flags(self, flags: list[str]) -> None:
+        """Insert the global flags into the database."""
+        for flag in flags:
+            self.repository.insert_global_flag(flag)
 
-    def create_empty_ingredient(
-        self, ingredient_name: str, ingredient_id: int
-    ) -> Ingredient:
-        """Creates an ingredient."""
+    def insert_global_nutrients(self, nutrient_data: dict[str, Any], parent_id: int|None=None) -> None:
+        """Recursively inserts nutrients and their aliases into the database."""
+        for nutrient_name, nutrient_info in nutrient_data.items():
+            # Insert the nutrient
+            nutrient_id = self.repository.insert_global_nutrient(name=nutrient_name, parent_id=parent_id)
+            # Insert the aliases for the nutrient
+            for alias in nutrient_info.get("aliases", []):
+                self.repository.insert_nutrient_alias(alias=alias, primary_nutrient_id=nutrient_id)
+            # Recursively insert the child nutrients
+            if "children" in nutrient_info:
+                self.insert_global_nutrients(nutrient_info["children"], parent_id=nutrient_id)
+
+    def create_empty_ingredient(self, ingredient_name: str) -> Ingredient:
+        """Creates an ingredient.
+        Has to make various calls to the database to populate the ingredient with
+        flags, nutrients, etc.
+        """
+        # Insert the ingredient name into the database
+        ingredient_id = self.repository.insert_ingredient_name(ingredient_name)
         # Init the ingredient
         ingredient = Ingredient(ingredient_name, ingredient_id)
-
-        # Populate the flag dict
-        flags = self._repo.fetch_all_global_flags()
-        for flag in flags:
-            ingredient._flags[flag] = False
-
-        # Populate the nutrient dict
-        # Get an ID to name map
-        nutrient_names_to_ids = self.fetch_leaf_nutrient_id_name_map()
-        # Cycle through them, and create a nutrient quantity for each
-        # and add it to the ingredient's nutrient dict
-        for leaf_nutrient_id in nutrient_names_to_ids.int_values:
-            ingredient._nutrient_quantities[leaf_nutrient_id] = (
-                IngredientNutrientQuantity(
-                    global_nutrient_id=leaf_nutrient_id,
-                    ingredient_id=ingredient_id,
-                )
+        # Populate empty flags
+        ingredient._flags = {flag: None for flag in self.repository.fetch_all_global_flags()}
+        # Populate the nutrient quantities
+        global_nutrients = self.repository.fetch_all_global_nutrients()
+        ingredient._nutrient_quantities = {
+            nutrient_id: IngredientNutrientQuantity(
+                global_nutrient_id=nutrient_id,
+                ingredient_id=ingredient_id,
             )
+            for nutrient_id in global_nutrients
+        }
         # Return the ingredient
         return ingredient
-
-    def insert_global_flag(self, flag_name: str):
-        """Inserts a global flag into the database."""
-        self._repo.insert_global_flag(flag_name)
-
-    def insert_global_flags(self, flags: list[str]):
-        """Inserts a list of global flags into the database."""
-        for flag in flags:
-            self.insert_global_flag(flag)
 
     def insert_new_ingredient(self, name: str) -> Ingredient:
         """Saves the given ingredient to the database."""
@@ -82,10 +80,10 @@ class DatabaseService:
         """Inserts a global custom measurement into the database."""
         return self._repo.insert_global_custom_unit(unit_name)
 
-    def insert_ingredient_custom_unit(self, ingredient_id: int, unit_name: str) -> GlobalUnit:
+    def insert_ingredient_custom_unit(self, ingredient_id: int, unit_name: str) -> Unit:
         """Inserts a custom measurement into the database and returns the new ID."""
         id = self._repo.insert_custom_unit(ingredient_id, unit_name)
-        custom_unit = GlobalUnit(unit_name, id)
+        custom_unit = Unit(unit_name, id)
         return custom_unit
 
     def insert_ingredient_nutrient_quantity(
@@ -136,7 +134,7 @@ class DatabaseService:
         """Returns a list of all the flags in the database."""
         return self._repo.fetch_all_global_flags()
 
-    def fetch_all_leaf_nutrient_names(self) -> list[str]:
+    def fetch_all_leaf_nutrient_names(self) -> dict[int, str]:
         """Returns a list of all the leaf nutrients in the database."""
         return self._repo.fetch_all_leaf_nutrient_names()
 
@@ -236,7 +234,7 @@ class DatabaseService:
 
     def fetch_custom_units_by_ingredient_id(
         self, ingredient_id: int
-    ) -> dict[int, GlobalUnit]:
+    ) -> dict[int, Unit]:
         """Returns a list of custom units for the given ingredient."""
         # Init a list to hold the custom units
         custom_units = {}
@@ -245,7 +243,7 @@ class DatabaseService:
         # Cycle through the raw data
         for data in raw_custom_units:
             # Create a new custom unit
-            custom_unit = GlobalUnit(
+            custom_unit = Unit(
                 unit_name=data[0],
                 custom_unit_qty=data[1],
                 std_unit_qty=data[2],
@@ -388,7 +386,7 @@ class DatabaseService:
             cost_qty_value=cost_qty_value,
         )
 
-    def update_custom_unit(self, custom_unit: GlobalUnit):
+    def update_custom_unit(self, custom_unit: Unit):
         """Updates the given custom measurement in the database."""
         # If the measurement ID is not set, raise an exception
         if custom_unit.unit_id is None:

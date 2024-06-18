@@ -459,11 +459,13 @@ class Repository:
         """
         Retrieve all group nutrient names from the database.
     
-        This method returns a dictionary where each key is a nutrient ID and the value is another dictionary with the following structure:
+        This method returns a dictionary with the following structure:
         {
-            'nutrient_name': str,
-            'aliases': list[str],
-            'parent_id': int | None
+            nutrient_id: {
+                'nutrient_name': str,
+                'aliases': list[str],
+                'parent_id': int
+            }
         }
     
         Note:
