@@ -154,6 +154,26 @@ class Repository:
         assert id is not None 
         return id
 
+    def insert_ingredient_unit(self, 
+            ingredient_id: int, 
+            unit_global_id: int,
+            ref_unit_global_id: int|None = None,
+            unit_qty: float|None = None,
+            ref_unit_qty: float|None = None
+        ) -> int:
+        """Adds an ingredient unit to the database and returns the ID."""
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO ingredient_units (ingredient_id, unit_global_id, ref_unit_global_id, unit_qty, ref_unit_qty)
+                VALUES (?, ?, ?, ?, ?);
+            """,
+                (ingredient_id, unit_global_id, ref_unit_global_id, unit_qty, ref_unit_qty),
+            )
+            id = cursor.lastrowid
+        assert id is not None
+        return id
+
     def insert_recipe_name(self, name: str) -> int:
         """Adds a recipe name to the database and returns the ID."""
         with self.get_cursor() as cursor:
@@ -223,6 +243,24 @@ class Repository:
                 WHERE id = ?;
             """,
                 (cost_unit_id, cost_value, cost_qty_unit_id, cost_qty_value, ingredient_id),
+            )
+
+    def update_ingredient_unit(self, 
+            ingredient_unit_id: int, 
+            unit_global_id: int,
+            ref_unit_global_id: int|None,
+            unit_qty: float|None,
+            ref_unit_qty: float|None
+        ) -> None:
+        """Updates the ingredient unit associated with the given ID."""
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE ingredient_units
+                SET unit_global_id = ?, ref_unit_global_id = ?, unit_qty = ?, ref_unit_qty = ?
+                WHERE id = ?;
+            """,
+                (unit_global_id, ref_unit_global_id, unit_qty, ref_unit_qty, ingredient_unit_id),
             )
 
     def upsert_ingredient_flag(
@@ -573,9 +611,9 @@ class Repository:
         Data structure returned is a dictionary:
         {
             ingredient_unit_id: {
-                'target_unit_global_id': int,
+                'unit_global_id': int,
                 'ref_unit_global_id': int,
-                'target_unit_qty': float,
+                'unit_qty': float,
                 'ref_unit_qty': float
             }
         }
@@ -583,17 +621,17 @@ class Repository:
         with self.get_cursor() as cursor:
             rows = cursor.execute(
                 """
-                SELECT custom_unit_id, target_unit_global_id, ref_unit_global_id, target_unit_qty, ref_unit_qty
-                FROM ingredient_custom_units
+                SELECT id, unit_global_id, ref_unit_global_id, unit_qty, ref_unit_qty
+                FROM ingredient_units
                 WHERE ingredient_id = ?;
             """,
                 (ingredient_id,),
             ).fetchall()
         return {
             row[0]: {
-                "target_unit_global_id": row[1],
+                "unit_global_id": row[1],
                 "ref_unit_global_id": row[2],
-                "target_unit_qty": row[3],
+                "unit_qty": row[3],
                 "ref_unit_qty": row[4],
             }
             for row in rows

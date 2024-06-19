@@ -8,8 +8,11 @@ from codiet.utils.time import (
 from codiet.utils.map import BidirectionalMap
 from codiet.models.ingredients import (
     Ingredient,
-    IngredientNutrientQuantity,
     IngredientQuantity,
+)
+from codiet.models.nutrients import (
+    Nutrient,
+    IngredientNutrientQuantity,
 )
 from codiet.models.units import Unit
 from codiet.models.recipes import Recipe
@@ -53,38 +56,13 @@ class DatabaseService:
         # Populate empty flags
         ingredient._flags = {flag: None for flag in self.repository.fetch_all_global_flags()}
         # Populate the nutrient quantities
-        global_nutrients = self.repository.fetch_all_global_nutrients()
-        ingredient._nutrient_quantities = {
-            nutrient_id: IngredientNutrientQuantity(
-                global_nutrient_id=nutrient_id,
-                ingredient_id=ingredient_id,
-            )
-            for nutrient_id in global_nutrients
-        }
+        global_leaf_nutrients = self.fetch_all_global_leaf_nutrients()
         # Return the ingredient
         return ingredient
 
-    def insert_new_ingredient(self, name: str) -> Ingredient:
-        """Saves the given ingredient to the database."""
-        # If the ingredient name is not set on the ingredient, raise an exception
-        if name is None:
-            raise ValueError("Ingredient name must be set.")
-        # Add the ingredient name to the database, getting primary key
-        id = self._repo.insert_ingredient_name(name)
-        # Create a new ingredient with this name and ID
-        ingredient = self.create_empty_ingredient(name, id)
-        # Return the ingredient
-        return ingredient
-
-    def insert_global_custom_unit(self, unit_name: str) -> int:
-        """Inserts a global custom measurement into the database."""
-        return self._repo.insert_global_custom_unit(unit_name)
-
-    def insert_ingredient_custom_unit(self, ingredient_id: int, unit_name: str) -> Unit:
-        """Inserts a custom measurement into the database and returns the new ID."""
-        id = self._repo.insert_custom_unit(ingredient_id, unit_name)
-        custom_unit = Unit(unit_name, id)
-        return custom_unit
+    # def create_ingredient_unit(self, ingredient_unit: IngredientUnit) -> int:
+    #     """Inserts a custom measurement into the database and returns the new ID."""
+    #     raise NotImplementedError
 
     def insert_ingredient_nutrient_quantity(
         self, ingredient_id: int, global_nutrient_id: int
@@ -127,6 +105,39 @@ class DatabaseService:
     def fetch_all_global_flag_names(self) -> list[str]:
         """Returns a list of all the flags in the database."""
         return self._repo.fetch_all_global_flags()
+
+    def fetch_all_global_nutrients(self) -> dict[int, Nutrient]:
+        """Returns a list of all the nutrients in the database."""
+        # Grab all the nutrients from the repo
+        global_nutrients = self._repo.fetch_all_global_nutrients()
+        # Init a dict to hold the nutrients
+        nutrients = {}
+        # Cycle through the raw data
+        for nutrient_id, nutrient_data in global_nutrients.items():
+            # Create a new nutrient
+            nutrient = Nutrient(
+                nutrient_name=nutrient_data["nutrient_name"],
+                aliases=nutrient_data["aliases"],
+                parent_id=nutrient_data["parent_id"],
+            )
+            # Add it to the list
+            nutrients[nutrient_id] = nutrient
+        # Now populate child ids
+        for nutrient_id, nutrient in nutrients.items():
+            if nutrient.parent_id is not None:
+                nutrients[nutrient.parent_id].child_ids.append(nutrient_id)
+        return nutrients
+    
+    def fetch_all_global_leaf_nutrients(self) -> dict[int, Nutrient]:
+        """Returns a list of all the leaf nutrients in the database."""
+        # Fetch all the global nutrients
+        global_nutrients = self.fetch_all_global_nutrients()
+        # Isolate the leaf nutrients
+        leaf_nutrients = {}
+        for nutrient_id, nutrient in global_nutrients.items():
+            if len(nutrient.child_ids) == 0:
+                leaf_nutrients[nutrient_id] = nutrient
+        return leaf_nutrients
 
     def fetch_nutrient_id_name_map(self) -> BidirectionalMap:
         """Returns a bidirectional map of nutrient IDs to names."""

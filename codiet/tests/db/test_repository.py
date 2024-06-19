@@ -170,6 +170,56 @@ class TestInsertIngredientName(DatabaseTestCase):
         # Check the ingredient name is correct
         self.assertEqual(all_ingredients[ingredient_id], ingredient_name)
 
+class TestInsertIngredientUnit(DatabaseTestCase):
+    """Test the insert_ingredient_unit method of the Repository class."""
+
+    def test_insert_ingredient_unit_inserts_unit(self):
+        """Test that the method inserts an ingredient unit into the database."""
+        ingredient_name = 'test_ingredient'
+        # Insert the ingredient
+        ingredient_id = self.repository.insert_ingredient_name(
+            name=ingredient_name,
+        )
+        # Define the unit
+        unit_name = 'lb'
+        plural_name = 'lbs'
+        unit_type = 'mass'
+        ref_unit_name = 'g'
+        ref_plural_name = 'g'
+        ref_unit_type = 'mass'
+        # Insert the global unit
+        unit_global_id = self.repository.insert_global_unit(
+            unit_name=unit_name,
+            plural_name=plural_name,
+            unit_type=unit_type,
+        )
+        # Insert the reference global unit
+        ref_unit_global_id = self.repository.insert_global_unit(
+            unit_name=ref_unit_name,
+            plural_name=ref_plural_name,
+            unit_type=ref_unit_type,
+        )
+        # Insert the ingredient unit
+        ingredient_unit_id = self.repository.insert_ingredient_unit(
+            ingredient_id=ingredient_id,
+            unit_global_id=unit_global_id,
+            ref_unit_global_id=ref_unit_global_id,
+            unit_qty=1,
+            ref_unit_qty=2,
+        )
+        # Fetch the ingredient units
+        ingredient_units = self.repository.fetch_ingredient_units(ingredient_id)
+        # Check the new unit is in the database
+        self.assertIn(ingredient_unit_id, ingredient_units.keys())
+        # Assert the unit global ID is set correctly
+        self.assertEqual(ingredient_units[ingredient_unit_id]["unit_global_id"], unit_global_id)
+        # Assert the ref unit global ID is set correctly
+        self.assertEqual(ingredient_units[ingredient_unit_id]["ref_unit_global_id"], ref_unit_global_id)
+        # Assert the unit qty is set correctly
+        self.assertEqual(ingredient_units[ingredient_unit_id]["unit_qty"], 1)
+        # Assert the ref unit qty is set correctly
+        self.assertEqual(ingredient_units[ingredient_unit_id]["ref_unit_qty"], 2)
+
 class TestInsertRecipeName(DatabaseTestCase):
     """Test the insert_recipe_name method of the Repository class."""
 
@@ -283,6 +333,76 @@ class TestUpdateIngredientDescription(DatabaseTestCase):
         description = self.repository.fetch_ingredient_description(id)
         # Check the new ingredient description is in the database
         self.assertEqual(description, description_2)
+
+class TestUpdateIngredientUnit(DatabaseTestCase):
+    """Test the update_ingredient_unit method of the Repository class."""
+
+    def test_update_ingredient_unit_updates_unit(self):
+        """Test that the method updates an ingredient unit in the database."""
+        ingredient_name = 'test_ingredient'
+        unit_name = 'lb'
+        plural_name = 'lbs'
+        unit_type = 'mass'
+        ref_unit_name = 'g'
+        ref_plural_name = 'g'
+        ref_unit_type = 'mass'
+        unit_qty = 1
+        ref_unit_qty = 2
+        # Insert the unit
+        g_id = self.repository.insert_global_unit(
+            unit_name='gram',
+            plural_name='grams',
+            unit_type='mass',
+            aliases=['g'],
+        )
+        # Insert the ingredient
+        ingredient_id = self.repository.insert_ingredient_name(
+            name=ingredient_name,
+        )
+        # Insert the unit
+        unit_id = self.repository.insert_global_unit(
+            unit_name=unit_name,
+            plural_name=plural_name,
+            unit_type=unit_type,
+        )
+        # Insert the reference unit
+        ref_unit_id = self.repository.insert_global_unit(
+            unit_name=ref_unit_name,
+            plural_name=ref_plural_name,
+            unit_type=ref_unit_type,
+        )
+        # Insert the ingredient unit
+        ingredient_unit_id = self.repository.insert_ingredient_unit(
+            ingredient_id=ingredient_id,
+            unit_global_id=unit_id,
+            ref_unit_global_id=ref_unit_id,
+            unit_qty=unit_qty,
+            ref_unit_qty=ref_unit_qty,
+        )
+        # Fetch the ingredient units
+        ingredient_units = self.repository.fetch_ingredient_units(ingredient_id)
+        # Check the new unit is in the database
+        self.assertIn(ingredient_unit_id, ingredient_units.keys())
+        # Update the ingredient unit
+        self.repository.update_ingredient_unit(
+            ingredient_unit_id=ingredient_unit_id,
+            unit_global_id=g_id,
+            ref_unit_global_id=g_id,
+            unit_qty=1,
+            ref_unit_qty=1,
+        )
+        # Fetch the ingredient units again
+        ingredient_units = self.repository.fetch_ingredient_units(ingredient_id)
+        # Check the new unit is in the database
+        self.assertIn(ingredient_unit_id, ingredient_units.keys())
+        # Check the unit global ID is correct
+        self.assertEqual(ingredient_units[ingredient_unit_id]["unit_global_id"], g_id)
+        # Check the ref unit global ID is correct
+        self.assertEqual(ingredient_units[ingredient_unit_id]["ref_unit_global_id"], g_id)
+        # Check the unit qty is correct
+        self.assertEqual(ingredient_units[ingredient_unit_id]["unit_qty"], 1)
+        # Check the ref unit qty is correct
+        self.assertEqual(ingredient_units[ingredient_unit_id]["ref_unit_qty"], 1)       
 
 class TestUpdateIngredientCost(DatabaseTestCase):
     """Test the update_ingredient_cost method of the Repository class."""

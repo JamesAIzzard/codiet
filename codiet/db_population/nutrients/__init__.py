@@ -2,8 +2,6 @@ import json
 import os
 from typing import Dict, Any
 
-from codiet.db.repository import Repository
-
 GLOBAL_NUTRIENTS_FILENAME = 'global_nutrients.json'
 GLOBAL_NUTRIENTS_FILEPATH = os.path.join(os.path.dirname(__file__), GLOBAL_NUTRIENTS_FILENAME)
 

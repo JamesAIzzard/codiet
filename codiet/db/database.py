@@ -141,12 +141,12 @@ class Database:
             CREATE TABLE IF NOT EXISTS ingredient_units (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 ingredient_id INTEGER NOT NULL,
-                target_unit_global_id INTEGER NOT NULL,
-                ref_unit_global_id INTEGER NOT NULL,
+                unit_global_id INTEGER NOT NULL,
+                ref_unit_global_id INTEGER,
                 unit_qty REAL,
                 ref_unit_qty REAL,
                 FOREIGN KEY (ingredient_id) REFERENCES ingredient_base(id)
-                FOREIGN KEY (target_unit_global_id) REFERENCES global_units(id)
+                FOREIGN KEY (unit_global_id) REFERENCES global_units(id)
                 FOREIGN KEY (ref_unit_global_id) REFERENCES global_units(id)
             )
         """)

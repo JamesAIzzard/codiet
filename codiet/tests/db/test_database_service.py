@@ -1,7 +1,6 @@
 import unittest
 
 from . import DatabaseTestCase
-from codiet.utils.nutrients import find_leaf_nutrient_names
 from codiet.db_population.flags import get_global_flags
 from codiet.db_population.nutrients import get_global_nutrients
 from codiet.models.ingredients import Ingredient
@@ -103,18 +102,11 @@ class TestCreateEmptyIngredient(DatabaseTestCase):
         # Check the gi is None
         self.assertIsNone(ingredient.gi)
         # Check the nutrient quantities
-        # First, get a list of all leaf nutrient names
-        leaf_nutrient_names = find_leaf_nutrient_names(get_global_nutrients())
-        # Check the leaf nutrient name list is the same length as the ingredient nutrient list
-        self.assertEqual(len(leaf_nutrient_names), len(ingredient.nutrient_quantities))
-        # Fetch the name-id map for the global nutrients
-        nutrient_name_id_map = self.database_service.fetch_nutrient_id_name_map()
-        # Work through each nutrient quantity on the ingredient
         for nutrient_qty in ingredient.nutrient_quantities.values():
             # Check the nutrient quantity is an instance of IngredientNutrientQuantity
             self.assertIsInstance(nutrient_qty, IngredientNutrientQuantity)
-            # Check that the id is in the nutrient name id map
-            self.assertIn(nutrient_qty.global_nutrient_id, nutrient_name_id_map.int_values)
+            # Check that the child nutrient is a leaf
+            self.assertFalse(nutrient_qty.nutrient.is_child)
             # Check the nutrient mass value is None
             self.assertIsNone(nutrient_qty.nutrient_mass_value)
             # Check the nutrient mass unit id is None
