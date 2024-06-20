@@ -65,50 +65,6 @@ class DatabaseService:
         # Return the recipe
         return recipe
 
-    def insert_global_recipe_tag(self, recipe_tag_name: str) -> int:
-        """Inserts a global recipe tag into the database."""
-        # Action the insertion
-        id = self._repo.insert_global_recipe_tag(recipe_tag_name)
-        # Return the ID
-        return id
-
-    def fetch_all_global_flag_names(self) -> list[str]:
-        """Returns a list of all the flags in the database."""
-        return self._repo.fetch_all_global_flags()
-
-    def fetch_all_global_nutrients(self) -> dict[int, Nutrient]:
-        """Returns a list of all the nutrients in the database."""
-        # Grab all the nutrients from the repo
-        global_nutrients = self._repo.fetch_all_global_nutrients()
-        # Init a dict to hold the nutrients
-        nutrients = {}
-        # Cycle through the raw data
-        for nutrient_id, nutrient_data in global_nutrients.items():
-            # Create a new nutrient
-            nutrient = Nutrient(
-                nutrient_name=nutrient_data["nutrient_name"],
-                aliases=nutrient_data["aliases"],
-                parent_id=nutrient_data["parent_id"],
-            )
-            # Add it to the list
-            nutrients[nutrient_id] = nutrient
-        # Now populate child ids
-        for nutrient_id, nutrient in nutrients.items():
-            if nutrient.parent_id is not None:
-                nutrients[nutrient.parent_id].child_ids.append(nutrient_id)
-        return nutrients
-    
-    def fetch_all_global_leaf_nutrients(self) -> dict[int, Nutrient]:
-        """Returns a list of all the leaf nutrients in the database."""
-        # Fetch all the global nutrients
-        global_nutrients = self.fetch_all_global_nutrients()
-        # Isolate the leaf nutrients
-        leaf_nutrients = {}
-        for nutrient_id, nutrient in global_nutrients.items():
-            if len(nutrient.child_ids) == 0:
-                leaf_nutrients[nutrient_id] = nutrient
-        return leaf_nutrients
-
     def fetch_nutrient_id_name_map(self) -> BidirectionalMap:
         """Returns a bidirectional map of nutrient IDs to names."""
         # Create a new bidirectional map
@@ -119,11 +75,7 @@ class DatabaseService:
             map.add_mapping(integer=nutrient_id, string=nutrient_data['nutrient_name'])
         return map
 
-    def fetch_all_ingredient_names(self) -> list[str]:
-        """Returns a list of all the ingredients in the database."""
-        return self._repo.read_all_ingredient_names()
-
-    def fetch_ingredient_by_name(self, name: str) -> Ingredient:
+    def fetch_ingredient(self, ingredient_id: int) -> Ingredient:
         """Returns the ingredient with the given name."""
         # Grab the ingredient ID
         id = self._repo.fetch_ingredient_id_by_name(name)
@@ -155,33 +107,6 @@ class DatabaseService:
         # Return the completed ingredient
         return ingredient
 
-    def fetch_ingredient_by_id(self, id: int) -> Ingredient:
-        """Returns the ingredient with the given ID."""
-        # Grab the name corresponding to the id
-        name = self._repo.fetch_ingredient_name(id)
-        # Return the ingredient with the name
-        return self.fetch_ingredient_by_name(name)
-
-    def fetch_ingredient_name_by_id(self, id: int) -> str:
-        """Returns the name of the ingredient with the given ID."""
-        return self._repo.fetch_ingredient_name(id)
-
-    def fetch_ingredient_id_by_name(self, name: str) -> int:
-        """Returns the ID of the ingredient with the given name."""
-        return self._repo.fetch_ingredient_id_by_name(name)
-
-    def fetch_ingredient_cost(self, ingredient_id: int) -> dict:
-        """Returns the cost data for the given ingredient."""
-        # Grab the raw data
-        cost_data = self._repo.fetch_ingredient_cost(ingredient_id)
-        # Convert the raw data to a dict
-        cost_dict = {
-            "cost_value": cost_data[0],
-            "cost_qty_unit": cost_data[1],
-            "cost_qty_value": cost_data[2],
-        }
-        return cost_dict
-
     def fetch_custom_units_by_ingredient_id(
         self, ingredient_id: int
     ) -> dict[int, Unit]:
@@ -203,26 +128,6 @@ class DatabaseService:
             # Add it to the list
             custom_units[custom_unit.unit_id] = custom_unit
         return custom_units
-
-    def fetch_ingredient_flags(
-        self, ingredient_name: str | None = None, ingredient_id: int | None = None
-    ) -> dict[str, bool]:
-        """Returns the flags for the given ingredient."""
-        # Check one of the parameters is set
-        if ingredient_name is None and ingredient_id is None:
-            raise ValueError("Either ingredient_name or ingredient_id must be set.")
-        # Grab the flags using the id
-        if ingredient_id is None and ingredient_name is not None:
-            id = self._repo.fetch_ingredient_id_by_name(ingredient_name)
-        elif ingredient_id is not None:
-            id = ingredient_id
-        # Grab the flags
-        flags_data = self._repo.fetch_ingredient_flags(id)
-        # Convert the flags from binary to boolean
-        flags = {}
-        for flag_name, flag_value in flags_data.items():
-            flags[flag_name] = bool(flag_value)
-        return flags
 
     def fetch_nutrient_quantities_by_ingredient_id(
         self, ingredient_id: int
