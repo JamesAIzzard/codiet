@@ -70,7 +70,7 @@ class TestCreateGlobalNutrient(DatabaseTestCase):
         for nutrient_id, nutrient_data in all_nutrients.items():
             self.assertNotEqual(nutrient_data["nutrient_name"], nutrient_name)
         # Insert the nutrient
-        id = self.repository.insert_global_nutrient(
+        id = self.repository.create_global_nutrient(
             name=nutrient_name,
             parent_id=3,
         )
@@ -99,12 +99,12 @@ class TestCreateNutrientAlias(DatabaseTestCase):
         for nutrient_id, nutrient_data in all_nutrients.items():
             self.assertNotEqual(nutrient_data["nutrient_name"], nutrient_name)
         # Insert the nutrient
-        id = self.repository.insert_global_nutrient(
+        id = self.repository.create_global_nutrient(
             name=nutrient_name,
             parent_id=3,
         )
         # Insert the alias
-        self.repository.insert_nutrient_alias(
+        self.repository.create_nutrient_alias(
             primary_nutrient_id=id,
             alias=alias,
         )
@@ -196,25 +196,70 @@ class TestCreateIngredientUnitConversion(DatabaseTestCase):
         # Assert the ref unit qty is set correctly
         self.assertEqual(ing_unit_conversions[unit_conversion_id]["to_unit_qty"], 1)
 
-class TestInsertRecipeName(DatabaseTestCase):
+class TestCreateRecipeName(DatabaseTestCase):
     """Test the insert_recipe_name method of the Repository class."""
 
     def test_insert_recipe_name_inserts_name(self):
         """Test that the method inserts a recipe name into the database."""
         recipe_name = 'test_recipe'
         # Assert there are no recipe names in the database
-        all_recipes = self.repository.fetch_all_recipe_names()
+        all_recipes = self.repository.read_all_recipe_names()
         self.assertEqual(len(all_recipes), 0)
         # Insert the recipe
         recipe_id = self.repository.create_recipe_name(
             name=recipe_name,
         )
         # Fetch all the recipes again
-        all_recipes = self.repository.fetch_all_recipe_names()
+        all_recipes = self.repository.read_all_recipe_names()
         # Check the recipe name is in the database
         self.assertIn(recipe_id, all_recipes.keys())
         # Check the recipe name is correct
         self.assertEqual(all_recipes[recipe_id], recipe_name)
+
+class TestCreateRecipeIngredient(DatabaseTestCase):
+    """Test the insert_recipe_ingredient method of the Repository class."""
+
+    def test_insert_recipe_ingredient_inserts_ingredient(self):
+        """Test that the method inserts a recipe ingredient into the database."""
+        # Insert the unit
+        g_id = self.repository.create_global_unit(
+            unit_name='gram',
+            single_display_name='g',
+            plural_display_name='g',
+            unit_type='mass',
+        )
+        # Insert the recipe
+        recipe_id = self.repository.create_recipe_name(
+            name="Test Recipe",
+        )
+        # Insert the ingredient
+        ingredient_id = self.repository.create_ingredient_name(
+            name="Test Ingredient",
+        )
+        # Check the ingredient is not in the recipe
+        ingredients = self.repository.read_recipe_ingredients(recipe_id)
+        self.assertNotIn(ingredient_id, ingredients.keys())
+        # Add the ingredient to the recipe
+        self.repository.create_recipe_ingredient(
+            recipe_id=recipe_id,
+            ingredient_id=ingredient_id,
+            qty_unit_id=g_id,
+            qty_value=100,
+            qty_utol=10,
+            qty_ltol=15,
+        )
+        # Fetch the recipe ingredients again
+        ingredients = self.repository.read_recipe_ingredients(recipe_id)
+        # Check the ingredient is in the recipe
+        self.assertIn(ingredient_id, ingredients.keys())
+        # Check the ingredient quantity value is correct
+        self.assertEqual(ingredients[ingredient_id]["qty_value"], 100)
+        # Check the ingredient quantity unit is correct
+        self.assertEqual(ingredients[ingredient_id]["qty_unit_id"], g_id)
+        # Check the ingredient quantity upper tolerance is correct
+        self.assertEqual(ingredients[ingredient_id]["qty_utol"], 10)
+        # Check the ingredient quantity lower tolerance is correct
+        self.assertEqual(ingredients[ingredient_id]["qty_ltol"], 15)
 
 class TestInsertRecipeServeTimeWindow(DatabaseTestCase):
     """Test the insert_recipe_serve_time_window method of the Repository class."""
@@ -503,7 +548,7 @@ class TestUpdateIngredientNutrientQuantity(DatabaseTestCase):
             name="Test Ingredient",
         )
         # Insert the nutrient
-        nutrient_id = self.repository.insert_global_nutrient(
+        nutrient_id = self.repository.create_global_nutrient(
             name="Test Nutrient",
             parent_id=3,
         )
@@ -543,7 +588,7 @@ class TestUpdateRecipeName(DatabaseTestCase):
             name=recipe_name,
         )
         # Check the name is in the database
-        all_recipes = self.repository.fetch_all_recipe_names()
+        all_recipes = self.repository.read_all_recipe_names()
         self.assertIn(recipe_id, all_recipes.keys())
         # Check the name is correct
         self.assertEqual(all_recipes[recipe_id], recipe_name)
@@ -553,7 +598,7 @@ class TestUpdateRecipeName(DatabaseTestCase):
             name=new_recipe_name,
         )
         # Fetch all the recipes again
-        all_recipes = self.repository.fetch_all_recipe_names()
+        all_recipes = self.repository.read_all_recipe_names()
         # Check the new recipe name is in the database
         self.assertIn(recipe_id, all_recipes.keys())
         # Check the old recipe name is not in the database
@@ -805,11 +850,11 @@ class TestDeleteRecipe(DatabaseTestCase):
             name=recipe_name,
         )
         # Check the recipe is in the database
-        all_recipes = self.repository.fetch_all_recipe_names()
+        all_recipes = self.repository.read_all_recipe_names()
         self.assertIn(recipe_id, all_recipes.keys())
         # Delete the recipe
         self.repository.delete_recipe(recipe_id)
         # Fetch all the recipes again
-        all_recipes = self.repository.fetch_all_recipe_names()
+        all_recipes = self.repository.read_all_recipe_names()
         # Check the recipe is not in the database
         self.assertNotIn(recipe_id, all_recipes.keys())

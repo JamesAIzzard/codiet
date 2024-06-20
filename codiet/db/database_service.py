@@ -36,19 +36,16 @@ class DatabaseService:
         """Recursively adds nutrients and their aliases into the database."""
         for nutrient_name, nutrient_info in nutrient_data.items():
             # Insert the nutrient
-            nutrient_id = self.repository.insert_global_nutrient(name=nutrient_name, parent_id=parent_id)
+            nutrient_id = self.repository.create_global_nutrient(name=nutrient_name, parent_id=parent_id)
             # Insert the aliases for the nutrient
             for alias in nutrient_info.get("aliases", []):
-                self.repository.insert_nutrient_alias(alias=alias, primary_nutrient_id=nutrient_id)
+                self.repository.create_nutrient_alias(alias=alias, primary_nutrient_id=nutrient_id)
             # Recursively insert the child nutrients
             if "children" in nutrient_info:
                 self.create_global_nutrients(nutrient_info["children"], parent_id=nutrient_id)
 
     def create_empty_ingredient(self, ingredient_name: str) -> Ingredient:
-        """Creates an ingredient.
-        Has to make various calls to the database to populate the ingredient with
-        flags, nutrients, etc.
-        """
+        """Creates an ingredient."""
         # Insert the ingredient name into the database
         ingredient_id = self.repository.create_ingredient_name(ingredient_name)
         # Init the ingredient
@@ -56,36 +53,17 @@ class DatabaseService:
         # Return the ingredient
         return ingredient
 
-    def insert_ingredient_nutrient_quantity(
-        self, ingredient_id: int, global_nutrient_id: int
-    ) -> IngredientNutrientQuantity:
-        """Inserts a nutrient quantity into the database and returns the new ID."""
-        self._repo.insert_ingredient_nutrient_quantity(
-            ingredient_id=ingredient_id, nutrient_id=global_nutrient_id
+    def create_empty_recipe(self, recipe_name: str) -> Recipe:
+        """Creates an empty recipe with the given name."""
+        # Insert the recipe name into the database
+        recipe_id = self.repository.create_recipe_name(recipe_name)
+        # Init the recipe
+        recipe = Recipe(
+            recipe_name=recipe_name,
+            recipe_id=recipe_id,
         )
-        nutrient_quantity = IngredientNutrientQuantity(
-            global_nutrient_id=global_nutrient_id,
-            ingredient_id=ingredient_id,
-        )
-        return nutrient_quantity
-
-    def insert_new_recipe(self, recipe: Recipe) -> None:
-        """Saves the given recipe to the database."""
-        # Check the recipe name is set, otherwise raise an exception
-        if recipe.name is None:
-            raise ValueError("Recipe name must be set.")
-        try:
-            # Add the recipe name to the database, getting primary key
-            id = self._repo.create_recipe_name(recipe.name)
-            # Add the id to the recipe instance
-            recipe.id = id
-            # Now update the recipe as normal
-            self.update_recipe(recipe)
-        except Exception as e:
-            # Roll back the transaction if an exception occurs
-            self._repo.database.connection.rollback()
-            # Re-raise any exceptions
-            raise e
+        # Return the recipe
+        return recipe
 
     def insert_global_recipe_tag(self, recipe_tag_name: str) -> int:
         """Inserts a global recipe tag into the database."""
@@ -279,7 +257,7 @@ class DatabaseService:
 
     def fetch_all_recipe_names(self) -> list[str]:
         """Returns a list of all the recipes in the database."""
-        return self._repo.fetch_all_recipe_names()
+        return self._repo.read_all_recipe_names()
 
     def fetch_recipe_by_name(self, name: str) -> Recipe:
         """Returns the recipe with the given name."""
@@ -479,7 +457,3 @@ class DatabaseService:
     def delete_recipe_by_name(self, recipe_name: str):
         """Deletes the given recipe from the database."""
         self._repo.delete_recipe_by_name(recipe_name)
-
-    def commit(self):
-        """Commits the current transaction."""
-        self._repo.connection.commit()

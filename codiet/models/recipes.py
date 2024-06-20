@@ -3,9 +3,9 @@ from datetime import datetime
 from codiet.models.ingredients import IngredientQuantity
 
 class Recipe:
-    def __init__(self):
-        self.name: str | None = None
-        self.id: int | None = None
+    def __init__(self, recipe_id:int, recipe_name: str):
+        self.id = recipe_id
+        self.name = recipe_name
         self.description: str | None = None
         self.instructions: str | None = None
         self._ingredient_quantities: dict[int, IngredientQuantity] = {}

@@ -33,6 +33,10 @@ class Repository:
         finally:
             cursor.close()
 
+    def commit(self) -> None:
+        """Commit changes to the database."""
+        self.connection.commit()
+
     def create_global_unit(
         self, 
         unit_name: str, 
@@ -97,7 +101,7 @@ class Repository:
             assert cursor.lastrowid is not None
             return cursor.lastrowid
 
-    def insert_global_nutrient(
+    def create_global_nutrient(
         self, name: str, parent_id: int | None = None
     ) -> int:
         """Adds a nutrient to the global leaf nutrient table and returns the ID."""
@@ -112,7 +116,7 @@ class Repository:
         assert id is not None
         return id
 
-    def insert_nutrient_alias(
+    def create_nutrient_alias(
         self, alias: str, primary_nutrient_id: int
     ) -> None:
         """Adds an alias into the global group nutrient alias table."""
@@ -548,7 +552,7 @@ class Repository:
             for row in rows
         }
 
-    def fetch_all_recipe_names(self) -> dict[int, str]:
+    def read_all_recipe_names(self) -> dict[int, str]:
         """Returns a list of all the recipe names in the database.
         Data structure returned is a dictionary:
         {

@@ -4,7 +4,6 @@ from . import DatabaseTestCase
 from codiet.db_population.flags import get_global_flags
 from codiet.db_population.nutrients import get_global_nutrients
 from codiet.models.ingredients import Ingredient
-from codiet.models.nutrients import IngredientNutrientQuantity
 
 def flatten_nutrients(nutrient_data, parent_id=None):
     """Flatten the nested nutrient structure into a list of nutrient dictionaries."""
@@ -103,7 +102,26 @@ class TestCreateEmptyIngredient(DatabaseTestCase):
         # Check there are no nutrients yet
         self.assertEqual(len(ingredient.nutrient_quantities), 0)
 
-        
+class TestCreateEmptyRecipe(DatabaseTestCase):
+
+    def test_create_empty_recipe_creates_empty_recipe(self):
+        """Test creating an empty recipe."""
+        # Check there are no recipes in the database
+        recipes = self.database_service.repository.read_all_recipe_names()
+        self.assertEqual(len(recipes), 0)
+        # Create the empty recipe
+        recipe_name = "Test Recipe"
+        recipe = self.database_service.create_empty_recipe(recipe_name)
+        # Check the name is set correctly
+        self.assertEqual(recipe.name, recipe_name)
+        # Check the id is set correctly
+        self.assertEqual(recipe.id, 1)
+        # Check the description is None
+        self.assertIsNone(recipe.description)
+        # Check there are no instructions
+        self.assertIsNone(recipe.instructions)
+        # Check there are no ingredient quantities
+        self.assertEqual(len(recipe.ingredient_quantities), 0)
 
 
 
