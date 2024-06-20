@@ -1,5 +1,5 @@
 from codiet.models.nutrients import IngredientNutrientQuantity
-from codiet.models.units import Unit
+from codiet.models.units import IngredientUnitConversion
 
 
 class Ingredient:
@@ -13,7 +13,8 @@ class Ingredient:
         self.cost_value: float | None = None
         self.cost_qty_unit_id: int | None = None
         self.cost_qty_value: float | None = None
-        self._units: dict[int, Unit] = {}
+        self.standard_unit_id: int | None = None
+        self._unit_conversions: dict[int, IngredientUnitConversion] = {}
         self._flags: dict[int, bool|None] = {}
         self.gi: float | None = None
         self._nutrient_quantities: dict[int, IngredientNutrientQuantity] = {}
@@ -24,44 +25,39 @@ class Ingredient:
         return self._flags
 
     @property
-    def units(self) -> dict[int, Unit]:
-        """Returns the custom units."""
-        return self._units
+    def unit_conversions(self) -> dict[int, IngredientUnitConversion]:
+        """Returns the unit conversions associated with this ingredient."""
+        return self._unit_conversions
 
     @property
     def nutrient_quantities(self) -> dict[int, IngredientNutrientQuantity]:
         """Returns the nutrient quantities."""
         return self._nutrient_quantities
 
-    def add_custom_unit(self, custom_unit: Unit) -> None:
-        """Adds a custom unit."""
-        # Raise an exception if the custom unit is already in the custom units list
-        if custom_unit.unit_id in self._units:
-            raise ValueError(f"Custom unit '{custom_unit.unit_id}' already in custom units list.")
-        # All OK, so add the custom unit
-        self._units[custom_unit.unit_id] = custom_unit
+    def upsert_unit_conversion(self, unit_conversion: IngredientUnitConversion) -> None:
+        """Upserts a unit conversion."""
+        # Check if the unit conversion is already in the list
+        for uc in self._unit_conversions.values():
+            if uc == unit_conversion:
+                # Update the unit conversion
+                self._unit_conversions[unit_conversion.id] = unit_conversion
+                return
+        # If not found, add the unit conversion
+        self._unit_conversions[unit_conversion.id] = unit_conversion
 
-    def update_custom_unit(self, custom_unit: Unit) -> None:
-        """Updates a custom unit."""
-        # Raise an exception if the custom unit isn't in the custom units list
-        if custom_unit.unit_id not in self._units:
-            raise ValueError(f"Custom unit '{custom_unit.unit_id}' not in custom units list.")
-        # All OK, so update the custom unit
-        self._units[custom_unit.unit_id] = custom_unit
+    def delete_unit_conversion(self, unit_id: int) -> None:
+        """Delete a unit."""
+        self._unit_conversions.pop(unit_id)
 
-    def delete_custom_unit(self, unit_id: int) -> None:
-        """Delete a custom unit."""
-        self._units.pop(unit_id)
-
-    def set_flag(self, flag: str, value: bool) -> None:
+    def set_flag(self, flag_id: int, value: bool|None) -> None:
         """Sets a flag."""
         # Raise an  exception if the flag isn't in the flags list
-        if flag not in self._flags:
-            raise ValueError(f"Flag '{flag}' not in flags list.")
+        if flag_id not in self._flags:
+            raise KeyError(f"Flag '{flag_id}' not in flags list.")
         # All OK, so set the flag
-        self._flags[flag] = value
+        self._flags[flag_id] = value
 
-    def set_flags(self, flags: dict[str, bool]) -> None:
+    def set_flags(self, flags: dict[int, bool|None]) -> None:
         """Sets the flags."""
         for flag, value in flags.items():
             self.set_flag(flag, value)
@@ -80,7 +76,7 @@ class Ingredient:
         self, ingredient_nutrient: IngredientNutrientQuantity
     ) -> None:
         """Updates a nutrient quantity on the ingredient."""
-        self._nutrient_quantities[ingredient_nutrient.global_nutrient_id] = ingredient_nutrient
+        self._nutrient_quantities[ingredient_nutrient.id] = ingredient_nutrient
 
 
 class IngredientQuantity:

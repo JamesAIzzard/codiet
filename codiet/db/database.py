@@ -34,7 +34,7 @@ class Database:
         self.create_global_recipe_tags_table(cursor)
         # Ingredients tables   
         self.create_ingredients_table(cursor)
-        self.create_ingredient_units_table(cursor)
+        self.create_ingredient_unit_conversions_table(cursor)
         self.create_ingredient_flags_table(cursor)
         self.create_ingredient_nutrients_table(cursor)
         # Recipes tables
@@ -51,7 +51,8 @@ class Database:
             CREATE TABLE IF NOT EXISTS global_units (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 unit_name TEXT NOT NULL UNIQUE,
-                plural_name TEXT NOT NULL,
+                single_display_name TEXT NOT NULL,
+                plural_display_name TEXT NOT NULL,
                 unit_type TEXT NOT NULL
             )
         """)
@@ -63,7 +64,8 @@ class Database:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 from_unit_id INTEGER NOT NULL,
                 to_unit_id INTEGER NOT NULL,
-                conversion_factor REAL NOT NULL,
+                from_unit_qty REAL,
+                to_unit_qty REAL,
                 FOREIGN KEY (from_unit_id) REFERENCES global_units(id),
                 FOREIGN KEY (to_unit_id) REFERENCES global_units(id)
             )
@@ -135,19 +137,19 @@ class Database:
             )
         """)
 
-    def create_ingredient_units_table(self, cursor:sqlite3.Cursor) -> None:
-        """Create the table to associate custom measurements with ingredients."""
+    def create_ingredient_unit_conversions_table(self, cursor:sqlite3.Cursor) -> None:
+        """Create the table for ingredient conversions specific to ingredients."""
         cursor.execute(""" 
-            CREATE TABLE IF NOT EXISTS ingredient_units (
+            CREATE TABLE IF NOT EXISTS ingredient_unit_conversions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 ingredient_id INTEGER NOT NULL,
-                unit_global_id INTEGER NOT NULL,
-                ref_unit_global_id INTEGER,
-                unit_qty REAL,
-                ref_unit_qty REAL,
+                from_unit_id INTEGER NOT NULL,
+                to_unit_id INTEGER,
+                from_unit_qty REAL,
+                to_unit_qty REAL,
                 FOREIGN KEY (ingredient_id) REFERENCES ingredient_base(id)
-                FOREIGN KEY (unit_global_id) REFERENCES global_units(id)
-                FOREIGN KEY (ref_unit_global_id) REFERENCES global_units(id)
+                FOREIGN KEY (from_unit_id) REFERENCES global_units(id)
+                FOREIGN KEY (to_unit_id) REFERENCES global_units(id)
             )
         """)
 
@@ -167,7 +169,7 @@ class Database:
     def create_ingredient_nutrients_table(self, cursor:sqlite3.Cursor) -> None:
         """Create the table to associate nutrient quantities with recipes."""
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS ingredient_nutrients (
+            CREATE TABLE IF NOT EXISTS ingredient_nutrient_quantities (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 ingredient_id INTEGER NOT NULL,
                 nutrient_id INTEGER NOT NULL,

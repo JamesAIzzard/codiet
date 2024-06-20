@@ -24,14 +24,14 @@ def flatten_nutrients(nutrient_data, parent_id=None):
     _flatten(nutrient_data, parent_id)
     return flattened
 
-class TestInsertGlobalFlags(DatabaseTestCase):
+class TestCreateGlobalFlags(DatabaseTestCase):
 
-    def test_insert_global_flags_inserts_global_flags(self):
-        """Test inserting global flags."""
+    def test_create_global_flags_create_global_flags(self):
+        """Test creating global flags in the database."""
         # Get the global flags
         global_flags = get_global_flags()
         # Insert the global flags
-        self.database_service.insert_global_flags(global_flags)
+        self.database_service.create_global_flags(global_flags)
         # Fetch all the global flags
         fetched_global_flags = self.database_service.repository.fetch_all_global_flags()
         # Check the length of the fetched global flags is the same as the global flags
@@ -41,14 +41,14 @@ class TestInsertGlobalFlags(DatabaseTestCase):
             # Check the global flag is in the fetched global flags
             self.assertIn(global_flag, fetched_global_flags.values())
 
-class TestInsertGlobalNutrients(DatabaseTestCase):
+class TestCreateGlobalNutrients(DatabaseTestCase):
 
-    def test_insert_global_nutrients_inserts_global_nutrients(self):
-        """Test inserting global nutrients."""
+    def test_create_global_nutrients_creates_global_nutrients(self):
+        """Test creating global nutrients."""
         # Get the global nutrients
         global_nutrients = get_global_nutrients()
         # Insert the global nutrients
-        self.database_service.insert_global_nutrients(global_nutrients)
+        self.database_service.create_global_nutrients(global_nutrients)
         # Fetch all the global nutrients
         fetched_global_nutrients = self.database_service.repository.fetch_all_global_nutrients()
         # Flatten the original global nutrients structure
@@ -68,10 +68,10 @@ class TestCreateEmptyIngredient(DatabaseTestCase):
     def test_create_empty_ingredient_creates_empty_ingredient(self):
         """Test creating an empty ingredient."""
         # Configure the flags and nutrients
-        self.database_service.insert_global_flags(get_global_flags())
-        self.database_service.insert_global_nutrients(get_global_nutrients())
+        self.database_service.create_global_flags(get_global_flags())
+        self.database_service.create_global_nutrients(get_global_nutrients())
         # Check there are no ingredients in the database
-        ingredients = self.database_service.repository.fetch_all_ingredient_names()
+        ingredients = self.database_service.repository.read_all_ingredient_names()
         self.assertEqual(len(ingredients), 0)
         # Create the empty ingredient
         ingredient_name = "Test Ingredient"        
@@ -92,29 +92,16 @@ class TestCreateEmptyIngredient(DatabaseTestCase):
         self.assertIsNone(ingredient.cost_qty_unit_id)
         # Check the cost quantity value is None
         self.assertIsNone(ingredient.cost_qty_value)
+        # Check the standard unit is None
+        self.assertIsNone(ingredient.standard_unit_id)
         # Check there are no units
-        self.assertEqual(len(ingredient.units), 0)
-        # Read all of the global flags
-        flags = self.database_service.repository.fetch_all_global_flags()
-        # Check each flag is present on the ingredient, and is set to None
-        for flag_id in flags.keys():
-            self.assertIsNone(ingredient.flags[flag_id])
+        self.assertEqual(len(ingredient.unit_conversions), 0)
+        # Check there are no flags yet
+        self.assertEqual(len(ingredient.flags), 0)
         # Check the gi is None
         self.assertIsNone(ingredient.gi)
-        # Check the nutrient quantities
-        for nutrient_qty in ingredient.nutrient_quantities.values():
-            # Check the nutrient quantity is an instance of IngredientNutrientQuantity
-            self.assertIsInstance(nutrient_qty, IngredientNutrientQuantity)
-            # Check that the child nutrient is a leaf
-            self.assertFalse(nutrient_qty.nutrient.is_child)
-            # Check the nutrient mass value is None
-            self.assertIsNone(nutrient_qty.nutrient_mass_value)
-            # Check the nutrient mass unit id is None
-            self.assertIsNone(nutrient_qty.nutrient_mass_unit_id)
-            # Check the ingredient quantity value is None
-            self.assertIsNone(nutrient_qty.ingredient_quantity_value)
-            # Check the ingredient quantity unit id is None
-            self.assertIsNone(nutrient_qty.ingredient_quantity_unit_id)
+        # Check there are no nutrients yet
+        self.assertEqual(len(ingredient.nutrient_quantities), 0)
 
         
 

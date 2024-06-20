@@ -27,13 +27,13 @@ class DatabaseService:
     def repository(self) -> Repository:
         return self._repo
 
-    def insert_global_flags(self, flags: list[str]) -> None:
+    def create_global_flags(self, flags: list[str]) -> None:
         """Insert the global flags into the database."""
         for flag in flags:
             self.repository.insert_global_flag(flag)
 
-    def insert_global_nutrients(self, nutrient_data: dict[str, Any], parent_id: int|None=None) -> None:
-        """Recursively inserts nutrients and their aliases into the database."""
+    def create_global_nutrients(self, nutrient_data: dict[str, Any], parent_id: int|None=None) -> None:
+        """Recursively adds nutrients and their aliases into the database."""
         for nutrient_name, nutrient_info in nutrient_data.items():
             # Insert the nutrient
             nutrient_id = self.repository.insert_global_nutrient(name=nutrient_name, parent_id=parent_id)
@@ -42,7 +42,7 @@ class DatabaseService:
                 self.repository.insert_nutrient_alias(alias=alias, primary_nutrient_id=nutrient_id)
             # Recursively insert the child nutrients
             if "children" in nutrient_info:
-                self.insert_global_nutrients(nutrient_info["children"], parent_id=nutrient_id)
+                self.create_global_nutrients(nutrient_info["children"], parent_id=nutrient_id)
 
     def create_empty_ingredient(self, ingredient_name: str) -> Ingredient:
         """Creates an ingredient.
@@ -50,19 +50,11 @@ class DatabaseService:
         flags, nutrients, etc.
         """
         # Insert the ingredient name into the database
-        ingredient_id = self.repository.insert_ingredient_name(ingredient_name)
+        ingredient_id = self.repository.create_ingredient_name(ingredient_name)
         # Init the ingredient
         ingredient = Ingredient(ingredient_name, ingredient_id)
-        # Populate empty flags
-        ingredient._flags = {flag: None for flag in self.repository.fetch_all_global_flags()}
-        # Populate the nutrient quantities
-        global_leaf_nutrients = self.fetch_all_global_leaf_nutrients()
         # Return the ingredient
         return ingredient
-
-    # def create_ingredient_unit(self, ingredient_unit: IngredientUnit) -> int:
-    #     """Inserts a custom measurement into the database and returns the new ID."""
-    #     raise NotImplementedError
 
     def insert_ingredient_nutrient_quantity(
         self, ingredient_id: int, global_nutrient_id: int
@@ -84,7 +76,7 @@ class DatabaseService:
             raise ValueError("Recipe name must be set.")
         try:
             # Add the recipe name to the database, getting primary key
-            id = self._repo.insert_recipe_name(recipe.name)
+            id = self._repo.create_recipe_name(recipe.name)
             # Add the id to the recipe instance
             recipe.id = id
             # Now update the recipe as normal
@@ -151,7 +143,7 @@ class DatabaseService:
 
     def fetch_all_ingredient_names(self) -> list[str]:
         """Returns a list of all the ingredients in the database."""
-        return self._repo.fetch_all_ingredient_names()
+        return self._repo.read_all_ingredient_names()
 
     def fetch_ingredient_by_name(self, name: str) -> Ingredient:
         """Returns the ingredient with the given name."""
@@ -261,7 +253,7 @@ class DatabaseService:
         # Init a dict to hold the nutrient quantities
         nutrient_quantities = {}
         # Fetch the raw data from the repo
-        raw_nutrient_quantities = self._repo.fetch_ingredient_nutrient_quantities(
+        raw_nutrient_quantities = self._repo.read_ingredient_nutrient_quantities(
             ingredient_id
         )
         # Cycle through the raw data
@@ -303,7 +295,7 @@ class DatabaseService:
         recipe.instructions = self._repo.fetch_recipe_instructions(recipe.id)
         # Fetch the ingredients
         # First grab the raw data from the repo
-        raw_ingredients = self._repo.fetch_recipe_ingredients(recipe.id)
+        raw_ingredients = self._repo.read_recipe_ingredients(recipe.id)
         # Init a list to hold the ingredient quantities
         ingredient_quantities: dict[int, IngredientQuantity] = {}
         # Cycle through the raw data

@@ -257,14 +257,14 @@ class IngredientEditorCtrl:
             )
             db_service.commit()
         # Add the custom unit to the ingredient model
-        self.ingredient.add_custom_unit(custom_unit)
+        self.ingredient.add_unit(custom_unit)
         # Return the custom unit instance
         return custom_unit
 
     def _on_custom_unit_edited(self, custom_unit: Unit):
         """Handler for editing a custom unit."""
         # Update the custom unit on the ingredient
-        self.ingredient.update_custom_unit(custom_unit)
+        self.ingredient.update_unit(custom_unit)
         # Update the custom unit in the database
         with DatabaseService() as db_service:
             db_service.update_custom_unit(custom_unit)
@@ -273,7 +273,7 @@ class IngredientEditorCtrl:
     def _on_custom_unit_deleted(self, unit_id: int):
         """Handler for deleting a custom unit."""
         # Remove the custom unit from the ingredient
-        self.ingredient.delete_custom_unit(unit_id)
+        self.ingredient.unit(unit_id)
         # Remove the custom unit from the database
         with DatabaseService() as db_service:
             db_service.delete_custom_unit(unit_id)
