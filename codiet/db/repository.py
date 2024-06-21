@@ -400,7 +400,18 @@ class Repository:
             ).fetchall()
         return {row[0]: row[1] for row in rows}
 
-    def fetch_ingredient_description(self, ingredient_id: int) -> str | None:
+    def read_ingredient_name(self, ingredient_id: int) -> str:
+        """Returns the name of the ingredient associated with the given ID."""
+        with self.get_cursor() as cursor:
+            rows = cursor.execute(
+                """
+                SELECT ingredient_name FROM ingredients WHERE id = ?;
+            """,
+                (ingredient_id,),
+            ).fetchall()
+        return rows[0][0]
+
+    def read_ingredient_description(self, ingredient_id: int) -> str | None:
         """Returns the description of the ingredient associated with the given ID."""
         with self.get_cursor() as cursor:
             rows = cursor.execute(
@@ -411,7 +422,7 @@ class Repository:
             ).fetchall()
         return rows[0][0] if rows else None
 
-    def fetch_ingredient_cost(self, ingredient_id: int) -> dict:
+    def read_ingredient_cost(self, ingredient_id: int) -> dict:
         """
         Return the cost data of the ingredient associated with the given ID.
 
@@ -474,7 +485,7 @@ class Repository:
             for row in rows
         }
 
-    def fetch_ingredient_flags(self, ingredient_id: int) -> dict[int, bool|None]:
+    def read_ingredient_flags(self, ingredient_id: int) -> dict[int, bool|None]:
         """
         Return the flags of the ingredient associated with the given ingredient ID.
     
@@ -520,17 +531,19 @@ class Repository:
         self, ingredient_id: int
     ) -> dict[int, dict]:
         """Returns a dict of nutrients for the given ingredient ID.
-        
-        The data structure returned is a dictionary:
-        {
-            ingredient_nutrient_qty_id: {
-                'nutrient_id': int,
-                'ntr_mass_unit_id': int|None,
-                'ntr_mass_value': float|None,
-                'ing_qty_unit_id': int|None,
-                'ing_qty_value': float|None
+        Args:
+            ingredient_id (int): The ID of the ingredient.
+        Returns:
+            The data structure returned is a dictionary:
+            {
+                ingredient_nutrient_qty_id: {
+                    'nutrient_id': int,
+                    'ntr_mass_unit_id': int|None,
+                    'ntr_mass_value': float|None,
+                    'ing_qty_unit_id': int|None,
+                    'ing_qty_value': float|None
+                }
             }
-        }
         """
         with self.get_cursor() as cursor:
             rows = cursor.execute(

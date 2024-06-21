@@ -31,7 +31,7 @@ class IngredientNutrientQuantity:
     def __init__(
         self,
         id: int,
-        nutrient: Nutrient,
+        nutrient_id: int,
         ingredient_id: int,
         ntr_mass_value: float | None = None,
         ntr_mass_unit_id: int | None = None,
@@ -39,7 +39,7 @@ class IngredientNutrientQuantity:
         ing_qty_unit_id: int | None = None,
     ):
         self.id = id
-        self.nutrient = nutrient
+        self.nutrient_id = nutrient_id
         self.ingredient_id = ingredient_id
         self.nutrient_mass_value = ntr_mass_value
         self.nutrient_mass_unit_id = ntr_mass_unit_id

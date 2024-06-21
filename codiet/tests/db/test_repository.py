@@ -334,7 +334,7 @@ class TestUpdateIngredientDescription(DatabaseTestCase):
             name=ingredient_name,
         )
         # Check the description is none
-        description = self.repository.fetch_ingredient_description(id)
+        description = self.repository.read_ingredient_description(id)
         self.assertIsNone(description)
         # Update the ingredient description
         self.repository.update_ingredient_description(
@@ -342,7 +342,7 @@ class TestUpdateIngredientDescription(DatabaseTestCase):
             description=description_1,
         )
         # Fetch the ingredient description again
-        description = self.repository.fetch_ingredient_description(id)
+        description = self.repository.read_ingredient_description(id)
         # Check the new ingredient description is in the database
         self.assertEqual(description, description_1)
         # Update the ingredient description again
@@ -351,14 +351,14 @@ class TestUpdateIngredientDescription(DatabaseTestCase):
             description=description_2,
         )
         # Fetch the ingredient description again
-        description = self.repository.fetch_ingredient_description(id)
+        description = self.repository.read_ingredient_description(id)
         # Check the new ingredient description is in the database
         self.assertEqual(description, description_2)
 
-class TestUpdateIngredientUnit(DatabaseTestCase):
+class TestUpdateIngredientUnitConversion(DatabaseTestCase):
     """Test the update_ingredient_unit method of the Repository class."""
 
-    def test_update_ingredient_unit_updates_unit(self):
+    def test_update_ingredient_unit_conversion_updates_unit_conversion(self):
         """Test that the method updates an ingredient unit in the database."""
         # Insert the unit first unit
         g_id = self.repository.create_global_unit(
@@ -439,7 +439,7 @@ class TestUpdateIngredientCost(DatabaseTestCase):
             name=ingredient_name,
         )
         # Check the cost is none
-        cost = self.repository.fetch_ingredient_cost(ingredient_id)
+        cost = self.repository.read_ingredient_cost(ingredient_id)
         self.assertIsNone(cost["cost_value"])
         self.assertIsNone(cost["cost_qty_unit_id"])
         self.assertIsNone(cost["cost_qty_value"])
@@ -451,7 +451,7 @@ class TestUpdateIngredientCost(DatabaseTestCase):
             cost_qty_value=cost_qty_value,
         )
         # Fetch the ingredient cost again
-        cost = self.repository.fetch_ingredient_cost(ingredient_id)
+        cost = self.repository.read_ingredient_cost(ingredient_id)
         # Check the new ingredient cost is in the database
         self.assertEqual(cost["cost_value"], cost_value)
         self.assertEqual(cost["cost_qty_unit_id"], g_id)
@@ -471,7 +471,7 @@ class TestUpdateIngredientFlag(DatabaseTestCase):
         # Insert the flag
         flag_id = self.repository.insert_global_flag(flag_name)
         # Check the flag is not on the ingredient
-        flags = self.repository.fetch_ingredient_flags(ingredient_id)
+        flags = self.repository.read_ingredient_flags(ingredient_id)
         self.assertNotIn(flag_id, flags)
         # Update the ingredient flag
         self.repository.upsert_ingredient_flag(
@@ -480,7 +480,7 @@ class TestUpdateIngredientFlag(DatabaseTestCase):
             value=True,
         )
         # Fetch the ingredient flags again
-        flags = self.repository.fetch_ingredient_flags(ingredient_id)
+        flags = self.repository.read_ingredient_flags(ingredient_id)
         self.repository.connection.commit()
         # Check the flag is on the ingredient
         self.assertIn(flag_id, flags)
@@ -493,7 +493,7 @@ class TestUpdateIngredientFlag(DatabaseTestCase):
             value=False,
         )
         # Fetch the ingredient flags again
-        flags = self.repository.fetch_ingredient_flags(ingredient_id)
+        flags = self.repository.read_ingredient_flags(ingredient_id)
         # Check the flag value is False
         self.assertFalse(flags[flag_id])
         # Update the flag to None
@@ -503,7 +503,7 @@ class TestUpdateIngredientFlag(DatabaseTestCase):
             value=None,
         )
         # Fetch the ingredient flags again
-        flags = self.repository.fetch_ingredient_flags(ingredient_id)
+        flags = self.repository.read_ingredient_flags(ingredient_id)
         # Check the flag value is None
         self.assertIsNone(flags[flag_id])
 

@@ -9,6 +9,16 @@ class UnitConversion:
             from_unit_qty: float|None = None,
             to_unit_qty: float|None = None,
         ):
+        """
+        Initialize the UnitConversion object.
+
+        Args:
+            id (int): The id of the conversion.
+            from_unit_id (int): The id of the unit to convert from.
+            to_unit_id (int): The id of the unit to convert to.
+            from_unit_qty (float, optional): The quantity of the from unit. Defaults to None.
+            to_unit_qty (float, optional): The quantity of the to unit. Defaults to None.
+        """
         self.id = id
         self.from_unit_id = from_unit_id
         self.from_unit_qty = from_unit_qty
@@ -56,6 +66,16 @@ class IngredientUnitConversion(UnitConversion):
         ingredient_id: int,
         *args, **kwargs
     ):
+        """Initializes the IngredientUnitConversion object.
+        Extends the UnitConversion object with an ingredient_id.
+        Args:
+            id (int): The id of the conversion.
+            ingredient_id (int): The id of the ingredient.
+            from_unit_id (int): The id of the unit to convert from.
+            to_unit_id (int): The id of the unit to convert to.
+            from_unit_qty (float): The quantity of the from unit.
+            to_unit_qty (float): The quantity of the to unit.
+        """
         super().__init__(*args, **kwargs)
         self.ingredient_id = ingredient_id
 
