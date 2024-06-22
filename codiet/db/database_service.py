@@ -1,20 +1,14 @@
 from typing import Any
 
-from codiet.db.repository import Repository
-from codiet.utils.time import (
-    convert_datetime_interval_to_time_string_interval,
-    convert_time_string_interval_to_datetime_interval,
-)
 from codiet.utils.map import BidirectionalMap
+from codiet.db.repository import Repository
 from codiet.models.ingredients import (
     Ingredient,
-    IngredientQuantity,
 )
 from codiet.models.nutrients import (
-    Nutrient,
     IngredientNutrientQuantity,
 )
-from codiet.models.units import Unit, IngredientUnitConversion
+from codiet.models.units import IngredientUnitConversion
 from codiet.models.recipes import Recipe
 
 class DatabaseService:
@@ -27,13 +21,61 @@ class DatabaseService:
     def repository(self) -> Repository:
         return self._repo
 
+    def create_global_units(self, units: dict[str, Any]) -> None:
+        """Insert the global units into the database.
+        Designed to accept the dictionary structure defined in the 
+        JSON config file.
+        Args:
+            units (dict[str, Any]): A dictionary of unit data.
+        """
+        # First, insert each unit and its alias
+        for unit_name, unit_info in units.items():
+            # Insert the unit
+            unit_id = self.repository.create_global_unit(
+                unit_name=unit_name,
+                unit_type=unit_info["type"],
+                single_display_name=unit_info["single_display_name"],
+                plural_display_name=unit_info["plural_display_name"],
+            )
+            # Insert the aliases for the unit
+            for alias in unit_info.get("aliases", []):
+                self.repository.create_global_unit_alias(
+                    alias=alias,
+                    unit_id=unit_id,
+                )
+        # Read the names of all units
+        unit_name_id_map = self.fetch_unit_name_id_map()
+        # Then, insert the conversion factors
+        for unit_name, unit_info in units.items():
+            # For each conversion factor
+            for to_unit_name, factor in unit_info["conversions"].items():
+                # Get the id of the to unit
+                to_unit_id = unit_name_id_map.get_int(to_unit_name)
+                # Insert the conversion factor
+                self.repository.create_global_unit_conversion(
+                    from_unit_id=unit_name_id_map.get_int(unit_name),
+                    to_unit_id=to_unit_id,
+                    conversion_factor=factor,
+                )
+
     def create_global_flags(self, flags: list[str]) -> None:
-        """Insert the global flags into the database."""
+        """Insert the global flags into the database.
+        Designed to accept the list of strings defined in the 
+        JSON config file.
+        Args:
+            flags (list[str]): A list of flag names.
+        """
         for flag in flags:
-            self.repository.insert_global_flag(flag)
+            self.repository.create_global_flag(flag)
 
     def create_global_nutrients(self, nutrient_data: dict[str, Any], parent_id: int|None=None) -> None:
-        """Recursively adds nutrients and their aliases into the database."""
+        """Recursively adds nutrients and their aliases into the database.
+        Designed to accept the nested dictionary structure defined in the
+        JSON config file.
+        Args:
+            nutrient_data (dict[str, Any]): The nutrient data to insert.
+            parent_id (int|None): The parent nutrient ID.
+        """
         for nutrient_name, nutrient_info in nutrient_data.items():
             # Insert the nutrient
             nutrient_id = self.repository.create_global_nutrient(name=nutrient_name, parent_id=parent_id)
@@ -65,15 +107,22 @@ class DatabaseService:
         # Return the recipe
         return recipe
 
-    def read_nutrient_id_name_map(self) -> BidirectionalMap:
-        """Returns a bidirectional map of nutrient IDs to names."""
-        # Create a new bidirectional map
-        map = BidirectionalMap()
-        # Fetch the raw data from the repo
-        global_nutrients = self._repo.fetch_all_global_nutrients()
-        for nutrient_id, nutrient_data in global_nutrients.items():
-            map.add_mapping(integer=nutrient_id, string=nutrient_data['nutrient_name'])
-        return map
+    def fetch_unit_name_id_map(self) -> BidirectionalMap:
+        """Fetches a bidirectional map of unit names to IDs.
+        Returns:
+            BidirectionalMap: A bidirectional map of unit names to IDs.
+        """
+        # Fetch all the units
+        units = self.repository.read_all_global_units()
+        # Create a bidirectional map
+        unit_name_id_map = BidirectionalMap()
+        # Add each unit to the map
+        for unit_id, unit_name in units.items():
+            unit_name_id_map.add_mapping(
+                integer=unit_id,
+                string=unit_name
+            )
+        return unit_name_id_map
 
     def read_ingredient(self, ingredient_id: int) -> Ingredient:
         """Returns the ingredient with the given name.
@@ -101,7 +150,7 @@ class DatabaseService:
         # Fetch the flags
         ingredient._flags = self.repository.read_ingredient_flags(ingredient.id)
         # Fetch the GI
-        ingredient.gi = self.repository.fetch_ingredient_gi(ingredient.id)
+        ingredient.gi = self.repository.read_ingredient_gi(ingredient.id)
         # Fetch the nutrients
         ingredient._nutrient_quantities = self.read_ingredient_nutrient_quantities(ingredient_id=ingredient.id)
         # Return the completed ingredient
@@ -167,13 +216,7 @@ class DatabaseService:
 
     def read_recipe(self, recipe_id: int) -> Recipe:
         """Returns the name of the recipe with the given ID."""
-        # Fetch the recipe name corresponding to the id
-        recipe_name = self.repository.read_recipe_name(recipe_id)
-        # Init a fresh recipe instance
-        recipe = Recipe(
-            id=recipe_id,
-            name=recipe_name,
-        )
+        raise NotImplementedError
 
     def update_ingredient_flag(
         self, ingredient_id: int, flag_name: str, flag_value: bool

@@ -60,24 +60,32 @@ class Repository:
         # Add any aliases
         if aliases:
             for alias in aliases:
-                self.create_global_unit_alias(alias=alias, parent_id=id)
+                self.create_global_unit_alias(alias=alias, unit_id=id)
         return id
 
-    def create_global_unit_alias(self, alias: str, parent_id: int) -> int:
+    def create_global_unit_alias(self, alias: str, unit_id: int) -> int:
         """Adds an alias to the global unit alias table and returns the ID."""
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
                 INSERT INTO global_unit_aliases (alias, primary_unit_id) VALUES (?, ?);
             """,
-                (alias, parent_id),
+                (alias, unit_id),
             )
             id = cursor.lastrowid
         assert id is not None
         return id
 
     def create_global_unit_conversion(self, from_unit_id: int, to_unit_id: int, conversion_factor: float) -> int:
-        """Adds a conversion to the global unit conversion table and returns the ID."""
+        """Adds a conversion to the global unit conversion table and returns the ID.
+        Args:
+            from_unit_id (int): The ID of the unit to convert from.
+            to_unit_id (int): The ID of the unit to convert to.
+            conversion_factor (float): The conversion factor you would have
+                to multiply the from unit by to get the to unit.
+        Returns:
+            int: The ID of the unit conversion.
+        """
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
@@ -89,7 +97,7 @@ class Repository:
         assert id is not None
         return id
 
-    def insert_global_flag(self, flag_name: str) -> int:
+    def create_global_flag(self, flag_name: str) -> int:
         """Adds a flag to the global flag table and returns the ID."""
         with self.get_cursor() as cursor:
             cursor.execute(
@@ -128,7 +136,7 @@ class Repository:
                 (alias, primary_nutrient_id),
             )
 
-    def insert_global_recipe_tag(self, tag_name: str) -> int:
+    def create_global_recipe_tag(self, tag_name: str) -> int:
         """Adds a recipe tag to the global recipe tag table and returns the ID."""
         with self.get_cursor() as cursor:
             cursor.execute(
@@ -152,6 +160,19 @@ class Repository:
             )
             id = cursor.lastrowid
         assert id is not None 
+        return id
+
+    def create_ingredient_flag(self, ingredient_id: int, flag_id: int, value: bool|None) -> int:
+        """Adds a flag to the ingredient associated with the given ID."""
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO ingredient_flags (ingredient_id, flag_id, flag_value) VALUES (?, ?, ?);
+            """,
+                (ingredient_id, flag_id, value),
+            )
+            id = cursor.lastrowid
+        assert id is not None
         return id
 
     def create_ingredient_unit_conversion(self, 
@@ -242,7 +263,7 @@ class Repository:
         assert id is not None
         return id
 
-    def insert_recipe_serve_time_window(self, recipe_id: int, serve_time_window: str) -> int:
+    def create_recipe_serve_time_window(self, recipe_id: int, serve_time_window: str) -> int:
         """Adds a serve window to the database and returns the ID."""
         with self.get_cursor() as cursor:
             cursor.execute(
@@ -301,7 +322,7 @@ class Repository:
             ).fetchall()
         return {row[0]: row[1] for row in rows}
     
-    def fetch_global_unit_conversions(self, unit_id: int) -> dict[int, float]:
+    def read_global_unit_conversions(self, unit_id: int) -> dict[int, float]:
         """Returns a dictionary of conversions for the given global unit ID."""
         with self.get_cursor() as cursor:
             rows = cursor.execute(
@@ -312,7 +333,7 @@ class Repository:
             ).fetchall()
         return {row[0]: row[1] for row in rows}
 
-    def fetch_all_global_unit_names(self) -> dict[int, str]:
+    def read_all_global_unit_names(self) -> dict[int, str]:
         """Returns a list of all global units in the database.
         Data structure returned is a dictionary:
         {
@@ -327,7 +348,7 @@ class Repository:
             ).fetchall()
         return {row[0]: row[1] for row in rows}
 
-    def fetch_all_global_flags(self) -> dict[int, str]:
+    def read_all_global_flags(self) -> dict[int, str]:
         """Returns a list of all global flags in the database.
         Data structure returned is a dictionary:
         {
@@ -342,7 +363,7 @@ class Repository:
             ).fetchall()
         return {row[0]: row[1] for row in rows}
 
-    def fetch_all_global_nutrients(self) -> dict[int, dict]:
+    def read_all_global_nutrients(self) -> dict[int, dict]:
         """
         Retrieve all group nutrient names from the database.
     
@@ -382,7 +403,7 @@ class Repository:
             for row in base_rows
         }
 
-    def fetch_all_global_recipe_tags(self) -> dict[int, str]:
+    def read_all_global_recipe_tags(self) -> dict[int, str]:
         """Returns a list of all global recipe tags in the database.
         Data structure returned is a dictionary:
         {
@@ -528,7 +549,7 @@ class Repository:
                 result[row[0]] = bool(row[1])
         return result
 
-    def fetch_ingredient_gi(self, ingredient_id: int) -> float | None:
+    def read_ingredient_gi(self, ingredient_id: int) -> float | None:
         """Returns the GI of the ingredient associated with the given ID."""
         with self.get_cursor() as cursor:
             rows = cursor.execute(
@@ -592,7 +613,7 @@ class Repository:
             ).fetchall()
         return {row[0]: row[1] for row in rows}
 
-    def fetch_recipe_description(self, recipe_id: int) -> str | None:
+    def read_recipe_description(self, recipe_id: int) -> str | None:
         """Returns the description of the recipe associated with the given ID."""
         with self.get_cursor() as cursor:
             rows = cursor.execute(
@@ -603,7 +624,7 @@ class Repository:
             ).fetchall()
         return rows[0][0] if rows else None
 
-    def fetch_recipe_instructions(self, recipe_id: int) -> str | None:
+    def read_recipe_instructions(self, recipe_id: int) -> str | None:
         """Returns the instructions of the recipe associated with the given ID."""
         with self.get_cursor() as cursor:
             rows = cursor.execute(
@@ -646,7 +667,7 @@ class Repository:
             for row in rows
         }
 
-    def fetch_recipe_serve_time_windows(self, recipe_id: int) -> dict[int, str]:
+    def read_recipe_serve_time_windows(self, recipe_id: int) -> dict[int, str]:
         """Returns the serve times of the recipe associated with the given ID.
         Data structure returned is a dictionary:
         {
@@ -663,6 +684,17 @@ class Repository:
                 (recipe_id,),
             ).fetchall()
         return {row[0]: row[1] for row in rows}
+
+    def read_recipe_tags(self, recipe_id: int) -> list[int]:
+        """Returns a list of all recipe tags for the given recipe ID."""
+        with self.get_cursor() as cursor:
+            rows = cursor.execute(
+                """
+                SELECT recipe_tag_id FROM recipe_tags WHERE recipe_id = ?;
+            """,
+                (recipe_id,),
+            ).fetchall()
+        return [row[0] for row in rows]
 
     def update_ingredient_name(self, ingredient_id: int, name: str) -> None:
         """Updates the name of the ingredient associated with the given ID."""
@@ -728,17 +760,18 @@ class Repository:
                 (from_unit_id, to_unit_id, from_unit_qty, to_unit_qty, ingredient_unit_id),
             )
 
-    def upsert_ingredient_flag(
-        self, ingredient_id: int, flag_id: int, value: bool|None
+    def update_ingredient_flag(
+        self, ingredient_flag_id: int, value: bool|None
     ) -> None:
-        """Update (or insert if not exists) the flag for the ingredient associated with the given ID."""
+        """Updates the flag associated with the given ID."""
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
-                INSERT OR REPLACE INTO ingredient_flags (ingredient_id, flag_id, flag_value)
-                VALUES (?, ?, ?);
+                UPDATE ingredient_flags
+                SET flag_value = ?
+                WHERE id = ?;
             """,
-                (ingredient_id, flag_id, value),
+                (value, ingredient_flag_id),
             )
 
     def update_ingredient_gi(self, ingredient_id: int, gi: float | None) -> None:
@@ -753,32 +786,25 @@ class Repository:
                 (gi, ingredient_id),
             )
 
-    def upsert_ingredient_nutrient_quantity(
+    def update_ingredient_nutrient_quantity(
             self,
-            ingredient_id: int,
+            ingredient_qty_id: int,
             global_nutrient_id: int,
             ntr_mass_unit_id: int | None,
             ntr_mass_value: float | None,
             ing_qty_unit_id: int | None,
             ing_qty_value: float | None,
         ) -> None:
-            """Inserts or updates the nutrient quantity of the ingredient associated with the given ID."""
-            with self.get_cursor() as cursor:
-                cursor.execute(
-                    """
-                    INSERT OR REPLACE INTO ingredient_nutrients
-                    (ingredient_id, nutrient_id, ntr_mass_unit_id, ntr_mass_value, ing_qty_unit_id, ing_qty_value)
-                    VALUES (?, ?, ?, ?, ?, ?);
-                    """,
-                    (
-                        ingredient_id,
-                        global_nutrient_id,
-                        ntr_mass_unit_id,
-                        ntr_mass_value,
-                        ing_qty_unit_id,
-                        ing_qty_value,
-                    ),
-                )
+        """Updates the nutrient quantity associated with the given ID."""
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE ingredient_nutrient_quantities
+                SET nutrient_id = ?, ntr_mass_unit_id = ?, ntr_mass_value = ?, ing_qty_unit_id = ?, ing_qty_value = ?
+                WHERE id = ?;
+            """,
+                (global_nutrient_id, ntr_mass_unit_id, ntr_mass_value, ing_qty_unit_id, ing_qty_value, ingredient_qty_id),
+            )
 
     def update_recipe_name(self, recipe_id: int, name: str) -> None:
         """Updates the name of the recipe associated with the given ID."""
@@ -869,17 +895,6 @@ class Repository:
                 """,
                     (recipe_id, tag_id),
                 )
-
-    def fetch_recipe_tags(self, recipe_id: int) -> list[int]:
-        """Returns a list of all recipe tags for the given recipe ID."""
-        with self.get_cursor() as cursor:
-            rows = cursor.execute(
-                """
-                SELECT recipe_tag_id FROM recipe_tags WHERE recipe_id = ?;
-            """,
-                (recipe_id,),
-            ).fetchall()
-        return [row[0] for row in rows]
 
     def delete_ingredient(self, ingredient_id: int) -> None:
         """Deletes the given ingredient from the database."""

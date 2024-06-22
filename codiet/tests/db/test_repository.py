@@ -50,9 +50,9 @@ class TestCreateGlobalFlag(DatabaseTestCase):
         """Test that the method inserts a global flag into the database."""
         flag_name = 'test_flag'
         # Insert the flag
-        flag_id = self.repository.insert_global_flag(flag_name)
+        flag_id = self.repository.create_global_flag(flag_name)
         # Fetch all the flags
-        flags = self.repository.fetch_all_global_flags()
+        flags = self.repository.read_all_global_flags()
         # Check the flag ID is in the keys
         self.assertIn(flag_id, flags.keys())
         # Check the flag name is under the correct key
@@ -66,7 +66,7 @@ class TestCreateGlobalNutrient(DatabaseTestCase):
         nutrient_name = 'test_nutrient'
         parent_id = 3
         # Check the nutrient name is not in the database
-        all_nutrients = self.repository.fetch_all_global_nutrients()
+        all_nutrients = self.repository.read_all_global_nutrients()
         for nutrient_id, nutrient_data in all_nutrients.items():
             self.assertNotEqual(nutrient_data["nutrient_name"], nutrient_name)
         # Insert the nutrient
@@ -75,7 +75,7 @@ class TestCreateGlobalNutrient(DatabaseTestCase):
             parent_id=3,
         )
         # Fetch all the nutrients again
-        all_nutrients = self.repository.fetch_all_global_nutrients()
+        all_nutrients = self.repository.read_all_global_nutrients()
         # Check the nutrient name is in the database
         name_in_db = False
         for nutrient_id, nutrient_data in all_nutrients.items():
@@ -95,7 +95,7 @@ class TestCreateNutrientAlias(DatabaseTestCase):
         nutrient_name = 'test_nutrient'
         alias = 'test_alias'
         # Assert the nutrient name is not in the database
-        all_nutrients = self.repository.fetch_all_global_nutrients()
+        all_nutrients = self.repository.read_all_global_nutrients()
         for nutrient_id, nutrient_data in all_nutrients.items():
             self.assertNotEqual(nutrient_data["nutrient_name"], nutrient_name)
         # Insert the nutrient
@@ -109,7 +109,7 @@ class TestCreateNutrientAlias(DatabaseTestCase):
             alias=alias,
         )
         # Fetch all the nutrients again
-        all_nutrients = self.repository.fetch_all_global_nutrients()
+        all_nutrients = self.repository.read_all_global_nutrients()
         # Check the alias listed against the nutrient
         assert alias in all_nutrients[id]["aliases"]
 
@@ -120,13 +120,13 @@ class TestCreateGlobalRecipeTag(DatabaseTestCase):
         """Test that the method inserts a global recipe tag into the database."""
         tag_name = 'test_tag'
         # Fetch all the tags
-        all_tags = self.repository.fetch_all_global_recipe_tags()
+        all_tags = self.repository.read_all_global_recipe_tags()
         # Assert there are no tags yet
         self.assertEqual(len(all_tags), 0)
         # Insert the tag
-        tag_id = self.repository.insert_global_recipe_tag(tag_name)
+        tag_id = self.repository.create_global_recipe_tag(tag_name)
         # Fetch all the tags again
-        all_tags = self.repository.fetch_all_global_recipe_tags()
+        all_tags = self.repository.read_all_global_recipe_tags()
         # Check the tag ID is in the keys
         self.assertIn(tag_id, all_tags.keys())
         # Check the tag name is under the correct key
@@ -151,6 +151,35 @@ class TestCreateIngredientName(DatabaseTestCase):
         self.assertIn(ingredient_id, all_ingredients.keys())
         # Check the ingredient name is correct
         self.assertEqual(all_ingredients[ingredient_id], ingredient_name)
+
+class TestCreateIngredientFlag(DatabaseTestCase):
+    """Test the insert_ingredient_flag method of the Repository class."""
+
+    def test_insert_ingredient_flag_inserts_flag(self):
+        """Test that the method inserts an ingredient flag into the database."""
+        ingredient_name = 'test_ingredient'
+        flag_name = 'test_flag'
+        # Insert the ingredient
+        ingredient_id = self.repository.create_ingredient_name(
+            name=ingredient_name,
+        )
+        # Insert the flag
+        flag_id = self.repository.create_global_flag(flag_name)
+        # Check the flag is not on the ingredient
+        flags = self.repository.read_ingredient_flags(ingredient_id)
+        self.assertNotIn(flag_id, flags)
+        # Insert the flag on the ingredient
+        ingredient_flag_id = self.repository.create_ingredient_flag(
+            ingredient_id=ingredient_id,
+            flag_id=flag_id,
+            value=True,
+        )
+        # Fetch the ingredient flags again
+        flags = self.repository.read_ingredient_flags(ingredient_id)
+        # Check the flag is on the ingredient
+        self.assertIn(ingredient_flag_id, flags)
+        # Check the flag value is True
+        self.assertTrue(flags[ingredient_flag_id])
 
 class TestCreateIngredientUnitConversion(DatabaseTestCase):
     """Test the insert_ingredient_unit method of the Repository class."""
@@ -273,17 +302,17 @@ class TestInsertRecipeServeTimeWindow(DatabaseTestCase):
             name=recipe_name,
         )
         # Check There are currently no serve times
-        serve_time_windows = self.repository.fetch_recipe_serve_time_windows(
+        serve_time_windows = self.repository.read_recipe_serve_time_windows(
             recipe_id=recipe_id,
         )
         self.assertEqual(len(serve_time_windows), 0)
         # Insert the serve time
-        serve_time_id = self.repository.insert_recipe_serve_time_window(
+        serve_time_id = self.repository.create_recipe_serve_time_window(
             recipe_id=recipe_id,
             serve_time_window=serve_time_window,
         )
         # Fetch the recipe serve time again
-        serve_time_windows = self.repository.fetch_recipe_serve_time_windows(
+        serve_time_windows = self.repository.read_recipe_serve_time_windows(
             recipe_id=recipe_id,
         )
         # Check the new recipe serve time is in the database
@@ -468,44 +497,31 @@ class TestUpdateIngredientFlag(DatabaseTestCase):
         ingredient_id = self.repository.create_ingredient_name(
             name=ingredient_name,
         )
-        # Insert the flag
-        flag_id = self.repository.insert_global_flag(flag_name)
-        # Check the flag is not on the ingredient
-        flags = self.repository.read_ingredient_flags(ingredient_id)
-        self.assertNotIn(flag_id, flags)
-        # Update the ingredient flag
-        self.repository.upsert_ingredient_flag(
+        # Insert the global flag
+        flag_id = self.repository.create_global_flag(flag_name)
+        # Set the global flag on the ingredient
+        ingredient_flag_id = self.repository.create_ingredient_flag(
             ingredient_id=ingredient_id,
             flag_id=flag_id,
             value=True,
         )
-        # Fetch the ingredient flags again
+        # Fetch the ingredient flags
         flags = self.repository.read_ingredient_flags(ingredient_id)
-        self.repository.connection.commit()
-        # Check the flag is on the ingredient
-        self.assertIn(flag_id, flags)
+        # Check the flag is in the database
+        self.assertIn(ingredient_flag_id, flags.keys())
         # Check the flag value is True
-        self.assertTrue(flags[flag_id])
-        # Update the ingredient flag again
-        self.repository.upsert_ingredient_flag(
-            ingredient_id=ingredient_id,
-            flag_id=flag_id,
+        self.assertTrue(flags[ingredient_flag_id])
+        # Update the ingredient flag
+        self.repository.update_ingredient_flag(
+            ingredient_flag_id=ingredient_flag_id,
             value=False,
         )
         # Fetch the ingredient flags again
         flags = self.repository.read_ingredient_flags(ingredient_id)
+        # Check the flag is in the database
+        self.assertIn(ingredient_flag_id, flags.keys())
         # Check the flag value is False
-        self.assertFalse(flags[flag_id])
-        # Update the flag to None
-        self.repository.upsert_ingredient_flag(
-            ingredient_id=ingredient_id,
-            flag_id=flag_id,
-            value=None,
-        )
-        # Fetch the ingredient flags again
-        flags = self.repository.read_ingredient_flags(ingredient_id)
-        # Check the flag value is None
-        self.assertIsNone(flags[flag_id])
+        self.assertFalse(flags[ingredient_flag_id])
 
 class TestUpdateIngredientGI(DatabaseTestCase):
     """Test the update_ingredient_gi method of the Repository class."""
@@ -519,7 +535,7 @@ class TestUpdateIngredientGI(DatabaseTestCase):
             name=ingredient_name,
         )
         # Check the GI is none
-        gi_in_db = self.repository.fetch_ingredient_gi(ingredient_id)
+        gi_in_db = self.repository.read_ingredient_gi(ingredient_id)
         self.assertIsNone(gi_in_db)
         # Update the ingredient GI
         self.repository.update_ingredient_gi(
@@ -527,7 +543,7 @@ class TestUpdateIngredientGI(DatabaseTestCase):
             gi=gi,
         )
         # Fetch the ingredient GI again
-        gi_in_db = self.repository.fetch_ingredient_gi(ingredient_id)
+        gi_in_db = self.repository.read_ingredient_gi(ingredient_id)
         # Check the new ingredient GI is in the database
         self.assertEqual(gi_in_db, gi)
 
@@ -619,7 +635,7 @@ class TestUpdateRecipeDescription(DatabaseTestCase):
             name=recipe_name,
         )
         # Check the description is none
-        description = self.repository.fetch_recipe_description(recipe_id)
+        description = self.repository.read_recipe_description(recipe_id)
         self.assertIsNone(description)
         # Update the recipe description
         self.repository.update_recipe_description(
@@ -627,7 +643,7 @@ class TestUpdateRecipeDescription(DatabaseTestCase):
             description=description_1,
         )
         # Fetch the recipe description again
-        description = self.repository.fetch_recipe_description(recipe_id)
+        description = self.repository.read_recipe_description(recipe_id)
         # Check the new recipe description is in the database
         self.assertEqual(description, description_1)
         # Update the recipe description again
@@ -636,7 +652,7 @@ class TestUpdateRecipeDescription(DatabaseTestCase):
             description=description_2,
         )
         # Fetch the recipe description again
-        description = self.repository.fetch_recipe_description(recipe_id)
+        description = self.repository.read_recipe_description(recipe_id)
         # Check the new recipe description is in the database
         self.assertEqual(description, description_2)
 
@@ -653,7 +669,7 @@ class TestRecipeInstructions(DatabaseTestCase):
             name=recipe_name,
         )
         # Check the instructions are none
-        instructions = self.repository.fetch_recipe_instructions(recipe_id)
+        instructions = self.repository.read_recipe_instructions(recipe_id)
         self.assertIsNone(instructions)
         # Update the recipe instructions
         self.repository.update_recipe_instructions(
@@ -661,7 +677,7 @@ class TestRecipeInstructions(DatabaseTestCase):
             instructions=instructions_1,
         )
         # Fetch the recipe instructions again
-        instructions = self.repository.fetch_recipe_instructions(recipe_id)
+        instructions = self.repository.read_recipe_instructions(recipe_id)
         # Check the new recipe instructions are in the database
         self.assertEqual(instructions, instructions_1)
         # Update the recipe instructions again
@@ -670,7 +686,7 @@ class TestRecipeInstructions(DatabaseTestCase):
             instructions=instructions_2,
         )
         # Fetch the recipe instructions again
-        instructions = self.repository.fetch_recipe_instructions(recipe_id)
+        instructions = self.repository.read_recipe_instructions(recipe_id)
         # Check the new recipe instructions are in the database
         self.assertEqual(instructions, instructions_2)
 
@@ -753,12 +769,12 @@ class TestUpdateRecipeServeTimeWindow(DatabaseTestCase):
             name=recipe_name,
         )
         # Insert the serve time
-        serve_time_id = self.repository.insert_recipe_serve_time_window(
+        serve_time_id = self.repository.create_recipe_serve_time_window(
             recipe_id=recipe_id,
             serve_time_window=serve_time_window_1,
         )
         # Fetch the recipe serve time again
-        serve_time_windows = self.repository.fetch_recipe_serve_time_windows(
+        serve_time_windows = self.repository.read_recipe_serve_time_windows(
             recipe_id=recipe_id,
         )
         # Check the new recipe serve time is in the database
@@ -771,7 +787,7 @@ class TestUpdateRecipeServeTimeWindow(DatabaseTestCase):
             serve_time_window=serve_time_window_2,
         )
         # Fetch the recipe serve time again
-        serve_time_windows = self.repository.fetch_recipe_serve_time_windows(
+        serve_time_windows = self.repository.read_recipe_serve_time_windows(
             recipe_id=recipe_id,
         )
         # Check the new recipe serve time is in the database
@@ -793,16 +809,16 @@ class TestUpdateRecipeTags(DatabaseTestCase):
             name=recipe_name,
         )
         # Insert the global tags
-        tag_id_1 = self.repository.insert_global_recipe_tag(tag_1)
-        tag_id_2 = self.repository.insert_global_recipe_tag(tag_2)
-        tag_id_3 = self.repository.insert_global_recipe_tag(tag_3)
+        tag_id_1 = self.repository.create_global_recipe_tag(tag_1)
+        tag_id_2 = self.repository.create_global_recipe_tag(tag_2)
+        tag_id_3 = self.repository.create_global_recipe_tag(tag_3)
         # Attach tags 1 and 2 to the recipe
         self.repository.update_recipe_tags(
             recipe_id=recipe_id,
             recipe_tag_ids=[tag_id_1, tag_id_2],
         )
         # Check the tags went into the recipe
-        recipe_tags = self.repository.fetch_recipe_tags(recipe_id)
+        recipe_tags = self.repository.read_recipe_tags(recipe_id)
         self.assertEqual(len(recipe_tags), 2)
         # Check both tag ID's are in the list
         self.assertIn(tag_id_1, recipe_tags)
@@ -813,7 +829,7 @@ class TestUpdateRecipeTags(DatabaseTestCase):
             recipe_tag_ids=[tag_id_2, tag_id_3],
         )
         # Check the tags went into the recipe
-        recipe_tags = self.repository.fetch_recipe_tags(recipe_id)
+        recipe_tags = self.repository.read_recipe_tags(recipe_id)
         self.assertEqual(len(recipe_tags), 2)
         # Check both tag ID's are in the list
         self.assertIn(tag_id_2, recipe_tags)

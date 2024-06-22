@@ -1,152 +1,177 @@
 {
     "gram": {
         "type": "mass",
-        "aliases": ["gram", "grams", "g"],
-        "plural": "grams",
+        "single_display_name": "g",
+        "plural_display_name": "g",
+        "aliases": ["gram", "grams"],
         "conversions": {}
     },
     "kilogram": {
         "type": "mass",
-        "aliases": ["kilogram", "kilograms", "kg"],
-        "plural": "kilograms",
+        "single_display_name": "kg",
+        "plural_display_name": "kg",
+        "aliases": ["kilogram", "kilograms"],
         "conversions": {"gram": 1000}
     },
     "milligram": {
         "type": "mass",
-        "aliases": ["milligram", "milligrams", "mg"],
-        "plural": "milligrams",
+        "single_display_name": "mg",
+        "plural_display_name": "mg",
+        "aliases": ["milligram", "milligrams"],
         "conversions": {"gram": 0.001}
     },
     "microgram": {
         "type": "mass",
+        "single_display_name": "μg",
+        "plural_display_name": "μg",
         "aliases": ["microgram", "micrograms", "mcg", "ug"],
-        "plural": "micrograms",
         "conversions": {"gram": 0.000001}
     },
     "ounce": {
         "type": "mass",
-        "aliases": ["ounce", "ounces", "oz"],
-        "plural": "ounces",
+        "single_display_name": "oz",
+        "plural_display_name": "oz",
+        "aliases": ["ounce", "ounces"],
         "conversions": {"gram": 28.3495}
     },
     "pound": {
         "type": "mass",
-        "aliases": ["pound", "pounds", "lb", "lbs"],
-        "plural": "pounds",
+        "single_display_name": "lb",
+        "plural_display_name": "lbs",
+        "aliases": ["pound", "pounds"],
         "conversions": {"gram": 453.592}
     },
     "litre": {
         "type": "volume",
-        "aliases": ["litre", "litres", "l", "L"],
-        "plural": "litres",
+        "single_display_name": "L",
+        "plural_display_name": "L",
+        "aliases": ["litre", "litres", "l"],
         "conversions": {"millilitre": 1000}
     },
     "millilitre": {
         "type": "volume",
-        "aliases": ["millilitre", "millilitres", "ml", "mL"],
-        "plural": "millilitres",
+        "single_display_name": "mL",
+        "plural_display_name": "mL",
+        "aliases": ["millilitre", "millilitres", "ml"],
         "conversions": {}
     },
     "fluid ounce": {
         "type": "volume",
-        "aliases": ["fluid ounce", "fluid ounces", "fl oz", "fl. oz."],
-        "plural": "fluid ounces",
+        "single_display_name": "fl oz",
+        "plural_display_name": "fl oz",
+        "aliases": ["fluid ounce", "fluid ounces", "fl. oz."],
         "conversions": {"millilitre": 29.5735}
     },
     "pint": {
         "type": "volume",
-        "aliases": ["pint", "pints", "pt", "p"],
-        "plural": "pints",
+        "single_display_name": "pt",
+        "plural_display_name": "pt",
+        "aliases": ["pint", "pints", "p"],
         "conversions": {"millilitre": 473.176}
     },
     "quart": {
         "type": "volume",
-        "aliases": ["quart", "quarts", "qt", "q"],
-        "plural": "quarts",
+        "single_display_name": "qt",
+        "plural_display_name": "qt",
+        "aliases": ["quart", "quarts", "q"],
         "conversions": {"millilitre": 946.353}
     },
     "gallon": {
         "type": "volume",
-        "aliases": ["gallon", "gallons", "gal"],
-        "plural": "gallons",
+        "single_display_name": "gal",
+        "plural_display_name": "gal",
+        "aliases": ["gallon", "gallons"],
         "conversions": {"millilitre": 3785.41}
     },
     "cup": {
         "type": "volume",
-        "aliases": ["cup", "cups", "c"],
-        "plural": "cups",
+        "single_display_name": "cup",
+        "plural_display_name": "cups",
+        "aliases": ["c"],
         "conversions": {"millilitre": 236.588}
     },
     "tbsp": {
         "type": "volume",
-        "aliases": ["tbsp", "tablespoon", "tablespoons"],
-        "plural": "tablespoons",
+        "single_display_name": "tbsp",
+        "plural_display_name": "tbsp",
+        "aliases": ["tablespoon", "tablespoons"],
         "conversions": {"millilitre": 14.7868}
     },
     "tsp": {
         "type": "volume",
-        "aliases": ["tsp", "teaspoon", "teaspoons"],
-        "plural": "teaspoons",
+        "single_display_name": "tsp",
+        "plural_display_name": "tsp",
+        "aliases": ["teaspoon", "teaspoons"],
         "conversions": {"millilitre": 4.92892}
     },
     "pinch": {
         "type": "volume",
-        "aliases": ["pinch", "pinches"],
-        "plural": "pinches",
+        "single_display_name": "pinch",
+        "plural_display_name": "pinches",
+        "aliases": [],
         "conversions": {"millilitre": 0.616115}
     },
     "dash": {
         "type": "volume",
-        "aliases": ["dash", "dashes"],
-        "plural": "dashes",
+        "single_display_name": "dash",
+        "plural_display_name": "dashes",
+        "aliases": [],
         "conversions": {"millilitre": 1.23223}
     },
     "whole": {
         "type": "grouping",
-        "aliases": ["whole"],
-        "plural": "whole",
+        "single_display_name": "whole",
+        "plural_display_name": "whole",
+        "aliases": [],
         "conversions": {}
     },
     "slice": {
         "type": "grouping",
-        "aliases": ["slice", "slices"],
-        "plural": "slices",
+        "single_display_name": "slice",
+        "plural_display_name": "slices",
+        "aliases": [],
         "conversions": {}
     },
     "piece": {
         "type": "grouping",
-        "aliases": ["piece", "pieces"],
-        "plural": "pieces",
+        "single_display_name": "piece",
+        "plural_display_name": "pieces",
+        "aliases": [],
         "conversions": {}
     },
     "clove": {
         "type": "grouping",
-        "aliases": ["clove", "cloves"],
-        "plural": "cloves",
+        "single_display_name": "clove",
+        "plural_display_name": "cloves",
+        "aliases": [],
         "conversions": {}
     },
     "head": {
         "type": "grouping",
-        "aliases": ["head", "heads"],
-        "plural": "heads",
+        "single_display_name": "head",
+        "plural_display_name": "heads",
+        "aliases": [],
         "conversions": {}
     },
     "stalk": {
         "type": "grouping",
-        "aliases": ["stalk", "stalks"],
-        "plural": "stalks",
+        "single_display_name": "stalk",
+        "plural_display_name": "stalks",
+        "aliases": [],
         "conversions": {}
     },
     "bunch": {
         "type": "grouping",
-        "aliases": ["bunch", "bunches"],
-        "plural": "bunches",
+        "single_display_name": "bunch",
+        "plural_display_name": "bunches",
+        "aliases": [],
         "conversions": {}
     },
     "sprig": {
         "type": "grouping",
-        "aliases": ["sprig", "sprigs"],
-        "plural": "sprigs",
+        "single_display_name": "sprig",
+        "plural_display_name": "sprigs",
+        "aliases": [],
         "conversions": {}
     }
 }
