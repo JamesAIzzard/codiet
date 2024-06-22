@@ -122,6 +122,11 @@ class TestCreateEmptyRecipe(DatabaseTestCase):
         self.assertIsNone(recipe.instructions)
         # Check there are no ingredient quantities
         self.assertEqual(len(recipe.ingredient_quantities), 0)
+        # Check there are no serve time windows
+        self.assertEqual(len(recipe.serve_time_windows), 0)
+        # Check there are no tags
+        self.assertEqual(len(recipe.tags), 0)
+
 
 
 

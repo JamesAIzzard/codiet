@@ -132,7 +132,7 @@ class RecipeEditorCtrl:
         # Clear the existing time intervals
         self.view.serve_time_intervals_editor_view.clear()
         # Add the time intervals to the view
-        for interval in recipe.serve_times:
+        for interval in recipe.serve_time_windows:
             self.view.serve_time_intervals_editor_view.add_time_interval(
                 convert_datetime_interval_to_time_string_interval(interval)
             )
@@ -490,7 +490,7 @@ class RecipeEditorCtrl:
             error_popup.okClicked.connect(lambda: error_popup.close())
             return None
         # Add the time interval to the recipe
-        self.recipe.add_serve_time((dt_start, dt_end))
+        self.recipe.add_serve_time_window((dt_start, dt_end))
         # Update the serve times in the view
         self.view.serve_time_intervals_editor_view.add_time_interval(
             convert_datetime_interval_to_time_string_interval((dt_start, dt_end))

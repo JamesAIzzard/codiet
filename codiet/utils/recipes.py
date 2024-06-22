@@ -61,7 +61,7 @@ def convert_recipe_to_json(recipe: Recipe) -> dict:
         # Add the ingredient to the recipe dictionary
         recipe_data["ingredients"][ingredient_qty.ingredient.id] = ingredient_template
     # Add the serve times to the recipe dictionary
-    for serve_time in recipe.serve_times:
+    for serve_time in recipe.serve_time_windows:
         # Convert the serve time to a string
         timestring_interval = convert_datetime_interval_to_time_string_interval(serve_time)
         recipe_data["serve_times"].append(timestring_interval)

@@ -209,7 +209,7 @@ class Repository:
         assert id is not None
         return id
 
-    def create_recipe_ingredient(
+    def create_recipe_ingredient_quantity(
         self,
         recipe_id: int,
         ingredient_id: int,
@@ -218,17 +218,29 @@ class Repository:
         qty_utol: float|None,
         qty_ltol: float|None
 
-    ) -> None:
-        """Updates the ingredients of the recipe associated with the given ID."""
+    ) -> int:
+        """Updates the ingredients of the recipe associated with the given ID.
+        Args:
+            recipe_id (int): The ID of the recipe.
+            ingredient_id (int): The ID of the ingredient.
+            qty_unit_id (int|None): The ID of the unit.
+            qty_value (float|None): The quantity value.
+            qty_utol (float|None): The upper tolerance.
+            qty_ltol (float|None): The lower tolerance.
+        Returns:
+            int: The ID of the recipe ingredient.
+        """
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
-                INSERT OR REPLACE INTO recipe_ingredients
-                (recipe_id, ingredient_id, qty_unit_id, qty_value, qty_utol, qty_ltol)
+                INSERT INTO recipe_ingredients (recipe_id, ingredient_id, qty_unit_id, qty_value, qty_utol, qty_ltol)
                 VALUES (?, ?, ?, ?, ?, ?);
             """,
                 (recipe_id, ingredient_id, qty_unit_id, qty_value, qty_utol, qty_ltol),
             )
+            id = cursor.lastrowid
+        assert id is not None
+        return id
 
     def insert_recipe_serve_time_window(self, recipe_id: int, serve_time_window: str) -> int:
         """Adds a serve window to the database and returns the ID."""
@@ -602,7 +614,7 @@ class Repository:
             ).fetchall()
         return rows[0][0] if rows else None
 
-    def read_recipe_ingredients(self, recipe_id: int) -> dict[int, dict]:
+    def read_recipe_ingredient_quantities(self, recipe_id: int) -> dict[int, dict]:
         """
         Returns the ingredients of the recipe associated with the given ID.
         Data structure returned is a dictionary:

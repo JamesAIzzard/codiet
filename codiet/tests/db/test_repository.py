@@ -216,10 +216,10 @@ class TestCreateRecipeName(DatabaseTestCase):
         # Check the recipe name is correct
         self.assertEqual(all_recipes[recipe_id], recipe_name)
 
-class TestCreateRecipeIngredient(DatabaseTestCase):
+class TestCreateRecipeIngredientQuantity(DatabaseTestCase):
     """Test the insert_recipe_ingredient method of the Repository class."""
 
-    def test_insert_recipe_ingredient_inserts_ingredient(self):
+    def test_create_recipe_ingredient_quantity_ingredient_quantity(self):
         """Test that the method inserts a recipe ingredient into the database."""
         # Insert the unit
         g_id = self.repository.create_global_unit(
@@ -236,11 +236,11 @@ class TestCreateRecipeIngredient(DatabaseTestCase):
         ingredient_id = self.repository.create_ingredient_name(
             name="Test Ingredient",
         )
-        # Check the ingredient is not in the recipe
-        ingredients = self.repository.read_recipe_ingredients(recipe_id)
-        self.assertNotIn(ingredient_id, ingredients.keys())
+        # Check there are no ingredients in the recipe
+        ingredient_quantities = self.repository.read_recipe_ingredient_quantities(recipe_id)
+        self.assertEqual(len(ingredient_quantities), 0)
         # Add the ingredient to the recipe
-        self.repository.create_recipe_ingredient(
+        ingredient_qty_id = self.repository.create_recipe_ingredient_quantity(
             recipe_id=recipe_id,
             ingredient_id=ingredient_id,
             qty_unit_id=g_id,
@@ -249,17 +249,17 @@ class TestCreateRecipeIngredient(DatabaseTestCase):
             qty_ltol=15,
         )
         # Fetch the recipe ingredients again
-        ingredients = self.repository.read_recipe_ingredients(recipe_id)
+        ingredient_quantities = self.repository.read_recipe_ingredient_quantities(recipe_id)
         # Check the ingredient is in the recipe
-        self.assertIn(ingredient_id, ingredients.keys())
+        self.assertIn(ingredient_qty_id, ingredient_quantities.keys())
         # Check the ingredient quantity value is correct
-        self.assertEqual(ingredients[ingredient_id]["qty_value"], 100)
+        self.assertEqual(ingredient_quantities[ingredient_id]["qty_value"], 100)
         # Check the ingredient quantity unit is correct
-        self.assertEqual(ingredients[ingredient_id]["qty_unit_id"], g_id)
+        self.assertEqual(ingredient_quantities[ingredient_id]["qty_unit_id"], g_id)
         # Check the ingredient quantity upper tolerance is correct
-        self.assertEqual(ingredients[ingredient_id]["qty_utol"], 10)
+        self.assertEqual(ingredient_quantities[ingredient_id]["qty_utol"], 10)
         # Check the ingredient quantity lower tolerance is correct
-        self.assertEqual(ingredients[ingredient_id]["qty_ltol"], 15)
+        self.assertEqual(ingredient_quantities[ingredient_id]["qty_ltol"], 15)
 
 class TestInsertRecipeServeTimeWindow(DatabaseTestCase):
     """Test the insert_recipe_serve_time_window method of the Repository class."""
@@ -695,10 +695,10 @@ class TestUpdateRecipeIngredient(DatabaseTestCase):
             name="Test Ingredient",
         )
         # Check the ingredient is not in the recipe
-        ingredients = self.repository.read_recipe_ingredients(recipe_id)
+        ingredients = self.repository.read_recipe_ingredient_quantities(recipe_id)
         self.assertNotIn(ingredient_id, ingredients.keys())
         # Add the ingredient to the recipe
-        self.repository.create_recipe_ingredient(
+        self.repository.create_recipe_ingredient_quantity(
             recipe_id=recipe_id,
             ingredient_id=ingredient_id,
             qty_unit_id=g_id,
@@ -707,7 +707,7 @@ class TestUpdateRecipeIngredient(DatabaseTestCase):
             qty_ltol=15,
         )
         # Fetch the recipe ingredients again
-        ingredients = self.repository.read_recipe_ingredients(recipe_id)
+        ingredients = self.repository.read_recipe_ingredient_quantities(recipe_id)
         # Check the ingredient is in the recipe
         self.assertIn(ingredient_id, ingredients.keys())
         # Check the ingredient quantity value is correct
@@ -728,7 +728,7 @@ class TestUpdateRecipeIngredient(DatabaseTestCase):
             qty_ltol=25,
         )
         # Fetch the recipe ingredients again
-        ingredients = self.repository.read_recipe_ingredients(recipe_id)
+        ingredients = self.repository.read_recipe_ingredient_quantities(recipe_id)
         # Check the ingredient is in the recipe
         self.assertIn(ingredient_id, ingredients.keys())
         # Check the ingredient quantity value is correct

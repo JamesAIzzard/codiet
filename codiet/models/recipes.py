@@ -2,133 +2,127 @@ from datetime import datetime
 
 from codiet.models.ingredients import IngredientQuantity
 
+
 class Recipe:
-    def __init__(self, recipe_id:int, recipe_name: str):
+    def __init__(self, recipe_id: int, recipe_name: str):
         self.id = recipe_id
         self.name = recipe_name
         self.description: str | None = None
         self.instructions: str | None = None
+        self.reuse_as_ingredient: bool = False
         self._ingredient_quantities: dict[int, IngredientQuantity] = {}
-        self._serve_times: list[tuple[datetime, datetime]] = []
-        self._recipe_tags: list[str] = []
+        self._serve_time_windows: dict[int, tuple[datetime, datetime]] = {}
+        self._recipe_tags: dict[int, str] = {}
 
     @property
-    def serve_times(self) -> list[tuple[datetime, datetime]]:
-        """Get the serve times for the recipe."""
-        return self._serve_times
-    
-    @serve_times.setter
-    def serve_times(self, serve_times: list[tuple[datetime, datetime]]) -> None:
-        """Set the serve times for the recipe."""
-        # For each serve time, add it to the recipe
-        for serve_time in serve_times:
-            self.add_serve_time(serve_time)
-    
+    def serve_time_windows(self) -> dict[int, tuple[datetime, datetime]]:
+        """Get the serve times for the recipe.
+        Returns:
+            dict[int, tuple[datetime, datetime]]: The serve times for the recipe,
+                where the key is the serve time ID and the value is the serve time.
+        """
+        return self._serve_time_windows
+
     @property
     def ingredient_quantities(self) -> dict[int, IngredientQuantity]:
-        """Get the ingredients for the recipe."""
+        """Get the ingredients for the recipe.
+        Returns:
+            dict[int, IngredientQuantity]: The ingredients for the recipe,
+                where the key is the ingredient ID and the value is the ingredient quantity.
+        """
         return self._ingredient_quantities
-    
-    @ingredient_quantities.setter
-    def ingredient_quantities(self, ingredients: dict[int, IngredientQuantity]) -> None:
-        """Set the ingredients for the recipe."""
-        # For each ingredient, add it to the recipe
-        for ingredient in ingredients.values():
-            self.add_ingredient_quantity(ingredient)
-    
+
     @property
-    def tags(self) -> list[str]:
-        """Get the recipe tags for the recipe."""
+    def tags(self) -> dict[int, str]:
+        """Get the recipe tags for the recipe.
+        Returns:
+            dict[int, str]: The recipe tags for the recipe,
+                where the key is the recipe tag ID and the value is the recipe tag.
+        """
         return self._recipe_tags
-    
-    @tags.setter
-    def tags(self, tags: list[str]) -> None:
-        """Set the recipe tags for the recipe."""
-        # For each recipe tag, add it to the recipe
-        for recipe_tag in tags:
-            self.add_recipe_tag(recipe_tag)
 
-    def add_serve_time(self, serve_time: tuple[datetime, datetime]) -> None:
-        """Add a serve time to the recipe."""
+    def add_serve_time_window(
+        self, serve_time_id: int, serve_time: tuple[datetime, datetime]
+    ) -> None:
+        """Add a serve time to the recipe.
+        Args:
+            serve_time_id (int): The ID of the serve time to add.
+            serve_time (tuple[datetime, datetime]): The serve time to add.
+        """
         # Check if the serve time is already in the recipe
-        if serve_time in self._serve_times:
+        if serve_time in self._serve_time_windows:
             return None
+        # Raise a KeyError if the ID is already in the recipe
+        if serve_time_id in self._serve_time_windows:
+            raise KeyError("Serve time ID already in recipe")
         # Add the serve time to the recipe
-        self._serve_times.append(serve_time)
+        self._serve_time_windows[serve_time_id] = serve_time
 
-    def remove_serve_time(self, serve_time: tuple[datetime, datetime]) -> None:
-        """Remove a serve time from the recipe."""
+    def update_serve_time_window(
+        self, serve_time_id: int, serve_time: tuple[datetime, datetime]
+    ) -> None:
+        """Update a serve time in the recipe.
+        Args:
+            serve_time_id (int): The ID of the serve time to update.
+            serve_time (tuple[datetime, datetime]): The serve time to update.
+        """
+        # Check the id is in the recipe
+        if serve_time_id not in self._serve_time_windows:
+            raise KeyError("Serve time ID not in recipe")
+        # Update the serve time in the recipe
+        self._serve_time_windows[serve_time_id] = serve_time
+
+    def remove_serve_time_window(self, serve_time_id: int) -> None:
+        """Remove a serve time from the recipe.
+        Args:
+            serve_time_id (int): The ID of the serve time to remove.
+        """
         # Remove the serve time from the recipe
-        self._serve_times.remove(serve_time)
+        del self._serve_time_windows[serve_time_id]
 
     def add_ingredient_quantity(self, ingredient_quantity: IngredientQuantity) -> None:
         """Add an ingredient to the recipe."""
-        # If it is already there, return None
-        if ingredient_quantity.ingredient.name in self._ingredient_quantities:
-            return None
-        # Raise an exception if the ID is not populated
-        if ingredient_quantity.ingredient.id is None:
-            raise ValueError("Ingredient ID not populated")
+        # Raise an exception if the ingredient quantity ID is already in the recipe
+        if ingredient_quantity.id in self._ingredient_quantities:
+            raise KeyError("Ingredient quantity ID already in recipe")
+        # Raise an exception if an ingredient quantity with the same ingredient
+        # is already in the recipe
+        for ingredient_qty in self._ingredient_quantities.values():
+            if ingredient_qty.ingredient_id == ingredient_quantity.ingredient_id:
+                raise KeyError("Ingredient already in recipe")
         # Go ahead and add it
-        self._ingredient_quantities[ingredient_quantity.ingredient.id] = ingredient_quantity
+        self._ingredient_quantities[ingredient_quantity.id] = ingredient_quantity
 
-    def remove_ingredient_quantity(self, ingredient_id: int) -> None:
+    def update_ingredient_quantity(
+        self, ingredient_quantity: IngredientQuantity
+    ) -> None:
+        """Update an ingredient in the recipe."""
+        # Check the ingredient quantity is in the recipe
+        if ingredient_quantity.id not in self._ingredient_quantities:
+            raise KeyError("Ingredient quantity ID not in recipe")
+        # Update the ingredient quantity in the recipe
+        self._ingredient_quantities[ingredient_quantity.id] = ingredient_quantity
+
+    def remove_ingredient_quantity(self, ingredient_quantity_id: int) -> None:
         """Remove an ingredient from the recipe."""
-        # Cycle through each ingredient
-        for ingredient_name, ingredient_qty in self._ingredient_quantities.items():
-            # Check if the ingredient ID matches the ingredient ID to remove
-            if ingredient_qty.ingredient.id == ingredient_id:
-                # Remove the ingredient from the recipe
-                del self._ingredient_quantities[ingredient_name]
-                return None
-        # Raise a value error if the ingredient is not in the recipe
-        raise ValueError("Ingredient not in recipe")
-    
-    def get_ingredient_quantity(self, ingredient_id: int) -> IngredientQuantity:
-        """Get the quantity of an ingredient in the recipe."""
-        # First, find the ingredient quantity instance associated with the id
-        for ingredient_quantity in self._ingredient_quantities.values():
-            # Check if the ingredient ID matches the ingredient ID to get
-            if ingredient_quantity.ingredient.id == ingredient_id:
-                return ingredient_quantity
-        # Raise a value error if the ingredient is not in the recipe
-        raise ValueError("Ingredient quantity not found.")
+        # Remove the ingredient from the recipe
+        del self._ingredient_quantities[ingredient_quantity_id]
 
-    def update_ingredient_quantity_value(self, ingredient_id:int, ingredient_qty_value:float|None) -> None:
-        """Update the quantity of an ingredient in the recipe."""
-        # Fetch the ingredient quantity
-        ingredient_quantity = self.get_ingredient_quantity(ingredient_id)
-        # Update the quantity value
-        ingredient_quantity.qty_value = ingredient_qty_value
-
-    def update_ingredient_quantity_unit(self, ingredient_id:int, ingredient_qty_unit:str) -> None:
-        """Update the unit of an ingredient in the recipe."""
-        # Fetch the ingredient quantity
-        ingredient_quantity = self.get_ingredient_quantity(ingredient_id)
-        # Update the quantity unit
-        ingredient_quantity.qty_unit = ingredient_qty_unit
-
-    def update_ingredient_quantity_utol(self, ingredient_id:int, ingredient_qty_utol:float|None) -> None:
-        """Update the upper tolerance of an ingredient in the recipe."""
-        # Fetch the ingredient quantity
-        ingredient_quantity = self.get_ingredient_quantity(ingredient_id)
-        # Update the quantity upper tolerance
-        ingredient_quantity.upper_tol = ingredient_qty_utol
-    
-    def update_ingredient_quantity_ltol(self, ingredient_id:int, ingredient_qty_ltol:float|None) -> None:
-        """Update the lower tolerance of an ingredient in the recipe."""
-        # Fetch the ingredient quantity
-        ingredient_quantity = self.get_ingredient_quantity(ingredient_id)
-        # Update the quantity lower tolerance
-        ingredient_quantity.lower_tol = ingredient_qty_ltol
-
-    def add_recipe_tag(self, tag: str) -> None:
-        """Add a recipe tag to the recipe."""
+    def add_recipe_tag(self, tag_id: int, tag: str) -> None:
+        """Add a recipe tag to the recipe.
+        Args:
+            tag_id (int): The ID of the recipe tag to add, unique to this specific
+                instance of the tag on this recipe.
+            tag (str): The recipe tag to add.
+        """
         # Check if the recipe tag is already in the recipe
-        if tag in self._recipe_tags:
+        if tag in self._recipe_tags.values():
             return None
+        # Raise an exception if the ID is already in the recipe
+        if tag_id in self._recipe_tags:
+            raise KeyError("Recipe tag ID already in recipe")
         # Add the recipe tag to the recipe
-        self._recipe_tags.append(tag)
+        self._recipe_tags[tag_id] = tag
 
     def remove_recipe_tag(self, tag: str) -> None:
         """Remove a recipe tag from the recipe."""
