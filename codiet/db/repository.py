@@ -76,22 +76,22 @@ class Repository:
         assert id is not None
         return id
 
-    def create_global_unit_conversion(self, from_unit_id: int, to_unit_id: int, conversion_factor: float) -> int:
+    def create_global_unit_conversion(self, from_unit_id: int, to_unit_id: int, from_unit_qty: float|None, to_unit_qty: float|None) -> int:
         """Adds a conversion to the global unit conversion table and returns the ID.
         Args:
             from_unit_id (int): The ID of the unit to convert from.
             to_unit_id (int): The ID of the unit to convert to.
-            conversion_factor (float): The conversion factor you would have
-                to multiply the from unit by to get the to unit.
+            from_unit_qty (float|None): The quantity associated with the from unit.
+            to_unit_qty (float|None): The quantity associated with the to unit.
         Returns:
             int: The ID of the unit conversion.
         """
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO global_unit_conversions (from_unit_id, to_unit_id, conversion_factor) VALUES (?, ?, ?);
+                INSERT INTO global_unit_conversions (from_unit_id, to_unit_id, from_unit_qty, to_unit_qty) VALUES (?, ?, ?, ?);
             """,
-                (from_unit_id, to_unit_id, conversion_factor),
+                (from_unit_id, to_unit_id, from_unit_qty, to_unit_qty),
             )
             id = cursor.lastrowid
         assert id is not None

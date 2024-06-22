@@ -44,7 +44,7 @@ class DatabaseService:
                     unit_id=unit_id,
                 )
         # Read the names of all units
-        unit_name_id_map = self.fetch_unit_name_id_map()
+        unit_name_id_map = self.build_unit_name_id_map()
         # Then, insert the conversion factors
         for unit_name, unit_info in units.items():
             # For each conversion factor
@@ -55,7 +55,8 @@ class DatabaseService:
                 self.repository.create_global_unit_conversion(
                     from_unit_id=unit_name_id_map.get_int(unit_name),
                     to_unit_id=to_unit_id,
-                    conversion_factor=factor,
+                    from_unit_qty=1.0,
+                    to_unit_qty=factor,
                 )
 
     def create_global_flags(self, flags: list[str]) -> None:
@@ -107,7 +108,7 @@ class DatabaseService:
         # Return the recipe
         return recipe
 
-    def fetch_unit_name_id_map(self) -> BidirectionalMap:
+    def build_unit_name_id_map(self) -> BidirectionalMap:
         """Fetches a bidirectional map of unit names to IDs.
         Returns:
             BidirectionalMap: A bidirectional map of unit names to IDs.
@@ -117,10 +118,10 @@ class DatabaseService:
         # Create a bidirectional map
         unit_name_id_map = BidirectionalMap()
         # Add each unit to the map
-        for unit_id, unit_name in units.items():
+        for unit_id, unit_data in units.items():
             unit_name_id_map.add_mapping(
                 integer=unit_id,
-                string=unit_name
+                string=unit_data["unit_name"]
             )
         return unit_name_id_map
 

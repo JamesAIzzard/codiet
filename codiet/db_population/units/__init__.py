@@ -4,7 +4,7 @@ from typing import Any
 
 _cached_global_units: dict|None = None
 
-GLOBAL_CUSTOM_UNITS_FILENAME = "global_custom_units.json"
+GLOBAL_UNITS_FILENAME = "global_units.json"
 
 def get_global_units() -> dict[str, Any]:
     """Get the global custom units from the .json file.
@@ -24,6 +24,6 @@ def get_global_units() -> dict[str, Any]:
     """
     global _cached_global_units
     if _cached_global_units is None:
-        with open(os.path.join(os.path.dirname(__file__), GLOBAL_CUSTOM_UNITS_FILENAME)) as file:
+        with open(os.path.join(os.path.dirname(__file__), GLOBAL_UNITS_FILENAME)) as file:
             _cached_global_units = json.load(file)
     return _cached_global_units # type: ignore

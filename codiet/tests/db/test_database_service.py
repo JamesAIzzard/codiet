@@ -22,6 +22,26 @@ def flatten_nutrients(nutrient_data, parent_id=None):
     _flatten(nutrient_data, parent_id)
     return flattened
 
+class TestCreateGlobalUnits(DatabaseTestCase):
+
+    def test_create_global_units_creates_global_units(self):
+        """Test creating global units in the database."""
+        # Grab the JSON config data for the global units
+        global_units = get_global_units()
+        # Insert the global units
+        self.database_service.create_global_units(global_units)
+        # Fetch all the global units
+        fetched_global_units = self.database_service.repository.read_all_global_units()
+        # Fetch the map of unit names to unit IDs
+        unit_name_to_id = self.database_service.build_unit_name_id_map()
+        # Check the length of the fetched global units is the same as the global units
+        self.assertEqual(len(fetched_global_units), len(global_units))
+        # For each global unit,
+        for global_unit_name in global_units.keys():
+            # Grab the ID of the unit and check its in the fetched units
+            unit_id = unit_name_to_id.get_int(global_unit_name)
+            self.assertIn(unit_id, fetched_global_units)
+
 class TestCreateGlobalFlags(DatabaseTestCase):
 
     def test_create_global_flags_create_global_flags(self):
