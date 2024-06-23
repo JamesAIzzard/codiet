@@ -338,7 +338,7 @@ class TestCreateRecipeIngredientQuantity(DatabaseTestCase):
 class TestCreateRecipeServeTimeWindow(DatabaseTestCase):
     """Test the insert_recipe_serve_time_window method of the Repository class."""
 
-    def test_insert_recipe_serve_time_inserts_serve_time_window(self):
+    def test_create_recipe_serve_time_creates_serve_time_window(self):
         """Test that the method inserts a recipe serve time into the database."""
         recipe_name = 'test_recipe'
         serve_time_window = "06:00 - 10:00"

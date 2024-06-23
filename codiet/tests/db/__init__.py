@@ -146,7 +146,7 @@ class DatabaseTestCase(unittest.TestCase):
         test_ingredient.add_nutrient_quantity(arginine_nq)
         return test_ingredient
 
-    def setup_test_recipe(self, recipe_name:str) -> None:
+    def setup_test_recipe(self, recipe_name:str) -> Recipe:
         """Create a test recipe."""
         # Setup the environment
         self.setup_global_units()
@@ -156,7 +156,7 @@ class DatabaseTestCase(unittest.TestCase):
         self.unit_id_name_map = self.database_service.build_unit_name_id_map()
         self.flag_id_name_map = self.database_service.build_flag_name_id_map()
         self.nutrient_id_name_map = self.database_service.build_nutrient_name_id_map()
-        self.recipe_id_name_map = self.database_service.build_recipe_tag_name_id_map()
+        self.recipe_tag_id_name_map = self.database_service.build_recipe_tag_name_id_map()
         # Create the test recipe
         test_recipe = self.database_service.create_empty_recipe(recipe_name=recipe_name)
         # Update use as ingredient
@@ -178,55 +178,55 @@ class DatabaseTestCase(unittest.TestCase):
             instructions=test_recipe.instructions
         )
         # Add a couple of serve time windows
-        stw1_id, stw1 = self.database_service.create_recipe_serve_time_window(
+        stw1 = self.database_service.create_recipe_serve_time_window(
             recipe_id=test_recipe.id,
-            serve_time_window=("06:00-12:00")
+            window_string="06:00-09:00"
         )
-        serve_time_window_1 = ("06:00-12:00")
-        serve_time_window_2 = ("13:00-18:00")
-        stw1_id = self.database_service.repository.create_recipe_serve_time_window(
+        test_recipe.add_serve_time_window(stw1)
+        stw2 = self.database_service.create_recipe_serve_time_window(
             recipe_id=test_recipe.id,
-            serve_time_window=(serve_time_window_1)
+            window_string="12:00-14:00"
         )
-        stw2_id = self.database_service.repository.create_recipe_serve_time_window(
-            recipe_id=test_recipe.id,
-            serve_time_window=(serve_time_window_2)
-        )
-        test_recipe.add_serve_time_window(stw1_id, serve_time_window_1)
+        test_recipe.add_serve_time_window(stw2)
         # Add a couple of ingredient quantities
         # Create a couple of test ingredients
         test_ingredient_1 = self.setup_test_ingredient("Test Ingredient 1")
         test_ingredient_2 = self.setup_test_ingredient("Test Ingredient 2")
         # Add them to the recipe
-        self.database_service.repository.create_recipe_ingredient_quantity(
-            recipe_id=self.test_recipe.id,
+        ingredient_qty_1 = self.database_service.create_recipe_ingredient_quantity(
+            recipe_id=test_recipe.id,
             ingredient_id=test_ingredient_1.id,
             qty_unit_id=self.unit_id_name_map.get_int("slice"),
             qty_value=2.0,
             qty_ltol=0.1,
             qty_utol=0.1
         )
-        self.database_service.repository.create_recipe_ingredient_quantity(
-            recipe_id=self.test_recipe.id,
+        test_recipe.add_ingredient_quantity(ingredient_quantity=ingredient_qty_1)
+        ingredient_qty_2 = self.database_service.create_recipe_ingredient_quantity(
+            recipe_id=test_recipe.id,
             ingredient_id=test_ingredient_2.id,
             qty_unit_id=self.unit_id_name_map.get_int("slice"),
             qty_value=1.0,
             qty_ltol=0.1,
             qty_utol=0.1
         )
+        test_recipe.add_ingredient_quantity(ingredient_quantity=ingredient_qty_2)
         # Add a couple of recipe tags
         # Get the ids for a couple of tags
-        tag_id_1 = self.recipe_id_name_map.get_int("breakfast")
-        tag_id_2 = self.recipe_id_name_map.get_int("lunch")
+        tag_id_1 = self.recipe_tag_id_name_map.get_int("breakfast")
+        tag_id_2 = self.recipe_tag_id_name_map.get_int("lunch")
         # Add the tags to the recipe
         self.database_service.repository.create_recipe_tag(
-            recipe_id=self.test_recipe.id,
-            tag_id=tag_id_1
+            recipe_id=test_recipe.id,
+            global_tag_id=tag_id_1
         )
+        test_recipe.add_recipe_tag(tag_id_1)
         self.database_service.repository.create_recipe_tag(
-            recipe_id=self.test_recipe.id,
-            tag_id=tag_id_2
+            recipe_id=test_recipe.id,
+            global_tag_id=tag_id_2
         )
+        test_recipe.add_recipe_tag(tag_id_2)
+        return test_recipe
 
     def tearDown(self) -> None:
         """Tear down the test case."""

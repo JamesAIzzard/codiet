@@ -2,7 +2,8 @@ from . import DatabaseTestCase
 from codiet.db_population.units import get_global_units
 from codiet.db_population.flags import get_global_flags
 from codiet.db_population.nutrients import get_global_nutrients
-from codiet.models.ingredients import Ingredient
+from codiet.models.ingredients import Ingredient, IngredientQuantity
+from codiet.models.time import RecipeServeTimeWindow
 
 def flatten_nutrients(nutrient_data, parent_id=None):
     """Flatten the nested nutrient structure into a list of nutrient dictionaries."""
@@ -147,6 +148,68 @@ class TestCreateEmptyRecipe(DatabaseTestCase):
         self.assertEqual(len(recipe.serve_time_windows), 0)
         # Check there are no tags
         self.assertEqual(len(recipe.tags), 0)
+
+class TestCreateRecipeIngredientQuantity(DatabaseTestCase):
+
+    def test_create_recipe_ingredient_quantity_creates_recipe_ingredient_quantity(self):
+        """Test creating a recipe ingredient quantity."""
+        # Create an empty recipe
+        recipe_name = "Test Recipe"
+        recipe = self.database_service.create_empty_recipe(recipe_name)
+        # Init the units
+        self.database_service.create_global_units(get_global_units())
+        # Init the unit id map
+        unit_name_to_id = self.database_service.build_unit_name_id_map()
+        # Create an empty ingredient
+        ingredient_name = "Test Ingredient"
+        ingredient = self.database_service.create_empty_ingredient(ingredient_name)
+        # Create the recipe ingredient quantity
+        riq = self.database_service.create_recipe_ingredient_quantity(
+            recipe_id=recipe.id,
+            ingredient_id=ingredient.id,
+            qty_unit_id=unit_name_to_id.get_int("gram"),
+            qty_value=100.0,
+            qty_ltol=0.2,
+            qty_utol=0.3
+        )
+        # Check the thing returned is a RecipeIngredientQuantity
+        self.assertIsInstance(riq, IngredientQuantity)
+        # Check the id is set correctly
+        self.assertEqual(riq.id, 1)
+        # Check the recipe id is set correctly
+        self.assertEqual(riq.recipe_id, recipe.id)
+        # Check the ingredient id is set correctly
+        self.assertEqual(riq.ingredient_id, ingredient.id)
+        # Check the quantity unit id is set correctly
+        self.assertEqual(riq.qty_unit_id, unit_name_to_id.get_int("gram"))
+        # Check the quantity value is set correctly
+        self.assertEqual(riq.qty_value, 100.0)
+        # Check the lower tolerance is set correctly
+        self.assertEqual(riq.lower_tol, 0.2)
+        # Check the upper tolerance is set correctly
+        self.assertEqual(riq.upper_tol, 0.3)
+
+class TestCreateRecipeServeTimeWindow(DatabaseTestCase):
+    
+        def test_create_recipe_serve_time_window_creates_recipe_serve_time_window(self):
+            """Test creating a recipe serve time window."""
+            # Create an empty recipe
+            recipe_name = "Test Recipe"
+            recipe = self.database_service.create_empty_recipe(recipe_name)
+            # Confirm there are no serve time windows associated with the recipe
+            time_windows = self.database_service.repository.read_recipe_serve_time_windows(recipe.id)
+            self.assertEqual(len(time_windows), 0)
+            # Create the recipe serve time window
+            window_string = "08:00-09:00"
+            serve_time_window = self.database_service.create_recipe_serve_time_window(recipe.id, window_string)
+            # Check the thing returned is a RecipeServeTimeWindow
+            self.assertIsInstance(serve_time_window, RecipeServeTimeWindow)
+            # Check the id is set correctly
+            self.assertEqual(serve_time_window.id, 1)
+            # Check the recipe id is set correctly
+            self.assertEqual(serve_time_window.recipe_id, recipe.id)
+            # Check the window string is set correctly
+            self.assertEqual(serve_time_window.window_string, window_string)
 
 class TestReadIngredient(DatabaseTestCase):
 

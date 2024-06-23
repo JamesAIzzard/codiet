@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from codiet.models.ingredients import IngredientQuantity
-
+from codiet.models.time import RecipeServeTimeWindow
 
 class Recipe:
     def __init__(self, recipe_id: int, recipe_name: str):
@@ -12,11 +12,11 @@ class Recipe:
         self.instructions: str | None = None
         self.reuse_as_ingredient: bool = False
         self._ingredient_quantities: dict[int, IngredientQuantity] = {}
-        self._serve_time_windows: dict[int, tuple[datetime, datetime]] = {}
-        self._recipe_tags: dict[int, str] = {}
+        self._serve_time_windows: dict[int, RecipeServeTimeWindow] = {}
+        self._recipe_tags: list[int] = []
 
     @property
-    def serve_time_windows(self) -> dict[int, tuple[datetime, datetime]]:
+    def serve_time_windows(self) -> dict[int, RecipeServeTimeWindow]:
         """Get the serve times for the recipe.
         Returns:
             dict[int, tuple[datetime, datetime]]: The serve times for the recipe,
@@ -34,7 +34,7 @@ class Recipe:
         return self._ingredient_quantities
 
     @property
-    def tags(self) -> dict[int, str]:
+    def tags(self) -> list[int]:
         """Get the recipe tags for the recipe.
         Returns:
             dict[int, str]: The recipe tags for the recipe,
@@ -42,36 +42,30 @@ class Recipe:
         """
         return self._recipe_tags
 
-    def add_serve_time_window(
-        self, serve_time_id: int, serve_time: tuple[datetime, datetime]
-    ) -> None:
+    def add_serve_time_window(self, serve_time_window:RecipeServeTimeWindow) -> None:
         """Add a serve time to the recipe.
         Args:
-            serve_time_id (int): The ID of the serve time to add.
-            serve_time (tuple[datetime, datetime]): The serve time to add.
+            serve_time_window (RecipeServeTimeWindow): The serve time to add.
         """
-        # Check if the serve time is already in the recipe
-        if serve_time in self._serve_time_windows:
-            return None
-        # Raise a KeyError if the ID is already in the recipe
-        if serve_time_id in self._serve_time_windows:
+        # Raise an exception if the serve time ID is already in the recipe
+        if serve_time_window.id in self._serve_time_windows:
             raise KeyError("Serve time ID already in recipe")
-        # Add the serve time to the recipe
-        self._serve_time_windows[serve_time_id] = serve_time
+        # Raise an exception if the serve time is already in the recipe
+        for serve_time in self._serve_time_windows.values():
+            if serve_time.window_string == serve_time_window.window_string:
+                raise KeyError("Serve time already in recipe")
+        self._serve_time_windows[serve_time_window.id] = serve_time_window
 
-    def update_serve_time_window(
-        self, serve_time_id: int, serve_time: tuple[datetime, datetime]
-    ) -> None:
+    def update_serve_time_window(self, serve_time_window: RecipeServeTimeWindow) -> None:
         """Update a serve time in the recipe.
         Args:
-            serve_time_id (int): The ID of the serve time to update.
-            serve_time (tuple[datetime, datetime]): The serve time to update.
+            serve_time_window (RecipeServeTimeWindow): The serve time to update.
         """
-        # Check the id is in the recipe
-        if serve_time_id not in self._serve_time_windows:
+        # Check the serve time is in the recipe
+        if serve_time_window.id not in self._serve_time_windows:
             raise KeyError("Serve time ID not in recipe")
         # Update the serve time in the recipe
-        self._serve_time_windows[serve_time_id] = serve_time
+        self._serve_time_windows[serve_time_window.id] = serve_time_window
 
     def remove_serve_time_window(self, serve_time_id: int) -> None:
         """Remove a serve time from the recipe.
@@ -109,26 +103,22 @@ class Recipe:
         # Remove the ingredient from the recipe
         del self._ingredient_quantities[ingredient_quantity_id]
 
-    def add_recipe_tag(self, tag_id: int, tag: str) -> None:
+    def add_recipe_tag(self, tag_id: int) -> None:
         """Add a recipe tag to the recipe.
         Args:
             tag_id (int): The ID of the recipe tag to add, unique to this specific
                 instance of the tag on this recipe.
-            tag (str): The recipe tag to add.
         """
-        # Check if the recipe tag is already in the recipe
-        if tag in self._recipe_tags.values():
-            return None
-        # Raise an exception if the ID is already in the recipe
+        # Raise an exception if the recipe tag is already in the recipe
         if tag_id in self._recipe_tags:
-            raise KeyError("Recipe tag ID already in recipe")
+            raise KeyError("Recipe tag already in recipe")
         # Add the recipe tag to the recipe
-        self._recipe_tags[tag_id] = tag
+        self._recipe_tags.append(tag_id)
 
-    def remove_recipe_tag(self, tag: str) -> None:
-        """Remove a recipe tag from the recipe."""
-        # Check if the recipe tag is in the recipe
-        if tag not in self._recipe_tags:
-            return None
+    def remove_recipe_tag(self, tag_id: int) -> None:
+        """Remove a recipe tag from the recipe.
+        Args:
+            tag_id (int): The ID of the recipe tag to remove.
+        """
         # Remove the recipe tag from the recipe
-        self._recipe_tags.remove(tag)
+        self._recipe_tags.remove(tag_id)

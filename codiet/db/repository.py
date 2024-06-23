@@ -290,15 +290,22 @@ class Repository:
         assert id is not None
         return id
 
-    def create_recipe_tag(self, recipe_id: int, tag_id: int) -> None:
-        """Adds a recipe tag to the database."""
+    def create_recipe_tag(self, recipe_id: int, global_tag_id: int) -> int:
+        """Adds a recipe tag to the database.
+        Args:
+            recipe_id (int): The ID of the recipe.
+            tag_id (int): The global ID of the tag.
+        Returns:
+            int: The global tag id.
+        """
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
                 INSERT INTO recipe_tags (recipe_id, recipe_tag_id) VALUES (?, ?);
             """,
-                (recipe_id, tag_id),
+                (recipe_id, global_tag_id),
             )
+        return global_tag_id
 
     def read_all_global_units(self) -> dict[int, dict]:
         """Returns a dictionary of all global units in the database.
