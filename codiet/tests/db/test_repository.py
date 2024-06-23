@@ -699,6 +699,38 @@ class TestUpdateRecipeName(DatabaseTestCase):
         # Check the new recipe name is correct
         self.assertEqual(all_recipes[recipe_id], new_recipe_name)
 
+class TestUpdateUseRecipeAsIngredient(DatabaseTestCase):
+    """Test the update_use_recipe_as_ingredient method of the Repository class."""
+
+    def test_update_use_recipe_as_ingredient_updates_use_recipe_as_ingredient(self):
+        """Test that the method updates a recipe use_recipe_as_ingredient in the database."""
+        recipe_name = 'test_recipe'
+        # Insert the recipe
+        recipe_id = self.repository.create_recipe_name(
+            name=recipe_name,
+        )
+        # Check the use_recipe_as_ingredient is none
+        use_recipe_as_ingredient = self.repository.read_use_recipe_as_ingredient(recipe_id)
+        self.assertFalse(use_recipe_as_ingredient)
+        # Update the recipe use_recipe_as_ingredient
+        self.repository.update_use_recipe_as_ingredient(
+            recipe_id=recipe_id,
+            use_as_ingredient=True,
+        )
+        # Fetch the recipe use_recipe_as_ingredient again
+        use_recipe_as_ingredient = self.repository.read_use_recipe_as_ingredient(recipe_id)
+        # Check the new recipe use_recipe_as_ingredient is in the database
+        self.assertTrue(use_recipe_as_ingredient)
+        # Update the recipe use_recipe_as_ingredient again
+        self.repository.update_use_recipe_as_ingredient(
+            recipe_id=recipe_id,
+            use_as_ingredient=False,
+        )
+        # Fetch the recipe use_recipe_as_ingredient again
+        use_recipe_as_ingredient = self.repository.read_use_recipe_as_ingredient(recipe_id)
+        # Check the new recipe use_recipe_as_ingredient is in the database
+        self.assertFalse(use_recipe_as_ingredient)
+
 class TestUpdateRecipeDescription(DatabaseTestCase):
     """Test the update_recipe_description method of the Repository class."""
 

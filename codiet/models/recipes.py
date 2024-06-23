@@ -7,6 +7,7 @@ class Recipe:
     def __init__(self, recipe_id: int, recipe_name: str):
         self.id = recipe_id
         self.name = recipe_name
+        self.use_as_ingredient: bool = False
         self.description: str | None = None
         self.instructions: str | None = None
         self.reuse_as_ingredient: bool = False

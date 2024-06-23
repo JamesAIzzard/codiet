@@ -626,6 +626,17 @@ class Repository:
             ).fetchall()
         return {row[0]: row[1] for row in rows}
 
+    def read_use_recipe_as_ingredient(self, recipe_id: int) -> bool:
+        """Returns the use_recipe_as_ingredient flag for the given recipe ID."""
+        with self.get_cursor() as cursor:
+            rows = cursor.execute(
+                """
+                SELECT use_as_ingredient FROM recipes WHERE id = ?;
+            """,
+                (recipe_id,),
+            ).fetchall()
+        return bool(rows[0][0]) if rows else False
+
     def read_recipe_description(self, recipe_id: int) -> str | None:
         """Returns the description of the recipe associated with the given ID."""
         with self.get_cursor() as cursor:
@@ -864,6 +875,18 @@ class Repository:
                 WHERE id = ?;
             """,
                 (name, recipe_id),
+            )
+
+    def update_use_recipe_as_ingredient(self, recipe_id: int, use_as_ingredient: bool) -> None:
+        """Updates the use_recipe_as_ingredient flag of the recipe associated with the given ID."""
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE recipes
+                SET use_as_ingredient = ?
+                WHERE id = ?;
+            """,
+                (use_as_ingredient, recipe_id),
             )
 
     def update_recipe_description(

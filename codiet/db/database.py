@@ -193,6 +193,7 @@ class Database:
             CREATE TABLE IF NOT EXISTS recipes (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 recipe_name TEXT UNIQUE NOT NULL,
+                use_as_ingredient BOOLEAN,
                 recipe_description TEXT,
                 recipe_instructions TEXT
             )
