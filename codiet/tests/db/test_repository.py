@@ -116,7 +116,7 @@ class TestCreateNutrientAlias(DatabaseTestCase):
 class TestCreateGlobalRecipeTag(DatabaseTestCase):
     """Test the insert_global_recipe_tag method of the Repository class."""
 
-    def test_insert_global_recipe_tag_inserts_tag(self):
+    def test_create_global_recipe_tag_creates_tag(self):
         """Test that the method inserts a global recipe tag into the database."""
         tag_name = 'test_tag'
         # Fetch all the tags

@@ -136,14 +136,14 @@ class Repository:
                 (alias, primary_nutrient_id),
             )
 
-    def create_global_recipe_tag(self, tag_name: str) -> int:
+    def create_global_recipe_tag(self, tag_name: str, parent_tag_id:int|None=None) -> int:
         """Adds a recipe tag to the global recipe tag table and returns the ID."""
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO global_recipe_tags (recipe_tag_name) VALUES (?);
+                INSERT INTO global_recipe_tags (recipe_tag_name, parent_tag_id) VALUES (?, ?);
             """,
-                (tag_name,),
+                (tag_name,parent_tag_id),
             )
             id = cursor.lastrowid
         assert id is not None
@@ -207,7 +207,7 @@ class Repository:
         ntr_mass_value: float | None,
         ing_qty_unit_id: int | None,
         ing_qty_value: float | None
-    ) -> None:
+    ) -> int:
         """Adds an ingredient nutrient quantity to the database and returns the ID.
         Args:
             ingredient_id (int): The ID of the ingredient.
@@ -217,7 +217,7 @@ class Repository:
             ing_qty_unit_id (int|None): The ID of the unit.
             ing_qty_value (float|None): The quantity value.
         Returns:
-            None.
+            int: The unique ID associdated with this specific ingredient nutrient quantity.
         """
         with self.get_cursor() as cursor:
             cursor.execute(
@@ -227,6 +227,9 @@ class Repository:
             """,
                 (ingredient_id, nutrient_id, ntr_mass_unit_id, ntr_mass_value, ing_qty_unit_id, ing_qty_value),
             )
+            id = cursor.lastrowid
+        assert id is not None
+        return id
 
     def create_recipe_name(self, name: str) -> int:
         """Adds a recipe name to the database and returns the ID."""
@@ -286,6 +289,16 @@ class Repository:
             id = cursor.lastrowid
         assert id is not None
         return id
+
+    def create_recipe_tag(self, recipe_id: int, tag_id: int) -> None:
+        """Adds a recipe tag to the database."""
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO recipe_tags (recipe_id, recipe_tag_id) VALUES (?, ?);
+            """,
+                (recipe_id, tag_id),
+            )
 
     def read_all_global_units(self) -> dict[int, dict]:
         """Returns a dictionary of all global units in the database.
@@ -584,6 +597,7 @@ class Repository:
             The data structure returned is a dictionary:
             {
                 nutrient_id: {
+                    'id': int,
                     'ntr_mass_unit_id': int|None,
                     'ntr_mass_value': float|None,
                     'ing_qty_unit_id': int|None,
@@ -603,6 +617,7 @@ class Repository:
             ).fetchall()
         return {
             row[1]: {
+                "id": row[0],
                 "ntr_mass_unit_id": row[2],
                 "ntr_mass_value": row[3],
                 "ing_qty_unit_id": row[4],

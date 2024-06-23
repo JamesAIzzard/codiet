@@ -118,6 +118,7 @@ class Database:
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS global_recipe_tags (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                parent_tag_id INTEGER,
                 recipe_tag_name TEXT UNIQUE
             )
         """)

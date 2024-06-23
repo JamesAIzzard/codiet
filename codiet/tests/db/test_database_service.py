@@ -271,7 +271,6 @@ class TestReadRecipe(DatabaseTestCase):
         # Grab the id for slice
         slice_id = unit_name_to_id.get_int("slice")
 
-
 class TestUpdateIngredient(DatabaseTestCase):
 
     def test_update_ingredient_updates_ingredient(self):

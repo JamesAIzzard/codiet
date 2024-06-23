@@ -87,6 +87,26 @@ class DatabaseService:
             if "children" in nutrient_info:
                 self.create_global_nutrients(nutrient_info["children"], parent_id=nutrient_id)
 
+    def create_global_recipe_tags(self, tag_data: dict[str, dict]) -> None:
+        """Insert the global recipe tags into the database.
+        Works through the tree structure provided in tag data and inserts
+        the tags into the database.
+        Args:
+            tag_data (dict[str, dict]): The recipe tag data from the
+                JSON config file.
+        Returns:
+            None
+        """
+        def insert_tags(data: dict[str, dict], parent_id: int | None = None) -> None:
+            for tag_name, children in data.items():
+                # Insert the current tag and get its ID
+                tag_id = self.repository.create_global_recipe_tag(tag_name, parent_id)
+                # Recursively insert children tags
+                if children:
+                    insert_tags(children, tag_id)
+        # Start the recursive insertion with the root tags
+        insert_tags(tag_data)        
+
     def create_empty_ingredient(self, ingredient_name: str) -> Ingredient:
         """Creates an ingredient."""
         # Insert the ingredient name into the database
@@ -95,6 +115,95 @@ class DatabaseService:
         ingredient = Ingredient(ingredient_name, ingredient_id)
         # Return the ingredient
         return ingredient
+
+    def create_ingredient_unit_conversion(
+        self,
+        ingredient_id: int,
+        from_unit_id: int,
+        from_unit_qty: float,
+        to_unit_id: int,
+        to_unit_qty: float,
+    ) -> IngredientUnitConversion:
+        """Creates a unit conversion for the given ingredient.
+        Args:
+            ingredient_id (int): The id of the ingredient.
+            from_unit_id (int): The id of the unit to convert from.
+            from_unit_qty (float): The quantity of the from unit.
+            to_unit_id (int): The id of the unit to convert to.
+            to_unit_qty (float): The quantity of the to unit.
+        Returns:
+            IngredientUnitConversion: The created unit conversion.
+        """
+        # Raise an exception if there is an equivalent conversion already
+        # defined for this ingredient. Do this by checking for matching
+        # from and to units. Treat this bidirectionally.
+        existing_conversions = self.read_ingredient_unit_conversions(ingredient_id)
+        for conversion in existing_conversions.values():
+            if conversion.from_unit_id == from_unit_id and conversion.to_unit_id == to_unit_id:
+                raise KeyError("Unit conversion already exists for this ingredient.")
+            if conversion.from_unit_id == to_unit_id and conversion.to_unit_id == from_unit_id:
+                raise KeyError("Unit conversion already exists for this ingredient.")
+        # Insert the unit conversion into the database
+        conversion_id = self.repository.create_ingredient_unit_conversion(
+            ingredient_id=ingredient_id,
+            from_unit_id=from_unit_id,
+            from_unit_qty=from_unit_qty,
+            to_unit_id=to_unit_id,
+            to_unit_qty=to_unit_qty,
+        )
+        # Init the unit conversion
+        unit_conversion = IngredientUnitConversion(
+            ingredient_id=ingredient_id,
+            id=conversion_id,
+            from_unit_id=from_unit_id,
+            from_unit_qty=from_unit_qty,
+            to_unit_id=to_unit_id,
+            to_unit_qty=to_unit_qty,
+        )
+        # Return the unit conversion
+        return unit_conversion
+
+    def create_ingredient_nutrient_quantity(
+        self,
+        ingredient_id: int,
+        nutrient_id: int,
+        ntr_mass_value: float,
+        ntr_mass_unit_id: int,
+        ing_qty_value: float,
+        ing_qty_unit_id: int,
+    ) -> IngredientNutrientQuantity:
+        """Creates a nutrient quantity for the given ingredient.
+        Args:
+            ingredient_id (int): The id of the ingredient.
+            nutrient_id (int): The id of the nutrient.
+            ntr_mass_value (float): The mass value of the nutrient.
+            ntr_mass_unit_id (int): The unit id of the mass value.
+            ing_qty_value (float): The quantity value of the ingredient.
+            ing_qty_unit_id (int): The unit id of the quantity value.
+        Returns:
+            IngredientNutrientQuantity: The created nutrient quantity.
+        """
+        # Insert the nutrient quantity into the database
+        nutrient_quantity_id = self.repository.create_ingredient_nutrient_quantity(
+            ingredient_id=ingredient_id,
+            nutrient_id=nutrient_id,
+            ntr_mass_value=ntr_mass_value,
+            ntr_mass_unit_id=ntr_mass_unit_id,
+            ing_qty_value=ing_qty_value,
+            ing_qty_unit_id=ing_qty_unit_id,
+        )
+        # Init the nutrient quantity
+        nutrient_quantity = IngredientNutrientQuantity(
+            id = nutrient_quantity_id,
+            nutrient_id=nutrient_id,
+            ingredient_id=ingredient_id,
+            ntr_mass_value=ntr_mass_value,
+            ntr_mass_unit_id=ntr_mass_unit_id,
+            ing_qty_value=ing_qty_value,
+            ing_qty_unit_id=ing_qty_unit_id,
+        )
+        # Return the nutrient quantity
+        return nutrient_quantity
 
     def create_empty_recipe(self, recipe_name: str) -> Recipe:
         """Creates an empty recipe with the given name."""
@@ -158,6 +267,23 @@ class DatabaseService:
                 string=nutrient_data["nutrient_name"]
             )
         return nutrient_name_id_map
+
+    def build_recipe_tag_name_id_map(self) -> BidirectionalMap:
+        """Fetches a bidirectional map of recipe tag names to IDs.
+        Returns:
+            BidirectionalMap: A bidirectional map of recipe tag names to IDs.
+        """
+        # Fetch all the recipe tags
+        recipe_tags = self.repository.read_all_global_recipe_tags()
+        # Create a bidirectional map
+        recipe_tag_name_id_map = BidirectionalMap()
+        # Add each recipe tag to the map
+        for tag_id, tag_name in recipe_tags.items():
+            recipe_tag_name_id_map.add_mapping(
+                integer=tag_id,
+                string=tag_name
+            )
+        return recipe_tag_name_id_map
 
     def read_ingredient(self, ingredient_id: int) -> Ingredient:
         """Returns the ingredient with the given name.
@@ -241,6 +367,7 @@ class DatabaseService:
         for nutrient_id, nutrient_qty_data in raw_nutrient_quantities.items():
             # And add the data to the dict
             nutrient_quantities[nutrient_id] = IngredientNutrientQuantity(
+                id=nutrient_qty_data["id"],
                 nutrient_id=nutrient_id,                
                 ingredient_id=ingredient_id,
                 ntr_mass_value=nutrient_qty_data["ntr_mass_value"],

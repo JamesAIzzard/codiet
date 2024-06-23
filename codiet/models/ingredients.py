@@ -46,18 +46,16 @@ class Ingredient:
                 Where the key is the gloabl nutrient ID."""
         return self._nutrient_quantities
 
-    def upsert_unit_conversion(self, unit_conversion: IngredientUnitConversion) -> None:
+    def add_unit_conversion(self, unit_conversion: IngredientUnitConversion) -> None:
         """Upserts a unit conversion."""
-        # Check if the unit conversion is already in the list
+        # Raise an exception if the unit conversion is already in the list
         for uc in self._unit_conversions.values():
             if uc == unit_conversion:
-                # Update the unit conversion
-                self._unit_conversions[unit_conversion.id] = unit_conversion
-                return
+                raise KeyError(f"Unit conversion '{unit_conversion.id}' already in list.")
         # If not found, add the unit conversion
         self._unit_conversions[unit_conversion.id] = unit_conversion
 
-    def delete_unit_conversion(self, unit_id: int) -> None:
+    def remove_unit_conversion(self, unit_id: int) -> None:
         """Delete a unit."""
         self._unit_conversions.pop(unit_id)
 
@@ -84,11 +82,11 @@ class Ingredient:
         for flag in self._flags:
             self.set_flag(flag, False)
 
-    def upsert_nutrient_quantity(
-        self, ingredient_nutrient: IngredientNutrientQuantity
+    def add_nutrient_quantity(
+        self, ingredient_nutrient_quantity: IngredientNutrientQuantity
     ) -> None:
         """Updates a nutrient quantity on the ingredient."""
-        self._nutrient_quantities[ingredient_nutrient.id] = ingredient_nutrient
+        self._nutrient_quantities[ingredient_nutrient_quantity.nutrient_id] = ingredient_nutrient_quantity
 
 
 class IngredientQuantity:
