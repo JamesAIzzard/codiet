@@ -294,7 +294,7 @@ class IngredientEditorCtrl:
     def _on_nutrient_qty_changed(self, nutrient_quantity: IngredientNutrientQuantity):
         """Handler for changes to the ingredient nutrient quantities."""
         # Update the nutrient quantity on the model
-        self.ingredient.update_nutrient_quantity(nutrient_quantity)
+        self.ingredient.upsert_nutrient_quantity(nutrient_quantity)
         # Update the nutrient quantity in the database
         with DatabaseService() as db_service:
             db_service.update_ingredient_nutrient_quantity(

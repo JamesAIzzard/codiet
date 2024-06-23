@@ -133,7 +133,10 @@ class Database:
                 cost_unit_id INTEGER,
                 cost_value REAL,
                 cost_qty_unit_id INTEGER,
-                cost_qty_value REAL
+                cost_qty_value REAL,
+                standard_unit_id INTEGER,
+                FOREIGN KEY (cost_qty_unit_id) REFERENCES global_units(id),
+                FOREIGN KEY (standard_unit_id) REFERENCES global_units(id)
             )
         """)
 

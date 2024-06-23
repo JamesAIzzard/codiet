@@ -290,7 +290,7 @@ class TestCreateRecipeIngredientQuantity(DatabaseTestCase):
         # Check the ingredient quantity lower tolerance is correct
         self.assertEqual(ingredient_quantities[ingredient_id]["qty_ltol"], 15)
 
-class TestInsertRecipeServeTimeWindow(DatabaseTestCase):
+class TestCreateRecipeServeTimeWindow(DatabaseTestCase):
     """Test the insert_recipe_serve_time_window method of the Repository class."""
 
     def test_insert_recipe_serve_time_inserts_serve_time_window(self):
@@ -383,6 +383,36 @@ class TestUpdateIngredientDescription(DatabaseTestCase):
         description = self.repository.read_ingredient_description(id)
         # Check the new ingredient description is in the database
         self.assertEqual(description, description_2)
+
+class TestUpdateIngredientStandardUnitID(DatabaseTestCase):
+    """Test the update_ingredient_standard_unit_id method of the Repository class."""
+
+    def test_update_ingredient_standard_unit_id_updates_standard_unit_id(self):
+        """Test that the method updates an ingredient standard unit in the database."""
+        ingredient_name = 'test_ingredient'
+        # Insert the ingredient
+        id = self.repository.create_ingredient_name(
+            name=ingredient_name,
+        )
+        # Check the standard unit is none
+        standard_unit_id = self.repository.read_ingredient_standard_unit_id(id)
+        self.assertIsNone(standard_unit_id)
+        # Insert the unit
+        g_id = self.repository.create_global_unit(
+            unit_name='gram',
+            single_display_name='g',
+            plural_display_name='g',
+            unit_type='mass',
+        )
+        # Update the ingredient standard unit
+        self.repository.update_ingredient_standard_unit_id(
+            ingredient_id=id,
+            standard_unit_id=g_id,
+        )
+        # Fetch the ingredient standard unit again
+        standard_unit_id = self.repository.read_ingredient_standard_unit_id(id)
+        # Check the new ingredient standard unit is in the database
+        self.assertEqual(standard_unit_id, g_id)
 
 class TestUpdateIngredientUnitConversion(DatabaseTestCase):
     """Test the update_ingredient_unit method of the Repository class."""

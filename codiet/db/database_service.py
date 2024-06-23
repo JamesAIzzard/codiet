@@ -125,6 +125,40 @@ class DatabaseService:
             )
         return unit_name_id_map
 
+    def build_flag_name_id_map(self) -> BidirectionalMap:
+        """Fetches a bidirectional map of flag names to IDs.
+        Returns:
+            BidirectionalMap: A bidirectional map of flag names to IDs.
+        """
+        # Fetch all the flags
+        flags = self.repository.read_all_global_flags()
+        # Create a bidirectional map
+        flag_name_id_map = BidirectionalMap()
+        # Add each flag to the map
+        for flag_id, flag_name in flags.items():
+            flag_name_id_map.add_mapping(
+                integer=flag_id,
+                string=flag_name
+            )
+        return flag_name_id_map
+    
+    def build_nutrient_name_id_map(self) -> BidirectionalMap:
+        """Fetches a bidirectional map of nutrient names to IDs.
+        Returns:
+            BidirectionalMap: A bidirectional map of nutrient names to IDs.
+        """
+        # Fetch all the nutrients
+        nutrients = self.repository.read_all_global_nutrients()
+        # Create a bidirectional map
+        nutrient_name_id_map = BidirectionalMap()
+        # Add each nutrient to the map
+        for nutrient_id, nutrient_data in nutrients.items():
+            nutrient_name_id_map.add_mapping(
+                integer=nutrient_id,
+                string=nutrient_data["nutrient_name"]
+            )
+        return nutrient_name_id_map
+
     def read_ingredient(self, ingredient_id: int) -> Ingredient:
         """Returns the ingredient with the given name.
         Args:
@@ -146,6 +180,8 @@ class DatabaseService:
         ingredient.cost_value = cost_data['cost_value']
         ingredient.cost_qty_unit_id = cost_data['cost_qty_unit_id']
         ingredient.cost_qty_value = cost_data['cost_qty_value']
+        # Fetch the standard unit
+        ingredient.standard_unit_id = self.repository.read_ingredient_standard_unit_id(ingredient.id)
         # Fetch the unit conversions
         ingredient._unit_conversions = self.read_ingredient_unit_conversions(ingredient_id=ingredient.id)
         # Fetch the flags
@@ -178,10 +214,10 @@ class DatabaseService:
             conversions[conversion_id] = IngredientUnitConversion(
                 ingredient_id=ingredient_id,
                 id=conversion_id,
-                from_unit_id=conversion_data[0],
-                from_unit_qty=conversion_data[1],
-                to_unit_id=conversion_data[2],
-                to_unit_qty=conversion_data[3],
+                from_unit_id=conversion_data["from_unit_id"],
+                from_unit_qty=conversion_data["from_unit_qty"],
+                to_unit_id=conversion_data["to_unit_id"],
+                to_unit_qty=conversion_data["to_unit_qty"],
             )
         return conversions
 
@@ -206,7 +242,7 @@ class DatabaseService:
             # And add the data to the dict
             nutrient_quantities[nutrient_qty_id] = IngredientNutrientQuantity(
                 id=nutrient_qty_id,
-                nutrient_id=nutrient_qty_data["global_nutrient_id"],                
+                nutrient_id=nutrient_qty_data["nutrient_id"],                
                 ingredient_id=ingredient_id,
                 ntr_mass_value=nutrient_qty_data["ntr_mass_value"],
                 ntr_mass_unit_id=nutrient_qty_data["ntr_mass_unit_id"],

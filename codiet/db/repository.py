@@ -487,6 +487,17 @@ class Repository:
             "cost_qty_value": rows[0][2],
         }
 
+    def read_ingredient_standard_unit_id(self, ingredient_id: int) -> int | None:
+        """Returns the standard unit ID of the ingredient associated with the given ID."""
+        with self.get_cursor() as cursor:
+            rows = cursor.execute(
+                """
+                SELECT standard_unit_id FROM ingredients WHERE id = ?;
+            """,
+                (ingredient_id,),
+            ).fetchall()
+        return rows[0][0] if rows else None
+
     def read_ingredient_unit_conversions(self, ingredient_id: int) -> dict[int, dict]:
         """Returns a list of all unit conversions defined for the given ingredient ID.
         Data structure returned is a dictionary:
@@ -521,33 +532,26 @@ class Repository:
     def read_ingredient_flags(self, ingredient_id: int) -> dict[int, bool|None]:
         """
         Return the flags of the ingredient associated with the given ingredient ID.
-    
-        SQLite stores flags as integers, where 0 is False and 1 is True.
-        The data structure returned is a dictionary:
-        {
-            flag_id: flag_value
-        }
-    
+        SQLite stores flags as integers, where 0 is False and 1 is True, this method
+        converts the integer values to boolean values.
         Args:
-            id (int): The ID of the ingredient.
-    
+            ingredient_id (int): The ID of the ingredient.
         Returns:
-            dict: A dictionary mapping flag IDs to their values.
+            dict: A dictionary containing the flags of the ingredient:
+                {
+                    ingredient_flag_id: bool|None
+                }
+                Note that ingredient flag id is the UID of the flag associated
+                with the ingredient, not the global flag id.
         """
         with self.get_cursor() as cursor:
             rows = cursor.execute(
                 """
-                SELECT flag_id, flag_value FROM ingredient_flags WHERE ingredient_id = ?;
+                SELECT id, flag_value FROM ingredient_flags WHERE ingredient_id = ?;
             """,
                 (ingredient_id,),
             ).fetchall()
-        result = {}
-        for row in rows:
-            if row[1] is None:
-                result[row[0]] = None
-            else:
-                result[row[0]] = bool(row[1])
-        return result
+        return {row[0]: bool(row[1]) for row in rows}
 
     def read_ingredient_gi(self, ingredient_id: int) -> float | None:
         """Returns the GI of the ingredient associated with the given ID."""
@@ -739,6 +743,24 @@ class Repository:
                 WHERE id = ?;
             """,
                 (cost_unit_id, cost_value, cost_qty_unit_id, cost_qty_value, ingredient_id),
+            )
+
+    def update_ingredient_standard_unit_id(self, ingredient_id: int, standard_unit_id: int | None) -> None:
+        """Updates the standard unit ID of the ingredient associated with the given ID.
+        Args:
+            ingredient_id (int): The ID of the ingredient.
+            standard_unit_id (int|None): The ID of the unit.
+        Returns:
+            None.
+        """
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE ingredients
+                SET standard_unit_id = ?
+                WHERE id = ?;
+            """,
+                (standard_unit_id, ingredient_id),
             )
 
     def update_ingredient_unit_conversion(

@@ -26,7 +26,12 @@ class Ingredient:
 
     @property
     def unit_conversions(self) -> dict[int, IngredientUnitConversion]:
-        """Returns the unit conversions associated with this ingredient."""
+        """Returns the unit conversions associated with this ingredient.
+        Returns:
+            dict[int, IngredientUnitConversion]: The unit conversions.
+                Where the key is the UID for the unit conversion on
+                the ingredient.
+        """
         return self._unit_conversions
 
     @property
@@ -72,7 +77,7 @@ class Ingredient:
         for flag in self._flags:
             self.set_flag(flag, False)
 
-    def update_nutrient_quantity(
+    def upsert_nutrient_quantity(
         self, ingredient_nutrient: IngredientNutrientQuantity
     ) -> None:
         """Updates a nutrient quantity on the ingredient."""
