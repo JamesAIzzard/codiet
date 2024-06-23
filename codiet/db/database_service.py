@@ -238,11 +238,10 @@ class DatabaseService:
             ingredient_id
         )
         # Cycle through the raw data
-        for nutrient_qty_id, nutrient_qty_data in raw_nutrient_quantities.items():
+        for nutrient_id, nutrient_qty_data in raw_nutrient_quantities.items():
             # And add the data to the dict
-            nutrient_quantities[nutrient_qty_id] = IngredientNutrientQuantity(
-                id=nutrient_qty_id,
-                nutrient_id=nutrient_qty_data["nutrient_id"],                
+            nutrient_quantities[nutrient_id] = IngredientNutrientQuantity(
+                nutrient_id=nutrient_id,                
                 ingredient_id=ingredient_id,
                 ntr_mass_value=nutrient_qty_data["ntr_mass_value"],
                 ntr_mass_unit_id=nutrient_qty_data["ntr_mass_unit_id"],
@@ -255,21 +254,51 @@ class DatabaseService:
         """Returns the name of the recipe with the given ID."""
         raise NotImplementedError
 
-    def update_ingredient_flag(
-        self, ingredient_id: int, flag_name: str, flag_value: bool
-    ) -> None:
-        """Updates a flag on the ingredient."""
-        self._repo.upsert_ingredient_flag(ingredient_id, flag_name, flag_value)
-
-    def update_ingredient_nutrient_quantity(
-        self, nutrient_quantity: IngredientNutrientQuantity
-    ) -> None:
-        """Updates a nutrient quantity on the ingredient."""
-        self._repo.upsert_ingredient_nutrient_quantity(
-            ingredient_id=nutrient_quantity.ingredient_id,
-            global_nutrient_id=nutrient_quantity.global_nutrient_id,
-            ntr_mass_value=nutrient_quantity.nutrient_mass_value,
-            ntr_mass_unit=nutrient_quantity.nutrient_mass_unit,
-            ing_qty_value=nutrient_quantity.ingredient_quantity_value,
-            ing_qty_unit=nutrient_quantity.ingredient_quantity_unit,
+    def update_ingredient(self, ingredient: Ingredient) -> None:
+        """Updates the ingredient in the database."""
+        # Update the name
+        self.repository.update_ingredient_name(ingredient.id, ingredient.name)
+        # Update the description
+        self.repository.update_ingredient_description(ingredient.id, ingredient.description)
+        # Update the cost data
+        self.repository.update_ingredient_cost(
+            ingredient_id=ingredient.id,
+            cost_value=ingredient.cost_value,
+            cost_qty_unit_id=ingredient.cost_qty_unit_id,
+            cost_qty_value=ingredient.cost_qty_value,
         )
+        # Update the standard unit
+        self.repository.update_ingredient_standard_unit_id(ingredient.id, ingredient.standard_unit_id)
+        # Update the unit conversions
+        # First delete all the existing unit conversions
+        self.repository.delete_ingredient_unit_conversions(ingredient.id)
+        # Then add the new ones
+        for unit_conversion in ingredient.unit_conversions.values():
+            self.repository.create_ingredient_unit_conversion(
+                ingredient_id=ingredient.id,
+                from_unit_id=unit_conversion.from_unit_id,
+                from_unit_qty=unit_conversion.from_unit_qty,
+                to_unit_id=unit_conversion.to_unit_id,
+                to_unit_qty=unit_conversion.to_unit_qty,
+            )
+        # Update the flags
+        # First, remove all the flags
+        self.repository.delete_ingredient_flags(ingredient.id)
+        # Then add the new ones
+        for flag_id, flag_value in ingredient.flags.items():
+            self.repository.update_ingredient_flag(ingredient.id, flag_id, flag_value)
+        # Update the GI
+        self.repository.update_ingredient_gi(ingredient.id, ingredient.gi)
+        # Update the nutrient quantities
+        # First, remove all the nutrient quantities
+        self.repository.delete_ingredient_nutrient_quantities(ingredient.id)
+        # Then add the new ones
+        for nutrient_quantity in ingredient.nutrient_quantities.values():
+            self.repository.create_ingredient_nutrient_quantity(
+                ingredient_id=ingredient.id,
+                nutrient_id=nutrient_quantity.nutrient_id,
+                ntr_mass_value=nutrient_quantity.nutrient_mass_value,
+                ntr_mass_unit_id=nutrient_quantity.nutrient_mass_unit_id,
+                ing_qty_value=nutrient_quantity.ingredient_quantity_value,
+                ing_qty_unit_id=nutrient_quantity.ingredient_quantity_unit_id,
+            )

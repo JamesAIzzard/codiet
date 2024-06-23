@@ -190,15 +190,15 @@ class TestReadIngredient(DatabaseTestCase):
         gf_flag_id = flag_name_to_id.get_int("gluten free")
         v_flag_id = flag_name_to_id.get_int("vegetarian")
         # Set them on the ingredient        
-        ing_gf_flag_id = self.database_service.repository.create_ingredient_flag(ingredient.id, gf_flag_id, True)
-        ing_v_flag_id = self.database_service.repository.create_ingredient_flag(ingredient.id, v_flag_id, False)        
+        self.database_service.repository.create_ingredient_flag(ingredient.id, gf_flag_id, True)
+        self.database_service.repository.create_ingredient_flag(ingredient.id, v_flag_id, False)        
         # Set the GI
         gi = 50.0
         self.database_service.repository.update_ingredient_gi(ingredient.id, gi)
         # Grab the global id's for a nutrient
         alanine_id = nutrient_name_to_id.get_int("alanine")
         # Set these nutrient quantities on the ingredient
-        ing_alanine_id = self.database_service.repository.create_ingredient_nutrient_quantity(
+        self.database_service.repository.create_ingredient_nutrient_quantity(
             ingredient_id=ingredient.id,
             nutrient_id=alanine_id,
             ntr_mass_unit_id=g_id,
@@ -229,18 +229,76 @@ class TestReadIngredient(DatabaseTestCase):
         self.assertIn(ing_slice_uc, fetched_ingredient.unit_conversions.keys())
         # Check the flags are set correctly
         self.assertEqual(len(fetched_ingredient.flags), 2)
-        self.assertIn(ing_gf_flag_id, fetched_ingredient.flags.keys())
-        self.assertIn(ing_v_flag_id, fetched_ingredient.flags.keys())
-        self.assertTrue(fetched_ingredient.flags[ing_gf_flag_id])
-        self.assertFalse(fetched_ingredient.flags[ing_v_flag_id])
+        self.assertIn(gf_flag_id, fetched_ingredient.flags.keys())
+        self.assertIn(v_flag_id, fetched_ingredient.flags.keys())
+        self.assertTrue(fetched_ingredient.flags[gf_flag_id])
+        self.assertFalse(fetched_ingredient.flags[v_flag_id])
         # Check the gi is set correctly
         self.assertEqual(fetched_ingredient.gi, gi)
         # Check the nutrient quantities are set correctly
         self.assertEqual(len(fetched_ingredient.nutrient_quantities), 1)
-        self.assertIn(ing_alanine_id, fetched_ingredient.nutrient_quantities.keys())
+        self.assertIn(alanine_id, fetched_ingredient.nutrient_quantities.keys())
 
+class TestUpdateIngredient(DatabaseTestCase):
 
-        
+    def test_update_ingredient_updates_ingredient(self):
+        """Test updating an ingredient."""
+        # Configure the units, flags and nutrients
+        self.database_service.create_global_units(get_global_units())
+        self.database_service.create_global_flags(get_global_flags())
+        self.database_service.create_global_nutrients(get_global_nutrients())
+        # Fetch id name maps
+        flag_name_to_id = self.database_service.build_flag_name_id_map()
+        unit_name_to_id = self.database_service.build_unit_name_id_map()
+        nutrient_name_to_id = self.database_service.build_nutrient_name_id_map()
+        # Fetch the unit id for grams
+        g_id = unit_name_to_id.get_int("gram")
+        # Create an empty ingredient
+        ingredient_name = "Test Ingredient"
+        ingredient = self.database_service.create_empty_ingredient(ingredient_name)
+        # Set the description
+        description = "Test description"
+        self.database_service.repository.update_ingredient_description(ingredient.id, description)
+        # Set the cost data
+        cost_value = 1.0
+        cost_qty_unit_id = g_id
+        cost_qty_value = 100.0
+        self.database_service.repository.update_ingredient_cost(ingredient.id, cost_value, cost_qty_unit_id, cost_qty_value)
+        # Set the standard unit id
+        self.database_service.repository.update_ingredient_standard_unit_id(ingredient.id, g_id)
+        # Set a couple of unit conversions
+        # Grab the id for slice
+        slice_id = unit_name_to_id.get_int("slice")
+        # Create a unit conversion
+        ing_slice_uc = self.database_service.repository.create_ingredient_unit_conversion(
+            ingredient_id=ingredient.id,
+            from_unit_id=g_id,
+            to_unit_id=slice_id,
+            from_unit_qty=150,
+            to_unit_qty=1
+
+        )
+        # Set a couple of flags
+        # Fetch the flag id for a couple of flags
+        gf_flag_id = flag_name_to_id.get_int("gluten free")
+        v_flag_id = flag_name_to_id.get_int("vegetarian")
+        # Set them on the ingredient        
+        ing_gf_flag_id = self.database_service.repository.create_ingredient_flag(ingredient.id, gf_flag_id, True)
+        ing_v_flag_id = self.database_service.repository.create_ingredient_flag(ingredient.id, v_flag_id, False)        
+        # Set the GI
+        gi = 50.0
+        self.database_service.repository.update_ingredient_gi(ingredient.id, gi)
+        # Grab the global id's for a nutrient
+        alanine_id = nutrient_name_to_id.get_int("alanine")
+        # Set these nutrient quantities on the ingredient
+        ing_alanine_id = self.database_service.repository.create_ingredient_nutrient_quantity(
+            ingredient_id=ingredient.id,
+            nutrient_id=alanine_id,
+            ntr_mass_unit_id=g_id,
+            ntr_mass_value=1.0,
+            ing_qty_unit_id=slice_id,
+            ing_qty_value=2.0
+        )
 
 
 

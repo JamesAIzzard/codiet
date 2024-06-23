@@ -135,7 +135,7 @@ class TestCreateGlobalRecipeTag(DatabaseTestCase):
 class TestCreateIngredientName(DatabaseTestCase):
     """Test the insert_ingredient_name method of the Repository class."""
 
-    def test_insert_ingredient_name_inserts_name(self):
+    def test_create_ingredient_name_create_name(self):
         """Test that the method inserts an ingredient name into the database."""
         ingredient_name = 'test_ingredient'
         # Assert there are no ingredient names in the database
@@ -169,7 +169,7 @@ class TestCreateIngredientFlag(DatabaseTestCase):
         flags = self.repository.read_ingredient_flags(ingredient_id)
         self.assertNotIn(flag_id, flags)
         # Insert the flag on the ingredient
-        ingredient_flag_id = self.repository.create_ingredient_flag(
+        self.repository.create_ingredient_flag(
             ingredient_id=ingredient_id,
             flag_id=flag_id,
             value=True,
@@ -177,9 +177,9 @@ class TestCreateIngredientFlag(DatabaseTestCase):
         # Fetch the ingredient flags again
         flags = self.repository.read_ingredient_flags(ingredient_id)
         # Check the flag is on the ingredient
-        self.assertIn(ingredient_flag_id, flags)
+        self.assertIn(flag_id, flags)
         # Check the flag value is True
-        self.assertTrue(flags[ingredient_flag_id])
+        self.assertTrue(flags[flag_id])
 
 class TestCreateIngredientUnitConversion(DatabaseTestCase):
     """Test the insert_ingredient_unit method of the Repository class."""
@@ -224,6 +224,51 @@ class TestCreateIngredientUnitConversion(DatabaseTestCase):
         self.assertEqual(ing_unit_conversions[unit_conversion_id]["from_unit_qty"], 100)
         # Assert the ref unit qty is set correctly
         self.assertEqual(ing_unit_conversions[unit_conversion_id]["to_unit_qty"], 1)
+
+class TestCreateIngredientNutrientQuantity(DatabaseTestCase):
+    """Test the insert_ingredient_nutrient_quantity method of the Repository class."""
+
+    def test_create_ingredient_nutrient_quantity_creates_nutrient_quantity(self):
+        """Test that the method inserts an ingredient nutrient quantity into the database."""
+        # Insert the unit
+        g_id = self.repository.create_global_unit(
+            unit_name='gram',
+            single_display_name='g',
+            plural_display_name='g',
+            unit_type='mass',
+        )
+        # Insert the ingredient
+        ingredient_id = self.repository.create_ingredient_name(
+            name="Test Ingredient",
+        )
+        # Insert the nutrient
+        nutrient_id = self.repository.create_global_nutrient(
+            name="Test Nutrient",
+        )
+        # Check there are no nutrient quantities in the ingredient
+        ingredient_ntr_quantities = self.repository.read_ingredient_nutrient_quantities(ingredient_id)
+        self.assertEqual(len(ingredient_ntr_quantities), 0)
+        # Add the nutrient to the ingredient
+        self.repository.create_ingredient_nutrient_quantity(
+            ingredient_id=ingredient_id,
+            nutrient_id=nutrient_id,
+            ntr_mass_value=1,
+            ntr_mass_unit_id=g_id,
+            ing_qty_value=100,
+            ing_qty_unit_id=g_id,
+        )
+        # Fetch the ingredient nutrients again
+        ingredient_ntr_quantities = self.repository.read_ingredient_nutrient_quantities(ingredient_id)
+        # Check the nutrient is on the ingredient
+        self.assertIn(nutrient_id, ingredient_ntr_quantities.keys())
+        # Check the nutrient mass value is correct
+        self.assertEqual(ingredient_ntr_quantities[nutrient_id]["ntr_mass_value"], 1)
+        # Check the ingredient quantity value is correct
+        self.assertEqual(ingredient_ntr_quantities[nutrient_id]["ing_qty_value"], 100)
+        # Check the nutrient mass unit is correct
+        self.assertEqual(ingredient_ntr_quantities[nutrient_id]["ntr_mass_unit_id"], g_id)
+        # Check the ingredient quantity unit is correct
+        self.assertEqual(ingredient_ntr_quantities[nutrient_id]["ing_qty_unit_id"], g_id)
 
 class TestCreateRecipeName(DatabaseTestCase):
     """Test the insert_recipe_name method of the Repository class."""
@@ -530,7 +575,7 @@ class TestUpdateIngredientFlag(DatabaseTestCase):
         # Insert the global flag
         flag_id = self.repository.create_global_flag(flag_name)
         # Set the global flag on the ingredient
-        ingredient_flag_id = self.repository.create_ingredient_flag(
+        self.repository.create_ingredient_flag(
             ingredient_id=ingredient_id,
             flag_id=flag_id,
             value=True,
@@ -538,20 +583,21 @@ class TestUpdateIngredientFlag(DatabaseTestCase):
         # Fetch the ingredient flags
         flags = self.repository.read_ingredient_flags(ingredient_id)
         # Check the flag is in the database
-        self.assertIn(ingredient_flag_id, flags.keys())
+        self.assertIn(flag_id, flags.keys())
         # Check the flag value is True
-        self.assertTrue(flags[ingredient_flag_id])
+        self.assertTrue(flags[flag_id])
         # Update the ingredient flag
         self.repository.update_ingredient_flag(
-            ingredient_flag_id=ingredient_flag_id,
+            ingredient_id=ingredient_id,
+            flag_id=flag_id,
             value=False,
         )
         # Fetch the ingredient flags again
         flags = self.repository.read_ingredient_flags(ingredient_id)
         # Check the flag is in the database
-        self.assertIn(ingredient_flag_id, flags.keys())
+        self.assertIn(flag_id, flags.keys())
         # Check the flag value is False
-        self.assertFalse(flags[ingredient_flag_id])
+        self.assertFalse(flags[flag_id])
 
 class TestUpdateIngredientGI(DatabaseTestCase):
     """Test the update_ingredient_gi method of the Repository class."""
@@ -599,7 +645,8 @@ class TestUpdateIngredientNutrientQuantity(DatabaseTestCase):
             parent_id=3,
         )
         # Check there are no nutrient quantities in the ingredient
-        nutrients = self.repository.read_ingredient_nutrient_quantities(ingredient_id)
+        ing_nutr_quantities = self.repository.read_ingredient_nutrient_quantities(ingredient_id)
+        self.assertEqual(len(ing_nutr_quantities), 0)
         # Add the nutrient to the ingredient
         self.repository.create_ingredient_nutrient_quantity(
             ingredient_id=ingredient_id,
@@ -610,17 +657,17 @@ class TestUpdateIngredientNutrientQuantity(DatabaseTestCase):
             ing_qty_unit_id=g_id,
         )
         # Fetch the ingredient nutrients again
-        nutrients = self.repository.read_ingredient_nutrient_quantities(ingredient_id)
+        ing_nutr_quantities = self.repository.read_ingredient_nutrient_quantities(ingredient_id)
         # Check the nutrient is on the ingredient
-        self.assertIn(nutrient_id, nutrients.keys())
+        self.assertIn(nutrient_id, ing_nutr_quantities.keys())
         # Check the nutrient mass value is correct
-        self.assertEqual(nutrients[nutrient_id]["ntr_mass_value"], 1)
+        self.assertEqual(ing_nutr_quantities[nutrient_id]["ntr_mass_value"], 1)
         # Check the ingredient quantity value is correct
-        self.assertEqual(nutrients[nutrient_id]["ing_qty_value"], 100)
+        self.assertEqual(ing_nutr_quantities[nutrient_id]["ing_qty_value"], 100)
         # Check the nutrient mass unit is correct
-        self.assertEqual(nutrients[nutrient_id]["ntr_mass_unit_id"], g_id)
+        self.assertEqual(ing_nutr_quantities[nutrient_id]["ntr_mass_unit_id"], g_id)
         # Check the ingredient quantity unit is correct
-        self.assertEqual(nutrients[nutrient_id]["ing_qty_unit_id"], g_id)
+        self.assertEqual(ing_nutr_quantities[nutrient_id]["ing_qty_unit_id"], g_id)
 
 class TestUpdateRecipeName(DatabaseTestCase):
     """Test the update_recipe_name method of the Repository class."""

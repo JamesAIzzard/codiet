@@ -162,8 +162,15 @@ class Repository:
         assert id is not None 
         return id
 
-    def create_ingredient_flag(self, ingredient_id: int, flag_id: int, value: bool|None) -> int:
-        """Adds a flag to the ingredient associated with the given ID."""
+    def create_ingredient_flag(self, ingredient_id: int, flag_id: int, value: bool|None) -> None:
+        """Adds a flag to the ingredient associated with the given ID.
+        Args:
+            ingredient_id (int): The ID of the ingredient.
+            flag_id (int): The ID of the flag.
+            value (bool|None): The value of the flag.
+        Returns:
+            None.
+        """
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
@@ -171,9 +178,6 @@ class Repository:
             """,
                 (ingredient_id, flag_id, value),
             )
-            id = cursor.lastrowid
-        assert id is not None
-        return id
 
     def create_ingredient_unit_conversion(self, 
             ingredient_id: int, 
@@ -203,8 +207,18 @@ class Repository:
         ntr_mass_value: float | None,
         ing_qty_unit_id: int | None,
         ing_qty_value: float | None
-    ) -> int:
-        """Adds an ingredient nutrient quantity to the database and returns the ID."""
+    ) -> None:
+        """Adds an ingredient nutrient quantity to the database and returns the ID.
+        Args:
+            ingredient_id (int): The ID of the ingredient.
+            nutrient_id (int): The ID of the nutrient.
+            ntr_mass_unit_id (int|None): The ID of the unit.
+            ntr_mass_value (float|None): The mass value.
+            ing_qty_unit_id (int|None): The ID of the unit.
+            ing_qty_value (float|None): The quantity value.
+        Returns:
+            None.
+        """
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
@@ -213,9 +227,6 @@ class Repository:
             """,
                 (ingredient_id, nutrient_id, ntr_mass_unit_id, ntr_mass_value, ing_qty_unit_id, ing_qty_value),
             )
-            id = cursor.lastrowid
-        assert id is not None
-        return id
 
     def create_recipe_name(self, name: str) -> int:
         """Adds a recipe name to the database and returns the ID."""
@@ -539,19 +550,18 @@ class Repository:
         Returns:
             dict: A dictionary containing the flags of the ingredient:
                 {
-                    ingredient_flag_id: bool|None
+                    flag_id: bool|None
                 }
-                Note that ingredient flag id is the UID of the flag associated
-                with the ingredient, not the global flag id.
+                Note that the flag ID is the global flag ID.
         """
         with self.get_cursor() as cursor:
             rows = cursor.execute(
                 """
-                SELECT id, flag_value FROM ingredient_flags WHERE ingredient_id = ?;
+                SELECT flag_id, flag_value FROM ingredient_flags WHERE ingredient_id = ?;
             """,
                 (ingredient_id,),
             ).fetchall()
-        return {row[0]: bool(row[1]) for row in rows}
+        return {row[0]: bool(row[1]) if row[1] is not None else None for row in rows}
 
     def read_ingredient_gi(self, ingredient_id: int) -> float | None:
         """Returns the GI of the ingredient associated with the given ID."""
@@ -573,14 +583,14 @@ class Repository:
         Returns:
             The data structure returned is a dictionary:
             {
-                ingredient_nutrient_qty_id: {
-                    'nutrient_id': int,
+                nutrient_id: {
                     'ntr_mass_unit_id': int|None,
                     'ntr_mass_value': float|None,
                     'ing_qty_unit_id': int|None,
                     'ing_qty_value': float|None
                 }
             }
+            Note that the nutrient ID is the global nutrient ID.
         """
         with self.get_cursor() as cursor:
             rows = cursor.execute(
@@ -592,8 +602,7 @@ class Repository:
                 (ingredient_id,),
             ).fetchall()
         return {
-            row[0]: {
-                "nutrient_id": row[1],
+            row[1]: {
                 "ntr_mass_unit_id": row[2],
                 "ntr_mass_value": row[3],
                 "ing_qty_unit_id": row[4],
@@ -783,17 +792,24 @@ class Repository:
             )
 
     def update_ingredient_flag(
-        self, ingredient_flag_id: int, value: bool|None
+        self, ingredient_id: int, flag_id: int, value: bool|None
     ) -> None:
-        """Updates the flag associated with the given ID."""
+        """Updates the flag associated with the given ID.
+        Args:
+            ingredient_id (int): The ID of the ingredient.
+            flag_id (int): The ID of the flag.
+            value (bool|None): The value of the flag.
+        Returns:
+            None.
+        """
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
                 UPDATE ingredient_flags
                 SET flag_value = ?
-                WHERE id = ?;
+                WHERE ingredient_id = ? AND flag_id = ?;
             """,
-                (value, ingredient_flag_id),
+                (value, ingredient_id, flag_id),
             )
 
     def update_ingredient_gi(self, ingredient_id: int, gi: float | None) -> None:
@@ -810,22 +826,32 @@ class Repository:
 
     def update_ingredient_nutrient_quantity(
             self,
-            ingredient_qty_id: int,
+            ingredient_id: int,
             global_nutrient_id: int,
             ntr_mass_unit_id: int | None,
             ntr_mass_value: float | None,
             ing_qty_unit_id: int | None,
             ing_qty_value: float | None,
         ) -> None:
-        """Updates the nutrient quantity associated with the given ID."""
+        """Updates the nutrient quantity associated with the given ID.
+        Args:
+            ingredient_id (int): The ID of the ingredient.
+            global_nutrient_id (int): The ID of the nutrient.
+            ntr_mass_unit_id (int|None): The ID of the unit.
+            ntr_mass_value (float|None): The mass value.
+            ing_qty_unit_id (int|None): The ID of the unit.
+            ing_qty_value (float|None): The quantity value.
+        Returns:
+            None.
+        """
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
                 UPDATE ingredient_nutrient_quantities
-                SET nutrient_id = ?, ntr_mass_unit_id = ?, ntr_mass_value = ?, ing_qty_unit_id = ?, ing_qty_value = ?
-                WHERE id = ?;
+                SET ntr_mass_unit_id = ?, ntr_mass_value = ?, ing_qty_unit_id = ?, ing_qty_value = ?
+                WHERE ingredient_id = ? AND nutrient_id = ?;
             """,
-                (global_nutrient_id, ntr_mass_unit_id, ntr_mass_value, ing_qty_unit_id, ing_qty_value, ingredient_qty_id),
+                (ntr_mass_unit_id, ntr_mass_value, ing_qty_unit_id, ing_qty_value, ingredient_id, global_nutrient_id),
             )
 
     def update_recipe_name(self, recipe_id: int, name: str) -> None:
@@ -942,6 +968,39 @@ class Repository:
         with self.get_cursor() as cursor:
             for query in queries:
                 cursor.execute(query, (ingredient_id,))
+
+    def delete_ingredient_unit_conversions(self, ingredient_id: int) -> None:
+        """Deletes all unit conversions for the given ingredient ID."""
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                DELETE FROM ingredient_unit_conversions
+                WHERE ingredient_id = ?;
+            """,
+                (ingredient_id,),
+            )
+
+    def delete_ingredient_flags(self, ingredient_id: int) -> None:
+        """Deletes all flags for the given ingredient ID."""
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                DELETE FROM ingredient_flags
+                WHERE ingredient_id = ?;
+            """,
+                (ingredient_id,),
+            )
+
+    def delete_ingredient_nutrient_quantities(self, ingredient_id: int) -> None:
+        """Deletes all nutrient quantities for the given ingredient ID."""
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                DELETE FROM ingredient_nutrient_quantities
+                WHERE ingredient_id = ?;
+            """,
+                (ingredient_id,),
+            )
 
     def delete_recipe(self, recipe_id: int) -> None:
         """Deletes the given recipe from the database."""

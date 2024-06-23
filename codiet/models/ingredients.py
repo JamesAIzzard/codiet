@@ -21,7 +21,11 @@ class Ingredient:
 
     @property
     def flags(self) -> dict[int, bool|None]:
-        """Returns the flags."""
+        """Returns the flags.
+        Returns:
+            dict[int, bool|None]: The flags.
+                Where the key is the global flag ID and the value is the flag value.
+        """
         return self._flags
 
     @property
@@ -36,7 +40,10 @@ class Ingredient:
 
     @property
     def nutrient_quantities(self) -> dict[int, IngredientNutrientQuantity]:
-        """Returns the nutrient quantities."""
+        """Returns the nutrient quantities.
+        Returns:
+            dict[int, IngredientNutrientQuantity]: The nutrient quantities.
+                Where the key is the gloabl nutrient ID."""
         return self._nutrient_quantities
 
     def upsert_unit_conversion(self, unit_conversion: IngredientUnitConversion) -> None:
