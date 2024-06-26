@@ -2,6 +2,7 @@ from . import DatabaseTestCase
 from codiet.db_population.units import get_global_units
 from codiet.db_population.flags import get_global_flags
 from codiet.db_population.nutrients import get_global_nutrients
+from codiet.models.units import Unit
 from codiet.models.ingredients import Ingredient, IngredientQuantity
 from codiet.models.time import RecipeServeTimeWindow
 
@@ -294,6 +295,36 @@ class TestBuildIngredientNameIDMap(DatabaseTestCase):
             # Check the map is correct in reverse
             self.assertEqual(ingredient_name_to_id.get_str(ingredient_id), ingredient_name)
             self.assertEqual(ingredient_name_to_id.get_str(ingredient_id_2), ingredient_name_2)
+
+class TestReadGlobalUnit(DatabaseTestCase):
+
+    def test_read_global_unit_reads_global_unit(self):
+        """Test reading a global unit."""
+        # Create a global unit
+        unit_name = "Test Unit"
+        unit_id = self.database_service.repository.create_global_unit(
+            unit_name=unit_name,
+            single_display_name="Test Unit",
+            plural_display_name="Test Units",
+            unit_type="mass",
+            aliases=["test alias"]
+        )
+        # Read the global unit
+        fetched_unit = self.database_service.read_global_unit(unit_id)
+        # Check the thing returned is a unit
+        self.assertIsInstance(fetched_unit, Unit)
+        # Check the name is set correctly
+        self.assertEqual(fetched_unit.unit_name, unit_name)
+        # Check the id is set correctly
+        self.assertEqual(fetched_unit.id, unit_id)
+        # Check the single display name is set correctly
+        self.assertEqual(fetched_unit.single_display_name, "Test Unit")
+        # Check the plural display name is set correctly
+        self.assertEqual(fetched_unit.plural_display_name, "Test Units")
+        # Check the unit type is set correctly
+        self.assertEqual(fetched_unit.type, "mass")
+        # Check the aliases are set correctly
+        self.assertEqual(fetched_unit.aliases, ["test alias"])
 
 class TestReadIngredient(DatabaseTestCase):
 

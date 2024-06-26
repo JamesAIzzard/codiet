@@ -89,9 +89,11 @@ class Unit:
         single_display_name: str,
         plural_display_name: str,
         type: str,
+        aliases: list[str]|None = None
     ):
         self.id = id
         self.unit_name = unit_name
         self.single_display_name = single_display_name
         self.plural_display_name = plural_display_name
         self.type = type
+        self.aliases = aliases or [] # Default to an empty list if None

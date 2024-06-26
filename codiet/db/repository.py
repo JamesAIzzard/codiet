@@ -337,21 +337,21 @@ class Repository:
             for row in rows
         }
     
-    def read_global_unit_aliases(self, unit_id: int) -> dict[int, str]:
+    def read_global_unit_aliases(self, unit_id: int) -> list[str]:
         """Returns a list of aliases for the given global unit ID.
-        Data structure returned is a dictionary:
-        {
-            alias_id: alias_name
-        }
+        Args:
+            unit_id (int): The ID of the global unit.
+        Returns:
+            list: A list of aliases for the given global unit ID.
         """
         with self.get_cursor() as cursor:
             rows = cursor.execute(
                 """
-                SELECT id, alias FROM global_unit_aliases WHERE primary_unit_id = ?;
+                SELECT alias FROM global_unit_aliases WHERE primary_unit_id = ?;
             """,
                 (unit_id,),
             ).fetchall()
-        return {row[0]: row[1] for row in rows}
+        return [row[0] for row in rows]
     
     def read_global_unit_conversions(self, unit_id: int) -> dict[int, float]:
         """Returns a dictionary of conversions for the given global unit ID."""

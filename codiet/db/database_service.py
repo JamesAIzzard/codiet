@@ -2,6 +2,7 @@ from typing import Any
 
 from codiet.utils.map import BidirectionalMap
 from codiet.db.repository import Repository
+from codiet.models.units import Unit
 from codiet.models.ingredients import (
     Ingredient, IngredientQuantity
 )
@@ -367,6 +368,29 @@ class DatabaseService:
                 integer=ingredient_id, string=ingredient_name
             )
         return ingredient_name_id_map
+
+    def read_global_unit(self, unit_id: int) -> Unit:
+        """Returns the unit with the given ID.
+        Args:
+            unit_id (int): The id of the unit.
+            
+        Returns:
+            Unit: The unit with the given ID.
+        """
+        # Fetch the data for all the units
+        all_units_data = self.repository.read_all_global_units()
+        # Fetch the aliases for this specific unit
+        aliases = self.repository.read_global_unit_aliases(unit_id)
+        # Init a fresh unit instance
+        unit = Unit(
+            id=unit_id,
+            unit_name=all_units_data[unit_id]["unit_name"],
+            single_display_name=all_units_data[unit_id]["single_display_name"],
+            plural_display_name=all_units_data[unit_id]["plural_display_name"],
+            type=all_units_data[unit_id]["unit_type"],
+            aliases=aliases,
+        )
+        return unit
 
     def read_ingredient(self, ingredient_id: int) -> Ingredient:
         """Returns the ingredient with the given name.

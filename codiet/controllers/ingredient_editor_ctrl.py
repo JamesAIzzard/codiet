@@ -30,19 +30,19 @@ class IngredientEditorCtrl:
             entity_name="Ingredient", parent=self.view
         )
 
-        # Cache searchable lists
-        self._ingredient_names = self.db_service.build_ingredient_name_id_map()
+        # Cache some name-id mappings for search and general use
+        self._ingredient_name_ids = self.db_service.build_ingredient_name_id_map()
 
         # Connect the module controllers
         self.search_column_ctrl = SearchColumnCtrl(
             view=self.view.ingredient_search,
-            get_searchable_strings=lambda: self._ingredient_names.str_values,
+            get_searchable_strings=lambda: self._ingredient_name_ids.str_values,
             on_result_selected=self._on_ingredient_selected,
         )
         self.ingredient_name_editor_ctrl = EntityNameDialogCtrl(
             view=self.ingredient_name_editor_dialog,
             check_name_available=lambda name: name
-            not in self._ingredient_names.str_values,
+            not in self._ingredient_name_ids.str_values,
             on_name_accepted=self._on_ingredient_name_accepted,
         )
         self.unit_conversion_ctrl = UnitConversionCtrl(
@@ -72,7 +72,7 @@ class IngredientEditorCtrl:
         # Load the first ingredient into the view
         self.load_ingredient_into_view(
             self.db_service.read_ingredient(
-                ingredient_id=self._ingredient_names.int_values[0]
+                ingredient_id=self._ingredient_name_ids.int_values[0]
             )
         )
 
@@ -92,12 +92,19 @@ class IngredientEditorCtrl:
         """
         # Update the stored instance
         self._ingredient = ingredient
+
         # Update the views
         self.view.ingredient_name = self.ingredient.name
         self.view.ingredient_description = self.ingredient.description
         self.view.cost_editor.cost_value = self.ingredient.cost_value
         self.view.cost_editor.cost_quantity_value = self.ingredient.cost_qty_value
-        self.view.cost_editor.cost_quantity_unit = self.ingredient.cost_unit_id
+        # If the ingredient cost unit is not None
+        if self.ingredient.cost_qty_unit_id is not None:
+            # Fetch the unit from the database
+            cost_unit = self.db_service.read_global_unit(self.ingredient.cost_qty_unit_id)
+            # Set the cost unit name
+            self.view.cost_editor.cost_quantity_unit = cost_unit.plural_display_name
+        # TODO: Up to here. Next up, figure out what to do with the new unit conversions here.
         # Update the measurements fields
         self.unit_conversion_ctrl.load_custom_units_into_view(ingredient.units)
         # Set the flags
@@ -117,7 +124,7 @@ class IngredientEditorCtrl:
     def _cache_ingredient_names(self) -> None:
         """Cache the ingredient names."""
         with DatabaseService() as db_service:
-            self._ingredient_names = db_service.fetch_all_ingredient_names()
+            self._ingredient_name_ids = db_service.fetch_all_ingredient_names()
 
     def _on_ingredient_selected(self, list_item: QListWidgetItem) -> None:
         """Handler for selecting an ingredient."""
