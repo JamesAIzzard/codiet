@@ -211,6 +211,90 @@ class TestCreateRecipeServeTimeWindow(DatabaseTestCase):
             # Check the window string is set correctly
             self.assertEqual(serve_time_window.window_string, window_string)
 
+class TestBuildUnitNameIDMap(DatabaseTestCase):
+
+    def test_build_unit_name_id_map_builds_unit_name_id_map(self):
+        """Test building a unit name to ID map."""
+        # Create a couple of units
+        unit_name_1 = "Test Unit 1"
+        unit_id_1 = self.repository.create_global_unit(
+            unit_name=unit_name_1,
+            single_display_name="Test Unit 1",
+            plural_display_name="Test Units 1",
+            unit_type="mass"
+        )
+        unit_name_2 = "Test Unit 2"
+        unit_id_2 = self.repository.create_global_unit(
+            unit_name=unit_name_2,
+            single_display_name="Test Unit 2",
+            plural_display_name="Test Units 2",
+            unit_type="mass"
+        )
+        # Build the unit name to ID map
+        unit_name_to_id = self.database_service.build_unit_name_id_map()
+        # Check the map is correct
+        self.assertEqual(unit_name_to_id.get_int(unit_name_1), unit_id_1)
+        self.assertEqual(unit_name_to_id.get_int(unit_name_2), unit_id_2)
+        # Check the map is correct in reverse
+        self.assertEqual(unit_name_to_id.get_str(unit_id_1), unit_name_1)
+        self.assertEqual(unit_name_to_id.get_str(unit_id_2), unit_name_2)
+
+class TestBuildFlagNameIDMap(DatabaseTestCase):
+
+    def test_build_flag_name_id_map_builds_flag_name_id_map(self):
+        """Test building a flag name to ID map."""
+        # Create a couple of flags
+        flag_name_1 = "Test Flag 1"
+        flag_id_1 = self.repository.create_global_flag(flag_name_1)
+        flag_name_2 = "Test Flag 2"
+        flag_id_2 = self.repository.create_global_flag(flag_name_2)
+        # Build the flag name to ID map
+        flag_name_to_id = self.database_service.build_flag_name_id_map()
+        # Check the map is correct
+        self.assertEqual(flag_name_to_id.get_int(flag_name_1), flag_id_1)
+        self.assertEqual(flag_name_to_id.get_int(flag_name_2), flag_id_2)
+        # Check the map is correct in reverse
+        self.assertEqual(flag_name_to_id.get_str(flag_id_1), flag_name_1)
+        self.assertEqual(flag_name_to_id.get_str(flag_id_2), flag_name_2)
+
+class TestBuildNutrientNameIDMap(DatabaseTestCase):
+
+    def test_build_nutrient_name_id_map_builds_nutrient_name_id_map(self):
+        """Test building a nutrient name to ID map."""
+        # Create a couple of nutrients
+        nutrient_name_1 = "Test Nutrient 1"
+        nutrient_id_1 = self.repository.create_global_nutrient(nutrient_name_1)
+        nutrient_name_2 = "Test Nutrient 2"
+        nutrient_id_2 = self.repository.create_global_nutrient(nutrient_name_2)
+        # Build the nutrient name to ID map
+        nutrient_name_to_id = self.database_service.build_nutrient_name_id_map()
+        # Check the map is correct
+        self.assertEqual(nutrient_name_to_id.get_int(nutrient_name_1), nutrient_id_1)
+        self.assertEqual(nutrient_name_to_id.get_int(nutrient_name_2), nutrient_id_2)
+        # Check the map is correct in reverse
+        self.assertEqual(nutrient_name_to_id.get_str(nutrient_id_1), nutrient_name_1)
+        self.assertEqual(nutrient_name_to_id.get_str(nutrient_id_2), nutrient_name_2)
+
+class TestBuildIngredientNameIDMap(DatabaseTestCase):
+    
+        def test_build_ingredient_name_id_map_builds_ingredient_name_id_map(self):
+            """Test building an ingredient name to ID map."""
+            # Create an empty ingredient
+            ingredient_name = "Test Ingredient"
+            # Create ingredient and get id
+            ingredient_id = self.repository.create_ingredient_name(ingredient_name)
+            # Do the same for another ingredient
+            ingredient_name_2 = "Test Ingredient 2"
+            ingredient_id_2 = self.repository.create_ingredient_name(ingredient_name_2)
+            # Build the ingredient name to ID map
+            ingredient_name_to_id = self.database_service.build_ingredient_name_id_map()
+            # Check the map is correct
+            self.assertEqual(ingredient_name_to_id.get_int(ingredient_name), ingredient_id)
+            self.assertEqual(ingredient_name_to_id.get_int(ingredient_name_2), ingredient_id_2)
+            # Check the map is correct in reverse
+            self.assertEqual(ingredient_name_to_id.get_str(ingredient_id), ingredient_name)
+            self.assertEqual(ingredient_name_to_id.get_str(ingredient_id_2), ingredient_name_2)
+
 class TestReadIngredient(DatabaseTestCase):
 
     def test_read_ingredient_reads_ingredient(self):

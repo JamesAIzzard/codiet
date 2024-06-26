@@ -8,7 +8,7 @@ class FlagEditorCtrl:
     def __init__(
         self,
         view: FlagEditorView,
-        get_flags: Callable[[], dict[str, bool]],
+        get_flags: Callable[[], dict[int, bool|None]],
         on_flag_changed: Callable[[str, bool], None],
     ) -> None:
         self.view = view

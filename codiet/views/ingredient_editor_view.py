@@ -43,10 +43,17 @@ class IngredientEditorView(QWidget):
 
 
     def __init__(self):
+        """Initialize the ingredient editor view."""
         super().__init__()
         self._build_ui()
 
-    def update_name(self, name: str | None):
+    @property
+    def ingredient_name(self) -> str|None:
+        """Return the name of the ingredient."""
+        return self.txt_ingredient_name.text()
+    
+    @ingredient_name.setter
+    def ingredient_name(self, name: str | None):
         """Set the name of the ingredient."""
         with block_signals(self.txt_ingredient_name):
             if name is not None:
@@ -54,7 +61,13 @@ class IngredientEditorView(QWidget):
             else:
                 self.txt_ingredient_name.clear()
 
-    def update_description(self, description: str | None):
+    @property
+    def ingredient_description(self) -> str | None:
+        """Return the description of the ingredient."""
+        return self.txt_description.toPlainText()
+
+    @ingredient_description.setter
+    def ingredient_description(self, description: str | None):
         """Set the description of the ingredient."""
         with block_signals(self.txt_description):
             if description is not None:

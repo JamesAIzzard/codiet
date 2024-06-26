@@ -1,16 +1,16 @@
 from typing import Callable
 
-from codiet.models.units import Unit
+from codiet.models.units import Unit, IngredientUnitConversion
 from codiet.views.units import CustomUnitsDefinitionView, CustomUnitView
 from codiet.views.dialog_box_views import EntityNameDialogView, OkDialogBoxView
 from codiet.controllers.entity_name_dialog_ctrl import EntityNameDialogCtrl
 
 
-class CustomUnitsDefinitionCtrl:
+class UnitConversionCtrl:
     def __init__(
         self,
         view: CustomUnitsDefinitionView,
-        get_custom_measurements: Callable[[], dict[int, Unit]],
+        get_custom_measurements: Callable[[], dict[int, IngredientUnitConversion]],
         on_custom_unit_added: Callable[[str], Unit],
         on_custom_unit_edited: Callable[[Unit], None],
         on_custom_unit_removed: Callable[[int], None],

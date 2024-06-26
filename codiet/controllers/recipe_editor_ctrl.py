@@ -31,8 +31,9 @@ from codiet.controllers.tags import RecipeTagEditorCtrl
 
 
 class RecipeEditorCtrl:
-    def __init__(self, view: RecipeEditorView):
+    def __init__(self, view: RecipeEditorView, db_service: DatabaseService):
         self.view = view
+        self.db_service = db_service
         self.recipe = Recipe()
 
         # Cache some searchable things

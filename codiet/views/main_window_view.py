@@ -1,4 +1,5 @@
 from PyQt6.QtWidgets import (
+    QWidget,
     QMainWindow,
     QStackedWidget,
     QToolBar,
@@ -18,24 +19,36 @@ class MainWindowView(QMainWindow):
 
     def __init__(self):
         super().__init__()
-
         # Set the window title
         self.setWindowTitle("CoDiet - Computational Nutrition")
         # Set the window size
         self.resize(1400, 900)
         # Set the window icon
         self.setWindowIcon(load_icon("app-icon.png"))
-
         # Build the UI
         self._build_ui()
-
         # Create a dict for the individual pages
         self._pages = {}
 
-    def add_page(self, name: str, page):
-        """Adds a page to the stacked widget."""
+    def add_page(self, name: str, page:QWidget) -> None:
+        """Adds a page to the stacked widget.
+        Args:
+            name (str): The name of the page.
+            page (QWidget): The page to add.
+        Returns:
+            None
+        """
         self._pages[name] = page
         self._page_stack.addWidget(page)
+
+    def get_page(self, name: str) -> QWidget:
+        """Returns the page with the given name.
+        Args:
+            name (str): The name of the page.
+        Returns:
+            QWidget: The page with the given name.
+        """
+        return self._pages[name]
 
     def show_page(self, name: str):
         """Shows the page with the given name."""

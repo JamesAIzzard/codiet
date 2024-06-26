@@ -14,28 +14,37 @@ from codiet.controllers.meal_planner_ctrl import MealPlannerCtrl
 class MainWindowCtrl:
     """The main window controller for the CoDiet application."""
 
-    def __init__(self, view: MainWindowView):
-        self.view = view  # stash the main window view
+    def __init__(self, view: MainWindowView, db_service: DatabaseService):
+        """Initialize the main window controller.
+
+        Args:
+            view (MainWindowView): The main window view.
+            db_service (DatabaseService): The database service.
+        """
+        self.view = view
+        self.db_service = db_service
 
         # Add the pages to the view
         self.view.add_page("ingredient-editor", IngredientEditorView())
         self.view.add_page("recipe-editor", RecipeEditorView())
         self.view.add_page("meal-planner", MealPlannerView())
 
-        # Init popup windows
-        self.error_popup = ErrorDialogBoxView(parent=self.view)
-
         # Instantiate the controllers
-        self.ingredient_editor_ctrl = IngredientEditorCtrl(self.view._pages["ingredient-editor"])
-        self.recipe_editor_ctrl = RecipeEditorCtrl(self.view._pages["recipe-editor"])
-        self.meal_planner_ctrl = MealPlannerCtrl(self.view._pages["meal-planner"])
+        self.ingredient_editor_ctrl = IngredientEditorCtrl(
+            view=self.view.get_page("ingredient-editor"), # type: ignore
+            db_service=self.db_service
+        )
+        self.recipe_editor_ctrl = RecipeEditorCtrl(
+            view=self.view.get_page("recipe-editor"), # type: ignore
+            db_service=self.db_service
+        )
+        self.meal_planner_ctrl = MealPlannerCtrl(
+            view=self.view.get_page("meal-planner"), # type: ignore
+            db_service=self.db_service
+        )
 
         # Connect up the signals
         self._connect_menu_bar_signals()
-
-        # Cache names for search
-        self.ingredient_names = []
-        self.recipe_names = []
 
         # Since the ingredient editor is showing first, 
         # select the ingredient button on the nav bar

@@ -352,6 +352,22 @@ class DatabaseService:
             recipe_tag_name_id_map.add_mapping(integer=tag_id, string=tag_name)
         return recipe_tag_name_id_map
 
+    def build_ingredient_name_id_map(self) -> BidirectionalMap:
+        """Fetches a bidirectional map of ingredient names to IDs.
+        Returns:
+            BidirectionalMap: A bidirectional map of ingredient names to IDs.
+        """
+        # Fetch all the ingredients
+        ingredients = self.repository.read_all_ingredient_names()
+        # Create a bidirectional map
+        ingredient_name_id_map = BidirectionalMap()
+        # Add each ingredient to the map
+        for ingredient_id, ingredient_name in ingredients.items():
+            ingredient_name_id_map.add_mapping(
+                integer=ingredient_id, string=ingredient_name
+            )
+        return ingredient_name_id_map
+
     def read_ingredient(self, ingredient_id: int) -> Ingredient:
         """Returns the ingredient with the given name.
         Args:
