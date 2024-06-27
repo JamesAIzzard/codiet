@@ -392,6 +392,29 @@ class DatabaseService:
         )
         return unit
 
+    def read_all_global_units(self) -> dict[int, Unit]:
+        """Returns all the global units.
+        Returns:
+            dict[int, Unit]: A dictionary of global units, where the key is the
+            id of each specific unit.
+        """
+        # Fetch the data for all the units
+        all_units_data = self.repository.read_all_global_units()
+        # Init a dict to hold the units
+        units = {}
+        # Cycle through the raw data
+        for unit_id, unit_data in all_units_data.items():
+            # Create a new unit
+            units[unit_id] = Unit(
+                id=unit_id,
+                unit_name=unit_data["unit_name"],
+                single_display_name=unit_data["single_display_name"],
+                plural_display_name=unit_data["plural_display_name"],
+                type=unit_data["unit_type"],
+                aliases=unit_data["aliases"],
+            )
+        return units
+
     def read_ingredient(self, ingredient_id: int) -> Ingredient:
         """Returns the ingredient with the given name.
         Args:

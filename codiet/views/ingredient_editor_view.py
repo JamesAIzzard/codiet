@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import pyqtSignal, QVariant
 
-from codiet.utils.pyqt import block_signals
+from codiet.views import block_signals
 from codiet.views.buttons import (
     AddButton, 
     DeleteButton, 
@@ -22,7 +22,7 @@ from codiet.views.cost import CostEditorView
 from codiet.views.nutrients import NutrientQuantitiesEditorView
 from codiet.views.text_editors import LineEdit, MultilineEdit, NumericLineEdit
 from codiet.views.flags import FlagEditorView
-from codiet.views.units import CustomUnitsDefinitionView
+from codiet.views.units import StandardUnitEditorView, UnitConversionsEditorView
 
 class IngredientEditorView(QWidget):
     """User interface for editing an ingredient."""
@@ -109,12 +109,14 @@ class IngredientEditorView(QWidget):
         lyt_first_col = QVBoxLayout()
         lyt_columns.addLayout(lyt_first_col, 1)
         self._build_basic_info_UI(lyt_first_col)
+        # Add the standard unit editor
+        self.standard_unit_editor = StandardUnitEditorView()
         # Add the cost editor to the column 1 layout
         self.cost_editor = CostEditorView()
         lyt_first_col.addWidget(self.cost_editor)
         # Add the measurement definition view
-        self.custom_units_editor = CustomUnitsDefinitionView()
-        lyt_first_col.addWidget(self.custom_units_editor)
+        self.unit_conversions_editor = UnitConversionsEditorView()
+        lyt_first_col.addWidget(self.unit_conversions_editor)
         # Add the flags widget to the column1 layout
         self.flag_editor = FlagEditorView()
         lyt_first_col.addWidget(self.flag_editor)

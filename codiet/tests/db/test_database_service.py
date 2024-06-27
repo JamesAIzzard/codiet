@@ -326,6 +326,50 @@ class TestReadGlobalUnit(DatabaseTestCase):
         # Check the aliases are set correctly
         self.assertEqual(fetched_unit.aliases, ["test alias"])
 
+class TestReadAllGlobalUnits(DatabaseTestCase):
+
+    def test_read_all_global_units_reads_all_global_units(self):
+        """Test reading all global units."""
+        # Create a couple of global units
+        unit_name_1 = "Test Unit 1"
+        unit_id_1 = self.database_service.repository.create_global_unit(
+            unit_name=unit_name_1,
+            single_display_name="Test Unit 1",
+            plural_display_name="Test Units 1",
+            unit_type="mass",
+            aliases=["test alias 1.1, test alias 1.2"]
+        )
+        unit_name_2 = "Test Unit 2"
+        unit_id_2 = self.database_service.repository.create_global_unit(
+            unit_name=unit_name_2,
+            single_display_name="Test Unit 2",
+            plural_display_name="Test Units 2",
+            unit_type="volume",
+            aliases=["test alias 2.1, test alias 2.2"]
+        )
+        # Read all the global units
+        fetched_global_units = self.database_service.read_all_global_units()
+        # Check the length of the fetched global units is the same as the number of created global units
+        self.assertEqual(len(fetched_global_units), 2)
+        # Check the global units are in the fetched global units
+        self.assertIn(unit_id_1, fetched_global_units)
+        self.assertIn(unit_id_2, fetched_global_units)
+        # Check that both are units
+        self.assertIsInstance(fetched_global_units[unit_id_1], Unit)
+        self.assertIsInstance(fetched_global_units[unit_id_2], Unit)
+        # Check the data is correct for unit 1
+        self.assertEqual(fetched_global_units[unit_id_1].unit_name, unit_name_1)
+        self.assertEqual(fetched_global_units[unit_id_1].single_display_name, "Test Unit 1")
+        self.assertEqual(fetched_global_units[unit_id_1].plural_display_name, "Test Units 1")
+        self.assertEqual(fetched_global_units[unit_id_1].type, "mass")
+        self.assertEqual(fetched_global_units[unit_id_1].aliases, ["test alias 1.1, test alias 1.2"])
+        # Check the data is correct for unit 2
+        self.assertEqual(fetched_global_units[unit_id_2].unit_name, unit_name_2)
+        self.assertEqual(fetched_global_units[unit_id_2].single_display_name, "Test Unit 2")
+        self.assertEqual(fetched_global_units[unit_id_2].plural_display_name, "Test Units 2")
+        self.assertEqual(fetched_global_units[unit_id_2].type, "volume")
+        self.assertEqual(fetched_global_units[unit_id_2].aliases, ["test alias 2.1, test alias 2.2"])
+
 class TestReadIngredient(DatabaseTestCase):
 
     def test_read_ingredient_reads_ingredient(self):

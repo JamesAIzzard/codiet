@@ -12,7 +12,7 @@ from codiet.views.dialog_box_views import (
 )
 from codiet.controllers.search import SearchColumnCtrl
 from codiet.controllers.entity_name_dialog_ctrl import EntityNameDialogCtrl
-from codiet.controllers.units import UnitConversionCtrl
+from codiet.controllers.units import StandardUnitEditorCtrl, UnitConversionCtrl
 from codiet.controllers.flags import FlagEditorCtrl
 from codiet.controllers.nutrients import NutrientQuantitiesEditorCtrl
 
@@ -30,8 +30,9 @@ class IngredientEditorCtrl:
             entity_name="Ingredient", parent=self.view
         )
 
-        # Cache some name-id mappings for search and general use
+        # Cache some things for search and general use
         self._ingredient_name_ids = self.db_service.build_ingredient_name_id_map()
+        self._global_units = self.db_service.read_all_global_units()
 
         # Connect the module controllers
         self.search_column_ctrl = SearchColumnCtrl(
@@ -45,12 +46,18 @@ class IngredientEditorCtrl:
             not in self._ingredient_name_ids.str_values,
             on_name_accepted=self._on_ingredient_name_accepted,
         )
+        self.standard_unit_editor_ctrl = StandardUnitEditorCtrl(
+            view=self.view.standard_unit_editor,
+            unit_list=self._global_units,
+            on_standard_unit_changed=lambda unit_id: setattr(
+                self.ingredient, "standard_unit_id", unit_id
+            ),
+        )
         self.unit_conversion_ctrl = UnitConversionCtrl(
-            view=self.view.custom_units_editor,
-            get_custom_measurements=lambda: self.ingredient.unit_conversions,
-            on_custom_unit_added=self._on_custom_unit_added,
-            on_custom_unit_edited=self._on_custom_unit_edited,
-            on_custom_unit_removed=self._on_custom_unit_deleted,
+            view=self.view.unit_conversions_editor,
+            on_unit_conversion_added=self._on_custom_unit_added,
+            on_unit_conversion_edited=self._on_custom_unit_edited,
+            on_unit_conversion_deleted=self._on_custom_unit_deleted,
         )
         self.flag_editor_ctrl = FlagEditorCtrl(
             view=self.view.flag_editor,
@@ -96,6 +103,9 @@ class IngredientEditorCtrl:
         # Update the views
         self.view.ingredient_name = self.ingredient.name
         self.view.ingredient_description = self.ingredient.description
+        # Read the default unit
+        self.view.standard_unit_editor.standard_unit_id = self.ingredient.standard_unit_id
+        # Update the cost fields
         self.view.cost_editor.cost_value = self.ingredient.cost_value
         self.view.cost_editor.cost_quantity_value = self.ingredient.cost_qty_value
         # If the ingredient cost unit is not None

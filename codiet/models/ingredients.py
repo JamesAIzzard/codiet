@@ -9,11 +9,11 @@ class Ingredient:
         self.name: str = name
         self.id: int = id
         self.description: str | None = None
+        self.standard_unit_id: int | None = None        
         self.cost_unit_id: int | None = None
         self.cost_value: float | None = None
         self.cost_qty_unit_id: int | None = None
         self.cost_qty_value: float | None = None
-        self.standard_unit_id: int | None = None
         self._unit_conversions: dict[int, IngredientUnitConversion] = {}
         self._flags: dict[int, bool|None] = {}
         self.gi: float | None = None

@@ -148,7 +148,7 @@ class Database:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 ingredient_id INTEGER NOT NULL,
                 from_unit_id INTEGER NOT NULL,
-                to_unit_id INTEGER,
+                to_unit_id INTEGER NOT NULL,
                 from_unit_qty REAL,
                 to_unit_qty REAL,
                 FOREIGN KEY (ingredient_id) REFERENCES ingredient_base(id)

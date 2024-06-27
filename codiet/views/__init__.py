@@ -1,6 +1,8 @@
 import os
+from contextlib import contextmanager
 
 from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtWidgets import QWidget
 
 STYLESHEETS_DIR = os.path.join('codiet', 'views', 'styles')
 ICONS_DIR = os.path.join('codiet', 'views', 'resources', 'icons')
@@ -30,3 +32,12 @@ def load_pixmap_icon(icon_filename: str) -> QPixmap:
     if not os.path.exists(icon_filepath):
         raise FileNotFoundError(f"Icon {icon_filename} not found at {icon_filepath}.")
     return QPixmap(os.path.join(ICONS_DIR, icon_filename))
+
+@contextmanager
+def block_signals(widget: QWidget):
+    """Block signals for a widget."""
+    old_state = widget.blockSignals(True)  # Block signals and save the old state
+    try:
+        yield
+    finally:
+        widget.blockSignals(old_state)  # Restore the original signal blocking state
