@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Any
 
 from PyQt6.QtWidgets import (
     QWidget,
@@ -14,7 +14,7 @@ class SearchColumnCtrl():
             view: SearchColumnView, 
             get_searchable_strings: Callable[[], list[str]],
             on_result_selected: Callable[[QListWidgetItem], None],
-            get_view_item_for_string: Callable[[str], QWidget|str]|None=None,
+            get_view_item_and_data_for_string: Callable[[str], (QWidget|str, Any)]|None=None,
             num_matches: int = 10
         ) -> None:
         self.view = view
@@ -23,14 +23,14 @@ class SearchColumnCtrl():
         self.num_matches = num_matches
         # If there was no widget fetching function provided, just
         # return the string
-        if get_view_item_for_string is None:
+        if get_view_item_and_data_for_string is None:
             self.get_result_for_string = lambda result: result
         else:
-            self.get_result_for_string = get_view_item_for_string
+            self.get_result_for_string = get_view_item_and_data_for_string
         # Connect the view up
         self.view.searchTermChanged.connect(self._on_search_term_changed)
         self.view.searchTermCleared.connect(self._on_search_term_cleared)
-        self.view.resultSelected.connect(
+        self.view.resultClicked.connect(
             lambda: self.on_result_selected(self.view.results_list.selected_item) # type: ignore
         )
         # Initially populate the list

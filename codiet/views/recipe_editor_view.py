@@ -145,7 +145,7 @@ class RecipeEditorView(QWidget):
         self.recipe_search = SearchColumnView()
         self.recipe_search.searchTermChanged.connect(self.searchTextChanged.emit)
         self.recipe_search.searchTermCleared.connect(self.searchTextCleared.emit)
-        self.recipe_search.resultSelected.connect(
+        self.recipe_search.resultClicked.connect(
             lambda: self.recipeSelected.emit(self.recipe_search.results_list.selected_item.text()) # type: ignore
         )
         container.addWidget(self.recipe_search)

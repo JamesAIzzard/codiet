@@ -25,7 +25,7 @@ class NutrientQuantitiesEditorCtrl:
         # Bring in a search view controller to handle the search column
         self.search_column_ctrl = SearchColumnCtrl(
             view=self.view.search_column,
-            get_view_item_for_string=self._get_nutrient_quantity_view_for_nutrient_name,
+            get_view_item_and_data_for_string=self._get_nutrient_quantity_view_for_nutrient_name,
             get_searchable_strings=lambda: self.leaf_nutrient_name_id_map.str_values,
             on_result_selected=lambda item: None,  # No action required.
         )

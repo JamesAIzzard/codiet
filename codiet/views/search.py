@@ -3,19 +3,18 @@ from PyQt6.QtWidgets import (
     QLineEdit, 
     QHBoxLayout, 
     QVBoxLayout,
-    QListWidget,
     QListWidgetItem,
     QSizePolicy
 )
 from PyQt6.QtCore import pyqtSignal
 
-from codiet.utils.pyqt import block_signals
+from codiet.views import block_signals
 from codiet.views.buttons import ClearButton
 from codiet.views.labels import SearchIconLabel
 from codiet.views.listbox import ListBox
 
 class SearchTermView(QWidget):
-    # Define singals
+    """A search term view that contains a search box and a clear button."""
     clearSearchTermClicked = pyqtSignal()
     searchTermChanged = pyqtSignal(str)
 
@@ -24,11 +23,8 @@ class SearchTermView(QWidget):
         # Build the UI
         self._build_ui()
 
-        # Emit a signal when the cancel button is clicked
+        # Connect signals and slots
         self.btn_clear.clicked.connect(self.clearSearchTermClicked.emit)
-        # Emit a signal when the search box is edited.
-        # The signal will pass the current text in the search box.
-        # This is automatic because the signal is connected to the textChanged signal of the search box.
         self.txt_search.textChanged.connect(self.searchTermChanged.emit)
 
     @property
@@ -72,22 +68,17 @@ class SearchTermView(QWidget):
 class SearchColumnView(QWidget):
     """UI element to allow the user to search and select a result."""
     # Define signals
-    resultSelected = pyqtSignal(QListWidgetItem)
+    resultClicked = pyqtSignal(object, object) # list widget content, data
     searchTermChanged = pyqtSignal(str)
     searchTermCleared = pyqtSignal()
 
     def __init__(self):
         super().__init__()
         self._build_ui()
-
-    @property
-    def results_list(self) -> ListBox:
-        """Return the list of search results."""
-        return self.lst_search_results
-
-    def clear_search_term(self):
-        """Clear the search term."""
-        self.search_term_textbox.clear()
+        # Connect signals and slots
+        self.lst_search_results.itemClicked.connect(self.resultClicked.emit)
+        self.search_term_textbox.searchTermChanged.connect(self.searchTermChanged.emit)
+        self.search_term_textbox.clearSearchTermClicked.connect(self.searchTermCleared.emit)
 
     def _build_ui(self):
         lyt_top_level = QVBoxLayout()
@@ -97,13 +88,8 @@ class SearchColumnView(QWidget):
         # Create a search textbox and add it to the layout
         self.search_term_textbox = SearchTermView()
         lyt_top_level.addWidget(self.search_term_textbox)
-        # Connect the signals
-        self.search_term_textbox.searchTermChanged.connect(self.searchTermChanged.emit)
-        self.search_term_textbox.clearSearchTermClicked.connect(self.searchTermCleared.emit)
         # Create a dropdown and add it to the layout
         self.lst_search_results = ListBox(parent=self)
-        # Connect the itemClicked signal to the _on_result_selected method
-        self.lst_search_results.itemClicked.connect(self.resultSelected.emit)
         # Make the dropdown fill the space
         self.lst_search_results.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding

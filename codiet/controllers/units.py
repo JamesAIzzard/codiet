@@ -9,11 +9,12 @@ from codiet.controllers.entity_name_dialog_ctrl import EntityNameDialogCtrl
 class StandardUnitEditorCtrl:
     """A controller for the standard unit editor view."""
 
-    def __init__(self,
-            view: StandardUnitEditorView,
-            unit_list: dict[int, Unit],
-            on_standard_unit_changed: Callable[[int|None], None]
-        ):
+    def __init__(
+        self,
+        view: StandardUnitEditorView,
+        unit_list: dict[int, Unit],
+        on_standard_unit_changed: Callable[[int | None], None],
+    ):
         """Initialise the standard unit editor controller."""
         self.view = view
         self._on_standard_unit_changed = on_standard_unit_changed
@@ -22,13 +23,13 @@ class StandardUnitEditorCtrl:
         self.view.cmb_standard_unit.add_unit(unit_display_name="", unit_global_id=None)
         for unit_id, unit in unit_list.items():
             self.view.cmb_standard_unit.add_unit(
-                unit_display_name=unit.plural_display_name,
-                unit_global_id=unit_id
+                unit_display_name=unit.plural_display_name, unit_global_id=unit_id
             )
 
     def on_standard_unit_changed(self, unit_id: int):
         """Called when the standard unit is changed."""
         self._on_standard_unit_changed(unit_id)
+
 
 class UnitConversionCtrl:
     def __init__(
@@ -37,3 +38,10 @@ class UnitConversionCtrl:
         on_unit_conversion_added: Callable[[int, int, float, float], None],
     ):
         self.view = view
+        self._on_unit_conversion_added = on_unit_conversion_added
+
+    def _on_add_conversion_clicked(self):
+        """Called when the add conversion button is clicked."""
+        # Create the unit conversion dialog
+        # Bind the OK button to the on_unit_conversion_added method
+        # Show the unit conversion definition dialog

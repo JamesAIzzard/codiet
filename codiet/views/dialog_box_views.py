@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import (
     QStackedWidget
 )
 
-from codiet.utils.pyqt import block_signals
+from codiet.views import block_signals
 from codiet.views import load_icon
 from codiet.views.text_editors import LineEdit
 from codiet.views.buttons import ConfirmButton, ClearButton, OKButton

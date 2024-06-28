@@ -113,6 +113,17 @@ class ClearButton(IconButton):
         # Set the maximum width
         self.setMaximumWidth(50)
 
+class CancelButton(IconButton):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            icon_filename='cancel-icon.png',
+            text='Cancel',
+            *args,
+            **kwargs
+        )
+        # Set the maximum width
+        self.setMaximumWidth(50)
+
 class ConfirmButton(IconButton):
     def __init__(self, *args, **kwargs):
         super().__init__(

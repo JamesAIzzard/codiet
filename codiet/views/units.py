@@ -10,10 +10,12 @@ from PyQt6.QtWidgets import (
 
 from codiet.views import block_signals
 from codiet.views import load_stylesheet
+from codiet.views.dialog_box_views import DialogBoxView
 from codiet.views.labels import IconTextLabel
-from codiet.views.buttons import AddButton, RemoveButton, EditButton
+from codiet.views.buttons import AddButton, RemoveButton, EditButton, OKButton, CancelButton
 from codiet.views.text_editors import NumericLineEdit
 from codiet.views.listbox import ListBox
+from codiet.views.search import SearchColumnView
 
 class UnitDropdown(QComboBox):
     """A widget for selecting units."""
@@ -267,3 +269,82 @@ class UnitConversionsEditorView(QWidget):
         # Add a listbox of custom measurements
         self.lst_measurements = ListBox()
         lyt_top_level.addWidget(self.lst_measurements)
+
+class UnitConversionDefinitionPopupView(DialogBoxView):
+    """A dialog box for defining a unit conversion."""
+    selectionChanged = pyqtSignal(int, int)
+    OKClicked = pyqtSignal(int, int)
+    cancelClicked = pyqtSignal()
+
+    def __init__(
+        self,
+        *args, **kwargs
+    ):
+        """Initialise the unit conversion definition popup view."""
+        super().__init__(*args, **kwargs)
+        self._build_ui()
+        # Connect the signals
+        self.from_unit_selector.resultClicked.connect(self._on_selection_changed)
+        self.to_unit_selector.resultClicked.connect(self._on_selection_changed)
+        self.btn_ok.clicked.connect(self._on_OK_clicked)
+        self.btn_cancel.clicked.connect(self.cancelClicked.emit)
+
+    @property
+    def selected_from_unit_id(self) -> int | None:
+        """Return the selected from unit ID."""
+        return self.from_unit_selector.lst_search_results.selected_item.data()
+    
+    @property
+    def selected_to_unit_id(self) -> int | None:
+        """Return the selected to unit ID."""
+        return self.to_unit_selector.selected_unit_id
+
+    def _on_selection_changed(self, from_unit_id: int, to_unit_id: int) -> None:
+        """Called when the selection is changed."""
+        # Emit the OKClicked signal with the from and to unit IDs
+        self.OKClicked.emit(from_unit_id, to_unit_id)
+
+    def _on_OK_clicked(self) -> None:
+        """Called when the OK button is clicked."""
+        # Emit the OKClicked signal with the from and to unit IDs
+        self.OKClicked.emit(
+            self.from_unit_selector.selected_unit_id,
+            self.to_unit_selector.selected_unit_id
+        )
+
+    def _build_ui(self):
+        """Constructs the user interface."""
+        # Set the top level vertical layout
+        lyt_outer = QVBoxLayout()
+        self.setLayout(lyt_outer)
+        # Place a horizontal layout for the selection boxes inside
+        lyt_selections = QHBoxLayout()
+        lyt_outer.addLayout(lyt_selections)
+        # Create a vertical layout for the from unit stack
+        lyt_from_unit = QVBoxLayout()
+        lyt_selections.addLayout(lyt_from_unit)
+        # Create a from unit label
+        lbl_from_unit = QLabel("From Unit:")
+        lyt_from_unit.addWidget(lbl_from_unit)
+        # Create a from unit search box
+        self.from_unit_selector = SearchColumnView()
+        lyt_from_unit.addWidget(self.from_unit_selector)
+        # Create a vertical layout for the to unit stack
+        lyt_to_unit = QVBoxLayout()
+        lyt_selections.addLayout(lyt_to_unit)
+        # Create a to unit label
+        lbl_to_unit = QLabel("To Unit:")
+        lyt_to_unit.addWidget(lbl_to_unit)
+        # Create a to unit search box
+        self.to_unit_selector = SearchColumnView()
+        lyt_to_unit.addWidget(self.to_unit_selector)
+        # Create a horizontal layout for the OK and Cancel buttons
+        lyt_buttons = QHBoxLayout()
+        lyt_outer.addLayout(lyt_buttons)
+        # Create an OK button
+        self.btn_ok = OKButton()
+        lyt_buttons.addWidget(self.btn_ok)
+        # Create a Cancel button
+        self.btn_cancel = CancelButton()
+        lyt_buttons.addWidget(self.btn_cancel)
+        
