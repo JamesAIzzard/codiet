@@ -27,9 +27,6 @@ from codiet.views.units import StandardUnitEditorView, UnitConversionsEditorView
 class IngredientEditorView(QWidget):
     """User interface for editing an ingredient."""
     # Define signals
-    searchTextChanged = pyqtSignal(str)
-    searchTextCleared = pyqtSignal()
-    ingredientSelected = pyqtSignal(str)
     addIngredientClicked = pyqtSignal()
     deleteIngredientClicked = pyqtSignal()
     autopopulateClicked = pyqtSignal()
@@ -43,7 +40,7 @@ class IngredientEditorView(QWidget):
 
 
     def __init__(self):
-        """Initialize the ingredient editor view."""
+        """Initialise the ingredient editor view."""
         super().__init__()
         self._build_ui()
 
@@ -164,13 +161,6 @@ class IngredientEditorView(QWidget):
     def _build_search_ui(self, container: QBoxLayout):
         """Build the search UI for the ingredient editor page."""
         self.ingredient_search = SearchColumnView()
-        self.ingredient_search.searchTermChanged.connect(self.searchTextChanged.emit)
-        self.ingredient_search.searchTermCleared.connect(self.searchTextCleared.emit)
-        self.ingredient_search.resultClicked.connect(
-            lambda: self.ingredientSelected.emit(
-                self.ingredient_search.results_list.selected_item.text() # type: ignore
-            )
-        )
         container.addWidget(self.ingredient_search)
 
     def _build_basic_info_UI(self, container: QBoxLayout):

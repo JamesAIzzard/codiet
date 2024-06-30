@@ -90,6 +90,7 @@ class TestCreateEmptyIngredient(DatabaseTestCase):
         # Configure the flags and nutrients
         self.database_service.create_global_flags(get_global_flags())
         self.database_service.create_global_nutrients(get_global_nutrients())
+        self.database_service.create_global_units(get_global_units())
         # Check there are no ingredients in the database
         ingredients = self.database_service.repository.read_all_ingredient_names()
         self.assertEqual(len(ingredients), 0)
@@ -104,6 +105,12 @@ class TestCreateEmptyIngredient(DatabaseTestCase):
         self.assertEqual(ingredient.id, 1)
         # Check the description is None
         self.assertIsNone(ingredient.description)
+        # Assert the standard unit is set to grams
+        # Grab the unit name to id map
+        unit_name_to_id = self.database_service.build_unit_name_id_map()
+        # Grab the id for grams
+        g_id = unit_name_to_id.get_int("gram")
+        self.assertEqual(ingredient.standard_unit_id, g_id)
         # Check the cost unit id is None
         self.assertIsNone(ingredient.cost_unit_id)
         # Check the cost value is None
@@ -112,8 +119,6 @@ class TestCreateEmptyIngredient(DatabaseTestCase):
         self.assertIsNone(ingredient.cost_qty_unit_id)
         # Check the cost quantity value is None
         self.assertIsNone(ingredient.cost_qty_value)
-        # Check the standard unit is None
-        self.assertIsNone(ingredient.standard_unit_id)
         # Check there are no units
         self.assertEqual(len(ingredient.unit_conversions), 0)
         # Check there are no flags yet

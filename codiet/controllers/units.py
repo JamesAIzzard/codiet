@@ -13,21 +13,32 @@ class StandardUnitEditorCtrl:
         self,
         view: StandardUnitEditorView,
         unit_list: dict[int, Unit],
-        on_standard_unit_changed: Callable[[int | None], None],
+        on_standard_unit_changed: Callable[[int], None],
+        current_standard_unit_id: int,
     ):
-        """Initialise the standard unit editor controller."""
+        """Initialise the standard unit editor controller.
+        Args:
+            view (StandardUnitEditorView): The standard unit editor view.
+            unit_list (dict[int, Unit]): A dictionary of units, keyed against their global IDs.
+            on_standard_unit_changed (Callable[[int | None], None]): A callback function that is called when the standard unit is changed.
+            current_standard_unit_id (int): The global ID of the current standard unit.
+        """
         self.view = view
         self._on_standard_unit_changed = on_standard_unit_changed
         # Initialise the units in the view
-        # Add an empty item first
-        self.view.cmb_standard_unit.add_unit(unit_display_name="", unit_global_id=None)
         for unit_id, unit in unit_list.items():
             self.view.cmb_standard_unit.add_unit(
                 unit_display_name=unit.plural_display_name, unit_global_id=unit_id
             )
+        # Select the current standard unit
+        self.view.cmb_standard_unit.selected_unit_id = current_standard_unit_id
+
 
     def on_standard_unit_changed(self, unit_id: int):
-        """Called when the standard unit is changed."""
+        """Called when the standard unit is changed.
+        Args:
+            unit_id (int): The global ID of the new standard unit.
+        """
         self._on_standard_unit_changed(unit_id)
 
 

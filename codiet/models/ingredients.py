@@ -5,11 +5,11 @@ from codiet.models.units import IngredientUnitConversion
 class Ingredient:
     """Ingredient model."""
 
-    def __init__(self, name:str, id:int):
+    def __init__(self, name:str, id:int, standard_unit_id:int):
         self.name: str = name
         self.id: int = id
         self.description: str | None = None
-        self.standard_unit_id: int | None = None        
+        self.standard_unit_id: int = standard_unit_id   
         self.cost_unit_id: int | None = None
         self.cost_value: float | None = None
         self.cost_qty_unit_id: int | None = None

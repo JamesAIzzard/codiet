@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from PyQt6.QtWidgets import QListWidgetItem
 
 from codiet.db.database_service import DatabaseService
@@ -25,11 +27,6 @@ class IngredientEditorCtrl:
         self.db_service = db_service
         self._ingredient: Ingredient
 
-        # Init the name editor dialog view
-        self.ingredient_name_editor_dialog = EntityNameDialogView(
-            entity_name="Ingredient", parent=self.view
-        )
-
         # Cache some things for search and general use
         self._ingredient_name_ids = self.db_service.build_ingredient_name_id_map()
         self._global_units = self.db_service.read_all_global_units()
@@ -38,13 +35,7 @@ class IngredientEditorCtrl:
         self.search_column_ctrl = SearchColumnCtrl(
             view=self.view.ingredient_search,
             get_searchable_strings=lambda: self._ingredient_name_ids.str_values,
-            on_result_selected=self._on_ingredient_selected,
-        )
-        self.ingredient_name_editor_ctrl = EntityNameDialogCtrl(
-            view=self.ingredient_name_editor_dialog,
-            check_name_available=lambda name: name
-            not in self._ingredient_name_ids.str_values,
-            on_name_accepted=self._on_ingredient_name_accepted,
+            on_result_selected=self._on_ingredient_selected, # type: ignore
         )
         self.standard_unit_editor_ctrl = StandardUnitEditorCtrl(
             view=self.view.standard_unit_editor,
@@ -136,13 +127,19 @@ class IngredientEditorCtrl:
         with DatabaseService() as db_service:
             self._ingredient_name_ids = db_service.fetch_all_ingredient_names()
 
-    def _on_ingredient_selected(self, list_item: QListWidgetItem) -> None:
-        """Handler for selecting an ingredient."""
-        # Grab the selected ingredient name from the search widget
-        ingredient_name = list_item.text()
-        # Fetch the ingredient from the database
-        with DatabaseService() as db_service:
-            ingredient = db_service.fetch_ingredient_by_name(ingredient_name)
+    def _on_ingredient_selected(self, ing_name_and_id: Tuple[str, int]) -> None:
+        """Handles the user clicking on an ingredient in the search results.
+        Args:
+            ing_name_and_id (Tuple[str, int]): The name and ID of the selected ingredient.
+        Returns:
+            None
+        """
+        # We only need the ID to load the ingredient
+        _, ingredient_id = ing_name_and_id
+        # We know the id is an int, assert it
+        assert isinstance(ingredient_id, int)
+        # Read the ingredient from the database
+        ingredient = self.db_service.read_ingredient(ingredient_id=ingredient_id)
         # Load the ingredient into the view
         self.load_ingredient_into_view(ingredient)
 

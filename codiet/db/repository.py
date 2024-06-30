@@ -518,8 +518,13 @@ class Repository:
             "cost_qty_value": rows[0][2],
         }
 
-    def read_ingredient_standard_unit_id(self, ingredient_id: int) -> int | None:
-        """Returns the standard unit ID of the ingredient associated with the given ID."""
+    def read_ingredient_standard_unit_id(self, ingredient_id: int) -> int:
+        """Returns the standard unit ID of the ingredient associated with the given ID.
+        Args:
+            ingredient_id (int): The ID of the ingredient.
+        Returns:
+            int: The standard unit ID of the ingredient.
+        """
         with self.get_cursor() as cursor:
             rows = cursor.execute(
                 """
@@ -527,7 +532,7 @@ class Repository:
             """,
                 (ingredient_id,),
             ).fetchall()
-        return rows[0][0] if rows else None
+        return rows[0][0]
 
     def read_ingredient_unit_conversions(self, ingredient_id: int) -> dict[int, dict]:
         """Returns a list of all unit conversions defined for the given ingredient ID.

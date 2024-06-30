@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import (
     QSizePolicy
 )
 from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import Qt
 
 from codiet.views import block_signals
 from codiet.views.buttons import ClearButton
@@ -76,9 +77,20 @@ class SearchColumnView(QWidget):
         super().__init__()
         self._build_ui()
         # Connect signals and slots
-        self.lst_search_results.itemClicked.connect(self.resultClicked.emit)
+        self.lst_search_results.itemClicked.connect(self._on_item_clicked)
         self.search_term_textbox.searchTermChanged.connect(self.searchTermChanged.emit)
         self.search_term_textbox.clearSearchTermClicked.connect(self.searchTermCleared.emit)
+
+    def _on_item_clicked(self, item: QListWidgetItem):
+        # Determine if the item contains a widget or just text
+        widget = self.lst_search_results.itemWidget(item)
+        if widget:
+            item_content = widget
+        else:
+            item_content = item.text()
+        
+        # Emit the resultClicked signal with the item's content and data
+        self.resultClicked.emit(item_content, item.data(Qt.ItemDataRole.UserRole))
 
     def _build_ui(self):
         lyt_top_level = QVBoxLayout()

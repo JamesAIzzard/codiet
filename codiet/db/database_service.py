@@ -124,8 +124,16 @@ class DatabaseService:
         """Creates an ingredient."""
         # Insert the ingredient name into the database
         ingredient_id = self.repository.create_ingredient_name(ingredient_name)
+        # Fetch a map of global unit names to IDs
+        unit_name_id_map = self.build_unit_name_id_map()
+        # Grab the id for grams
+        gram_id = unit_name_id_map.get_int("gram")
         # Init the ingredient
-        ingredient = Ingredient(ingredient_name, ingredient_id)
+        ingredient = Ingredient(
+            name=ingredient_name, 
+            id=ingredient_id,
+            standard_unit_id=gram_id,
+        )
         # Return the ingredient
         return ingredient
 
@@ -424,10 +432,13 @@ class DatabaseService:
         """
         # Fetch the ingredient name corresponding to the id
         ingredient_name = self.repository.read_ingredient_name(ingredient_id)
+        # Fetch the ingredient standard id
+        standard_unit_id = self.repository.read_ingredient_standard_unit_id(ingredient_id)
         # Init a fresh ingredient instance
         ingredient = Ingredient(
             id=ingredient_id,
             name=ingredient_name,
+            standard_unit_id=standard_unit_id,
         )
         # Fetch the description
         ingredient.description = self.repository.read_ingredient_description(
