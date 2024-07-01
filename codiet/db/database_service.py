@@ -2,7 +2,7 @@ from typing import Any
 
 from codiet.utils.map import BidirectionalMap
 from codiet.db.repository import Repository
-from codiet.models.units import Unit
+from codiet.models.units import Unit, UnitConversion
 from codiet.models.ingredients import Ingredient, IngredientQuantity
 from codiet.models.nutrients import (
     IngredientNutrientQuantity,
@@ -420,6 +420,28 @@ class DatabaseService:
                 aliases=unit_data["aliases"],
             )
         return units
+
+    def read_all_global_unit_conversions(self) -> dict[int, UnitConversion]:
+        """Returns all the global unit conversions.
+        Returns:
+            dict[int, UnitConversion]: A dictionary of global unit conversions, where the key is the
+            id of each specific unit conversion.
+        """
+        # Fetch the raw data from the repo
+        raw_conversion_data = self.repository.read_all_global_unit_conversions()
+        # Init a dict to hold the unit conversions
+        conversions = {}
+        # Cycle through the raw data
+        for conversion_id, conversion_data in raw_conversion_data.items():
+            # Create a new unit conversion
+            conversions[conversion_id] = UnitConversion(
+                id=conversion_id,
+                from_unit_id=conversion_data["from_unit_id"], # type: ignore
+                to_unit_id=conversion_data["to_unit_id"], # type: ignore
+                from_unit_qty=conversion_data["from_unit_qty"],
+                to_unit_qty=conversion_data["to_unit_qty"],
+            )
+        return conversions
 
     def read_ingredient(self, ingredient_id: int) -> Ingredient:
         """Returns the ingredient with the given name.

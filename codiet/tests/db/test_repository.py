@@ -435,6 +435,59 @@ class TestReadGlobalUnitAliases(DatabaseTestCase):
         self.assertIn(alias_1, aliases)
         self.assertIn(alias_2, aliases)
 
+class TestReadAllGlobalUnitConversions(DatabaseTestCase):
+    """Test the read_all_global_unit_conversions method of the Repository class."""
+
+    def test_read_all_global_unit_conversions_returns_all_unit_conversions(self):
+        """Test that the method returns all global unit conversions in the database."""
+        # Insert three units
+        g_id = self.repository.create_global_unit(
+            unit_name='gram',
+            single_display_name='g',
+            plural_display_name='g',
+            unit_type='mass',
+        )
+        kg_id = self.repository.create_global_unit(
+            unit_name='kilogram',
+            single_display_name='kg',
+            plural_display_name='kg',
+            unit_type='mass',
+        )
+        ml_id = self.repository.create_global_unit(
+            unit_name='millilitre',
+            single_display_name='ml',
+            plural_display_name='ml',
+            unit_type='volume',
+        )
+        # Create two conversions between them
+        uc1id = self.repository.create_global_unit_conversion(
+            from_unit_id=g_id,
+            to_unit_id=kg_id,
+            from_unit_qty=1000,
+            to_unit_qty=1,
+        )
+        uc2id = self.repository.create_global_unit_conversion(
+            from_unit_id=ml_id,
+            to_unit_id=g_id,
+            from_unit_qty=1,
+            to_unit_qty=1,
+        )
+        # Fetch all the global unit conversions
+        all_unit_conversions = self.repository.read_all_global_unit_conversions()
+        # Check both conversions are in the database
+        self.assertIn(uc1id, all_unit_conversions.keys())
+        self.assertIn(uc2id, all_unit_conversions.keys())
+        # Check the first conversion is correct
+        self.assertEqual(all_unit_conversions[uc1id]["from_unit_id"], g_id)
+        self.assertEqual(all_unit_conversions[uc1id]["to_unit_id"], kg_id)
+        self.assertEqual(all_unit_conversions[uc1id]["from_unit_qty"], 1000)
+        self.assertEqual(all_unit_conversions[uc1id]["to_unit_qty"], 1)
+        # Check the second conversion is correct
+        self.assertEqual(all_unit_conversions[uc2id]["from_unit_id"], ml_id)
+        self.assertEqual(all_unit_conversions[uc2id]["to_unit_id"], g_id)
+        self.assertEqual(all_unit_conversions[uc2id]["from_unit_qty"], 1)
+        self.assertEqual(all_unit_conversions[uc2id]["to_unit_qty"], 1)
+
 class TestUpdateIngredientName(DatabaseTestCase):
     """Test the update_ingredient_name method of the Repository class."""
 

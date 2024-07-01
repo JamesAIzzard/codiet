@@ -353,16 +353,36 @@ class Repository:
             ).fetchall()
         return [row[0] for row in rows]
     
-    def read_global_unit_conversions(self, unit_id: int) -> dict[int, float]:
-        """Returns a dictionary of conversions for the given global unit ID."""
+    def read_all_global_unit_conversions(self) -> dict[int, dict[str, int | float]]:
+        """Returns a dictionary of conversions for the given global unit ID.
+        Args:
+            None
+        Returns:
+            dict: A dictionary of conversions for the given global unit ID.
+                {
+                    unit_conversion_id: {
+                        'from_unit_id': int,
+                        'to_unit_id': int,
+                        'from_unit_qty': float,
+                        'to_unit_qty': float
+                    }
+                }
+        """
         with self.get_cursor() as cursor:
             rows = cursor.execute(
                 """
-                SELECT to_unit_id, conversion_factor FROM global_unit_conversions WHERE from_unit_id = ?;
-            """,
-                (unit_id,),
+                SELECT id, from_unit_id, to_unit_id, from_unit_qty, to_unit_qty FROM global_unit_conversions;
+            """
             ).fetchall()
-        return {row[0]: row[1] for row in rows}
+        return {
+            row[0]: {
+                "from_unit_id": row[1],
+                "to_unit_id": row[2],
+                "from_unit_qty": row[3],
+                "to_unit_qty": row[4],
+            }
+            for row in rows
+        }
 
     def read_all_global_unit_names(self) -> dict[int, str]:
         """Returns a list of all global units in the database.

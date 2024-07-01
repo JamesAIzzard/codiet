@@ -59,6 +59,8 @@ class UnitConversionsEditorCtrl:
         self.global_units = global_units
         self._check_conversion_available = check_conversion_available
         self._on_unit_conversion_added_callback = on_unit_conversion_added
+        self._on_unit_conversion_removed_callback = on_unit_conversion_removed
+        self._on_unit_conversion_updated_callback = on_unit_conversion_updated
 
     def _on_add_conversion_clicked(self):
         """Called when the add conversion button is clicked."""
