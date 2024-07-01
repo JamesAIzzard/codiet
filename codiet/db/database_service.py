@@ -3,9 +3,7 @@ from typing import Any
 from codiet.utils.map import BidirectionalMap
 from codiet.db.repository import Repository
 from codiet.models.units import Unit
-from codiet.models.ingredients import (
-    Ingredient, IngredientQuantity
-)
+from codiet.models.ingredients import Ingredient, IngredientQuantity
 from codiet.models.nutrients import (
     IngredientNutrientQuantity,
 )
@@ -130,7 +128,7 @@ class DatabaseService:
         gram_id = unit_name_id_map.get_int("gram")
         # Init the ingredient
         ingredient = Ingredient(
-            name=ingredient_name, 
+            name=ingredient_name,
             id=ingredient_id,
             standard_unit_id=gram_id,
         )
@@ -141,9 +139,9 @@ class DatabaseService:
         self,
         ingredient_id: int,
         from_unit_id: int,
-        from_unit_qty: float,
         to_unit_id: int,
-        to_unit_qty: float,
+        to_unit_qty: float | None = None,
+        from_unit_qty: float | None = None,
     ) -> IngredientUnitConversion:
         """Creates a unit conversion for the given ingredient.
         Args:
@@ -266,10 +264,10 @@ class DatabaseService:
         self,
         recipe_id: int,
         ingredient_id: int,
-        qty_unit_id: int|None,
-        qty_value: float|None,
-        qty_ltol: float|None,
-        qty_utol: float|None,
+        qty_unit_id: int | None,
+        qty_value: float | None,
+        qty_ltol: float | None,
+        qty_utol: float | None,
     ) -> IngredientQuantity:
         """Creates an ingredient quantity for the given recipe.
         Args:
@@ -381,7 +379,7 @@ class DatabaseService:
         """Returns the unit with the given ID.
         Args:
             unit_id (int): The id of the unit.
-            
+
         Returns:
             Unit: The unit with the given ID.
         """
@@ -433,7 +431,9 @@ class DatabaseService:
         # Fetch the ingredient name corresponding to the id
         ingredient_name = self.repository.read_ingredient_name(ingredient_id)
         # Fetch the ingredient standard id
-        standard_unit_id = self.repository.read_ingredient_standard_unit_id(ingredient_id)
+        standard_unit_id = self.repository.read_ingredient_standard_unit_id(
+            ingredient_id
+        )
         # Init a fresh ingredient instance
         ingredient = Ingredient(
             id=ingredient_id,
@@ -583,3 +583,24 @@ class DatabaseService:
                 ing_qty_value=nutrient_quantity.ingredient_quantity_value,
                 ing_qty_unit_id=nutrient_quantity.ingredient_quantity_unit_id,
             )
+
+    def update_ingredient_unit_conversion(self, unit_conversion: IngredientUnitConversion) -> None:
+        """Updates the unit conversion in the database."""
+        self.repository.update_ingredient_unit_conversion(
+            ingredient_unit_id=unit_conversion.id,
+            from_unit_id=unit_conversion.from_unit_id,
+            from_unit_qty=unit_conversion.from_unit_qty,
+            to_unit_id=unit_conversion.to_unit_id,
+            to_unit_qty=unit_conversion.to_unit_qty,
+        )
+
+    def delete_ingredient_unit_conversions(self, ingredient_id: int) -> None:
+        """Deletes all the unit conversions for the given ingredient.
+        Args:
+            ingredient_id (int): The id of the ingredient.
+        """
+        # Read all of the unit conversions
+        unit_conversions = self.repository.read_ingredient_unit_conversions(ingredient_id)
+        # Delete each unit conversion
+        for id in unit_conversions.keys():
+            self.repository.delete_ingredient_unit_conversion(id)

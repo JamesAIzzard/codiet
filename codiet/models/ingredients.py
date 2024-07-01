@@ -9,24 +9,15 @@ class Ingredient:
         self.name: str = name
         self.id: int = id
         self.description: str | None = None
-        self.standard_unit_id: int = standard_unit_id   
+        self.standard_unit_id: int = standard_unit_id
+        self._unit_conversions: dict[int, IngredientUnitConversion] = {}   
         self.cost_unit_id: int | None = None
         self.cost_value: float | None = None
         self.cost_qty_unit_id: int | None = None
         self.cost_qty_value: float | None = None
-        self._unit_conversions: dict[int, IngredientUnitConversion] = {}
         self._flags: dict[int, bool|None] = {}
         self.gi: float | None = None
         self._nutrient_quantities: dict[int, IngredientNutrientQuantity] = {}
-
-    @property
-    def flags(self) -> dict[int, bool|None]:
-        """Returns the flags.
-        Returns:
-            dict[int, bool|None]: The flags.
-                Where the key is the global flag ID and the value is the flag value.
-        """
-        return self._flags
 
     @property
     def unit_conversions(self) -> dict[int, IngredientUnitConversion]:
@@ -39,6 +30,15 @@ class Ingredient:
         return self._unit_conversions
 
     @property
+    def flags(self) -> dict[int, bool|None]:
+        """Returns the flags.
+        Returns:
+            dict[int, bool|None]: The flags.
+                Where the key is the global flag ID and the value is the flag value.
+        """
+        return self._flags
+
+    @property
     def nutrient_quantities(self) -> dict[int, IngredientNutrientQuantity]:
         """Returns the nutrient quantities.
         Returns:
@@ -47,12 +47,30 @@ class Ingredient:
         return self._nutrient_quantities
 
     def add_unit_conversion(self, unit_conversion: IngredientUnitConversion) -> None:
-        """Upserts a unit conversion."""
+        """Adds a unit conversion.
+        Args:
+            unit_conversion (IngredientUnitConversion): The unit conversion to add.
+        Returns:
+            None
+        """
         # Raise an exception if the unit conversion is already in the list
         for uc in self._unit_conversions.values():
             if uc == unit_conversion:
                 raise KeyError(f"Unit conversion '{unit_conversion.id}' already in list.")
         # If not found, add the unit conversion
+        self._unit_conversions[unit_conversion.id] = unit_conversion
+
+    def update_unit_conversion(self, unit_conversion: IngredientUnitConversion) -> None:
+        """Updates a unit conversion.
+        Args:
+            unit_conversion (IngredientUnitConversion): The unit conversion to update.
+        Returns:
+            None
+        """
+        # Raise an exception if the unit conversion isn't in the list
+        if unit_conversion.id not in self._unit_conversions:
+            raise KeyError(f"Unit conversion '{unit_conversion.id}' not in list.")
+        # If found, update the unit conversion
         self._unit_conversions[unit_conversion.id] = unit_conversion
 
     def remove_unit_conversion(self, unit_id: int) -> None:

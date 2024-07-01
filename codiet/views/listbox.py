@@ -28,6 +28,33 @@ class ListBox(QListWidget):
             return self.currentItem()
         else:
             return None
+        
+    @property
+    def selected_item_content(self) -> str|QWidget|None:
+        """Return the content of the selected result.
+        Returns:
+            str|QWidget|None: The content of the selected item or None if no item is selected.
+        """
+        if self.item_is_selected:
+            item = self.currentItem()
+            if self.itemWidget(item):
+                return self.itemWidget(item)
+            else:
+                return item.text() # type: ignore
+        else:
+            return None
+        
+    @property
+    def selected_item_data(self) -> Any:
+        """Return the data associated with the selected result.
+        Returns:
+            Any: The data associated with the selected item or None if no item is selected.
+        """
+        if self.item_is_selected:
+            item = self.currentItem()
+            return item.data(Qt.ItemDataRole.UserRole) # type: ignore
+        else:
+            return None
 
     @property
     def selected_index(self) -> int:

@@ -498,6 +498,85 @@ class TestReadRecipe(DatabaseTestCase):
         # Grab the id for slice
         slice_id = unit_name_to_id.get_int("slice")
 
+class TestUpdateIngredientUnitConversion(DatabaseTestCase):
+
+    def test_update_ingredient_unit_conversion_updates_ingredient_unit_conversion(self):
+        """Test updating an ingredient unit conversion."""
+        # Create four units
+        unit_name_1 = "Test Unit 1"
+        unit_id_1 = self.repository.create_global_unit(
+            unit_name=unit_name_1,
+            single_display_name="Test Unit 1",
+            plural_display_name="Test Units 1",
+            unit_type="mass"
+        )
+        unit_name_2 = "Test Unit 2"
+        unit_id_2 = self.repository.create_global_unit(
+            unit_name=unit_name_2,
+            single_display_name="Test Unit 2",
+            plural_display_name="Test Units 2",
+            unit_type="mass"
+        )
+        unit_name_3 = "Test Unit 3"
+        unit_id_3 = self.repository.create_global_unit(
+            unit_name=unit_name_3,
+            single_display_name="Test Unit 3",
+            plural_display_name="Test Units 3",
+            unit_type="mass"
+        )
+        unit_name_4 = "Test Unit 4"
+        unit_id_4 = self.repository.create_global_unit(
+            unit_name=unit_name_4,
+            single_display_name="Test Unit 4",
+            plural_display_name="Test Units 4",
+            unit_type="mass"
+        )
+        # Create an empty ingredient
+        ingredient_name = "Test Ingredient"
+        ingredient = self.database_service.create_empty_ingredient(ingredient_name)
+        # Set a couple of unit conversions
+        # Create conversions between 1 and 2 and 1 and 3
+        uc1id = self.repository.create_ingredient_unit_conversion(
+            ingredient_id=ingredient.id,
+            from_unit_id=unit_id_1,
+            to_unit_id=unit_id_2,
+            from_unit_qty=1,
+            to_unit_qty=2
+        )
+        uc2id = self.repository.create_ingredient_unit_conversion(
+            ingredient_id=ingredient.id,
+            from_unit_id=unit_id_1,
+            to_unit_id=unit_id_3,
+            from_unit_qty=1,
+            to_unit_qty=3
+        )
+        # Check both of these conversions are in the database correctly
+        ing_ucs = self.database_service.read_ingredient_unit_conversions(ingredient.id)
+        self.assertEqual(len(ing_ucs), 2)
+        self.assertIn(uc1id, ing_ucs)
+        self.assertIn(uc2id, ing_ucs)
+        # Check the values on both of these
+        self.assertEqual(ing_ucs[uc1id].from_unit_id, unit_id_1)
+        self.assertEqual(ing_ucs[uc1id].to_unit_id, unit_id_2)
+        self.assertEqual(ing_ucs[uc1id].from_unit_qty, 1)
+        self.assertEqual(ing_ucs[uc1id].to_unit_qty, 2)
+        self.assertEqual(ing_ucs[uc2id].from_unit_id, unit_id_1)
+        self.assertEqual(ing_ucs[uc2id].to_unit_id, unit_id_3)
+        self.assertEqual(ing_ucs[uc2id].from_unit_qty, 1)
+        self.assertEqual(ing_ucs[uc2id].to_unit_qty, 3)
+        # Update the first unit conversion
+        ing_ucs[uc1id].from_unit_id = unit_id_4
+        ing_ucs[uc1id].to_unit_id = unit_id_3
+        ing_ucs[uc1id].from_unit_qty = 2
+        ing_ucs[uc1id].to_unit_qty = 1
+        self.database_service.update_ingredient_unit_conversion(ing_ucs[uc1id])
+        # Check the values on the first unit conversion are updated
+        ing_ucs = self.database_service.read_ingredient_unit_conversions(ingredient.id)
+        self.assertEqual(ing_ucs[uc1id].from_unit_id, unit_id_4)
+        self.assertEqual(ing_ucs[uc1id].to_unit_id, unit_id_3)
+        self.assertEqual(ing_ucs[uc1id].from_unit_qty, 2)
+        self.assertEqual(ing_ucs[uc1id].to_unit_qty, 1)
+
 class TestUpdateIngredient(DatabaseTestCase):
 
     def test_update_ingredient_updates_ingredient(self):
@@ -559,6 +638,61 @@ class TestUpdateIngredient(DatabaseTestCase):
             ing_qty_value=2.0
         )
 
+class TestDeleteIngredientUnitConversions(DatabaseTestCase):
+
+    def test_delete_ingredient_unit_conversions_deletes_ingredient_unit_conversions(self):
+        """Test deleting ingredient unit conversions."""
+        # Create three units
+        unit_name_1 = "Test Unit 1"
+        unit_id_1 = self.repository.create_global_unit(
+            unit_name=unit_name_1,
+            single_display_name="Test Unit 1",
+            plural_display_name="Test Units 1",
+            unit_type="mass"
+        )
+        unit_name_2 = "Test Unit 2"
+        unit_id_2 = self.repository.create_global_unit(
+            unit_name=unit_name_2,
+            single_display_name="Test Unit 2",
+            plural_display_name="Test Units 2",
+            unit_type="mass"
+        )
+        unit_name_3 = "Test Unit 3"
+        unit_id_3 = self.repository.create_global_unit(
+            unit_name=unit_name_3,
+            single_display_name="Test Unit 3",
+            plural_display_name="Test Units 3",
+            unit_type="mass"
+        )
+        # Create an empty ingredient
+        ingredient_name = "Test Ingredient"
+        ingredient = self.database_service.create_empty_ingredient(ingredient_name)
+        # Set a couple of unit conversions
+        # Create conversions between 1 and 2 and 1 and 3
+        uc1id = self.repository.create_ingredient_unit_conversion(
+            ingredient_id=ingredient.id,
+            from_unit_id=unit_id_1,
+            to_unit_id=unit_id_2,
+            from_unit_qty=1,
+            to_unit_qty=2
+        )
+        uc2id = self.repository.create_ingredient_unit_conversion(
+            ingredient_id=ingredient.id,
+            from_unit_id=unit_id_1,
+            to_unit_id=unit_id_3,
+            from_unit_qty=1,
+            to_unit_qty=3
+        )
+        # Check both of these conversions are in the database
+        ing_ucs = self.database_service.repository.read_ingredient_unit_conversions(ingredient.id)
+        self.assertEqual(len(ing_ucs), 2)
+        self.assertIn(uc1id, ing_ucs)
+        self.assertIn(uc2id, ing_ucs)
+        # Delete the ingredient unit conversions
+        self.database_service.delete_ingredient_unit_conversions(ingredient.id)
+        # Check there are no unit conversions left
+        ing_ucs = self.database_service.repository.read_ingredient_unit_conversions(ingredient.id)
+        self.assertEqual(len(ing_ucs), 0)
 
 
 

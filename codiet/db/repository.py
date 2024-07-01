@@ -1019,15 +1019,15 @@ class Repository:
             for query in queries:
                 cursor.execute(query, (ingredient_id,))
 
-    def delete_ingredient_unit_conversions(self, ingredient_id: int) -> None:
-        """Deletes all unit conversions for the given ingredient ID."""
+    def delete_ingredient_unit_conversion(self, unit_conversion_id: int) -> None:
+        """Deletes the given unit conversion from the database."""
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
                 DELETE FROM ingredient_unit_conversions
-                WHERE ingredient_id = ?;
+                WHERE id = ?;
             """,
-                (ingredient_id,),
+                (unit_conversion_id,),
             )
 
     def delete_ingredient_flags(self, ingredient_id: int) -> None:

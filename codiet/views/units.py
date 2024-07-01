@@ -290,26 +290,32 @@ class UnitConversionDefinitionPopupView(DialogBoxView):
         self.btn_cancel.clicked.connect(self.cancelClicked.emit)
 
     @property
-    def selected_from_unit_id(self) -> int | None:
-        """Return the selected from unit ID."""
-        return self.from_unit_selector.lst_search_results.selected_item.data()
+    def selected_from_unit_id(self) -> int:
+        """Return the selected from unit ID.
+        Returns:
+            int: The global ID of the selected from unit.
+        """
+        return self.from_unit_selector.lst_search_results.selected_item_data
     
     @property
     def selected_to_unit_id(self) -> int | None:
         """Return the selected to unit ID."""
-        return self.to_unit_selector.selected_unit_id
+        return self.to_unit_selector.lst_search_results.selected_item_data
 
-    def _on_selection_changed(self, from_unit_id: int, to_unit_id: int) -> None:
+    def _on_selection_changed(self) -> None:
         """Called when the selection is changed."""
         # Emit the OKClicked signal with the from and to unit IDs
-        self.OKClicked.emit(from_unit_id, to_unit_id)
+        self.selectionChanged.emit(
+            self.from_unit_selector.lst_search_results.selected_item_data, 
+            self.to_unit_selector.lst_search_results.selected_item_data
+        )
 
     def _on_OK_clicked(self) -> None:
         """Called when the OK button is clicked."""
         # Emit the OKClicked signal with the from and to unit IDs
         self.OKClicked.emit(
-            self.from_unit_selector.selected_unit_id,
-            self.to_unit_selector.selected_unit_id
+            self.from_unit_selector.lst_search_results.selected_item_data,
+            self.to_unit_selector.lst_search_results.selected_item_data
         )
 
     def _build_ui(self):
