@@ -3,7 +3,12 @@ from typing import Callable
 from PyQt6.QtCore import pyqtSignal
 
 from codiet.models.units import Unit, IngredientUnitConversion
-from codiet.views.units import StandardUnitEditorView, UnitConversionsEditorView, UnitConversionDefinitionPopupView
+from codiet.views.units import (
+    StandardUnitEditorView,
+    UnitConversionEditorView,
+    UnitConversionsEditorView,
+    UnitConversionDefinitionPopupView,
+)
 from codiet.views.dialog_box_views import EntityNameDialogView, OkDialogBoxView
 from codiet.controllers.entity_name_dialog_ctrl import EntityNameDialogCtrl
 
@@ -35,7 +40,6 @@ class StandardUnitEditorCtrl:
         # Select the current standard unit
         self.view.cmb_standard_unit.selected_unit_id = current_standard_unit_id
 
-
     def on_standard_unit_changed(self, unit_id: int):
         """Called when the standard unit is changed.
         Args:
@@ -51,10 +55,20 @@ class UnitConversionsEditorCtrl:
         view: UnitConversionsEditorView,
         global_units: dict[int, Unit],
         check_conversion_available: Callable[[int, int], bool],
-        on_unit_conversion_added: Callable[[int, int], None],
+        on_unit_conversion_added: Callable[[int, int], int],
         on_unit_conversion_removed: Callable[[int], None],
-        on_unit_conversion_updated: Callable[[int, float, float], None],
+        on_unit_conversion_updated: Callable[[int, float|None, float|None], None],
     ):
+        """Initialise the unit conversions editor controller.
+        Args:
+            view (UnitConversionsEditorView): The unit conversions editor view.
+            global_units (dict[int, Unit]): A dictionary of global units, keyed against their global IDs.
+            check_conversion_available (Callable[[int, int], bool]): A function that checks if a conversion is available.
+            on_unit_conversion_added (Callable[[int, int], int]): A callback function that is called when a unit conversion is added.
+                Returns the global ID of the new unit conversion.
+            on_unit_conversion_removed (Callable[[int], None]): A callback function that is called when a unit conversion is removed.
+            on_unit_conversion_updated (Callable[[int, float, float], None]): A callback function that is called when a unit conversion is updated.
+        """
         self.view = view
         self.global_units = global_units
         self._check_conversion_available = check_conversion_available
@@ -63,7 +77,8 @@ class UnitConversionsEditorCtrl:
         self._on_unit_conversion_updated_callback = on_unit_conversion_updated
 
     def _on_add_conversion_clicked(self):
-        """Called when the add conversion button is clicked."""
+        """Called when the add conversion button is clicked. Opens the popup to help the user
+        define a new unit conversion."""
         # Init a unit conversion definition popup
         popup = UnitConversionDefinitionPopupCtrl(
             view=UnitConversionDefinitionPopupView(),
@@ -82,11 +97,48 @@ class UnitConversionsEditorCtrl:
             from_unit_id (int): The global ID of the from unit.
             to_unit_id (int): The global ID of the to unit.
         """
-        # Get the conversion factor and offset
-        conversion_factor = self.view.get_conversion_factor()
-        offset = self.view.get_offset()
-        # Call the on_unit_conversion_added callback
-        self._on_unit_conversion_added(from_unit_id, to_unit_id, conversion_factor, offset)
+        # Call the callback and collect the ID
+        id = self._on_unit_conversion_added_callback(from_unit_id, to_unit_id)
+        # Create the new unit conversion editor view
+        unit_conversion_editor = UnitConversionEditorView(
+            id=id,
+            from_unit_id=from_unit_id,
+            to_unit_id=to_unit_id,
+            from_unit_display_name=self.global_units[from_unit_id].plural_display_name,
+            to_unit_display_name=self.global_units[to_unit_id].plural_display_name,
+        )
+        # Connect the signals
+        unit_conversion_editor.conversionUpdated.connect(self._on_unit_conversion_updated)
+        # Add the unit conversion to the view
+        self.view.add_unit_conversion(
+            unit_conversion_view=unit_conversion_editor, unit_conversion_id=id
+        )
+
+    def _on_unit_conversion_removed(self, unit_conversion_id: int):
+        """Called when a unit conversion is removed.
+        Args:
+            unit_conversion_id (int): The global ID of the unit conversion.
+        """
+        # Call the callback
+        self._on_unit_conversion_removed_callback(unit_conversion_id)
+
+    def _on_unit_conversion_updated(
+        self,
+        unit_conversion_id: int,
+        from_unit_qty: float|None,
+        to_unit_qty: float|None,
+    ):
+        """Called when a unit conversion is updated.
+        Args:
+            unit_conversion_id (int): The global ID of the unit conversion.
+            from_unit_qty (float): The quantity of the from unit.
+            to_unit_qty (float): The quantity of the to unit.
+        """
+        # Call the callback
+        self._on_unit_conversion_updated_callback(
+            unit_conversion_id, from_unit_qty, to_unit_qty
+        )
+
 
 class UnitConversionDefinitionPopupCtrl:
     """Controller for the unit conversion definition popup."""
@@ -128,14 +180,18 @@ class UnitConversionDefinitionPopupCtrl:
             to_unit_id (int): The global ID of the to unit.
         """
         # Check if the conversion is available
-        conversion_available = self._check_conversion_available(from_unit_id, to_unit_id)
+        conversion_available = self._check_conversion_available(
+            from_unit_id, to_unit_id
+        )
         # Enable the OK button if the conversion is available
         self.view.btn_ok.setEnabled(conversion_available)
 
     def _on_ok_clicked(self):
         """Called when the OK button is clicked."""
         # Get the from and to unit IDs
-        from_unit_id = self.view.from_unit_selector.lst_search_results.selected_item_data
+        from_unit_id = (
+            self.view.from_unit_selector.lst_search_results.selected_item_data
+        )
         to_unit_id = self.view.to_unit_selector.lst_search_results.selected_item_data
         # Call the on_unit_conversion_added callback
         self._on_unit_conversion_added(from_unit_id, to_unit_id)
