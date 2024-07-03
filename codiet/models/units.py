@@ -29,7 +29,7 @@ class UnitConversion:
             to_unit_qty: float|None = None,
         ):
         """
-        Initialize the UnitConversion object.
+        Initialise the UnitConversion object.
 
         Args:
             id (int): The id of the conversion.

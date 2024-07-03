@@ -108,12 +108,12 @@ class IngredientEditorView(QWidget):
         self._build_basic_info_UI(lyt_first_col)
         # Add the standard unit editor
         self.standard_unit_editor = StandardUnitEditorView()
+        # Add the measurement definition view
+        self.unit_conversions_editor = UnitConversionsEditorView()
+        lyt_first_col.addWidget(self.unit_conversions_editor)        
         # Add the cost editor to the column 1 layout
         self.cost_editor = CostEditorView()
         lyt_first_col.addWidget(self.cost_editor)
-        # Add the measurement definition view
-        self.unit_conversions_editor = UnitConversionsEditorView()
-        lyt_first_col.addWidget(self.unit_conversions_editor)
         # Add the flags widget to the column1 layout
         self.flag_editor = FlagEditorView()
         lyt_first_col.addWidget(self.flag_editor)

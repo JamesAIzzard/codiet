@@ -46,6 +46,23 @@ class Ingredient:
                 Where the key is the gloabl nutrient ID."""
         return self._nutrient_quantities
 
+    # TODO: I don't think this method belongs on the ingredient class. Find a better place for it.
+    def can_convert_units(self, from_unit_id: int, to_unit_id: int) -> bool:
+        """Checks if a unit conversion is available.
+        Bidirectional conversion is assumed.
+        Args:
+            from_unit_id (int): The unit ID to convert from.
+            to_unit_id (int): The unit ID to convert to.
+        Returns:
+            bool: True if the conversion is available, False otherwise.
+        """
+        for unit_conversion in self._unit_conversions.values():
+            if unit_conversion.from_unit_id == from_unit_id and unit_conversion.to_unit_id == to_unit_id:
+                return True
+            if unit_conversion.from_unit_id == to_unit_id and unit_conversion.to_unit_id == from_unit_id:
+                return True
+        return False
+
     def add_unit_conversion(self, unit_conversion: IngredientUnitConversion) -> None:
         """Adds a unit conversion.
         Args:

@@ -14,7 +14,6 @@ from codiet.views.buttons import (
     IconButton,
     AddButton,
     RemoveButton,
-    EditButton,
     OKButton,
     CancelButton,
 )
@@ -38,7 +37,7 @@ class UnitDropdown(QComboBox):
         )
 
     @property
-    def selected_unit_id(self) -> int | None:
+    def selected_unit_id(self) -> int:
         """Return the selected unit ID.
         Args:
             None
@@ -312,6 +311,10 @@ class UnitConversionsEditorView(QWidget):
             None
         """
         self.lst_measurements.add_item(item_content=unit_conversion_view, data=unit_conversion_id)
+
+    def clear_all_unit_conversions(self) -> None:
+        """Clear all custom measurements from the list."""
+        self.lst_measurements.clear()
 
     def _on_remove_conversion_clicked(self):
         """Called when the remove unit button is clicked."""

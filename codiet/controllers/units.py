@@ -2,7 +2,7 @@ from typing import Callable
 
 from PyQt6.QtCore import pyqtSignal
 
-from codiet.models.units import Unit, IngredientUnitConversion
+from codiet.models.units import Unit, UnitConversion
 from codiet.views.units import (
     StandardUnitEditorView,
     UnitConversionEditorView,
@@ -21,14 +21,12 @@ class StandardUnitEditorCtrl:
         view: StandardUnitEditorView,
         unit_list: dict[int, Unit],
         on_standard_unit_changed: Callable[[int], None],
-        current_standard_unit_id: int,
     ):
         """Initialise the standard unit editor controller.
         Args:
             view (StandardUnitEditorView): The standard unit editor view.
             unit_list (dict[int, Unit]): A dictionary of units, keyed against their global IDs.
             on_standard_unit_changed (Callable[[int | None], None]): A callback function that is called when the standard unit is changed.
-            current_standard_unit_id (int): The global ID of the current standard unit.
         """
         self.view = view
         self._on_standard_unit_changed = on_standard_unit_changed
@@ -37,8 +35,16 @@ class StandardUnitEditorCtrl:
             self.view.cmb_standard_unit.add_unit(
                 unit_display_name=unit.plural_display_name, unit_global_id=unit_id
             )
-        # Select the current standard unit
-        self.view.cmb_standard_unit.selected_unit_id = current_standard_unit_id
+
+    @property
+    def selected_unit_id(self) -> int:
+        """Return the global ID of the selected unit."""
+        return self.view.cmb_standard_unit.selected_unit_id
+    
+    @selected_unit_id.setter
+    def selected_unit_id(self, unit_id: int):
+        """Set the selected unit by its global ID."""
+        self.view.cmb_standard_unit.selected_unit_id = unit_id
 
     def on_standard_unit_changed(self, unit_id: int):
         """Called when the standard unit is changed.
@@ -65,7 +71,11 @@ class UnitConversionsEditorCtrl:
             global_units (dict[int, Unit]): A dictionary of global units, keyed against their global IDs.
             check_conversion_available (Callable[[int, int], bool]): A function that checks if a conversion is available.
             on_unit_conversion_added (Callable[[int, int], int]): A callback function that is called when a unit conversion is added.
-                Returns the global ID of the new unit conversion.
+                Args:
+                    from_unit_id (int): The global ID of the from unit.
+                    to_unit_id (int): The global ID of the to unit.
+                Returns:
+                    int: The global ID of the new unit conversion.
             on_unit_conversion_removed (Callable[[int], None]): A callback function that is called when a unit conversion is removed.
             on_unit_conversion_updated (Callable[[int, float, float], None]): A callback function that is called when a unit conversion is updated.
         """
@@ -75,6 +85,48 @@ class UnitConversionsEditorCtrl:
         self._on_unit_conversion_added_callback = on_unit_conversion_added
         self._on_unit_conversion_removed_callback = on_unit_conversion_removed
         self._on_unit_conversion_updated_callback = on_unit_conversion_updated
+
+    def add_unit_conversion(self, unit_conversion: UnitConversion) -> None:
+        """Add a unit conversion to the view.
+        Args:
+            unit_conversion (IngredientUnitConversion): The unit conversion to add.
+        Returns:
+            None
+        """
+        # Create the new unit conversion editor view
+        view = UnitConversionEditorView(
+            id=unit_conversion.id,
+            from_unit_id=unit_conversion.from_unit_id,
+            to_unit_id=unit_conversion.to_unit_id,
+            from_unit_display_name=self.global_units[unit_conversion.from_unit_id].plural_display_name,
+            to_unit_display_name=self.global_units[unit_conversion.to_unit_id].plural_display_name,
+        )
+        # Connect the signals
+        view.conversionUpdated.connect(self._on_unit_conversion_updated)
+        # Add the unit conversion to the view        
+        self.view.add_unit_conversion(
+            unit_conversion_view=view, unit_conversion_id=unit_conversion.id
+        )
+
+    def add_unit_conversions(self, unit_conversions: dict[int, UnitConversion]) -> None:
+        """Add multiple unit conversions to the view.
+        Args:
+            unit_conversions (dict[int, IngredientUnitConversion]): A dictionary of unit conversions, keyed against their global IDs.
+        Returns:
+            None
+        """
+        for unit_conversion in unit_conversions.values():
+            self.add_unit_conversion(unit_conversion)
+
+    def reset_unit_conversions(self, unit_conversions: dict[int, UnitConversion]) -> None:
+        """Reset the unit conversions in the view.
+        Args:
+            unit_conversions (dict[int, IngredientUnitConversion]): A dictionary of unit conversions, keyed against their global IDs.
+        Returns:
+            None
+        """
+        self.view.clear_all_unit_conversions()
+        self.add_unit_conversions(unit_conversions)
 
     def _on_add_conversion_clicked(self):
         """Called when the add conversion button is clicked. Opens the popup to help the user
@@ -91,28 +143,22 @@ class UnitConversionsEditorCtrl:
         # Show the unit conversion definition dialog
         popup.view.show()
 
-    def _on_unit_conversion_added(self, from_unit_id: int, to_unit_id: int):
+    def _on_unit_conversion_added(self, from_unit_id: int, to_unit_id: int) -> None:
         """Called when a unit conversion is added.
         Args:
             from_unit_id (int): The global ID of the from unit.
             to_unit_id (int): The global ID of the to unit.
+        Returns:
+            None
         """
         # Call the callback and collect the ID
         id = self._on_unit_conversion_added_callback(from_unit_id, to_unit_id)
-        # Create the new unit conversion editor view
-        unit_conversion_editor = UnitConversionEditorView(
-            id=id,
-            from_unit_id=from_unit_id,
-            to_unit_id=to_unit_id,
-            from_unit_display_name=self.global_units[from_unit_id].plural_display_name,
-            to_unit_display_name=self.global_units[to_unit_id].plural_display_name,
+        # Create a unit conversion instance
+        unit_conversion = UnitConversion(
+            id=id, from_unit_id=from_unit_id, to_unit_id=to_unit_id
         )
-        # Connect the signals
-        unit_conversion_editor.conversionUpdated.connect(self._on_unit_conversion_updated)
         # Add the unit conversion to the view
-        self.view.add_unit_conversion(
-            unit_conversion_view=unit_conversion_editor, unit_conversion_id=id
-        )
+        self.add_unit_conversion(unit_conversion)
 
     def _on_unit_conversion_removed(self, unit_conversion_id: int):
         """Called when a unit conversion is removed.
