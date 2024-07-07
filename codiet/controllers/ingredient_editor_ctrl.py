@@ -1,7 +1,7 @@
 from typing import Tuple
 
 from codiet.db.database_service import DatabaseService
-from codiet.models.units import Unit, get_available_units
+from codiet.models.units import Unit, IngredientUnitConversion, IngredientUnitsSystem
 from codiet.models.ingredients import Ingredient
 from codiet.models.nutrients import IngredientNutrientQuantity
 from codiet.views.ingredient_editor_view import IngredientEditorView
@@ -29,8 +29,12 @@ class IngredientEditorCtrl:
         self._global_unit_name_ids = self.db_service.build_unit_name_id_map()
         self._global_units = self.db_service.read_all_global_units()
         self._global_unit_conversions = self.db_service.read_all_global_unit_conversions()
-        self._currently_avaliable_units: dict[int, Unit]
-        self._cache_available_units()
+        self._ingredient_unit_conversions: dict[int, IngredientUnitConversion] = {}
+        self._ingredient_unit_system = IngredientUnitsSystem(
+            global_units=self._global_units,
+            global_unit_conversions=self._global_unit_conversions,
+            ingredient_unit_conversions=self._ingredient_unit_conversions,
+        )
 
         self._connect_toolbar()
         self.search_column_ctrl = SearchColumnCtrl(
