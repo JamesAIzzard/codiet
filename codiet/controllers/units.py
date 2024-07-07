@@ -118,7 +118,7 @@ class UnitConversionsEditorCtrl:
         for unit_conversion in unit_conversions.values():
             self.add_unit_conversion(unit_conversion)
 
-    def reset_unit_conversions(self, unit_conversions: dict[int, UnitConversion]) -> None:
+    def set_unit_conversions(self, unit_conversions: dict[int, UnitConversion]) -> None:
         """Reset the unit conversions in the view.
         Args:
             unit_conversions (dict[int, IngredientUnitConversion]): A dictionary of unit conversions, keyed against their global IDs.

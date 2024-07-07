@@ -1,7 +1,7 @@
 from typing import Tuple
 
 from codiet.db.database_service import DatabaseService
-from codiet.models.units import Unit
+from codiet.models.units import Unit, get_available_units
 from codiet.models.ingredients import Ingredient
 from codiet.models.nutrients import IngredientNutrientQuantity
 from codiet.views.ingredient_editor_view import IngredientEditorView
@@ -11,6 +11,7 @@ from codiet.views.dialog_box_views import (
 )
 from codiet.controllers.search import SearchColumnCtrl
 from codiet.controllers.units import StandardUnitEditorCtrl, UnitConversionsEditorCtrl
+from codiet.controllers.costs import CostEditorCtrl
 from codiet.controllers.flags import FlagEditorCtrl
 from codiet.controllers.nutrients import NutrientQuantitiesEditorCtrl
 
@@ -25,15 +26,24 @@ class IngredientEditorCtrl:
 
         # Cache some things for search and general use
         self._ingredient_name_ids = self.db_service.build_ingredient_name_id_map()
+        self._global_unit_name_ids = self.db_service.build_unit_name_id_map()
         self._global_units = self.db_service.read_all_global_units()
         self._global_unit_conversions = self.db_service.read_all_global_unit_conversions()
+        self._currently_avaliable_units: dict[int, Unit]
+        self._cache_available_units()
 
-        # Connect the module controllers
+        self._connect_toolbar()
         self.search_column_ctrl = SearchColumnCtrl(
             view=self.view.ingredient_search,
             get_searchable_strings=lambda: self._ingredient_name_ids.str_values,
             on_result_selected=self._on_ingredient_selected, # type: ignore
         )
+        self.view.editIngredientNameClicked.connect(
+            self._on_edit_ingredient_name_clicked
+        )
+        self.view.ingredientDescriptionChanged.connect(
+            self._on_ingredient_description_changed
+        )      
         self.standard_unit_editor_ctrl = StandardUnitEditorCtrl(
             view=self.view.standard_unit_editor,
             unit_list=self._global_units,
@@ -49,22 +59,22 @@ class IngredientEditorCtrl:
             on_unit_conversion_removed=self._on_unit_conversion_removed,
             on_unit_conversion_updated=self._on_unit_conversion_updated,
         )
+        self.cost_editor_ctrl = CostEditorCtrl(
+            view=self.view.cost_editor,
+            on_cost_changed=self._on_ingredient_cost_changed,
+            get_available_units=lambda: self._currently_avaliable_units
+        )
         self.flag_editor_ctrl = FlagEditorCtrl(
             view=self.view.flag_editor,
             get_flags=lambda: self.ingredient.flags,
             on_flag_changed=self._on_flag_changed,
         )
+        self.view.txt_gi.textChanged.connect(self._on_gi_value_changed)
         self.ingredient_nutrient_editor_ctrl = NutrientQuantitiesEditorCtrl(
             view=self.view.nutrient_quantities_editor,
             get_nutrient_data=lambda: self.ingredient.nutrient_quantities,
             on_nutrient_qty_changed=self._on_nutrient_qty_changed,
         )
-
-        # Connect the handler functions to the view signals
-        self._connect_toolbar()
-        self._connect_basic_info_editors()
-        self.view.cost_editor.costChanged.connect(self._on_ingredient_cost_changed)
-        self.view.txt_gi.textChanged.connect(self._on_gi_value_changed)
 
         # Load the first ingredient into the view
         self.ingredient = self.db_service.read_ingredient(
@@ -89,8 +99,8 @@ class IngredientEditorCtrl:
         self.view.ingredient_name = self.ingredient.name
         self.view.ingredient_description = self.ingredient.description
         self.standard_unit_editor_ctrl.selected_unit_id = self.ingredient.standard_unit_id
-        self.unit_conversion_ctrl.reset_unit_conversions(self.ingredient.unit_conversions) # type: ignore
-        self.cost_editor_ctrl.reset_costs(
+        self.unit_conversion_ctrl.set_unit_conversions(self.ingredient.unit_conversions) # type: ignore
+        self.cost_editor_ctrl.set_cost_info(
             cost_value=self.ingredient.cost_value,
             cost_qty_value=self.ingredient.cost_qty_value,
             cost_qty_unit_id=self.ingredient.cost_qty_unit_id,
@@ -104,14 +114,23 @@ class IngredientEditorCtrl:
         #     cost_unit = self.db_service.read_global_unit(self.ingredient.cost_qty_unit_id)
         #     # Set the cost unit name
         #     self.view.cost_editor.cost_quantity_unit = cost_unit.plural_display_name
-        self.flag_editor_ctrl.reset_flags(self.ingredient.flags)
+        self.flag_editor_ctrl.set_flags(self.ingredient.flags)
         # self.view.flag_editor.remove_all_flags_from_list()
         # self.view.flag_editor.add_flags_to_list(list(self.ingredient.flags.keys()))
         # self.view.flag_editor.update_flags(self.ingredient.flags)
         # Update the GI field
         self.view.update_gi(self.ingredient.gi)
         # Set the nutrients
-        self.ingredient_nutrient_editor_ctrl.reset_nutrient_quantities(self.ingredient.nutrient_quantities)
+        self.ingredient_nutrient_editor_ctrl.set_nutrient_quantities(self.ingredient.nutrient_quantities)
+
+    def _cache_available_units(self) -> None:
+        """Cache the available units for the ingredient."""
+        self._currently_avaliable_units = get_available_units(
+            root_unit=self.db_service.read_global_unit(self._global_unit_name_ids.get_int("gram")),
+            global_units=self._global_units,
+            global_unit_conversions=self._global_unit_conversions,
+            ingredient_unit_conversions=self.ingredient.unit_conversions,
+        )
 
     def _cache_leaf_nutrient_names(self) -> None:
         """Cache the leaf nutrient names."""
@@ -282,22 +301,29 @@ class IngredientEditorCtrl:
         self,
         cost_value: float | None,
         cost_qty_value: float | None,
-        cost_qty_unit: str,
+        cost_qty_unit_id: int,
     ) -> None:
-        """Handler for changes to the ingredient cost."""
+        """Handler for changes to the ingredient cost.
+        Updates the costs on the model and saves changes to the database.
+        Args:
+            cost_value (float | None): The cost of the ingredient.
+            cost_qty_value (float | None): The quantity of the ingredient.
+            cost_qty_unit_id (int): The ID of the unit for the cost quantity.
+        Returns:
+            None
+        """
         # Update the ingredient cost on the model
         self.ingredient.cost_value = cost_value
         self.ingredient.cost_qty_value = cost_qty_value
-        self.ingredient.cost_qty_unit = cost_qty_unit
+        self.ingredient.cost_qty_unit_id = cost_qty_unit_id
         # Update the ingredient cost in the database
-        with DatabaseService() as db_service:
-            db_service.update_ingredient_cost(
-                ingredient_id=self.ingredient.id,
-                cost_value=cost_value,
-                cost_qty_value=cost_qty_value,
-                cost_qty_unit=cost_qty_unit,
-            )
-            db_service.commit()
+        self.db_service.repository.update_ingredient_cost(
+            ingredient_id=self.ingredient.id,
+            cost_value=cost_value,
+            cost_qty_value=cost_qty_value,
+            cost_qty_unit_id=cost_qty_unit_id,
+        )
+        self.db_service.repository.commit()
 
     def _on_flag_changed(self, flag_name: str, flag_value: bool):
         """Handler for changes to the ingredient flags."""
@@ -373,13 +399,3 @@ class IngredientEditorCtrl:
         self.view.deleteIngredientClicked.connect(self._on_delete_ingredient_clicked)
         self.view.autopopulateClicked.connect(self._on_autopopulate_ingredient_clicked)
 
-    def _connect_basic_info_editors(self) -> None:
-        """Connect the signals for the basic info editors."""
-        # Connect the edit name button
-        self.view.editIngredientNameClicked.connect(
-            self._on_edit_ingredient_name_clicked
-        )
-        # Connect the description field
-        self.view.ingredientDescriptionChanged.connect(
-            self._on_ingredient_description_changed
-        )

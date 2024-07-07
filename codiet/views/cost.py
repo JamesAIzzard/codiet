@@ -8,7 +8,8 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import pyqtSignal, QVariant
 
-from codiet.utils.pyqt import block_signals
+from codiet.views import block_signals
+from codiet.views.units import UnitDropdown
 from codiet.views.text_editors import NumericLineEdit
 
 class CostEditorView(QWidget):
@@ -43,15 +44,17 @@ class CostEditorView(QWidget):
             self.txt_cost_quantity_value.setText(value)
 
     @property
-    def cost_quantity_unit(self) -> str:
-        """Return the unit of the ingredient."""
-        return self.cmb_cost_qty_unit.currentText()
+    def cost_quantity_unit_id(self) -> int:
+        """Return the unit id of the ingredient."""
+        return self.cmb_cost_qty_unit.selected_unit_id
     
-    @cost_quantity_unit.setter
-    def cost_quantity_unit(self, unit: str) -> None:
-        """Set the unit of the ingredient."""
-        with block_signals(self.cmb_cost_qty_unit):
-            self.cmb_cost_qty_unit.setCurrentText(unit)
+    @cost_quantity_unit_id.setter
+    def cost_quantity_unit(self, unit_id: int) -> None:
+        """Set the unit of the ingredient.
+        Args:
+            unit_id (int): The global id of the unit.
+        """
+        self.cmb_cost_qty_unit.selected_unit_id = unit_id
 
     def _build_ui(self):
         # Create a top level layout
@@ -97,10 +100,7 @@ class CostEditorView(QWidget):
         )
 
         # Create a units dropdown
-        self.cmb_cost_qty_unit = QComboBox()
-        # Temporarily add units, these will get pulled from config file later
-        # TODO - pull units from config file
-        self.cmb_cost_qty_unit.addItems(["g", "kg", "ml", "l"])
+        self.cmb_cost_qty_unit = UnitDropdown()
         lyt_cost.addWidget(self.cmb_cost_qty_unit)
         self.cmb_cost_qty_unit.currentTextChanged.connect(
             lambda: self.costChanged.emit(

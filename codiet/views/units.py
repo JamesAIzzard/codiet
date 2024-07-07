@@ -82,7 +82,7 @@ class UnitDropdown(QComboBox):
         # Clear existing
         self.clear()
 
-    def add_units(self, units: dict[int | None, str]) -> None:
+    def add_units(self, units: dict[int, str]) -> None:
         """Add a dictionary of units to the combo box.
         Args:
             units (dict[int|None, str]): A dictionary of units where the key is the

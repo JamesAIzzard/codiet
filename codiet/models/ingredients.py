@@ -13,7 +13,7 @@ class Ingredient:
         self._unit_conversions: dict[int, IngredientUnitConversion] = {}   
         self.cost_unit_id: int | None = None
         self.cost_value: float | None = None
-        self.cost_qty_unit_id: int | None = None
+        self.cost_qty_unit_id: int = standard_unit_id
         self.cost_qty_value: float | None = None
         self._flags: dict[int, bool|None] = {}
         self.gi: float | None = None

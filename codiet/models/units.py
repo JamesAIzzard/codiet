@@ -97,3 +97,54 @@ class IngredientUnitConversion(UnitConversion):
         """
         super().__init__(*args, **kwargs)
         self.ingredient_id = ingredient_id
+
+def get_available_units(
+        root_unit: Unit,
+        global_units: dict[int, Unit],
+        global_unit_conversions: dict[int, UnitConversion],
+        ingredient_unit_conversions: dict[int, IngredientUnitConversion],
+) -> dict[int, Unit]:
+    """Returns a list of units which are available to use on an ingredient.
+    First builds a graph, where the nodes are global units and the edges are conversions.
+    Then, starting at the root unit, traverses the graph to find all reachable units. Returns a
+    dictionary of unit ids to units.
+    Args:
+        root_unit (Unit): The starting unit for conversion.
+        global_units (dict[int, Unit]): The global units.
+            int: The global unit ID.
+            Unit: The global unit.
+        global_unit_conversions (dict[int, UnitConversion]): The global unit conversions.
+            int: The global unit conversion ID.
+            UnitConversion: The global unit conversion.
+        ingredient_unit_conversions (dict[int, IngredientUnitConversion]): The ingredient unit conversions.
+            int: The ingredient unit conversion ID.
+            IngredientUnitConversion: The ingredient unit conversion.
+    Returns:
+        dict[int, Unit]: The available units.
+            int: The global unit ID.
+            Unit: The global unit.
+    """
+    # Build the graph
+    graph = {unit.id: [] for unit in global_units.values()}
+    
+    for unit_conversion in global_unit_conversions.values():
+        graph[unit_conversion.from_unit_id].append(unit_conversion.to_unit_id)
+        graph[unit_conversion.to_unit_id].append(unit_conversion.from_unit_id)
+    
+    for unit_conversion in ingredient_unit_conversions.values():
+        graph[unit_conversion.from_unit_id].append(unit_conversion.to_unit_id)
+        graph[unit_conversion.to_unit_id].append(unit_conversion.from_unit_id)
+    
+    # Traverse the graph using DFS to find all reachable units
+    reachable_units = set()
+    stack = [root_unit.id]
+    
+    while stack:
+        unit_id = stack.pop()
+        if unit_id in reachable_units:
+            continue
+        reachable_units.add(unit_id)
+        stack.extend(graph[unit_id])
+    
+    return {unit_id: unit for unit_id, unit in global_units.items() if unit_id in reachable_units}
+
