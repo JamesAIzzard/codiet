@@ -98,6 +98,183 @@ class IngredientUnitConversion(UnitConversion):
         super().__init__(*args, **kwargs)
         self.ingredient_id = ingredient_id
 
+class IngredientUnitsSystem:
+    """
+    Represents a system for managing ingredient units and conversions.
+    """
+
+    def __init__(
+        self,
+        global_units: dict[int, Unit],
+        global_unit_conversions: dict[int, UnitConversion],
+        ingredient_unit_conversions: dict[int, IngredientUnitConversion]
+    ):
+        """
+        Initialises the IngredientUnitsSystem object.
+
+        Args:
+            global_units (dict[int, Unit]): A dictionary mapping unit IDs to global units.
+            global_unit_conversions (dict[int, UnitConversion]): A dictionary mapping conversion IDs to global unit conversions.
+            ingredient_unit_conversions (dict[int, IngredientUnitConversion]): A dictionary mapping conversion IDs to ingredient unit conversions.
+        """
+        self.global_units = global_units
+        self.global_unit_conversions = global_unit_conversions
+        self.ingredient_unit_conversions = ingredient_unit_conversions
+        self.graph: dict[int, dict[int, float]] = {}
+        self.path_cache: dict[tuple[int, int], list[tuple[int, int]]] = {}
+        self._build_graph()
+
+    def _build_graph(self):
+        """
+        Builds the graph representation of unit conversions.
+        """
+        self.graph.clear()
+        self.path_cache.clear()
+        all_conversions = list(self.global_unit_conversions.values()) + list(self.ingredient_unit_conversions.values())
+
+        for conv in all_conversions:
+            if conv.from_unit_id not in self.graph:
+                self.graph[conv.from_unit_id] = {}
+            if conv.to_unit_id not in self.graph:
+                self.graph[conv.to_unit_id] = {}
+            
+            self.graph[conv.from_unit_id][conv.to_unit_id] = conv.ratio
+            self.graph[conv.to_unit_id][conv.from_unit_id] = 1 / conv.ratio
+
+    def update_graph(
+        self,
+        global_unit_conversions: dict[int, UnitConversion] | None = None,
+        ingredient_unit_conversions: dict[int, IngredientUnitConversion] | None = None
+    ):
+        """
+        Updates the graph representation of unit conversions.
+
+        Args:
+            global_unit_conversions (dict[int, UnitConversion] | None): A dictionary mapping conversion IDs to global unit conversions. If None, the existing global unit conversions will not be updated.
+            ingredient_unit_conversions (dict[int, IngredientUnitConversion] | None): A dictionary mapping conversion IDs to ingredient unit conversions. If None, the existing ingredient unit conversions will not be updated.
+        """
+        if global_unit_conversions is not None:
+            self.global_unit_conversions = global_unit_conversions
+        if ingredient_unit_conversions is not None:
+            self.ingredient_unit_conversions = ingredient_unit_conversions
+        self._build_graph()
+
+    def _find_conversion_path(self, from_unit_id: int, to_unit_id: int) -> list[tuple[int, int]]:
+        """
+        Finds a conversion path between two unit IDs.
+
+        Args:
+            from_unit_id (int): The ID of the starting unit.
+            to_unit_id (int): The ID of the target unit.
+
+        Returns:
+            list[tuple[int, int]]: A list of unit ID pairs representing the conversion path.
+
+        Raises:
+            ValueError: If no conversion path is found between the given unit IDs.
+        """
+        cache_key = (from_unit_id, to_unit_id)
+        if cache_key in self.path_cache:
+            return self.path_cache[cache_key]
+
+        queue = [(from_unit_id, [])]
+        visited = set()
+
+        while queue:
+            current_unit_id, path = queue.pop(0)
+            
+            if current_unit_id == to_unit_id:
+                self.path_cache[cache_key] = path
+                return path
+
+            if current_unit_id in visited:
+                continue
+
+            visited.add(current_unit_id)
+
+            for next_unit_id in self.graph.get(current_unit_id, {}):
+                if next_unit_id not in visited:
+                    queue.append((next_unit_id, path + [(current_unit_id, next_unit_id)]))
+
+        raise ValueError(f"No conversion path found from unit ID {from_unit_id} to unit ID {to_unit_id}")
+
+    def get_conversion_factor(self, from_unit_id: int, to_unit_id: int) -> float:
+        """
+        Calculates the conversion factor between two unit IDs.
+
+        Args:
+            from_unit_id (int): The ID of the starting unit.
+            to_unit_id (int): The ID of the target unit.
+
+        Returns:
+            float: The conversion factor between the two units.
+
+        Raises:
+            ValueError: If no conversion path is found between the given unit IDs.
+        """
+        if from_unit_id == to_unit_id:
+            return 1.0
+
+        path = self._find_conversion_path(from_unit_id, to_unit_id)
+        factor = 1.0
+
+        for start, end in path:
+            factor *= self.graph[start][end]
+
+        return factor
+
+    def convert_units(self, quantity: float, from_unit_id: int, to_unit_id: int) -> float:
+        """
+        Converts a quantity from one unit to another.
+
+        Args:
+            quantity (float): The quantity to be converted.
+            from_unit_id (int): The ID of the starting unit.
+            to_unit_id (int): The ID of the target unit.
+
+        Returns:
+            float: The converted quantity.
+
+        Raises:
+            ValueError: If no conversion path is found between the given unit IDs.
+        """
+        conversion_factor = self.get_conversion_factor(from_unit_id, to_unit_id)
+        return quantity * conversion_factor
+
+    def get_available_units(self, root_unit_id: int) -> dict[int, Unit]:
+        """
+        Retrieves all available units starting from a root unit ID.
+
+        Args:
+            root_unit_id (int): The ID of the root unit.
+
+        Returns:
+            Dict[int, Unit]: A dictionary mapping unit IDs to units.
+        """
+        available_units = {}
+        stack = [root_unit_id]
+        visited = set()
+
+        while stack:
+            current_unit_id = stack.pop()
+            if current_unit_id in visited:
+                continue
+
+            visited.add(current_unit_id)
+            available_units[current_unit_id] = self.global_units[current_unit_id]
+
+            for next_unit_id in self.graph.get(current_unit_id, {}):
+                if next_unit_id not in visited:
+                    stack.append(next_unit_id)
+
+        return available_units
+
+    def clear_path_cache(self):
+        """
+        Clears the conversion path cache.
+        """
+        self.path_cache.clear()
+
 def get_available_units(
         root_unit: Unit,
         global_units: dict[int, Unit],
@@ -148,3 +325,97 @@ def get_available_units(
     
     return {unit_id: unit for unit_id, unit in global_units.items() if unit_id in reachable_units}
 
+def convert_units(
+    quantity: float,
+    from_unit_id: int,
+    to_unit_id: int,
+    global_unit_conversions: dict[int, UnitConversion],
+    ingredient_unit_conversions: dict[int, IngredientUnitConversion]
+) -> float:
+    """
+    Converts a quantity from one unit to another using available conversions.
+
+    Args:
+        quantity (float): The quantity to convert.
+        from_unit_id (int): The ID of the unit to convert from.
+        to_unit_id (int): The ID of the unit to convert to.
+        global_unit_conversions (dict[int, UnitConversion]): The global unit conversions.
+        ingredient_unit_conversions (dict[int, IngredientUnitConversion]): The ingredient-specific unit conversions.
+
+    Returns:
+        float: The converted quantity.
+
+    Raises:
+        ValueError: If no conversion path is found between the units.
+    """
+    conversion_factor = _get_unit_conversion_factor(
+        from_unit_id,
+        to_unit_id,
+        global_unit_conversions,
+        ingredient_unit_conversions
+    )
+    return quantity * conversion_factor
+
+def _get_unit_conversion_factor(
+    from_unit_id: int,
+    to_unit_id: int,
+    global_unit_conversions: dict[int, UnitConversion],
+    ingredient_unit_conversions: dict[int, IngredientUnitConversion]
+) -> float:
+    """
+    Calculates the conversion factor between two units using available conversions.
+
+    Args:
+        from_unit_id (int): The ID of the unit to convert from.
+        to_unit_id (int): The ID of the unit to convert to.
+        global_unit_conversions (dict[int, UnitConversion]): The global unit conversions.
+        ingredient_unit_conversions (dict[int, IngredientUnitConversion]): The ingredient-specific unit conversions.
+
+    Returns:
+        float: The conversion factor from the 'from' unit to the 'to' unit.
+
+    Raises:
+        ValueError: If no conversion path is found between the units.
+    """
+    # Check if units are the same
+    if from_unit_id == to_unit_id:
+        return 1.0
+
+    # Combine global and ingredient-specific conversions
+    all_conversions = list(global_unit_conversions.values()) + list(ingredient_unit_conversions.values())
+
+    # Build a graph of unit connections
+    graph = {}
+    for conv in all_conversions:
+        if conv.from_unit_id not in graph:
+            graph[conv.from_unit_id] = {}
+        if conv.to_unit_id not in graph:
+            graph[conv.to_unit_id] = {}
+        graph[conv.from_unit_id][conv.to_unit_id] = conv
+        graph[conv.to_unit_id][conv.from_unit_id] = conv
+
+    # Perform BFS to find the shortest conversion path
+    queue = [(from_unit_id, 1.0, [])]
+    visited = set()
+
+    while queue:
+        current_unit_id, current_factor, path = queue.pop(0)
+        
+        if current_unit_id == to_unit_id:
+            return current_factor
+
+        if current_unit_id in visited:
+            continue
+
+        visited.add(current_unit_id)
+
+        for next_unit_id, conversion in graph.get(current_unit_id, {}).items():
+            if next_unit_id not in visited:
+                new_factor = current_factor
+                if conversion.from_unit_id == current_unit_id:
+                    new_factor *= conversion.ratio
+                else:
+                    new_factor /= conversion.ratio
+                queue.append((next_unit_id, new_factor, path + [conversion]))
+
+    raise ValueError(f"No conversion path found from unit ID {from_unit_id} to unit ID {to_unit_id}")

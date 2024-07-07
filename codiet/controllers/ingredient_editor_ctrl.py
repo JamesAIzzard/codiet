@@ -105,15 +105,6 @@ class IngredientEditorCtrl:
             cost_qty_value=self.ingredient.cost_qty_value,
             cost_qty_unit_id=self.ingredient.cost_qty_unit_id,
         )
-        # self.view.cost_editor.cost_value = self.ingredient.cost_value
-        # self.view.cost_editor.cost_quantity_value = self.ingredient.cost_qty_value
-        # self.view.cost_editor.cost_quantity_unit = self.ingredient.cost_qty_unit
-        # # If the ingredient cost unit is not None
-        # if self.ingredient.cost_qty_unit_id is not None:
-        #     # Fetch the unit from the database
-        #     cost_unit = self.db_service.read_global_unit(self.ingredient.cost_qty_unit_id)
-        #     # Set the cost unit name
-        #     self.view.cost_editor.cost_quantity_unit = cost_unit.plural_display_name
         self.flag_editor_ctrl.set_flags(self.ingredient.flags)
         # self.view.flag_editor.remove_all_flags_from_list()
         # self.view.flag_editor.add_flags_to_list(list(self.ingredient.flags.keys()))

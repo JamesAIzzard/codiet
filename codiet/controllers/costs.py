@@ -18,6 +18,7 @@ class CostEditorCtrl:
         self._on_cost_changed_callback = on_cost_changed
         self._get_available_units = get_available_units
         # Populate the units dropdown
+        self.set_available_units()
 
         # Connect the view signals to the callback
         self.view.costChanged.connect(self._on_cost_changed_callback)
