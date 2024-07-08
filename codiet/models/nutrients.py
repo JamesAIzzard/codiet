@@ -35,13 +35,15 @@ class IngredientNutrientQuantity:
         ingredient_id: int,
         ntr_mass_value: float | None = None,
         ntr_mass_unit_id: int | None = None,
-        ing_qty_value: float | None = None,
-        ing_qty_unit_id: int | None = None,
+        ing_grams_value: float | None = None,
     ):
         self.id = id
         self.nutrient_id = nutrient_id
         self.ingredient_id = ingredient_id
         self.nutrient_mass_value = ntr_mass_value
         self.nutrient_mass_unit_id = ntr_mass_unit_id
-        self.ingredient_quantity_value = ing_qty_value
-        self.ingredient_quantity_unit_id = ing_qty_unit_id
+        self.ing_grams_value = ing_grams_value
+
+def filter_leaf_nutrients(nutrients: dict[int, Nutrient]) -> dict[int, Nutrient]:
+    """Filter out the leaf nutrients."""
+    return {id: nutrient for id, nutrient in nutrients.items() if not nutrient.is_parent}

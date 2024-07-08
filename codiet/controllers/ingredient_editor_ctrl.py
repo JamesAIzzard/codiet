@@ -3,7 +3,7 @@ from typing import Tuple
 from codiet.db.database_service import DatabaseService
 from codiet.models.units import Unit, IngredientUnitConversion, IngredientUnitsSystem
 from codiet.models.ingredients import Ingredient
-from codiet.models.nutrients import IngredientNutrientQuantity
+from codiet.models.nutrients import filter_leaf_nutrients, IngredientNutrientQuantity
 from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.views.dialog_box_views import (
     ErrorDialogBoxView,
@@ -29,6 +29,9 @@ class IngredientEditorCtrl:
         self._global_unit_name_ids = self.db_service.build_unit_name_id_map()
         self._global_units = self.db_service.read_all_global_units()
         self._global_unit_conversions = self.db_service.read_all_global_unit_conversions()
+        self.global_leaf_nutrients = filter_leaf_nutrients(
+            self.db_service.read_all_global_nutrients()
+        )
         self._ingredient_unit_conversions: dict[int, IngredientUnitConversion] = {}
         self._ingredient_unit_system = IngredientUnitsSystem(
             global_units=self._global_units,
@@ -58,7 +61,7 @@ class IngredientEditorCtrl:
         self.unit_conversion_ctrl = UnitConversionsEditorCtrl(
             view=self.view.unit_conversions_editor,
             global_units=self._global_units,
-            check_conversion_available=lambda unit_id_1, unit_id_2: not self.ingredient.can_convert_units(unit_id_1, unit_id_2),
+            check_conversion_available=lambda u, v: self._ingredient_unit_system.can_convert_units(u, v),
             on_unit_conversion_added=self._on_unit_conversion_added,
             on_unit_conversion_removed=self._on_unit_conversion_removed,
             on_unit_conversion_updated=self._on_unit_conversion_updated,
@@ -66,7 +69,7 @@ class IngredientEditorCtrl:
         self.cost_editor_ctrl = CostEditorCtrl(
             view=self.view.cost_editor,
             on_cost_changed=self._on_ingredient_cost_changed,
-            get_available_units=lambda: self._currently_avaliable_units
+            get_available_units=lambda: self._ingredient_unit_system.get_available_units(),
         )
         self.flag_editor_ctrl = FlagEditorCtrl(
             view=self.view.flag_editor,
@@ -76,7 +79,8 @@ class IngredientEditorCtrl:
         self.view.txt_gi.textChanged.connect(self._on_gi_value_changed)
         self.ingredient_nutrient_editor_ctrl = NutrientQuantitiesEditorCtrl(
             view=self.view.nutrient_quantities_editor,
-            get_nutrient_data=lambda: self.ingredient.nutrient_quantities,
+            global_leaf_nutrients=self.global_leaf_nutrients,
+            get_ingredient_nutrient_data=lambda: self.ingredient.nutrient_quantities,
             on_nutrient_qty_changed=self._on_nutrient_qty_changed,
         )
 
@@ -84,6 +88,7 @@ class IngredientEditorCtrl:
         self.ingredient = self.db_service.read_ingredient(
             ingredient_id=self._ingredient_name_ids.int_values[0]
         )
+        self.update_view()
 
     @property
     def ingredient(self) -> Ingredient:
@@ -110,22 +115,10 @@ class IngredientEditorCtrl:
             cost_qty_unit_id=self.ingredient.cost_qty_unit_id,
         )
         self.flag_editor_ctrl.set_flags(self.ingredient.flags)
-        # self.view.flag_editor.remove_all_flags_from_list()
-        # self.view.flag_editor.add_flags_to_list(list(self.ingredient.flags.keys()))
-        # self.view.flag_editor.update_flags(self.ingredient.flags)
         # Update the GI field
         self.view.update_gi(self.ingredient.gi)
         # Set the nutrients
         self.ingredient_nutrient_editor_ctrl.set_nutrient_quantities(self.ingredient.nutrient_quantities)
-
-    def _cache_available_units(self) -> None:
-        """Cache the available units for the ingredient."""
-        self._currently_avaliable_units = get_available_units(
-            root_unit=self.db_service.read_global_unit(self._global_unit_name_ids.get_int("gram")),
-            global_units=self._global_units,
-            global_unit_conversions=self._global_unit_conversions,
-            ingredient_unit_conversions=self.ingredient.unit_conversions,
-        )
 
     def _cache_leaf_nutrient_names(self) -> None:
         """Cache the leaf nutrient names."""
@@ -320,18 +313,16 @@ class IngredientEditorCtrl:
         )
         self.db_service.repository.commit()
 
-    def _on_flag_changed(self, flag_name: str, flag_value: bool):
+    def _on_flag_changed(self, flag_id: int, flag_value: bool|None) -> None:
         """Handler for changes to the ingredient flags."""
         # Update flag on the model
-        self.ingredient.set_flag(flag_name, flag_value)
+        self.ingredient.set_flag(flag_id, flag_value)
         # Update the flag in the database
-        with DatabaseService() as db_service:
-            db_service.update_ingredient_flag(
-                ingredient_id=self.ingredient.id,
-                flag_name=flag_name,
-                flag_value=flag_value,
-            )
-            db_service.commit()
+        self.db_service.repository.update_ingredient_flag(
+            ingredient_id=self.ingredient.id,
+            flag_id=flag_id,
+            flag_value=flag_value,
+        )
 
     def _on_custom_unit_added(self, unit_name: str) -> Unit:
         """Handler for adding a custom unit."""

@@ -132,7 +132,7 @@ class DatabaseTestCase(unittest.TestCase):
             ntr_mass_unit_id=self.unit_id_name_map.get_int("milligram"),
             ntr_mass_value=100,
             ing_qty_unit_id=self.unit_id_name_map.get_int("slice"),
-            ing_qty_value=1.0
+            ing_grams_value=1.0
         )
         test_ingredient.add_nutrient_quantity(alanine_nq)
         arginine_nq = self.database_service.create_ingredient_nutrient_quantity(
@@ -141,7 +141,7 @@ class DatabaseTestCase(unittest.TestCase):
             ntr_mass_unit_id=self.unit_id_name_map.get_int("milligram"),
             ntr_mass_value=200,
             ing_qty_unit_id=self.unit_id_name_map.get_int("ounce"),
-            ing_qty_value=1.0
+            ing_grams_value=1.0
         )
         test_ingredient.add_nutrient_quantity(arginine_nq)
         return test_ingredient

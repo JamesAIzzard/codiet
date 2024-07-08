@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import pyqtSignal, QVariant
 
-from codiet.utils.pyqt import block_signals
+from codiet.views import block_signals
 from codiet.views.text_editors import NumericLineEdit
 from codiet.views.search import SearchColumnView
 
@@ -50,18 +50,20 @@ class NutrientQuantityEditorView(QWidget):
     """UI element for quantity of a nutrient in an ingredient."""
 
     # Define signals
-    nutrientMassChanged = pyqtSignal(str, QVariant)
-    nutrientMassUnitsChanged = pyqtSignal(str, str)
+    nutrientMassChanged = pyqtSignal(int, float)
+    nutrientMassUnitsChanged = pyqtSignal(int, int)
 
     def __init__(
             self,
             global_nutrient_id: int,
             nutrient_name: str,
+            available_mass_units: dict[int,str],
+            selected_mass_unit_id: int,
             nutrient_mass_value: float | None = None,
-            nutrient_mass_units: str = "g",
             *args, **kwargs
         ):
         super().__init__(*args, **kwargs)
+        self._global_nutrient_id = global_nutrient_id
         self._nutrient_name = nutrient_name
         self.nutrient_mass_value = nutrient_mass_value
         self.nutrient_mass_units = nutrient_mass_units

@@ -205,8 +205,7 @@ class Repository:
         nutrient_id: int,
         ntr_mass_unit_id: int | None,
         ntr_mass_value: float | None,
-        ing_qty_unit_id: int | None,
-        ing_qty_value: float | None
+        ing_grams_value: float | None
     ) -> int:
         """Adds an ingredient nutrient quantity to the database and returns the ID.
         Args:
@@ -214,18 +213,17 @@ class Repository:
             nutrient_id (int): The ID of the nutrient.
             ntr_mass_unit_id (int|None): The ID of the unit.
             ntr_mass_value (float|None): The mass value.
-            ing_qty_unit_id (int|None): The ID of the unit.
-            ing_qty_value (float|None): The quantity value.
+            ing_grams_qty (float|None): The reference number of grams of ingredient.
         Returns:
             int: The unique ID associdated with this specific ingredient nutrient quantity.
         """
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO ingredient_nutrient_quantities (ingredient_id, nutrient_id, ntr_mass_unit_id, ntr_mass_value, ing_qty_unit_id, ing_qty_value)
-                VALUES (?, ?, ?, ?, ?, ?);
+                INSERT INTO ingredient_nutrient_quantities (ingredient_id, nutrient_id, ntr_mass_unit_id, ntr_mass_value, ing_grams_qty)
+                VALUES (?, ?, ?, ?, ?);
             """,
-                (ingredient_id, nutrient_id, ntr_mass_unit_id, ntr_mass_value, ing_qty_unit_id, ing_qty_value),
+                (ingredient_id, nutrient_id, ntr_mass_unit_id, ntr_mass_value, ing_grams_value),
             )
             id = cursor.lastrowid
         assert id is not None
@@ -632,8 +630,7 @@ class Repository:
                     'id': int,
                     'ntr_mass_unit_id': int|None,
                     'ntr_mass_value': float|None,
-                    'ing_qty_unit_id': int|None,
-                    'ing_qty_value': float|None
+                    'ing_grams_value': float|None
                 }
             }
             Note that the nutrient ID is the global nutrient ID.
@@ -641,7 +638,7 @@ class Repository:
         with self.get_cursor() as cursor:
             rows = cursor.execute(
                 """
-                SELECT id, nutrient_id, ntr_mass_unit_id, ntr_mass_value, ing_qty_unit_id, ing_qty_value
+                SELECT id, nutrient_id, ntr_mass_unit_id, ntr_mass_value, ing_grams_qty
                 FROM ingredient_nutrient_quantities
                 WHERE ingredient_id = ?;
             """,
@@ -652,8 +649,7 @@ class Repository:
                 "id": row[0],
                 "ntr_mass_unit_id": row[2],
                 "ntr_mass_value": row[3],
-                "ing_qty_unit_id": row[4],
-                "ing_qty_value": row[5],
+                "ing_grams_value": row[4],
             }
             for row in rows
         }
@@ -850,7 +846,7 @@ class Repository:
             )
 
     def update_ingredient_flag(
-        self, ingredient_id: int, flag_id: int, value: bool|None
+        self, ingredient_id: int, flag_id: int, flag_value: bool|None
     ) -> None:
         """Updates the flag associated with the given ID.
         Args:
@@ -867,7 +863,7 @@ class Repository:
                 SET flag_value = ?
                 WHERE ingredient_id = ? AND flag_id = ?;
             """,
-                (value, ingredient_id, flag_id),
+                (flag_value, ingredient_id, flag_id),
             )
 
     def update_ingredient_gi(self, ingredient_id: int, gi: float | None) -> None:

@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt, pyqtSignal
 
-from codiet.utils.pyqt import block_signals
+from codiet.views import block_signals
 
 class FlagEditorView(QWidget):
     """The UI element to allow the user to edit flags."""
@@ -56,35 +56,35 @@ class FlagEditorView(QWidget):
         self.lstFlagCheckboxes.clear()
         self.flags.clear()
 
-    def update_flag(self, flag: str, value: bool) -> None:
+    def set_flag(self, flag_id: int, value: bool|None) -> None:
         """Set the value of a flag."""
         # Update the flag in the UI
         # Block the signals to prevent the onFlagChanged signal from being emitted
         with block_signals(self.lstFlagCheckboxes):
             if value is True:
-                self.flags[flag].setCheckState(Qt.CheckState.Checked)
+                self.flags[flag_id].setCheckState(Qt.CheckState.Checked)
             else:
-                self.flags[flag].setCheckState(Qt.CheckState.Unchecked)
+                self.flags[flag_id].setCheckState(Qt.CheckState.Unchecked)
 
-    def update_flags(self, flags: dict[str, bool]) -> None:
+    def set_flags(self, flags: dict[int, bool|None]) -> None:
         """Update the flags in the UI."""
         for flag_name, flag_value in flags.items(): 
-           self.update_flag(flag_name, flag_value)
+           self.set_flag(flag_name, flag_value)
 
     def set_all_flags_true(self):
         """Select all flags."""
         for flag in self.flags:
-            self.update_flag(flag, True) 
+            self.set_flag(flag, True) 
 
     def set_all_flags_false(self):
         """Deselect all flags."""
         for flag in self.flags:
-            self.update_flag(flag, False)
+            self.set_flag(flag, False)
     
     def invert_flags(self):
         """Invert the selection of all flags."""
         for flag in self.flags:
-            self.update_flag(flag, not self.get_flag_value(flag))
+            self.set_flag(flag, not self.get_flag_value(flag))
 
     def get_selected_flags(self) -> list[str]:
         """Get the names of the selected flags."""

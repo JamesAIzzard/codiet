@@ -9,7 +9,7 @@ class FlagEditorCtrl:
         self,
         view: FlagEditorView,
         get_flags: Callable[[], dict[int, bool|None]],
-        on_flag_changed: Callable[[str, bool], None],
+        on_flag_changed: Callable[[int, bool|None], None],
     ) -> None:
         self.view = view
         self.get_flags = get_flags
@@ -29,6 +29,10 @@ class FlagEditorCtrl:
         self.view.onClearSelectionFlagsClicked.connect(
             self._on_clear_selection_flags_clicked
         )
+
+    def set_flags(self, flags: dict[int, bool|None]) -> None:
+        """Set the flags on the view."""
+        self.view.set_flags(flags)
 
     def _on_select_all_flags_clicked(self):
         """Handler for selecting all flags."""

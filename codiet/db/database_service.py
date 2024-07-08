@@ -3,6 +3,7 @@ from typing import Any
 from codiet.utils.map import BidirectionalMap
 from codiet.db.repository import Repository
 from codiet.models.units import Unit, UnitConversion
+from codiet.models.nutrients import Nutrient
 from codiet.models.ingredients import Ingredient, IngredientQuantity
 from codiet.models.nutrients import (
     IngredientNutrientQuantity,
@@ -194,8 +195,7 @@ class DatabaseService:
         nutrient_id: int,
         ntr_mass_value: float,
         ntr_mass_unit_id: int,
-        ing_qty_value: float,
-        ing_qty_unit_id: int,
+        ing_grams_value: float,
     ) -> IngredientNutrientQuantity:
         """Creates a nutrient quantity for the given ingredient.
         Args:
@@ -203,8 +203,7 @@ class DatabaseService:
             nutrient_id (int): The id of the nutrient.
             ntr_mass_value (float): The mass value of the nutrient.
             ntr_mass_unit_id (int): The unit id of the mass value.
-            ing_qty_value (float): The quantity value of the ingredient.
-            ing_qty_unit_id (int): The unit id of the quantity value.
+            ing_grams_value (float): The grams value of the ingredient.
         Returns:
             IngredientNutrientQuantity: The created nutrient quantity.
         """
@@ -214,8 +213,7 @@ class DatabaseService:
             nutrient_id=nutrient_id,
             ntr_mass_value=ntr_mass_value,
             ntr_mass_unit_id=ntr_mass_unit_id,
-            ing_qty_value=ing_qty_value,
-            ing_qty_unit_id=ing_qty_unit_id,
+            ing_grams_value=ing_grams_value,
         )
         # Init the nutrient quantity
         nutrient_quantity = IngredientNutrientQuantity(
@@ -224,8 +222,7 @@ class DatabaseService:
             ingredient_id=ingredient_id,
             ntr_mass_value=ntr_mass_value,
             ntr_mass_unit_id=ntr_mass_unit_id,
-            ing_qty_value=ing_qty_value,
-            ing_qty_unit_id=ing_qty_unit_id,
+            ing_grams_value=ing_grams_value,
         )
         # Return the nutrient quantity
         return nutrient_quantity
@@ -443,6 +440,39 @@ class DatabaseService:
             )
         return conversions
 
+    def read_all_global_nutrients(self) -> dict[int, Nutrient]:
+        """Returns all the global nutrients.
+        Returns:
+            Dict[int, Nutrient]: A dictionary of global nutrients, where the key is the
+            id of each specific nutrient.
+        """
+        # Fetch the data for all the nutrients
+        all_nutrients_data = self.repository.read_all_global_nutrients()
+        
+        # Init a dict to hold the nutrients and a dict to hold child relationships
+        nutrients = {}
+        children = {}
+        
+        # Cycle through the raw data to create nutrients and record child relationships
+        for nutrient_id, nutrient_data in all_nutrients_data.items():
+            nutrient = Nutrient(
+                id=nutrient_id,
+                nutrient_name=nutrient_data["nutrient_name"],
+                aliases=nutrient_data["aliases"],
+                parent_id=nutrient_data["parent_id"],
+            )
+            nutrients[nutrient_id] = nutrient
+            if nutrient.parent_id is not None:
+                if nutrient.parent_id not in children:
+                    children[nutrient.parent_id] = []
+                children[nutrient.parent_id].append(nutrient_id)
+        
+        # Populate the child_ids for each nutrient
+        for nutrient_id, nutrient in nutrients.items():
+            nutrient.child_ids = children.get(nutrient_id, [])
+        
+        return nutrients
+
     def read_ingredient(self, ingredient_id: int) -> Ingredient:
         """Returns the ingredient with the given name.
         Args:
@@ -544,8 +574,7 @@ class DatabaseService:
                 ingredient_id=ingredient_id,
                 ntr_mass_value=nutrient_qty_data["ntr_mass_value"],
                 ntr_mass_unit_id=nutrient_qty_data["ntr_mass_unit_id"],
-                ing_qty_value=nutrient_qty_data["ing_qty_value"],
-                ing_qty_unit_id=nutrient_qty_data["ing_qty_unit_id"],
+                ing_grams_value=nutrient_qty_data["ing_grams_value"],
             )
         return nutrient_quantities
 
@@ -561,20 +590,14 @@ class DatabaseService:
         self.repository.update_ingredient_description(
             ingredient.id, ingredient.description
         )
-        # Update the cost data
-        self.repository.update_ingredient_cost(
-            ingredient_id=ingredient.id,
-            cost_value=ingredient.cost_value,
-            cost_qty_unit_id=ingredient.cost_qty_unit_id,
-            cost_qty_value=ingredient.cost_qty_value,
-        )
         # Update the standard unit
         self.repository.update_ingredient_standard_unit_id(
             ingredient.id, ingredient.standard_unit_id
         )
         # Update the unit conversions
         # First delete all the existing unit conversions
-        self.repository.delete_ingredient_unit_conversions(ingredient.id)
+        for unit_conversion in ingredient.unit_conversions.values():
+            self.repository.delete_ingredient_unit_conversion(unit_conversion.id)
         # Then add the new ones
         for unit_conversion in ingredient.unit_conversions.values():
             self.repository.create_ingredient_unit_conversion(
@@ -583,13 +606,20 @@ class DatabaseService:
                 from_unit_qty=unit_conversion.from_unit_qty,
                 to_unit_id=unit_conversion.to_unit_id,
                 to_unit_qty=unit_conversion.to_unit_qty,
-            )
+            )        
+        # Update the cost data
+        self.repository.update_ingredient_cost(
+            ingredient_id=ingredient.id,
+            cost_value=ingredient.cost_value,
+            cost_qty_unit_id=ingredient.cost_qty_unit_id,
+            cost_qty_value=ingredient.cost_qty_value,
+        )
         # Update the flags
         # First, remove all the flags
         self.repository.delete_ingredient_flags(ingredient.id)
         # Then add the new ones
         for flag_id, flag_value in ingredient.flags.items():
-            self.repository.update_ingredient_flag(ingredient.id, flag_id, flag_value)
+            self.repository.create_ingredient_flag(ingredient.id, flag_id, flag_value)
         # Update the GI
         self.repository.update_ingredient_gi(ingredient.id, ingredient.gi)
         # Update the nutrient quantities
@@ -602,8 +632,7 @@ class DatabaseService:
                 nutrient_id=nutrient_quantity.nutrient_id,
                 ntr_mass_value=nutrient_quantity.nutrient_mass_value,
                 ntr_mass_unit_id=nutrient_quantity.nutrient_mass_unit_id,
-                ing_qty_value=nutrient_quantity.ingredient_quantity_value,
-                ing_qty_unit_id=nutrient_quantity.ingredient_quantity_unit_id,
+                ing_grams_value=nutrient_quantity.ing_grams_value,
             )
 
     def update_ingredient_unit_conversion(self, unit_conversion: IngredientUnitConversion) -> None:

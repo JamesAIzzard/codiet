@@ -179,12 +179,10 @@ class Database:
                 nutrient_id INTEGER NOT NULL,
                 ntr_mass_unit_id INTEGER,
                 ntr_mass_value REAL,
-                ing_qty_unit_id INTEGER,
-                ing_qty_value REAL,
+                ing_grams_qty REAL,
                 FOREIGN KEY (ingredient_id) REFERENCES ingredients(id),
                 FOREIGN KEY (nutrient_id) REFERENCES nutrient_list(id),
-                FOREIGN KEY (ntr_mass_unit_id) REFERENCES global_units(id),
-                FOREIGN KEY (ing_qty_unit_id) REFERENCES global_units(id)
+                FOREIGN KEY (ntr_mass_unit_id) REFERENCES global_units(id)
             )
         """)
 

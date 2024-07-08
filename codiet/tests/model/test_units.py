@@ -50,6 +50,9 @@ class TestIngredientUnitsSystem(unittest.TestCase):
         self.assertIsInstance(self.disconnected_system, IngredientUnitsSystem)
         self.assertEqual(len(self.disconnected_system.graph), 6)  # All units should be in the graph
 
+    def test_gram_id_correct(self):
+        self.assertEqual(self.disconnected_system._gram_id, 1)
+
     def test_get_conversion_factor_same_unit(self):
         factor = self.disconnected_system.get_conversion_factor(1, 1)
         self.assertEqual(factor, 1.0)
@@ -85,6 +88,11 @@ class TestIngredientUnitsSystem(unittest.TestCase):
     def test_get_available_units_connected(self):
         available_units = self.connected_system.get_available_units(1)
         self.assertEqual(len(available_units), 6)  # All units should be reachable
+
+    def test_get_available_units_no_id_passed(self):
+        # If no ID is passed, the root id is assumed to be grams
+        available_units = self.disconnected_system.get_available_units()
+        self.assertEqual(len(available_units), 3)  # Only mass units and slices should be reachable
 
     def test_update_graph(self):
         new_conversion = UnitConversion(5, 2, 3, 1, 1)  # 1 kilogram = 1 litre (nonsensical, but for testing)
