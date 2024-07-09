@@ -51,7 +51,7 @@ class TestIngredientUnitsSystem(unittest.TestCase):
         self.assertEqual(len(self.disconnected_system.graph), 6)  # All units should be in the graph
 
     def test_gram_id_correct(self):
-        self.assertEqual(self.disconnected_system._gram_id, 1)
+        self.assertEqual(self.disconnected_system.gram_id, 1)
 
     def test_get_conversion_factor_same_unit(self):
         factor = self.disconnected_system.get_conversion_factor(1, 1)

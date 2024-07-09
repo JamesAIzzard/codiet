@@ -177,9 +177,9 @@ class Database:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 ingredient_id INTEGER NOT NULL,
                 nutrient_id INTEGER NOT NULL,
-                ntr_mass_unit_id INTEGER,
+                ntr_mass_unit_id INTEGER NOT NULL,
                 ntr_mass_value REAL,
-                ing_grams_qty REAL,
+                ing_grams_qty REAL NOT NULL,
                 FOREIGN KEY (ingredient_id) REFERENCES ingredients(id),
                 FOREIGN KEY (nutrient_id) REFERENCES nutrient_list(id),
                 FOREIGN KEY (ntr_mass_unit_id) REFERENCES global_units(id)

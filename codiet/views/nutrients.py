@@ -42,9 +42,9 @@ class NutrientQuantitiesEditorView(QWidget):
         self.cmb_ingredient_ref_qty_units.addItems(["g", "kg", "mg", "ug", "ml", "l", "tsp", "tbsp", "cup", "fl oz", "pt", "qt", "gal"])
         # Add a stretch
         lyt_ingredient_ref_qty.addStretch(1)
-        # Add the search column
-        self.search_column = SearchColumnView()
-        lyt_top_level.addWidget(self.search_column)
+        # Add the display column
+        self.display_column = SearchColumnView()
+        lyt_top_level.addWidget(self.display_column)
 
 class NutrientQuantityEditorView(QWidget):
     """UI element for quantity of a nutrient in an ingredient."""
@@ -65,7 +65,6 @@ class NutrientQuantityEditorView(QWidget):
         super().__init__(*args, **kwargs)
         self._global_nutrient_id = global_nutrient_id
         self._nutrient_name = nutrient_name
-        self.nutrient_mass_value = nutrient_mass_value
         self.nutrient_mass_units = nutrient_mass_units
         self._build_ui()
 

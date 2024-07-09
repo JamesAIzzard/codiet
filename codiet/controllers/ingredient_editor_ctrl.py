@@ -33,6 +33,7 @@ class IngredientEditorCtrl:
             self.db_service.read_all_global_nutrients()
         )
         self._ingredient_unit_conversions: dict[int, IngredientUnitConversion] = {}
+        # TODO: Consider moving this to the ingredient itself.
         self._ingredient_unit_system = IngredientUnitsSystem(
             global_units=self._global_units,
             global_unit_conversions=self._global_unit_conversions,

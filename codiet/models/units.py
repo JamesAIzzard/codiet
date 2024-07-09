@@ -118,7 +118,7 @@ class IngredientUnitsSystem:
             ingredient_unit_conversions (dict[int, IngredientUnitConversion]): A dictionary mapping conversion IDs to ingredient unit conversions.
         """
         self.global_units = global_units
-        self._gram_id = next((unit_id for unit_id, unit in global_units.items() if unit.unit_name == "grams"))
+        self.gram_id = next((unit_id for unit_id, unit in global_units.items() if unit.unit_name == "grams"))
         self.global_unit_conversions = global_unit_conversions
         self.ingredient_unit_conversions = ingredient_unit_conversions
         self.graph: dict[int, dict[int, float]] = {}
@@ -133,7 +133,7 @@ class IngredientUnitsSystem:
         Returns:
             Dict[int, Unit]: A dictionary mapping unit IDs to units.
         """
-        return self.get_available_units(self._gram_id)
+        return self.get_available_units(self.gram_id)
 
     def update_graph(
         self,
@@ -225,7 +225,7 @@ class IngredientUnitsSystem:
             Dict[int, Unit]: A dictionary mapping unit IDs to units.
         """
         if root_unit_id is None:
-            root_unit_id = self._gram_id
+            root_unit_id = self.gram_id
 
         available_units = {}
         stack = [root_unit_id]

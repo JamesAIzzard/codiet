@@ -118,6 +118,21 @@ class ListBox(QListWidget):
         if self.item_is_selected:
             self.remove_item(index=self.selected_index)
 
+    def get_view_item_for_data(self, data: Any) -> str | QWidget:
+        """Return the view item associated with the data.
+        Args:
+            data (Any): The data associated with the item.
+        Returns:
+            str | QWidget: The view item (either a string or a widget) associated with the data.
+        Raises:
+            ValueError: If no item is found for the data.
+        """
+        for i in range(self.count()):
+            item = self.item(i)
+            if item and item.data(Qt.ItemDataRole.UserRole) == data:
+                return self.itemWidget(item) or item.text()
+        raise ValueError(f"No item found for data: {data}")
+
     def update_list(self, item_content_and_data: list[tuple[QWidget | str, Any]]) -> None:
         """Update the list to the item content and associated data. Clears any existing items.
         Args:
