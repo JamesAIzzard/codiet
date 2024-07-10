@@ -376,6 +376,60 @@ class TestReadAllGlobalUnits(DatabaseTestCase):
         self.assertEqual(fetched_global_units[unit_id_2].type, "volume")
         self.assertEqual(fetched_global_units[unit_id_2].aliases, ["test alias 2.1, test alias 2.2"])
 
+class TestReadAllGlobalMassUnits(DatabaseTestCase):
+    
+        def test_read_all_global_mass_units_reads_all_global_mass_units(self):
+            """Test reading all global mass units."""
+            # Create three units, two of which are mass units
+            unit_name_1 = "Test Unit 1"
+            unit_id_1 = self.database_service.repository.create_global_unit(
+                unit_name=unit_name_1,
+                single_display_name="Test Unit 1",
+                plural_display_name="Test Units 1",
+                unit_type="mass",
+                aliases=["test alias 1.1, test alias 1.2"]
+            )
+            unit_name_2 = "Test Unit 2"
+            unit_id_2 = self.database_service.repository.create_global_unit(
+                unit_name=unit_name_2,
+                single_display_name="Test Unit 2",
+                plural_display_name="Test Units 2",
+                unit_type="volume",
+                aliases=["test alias 2.1, test alias 2.2"]
+            )
+            unit_name_3 = "Test Unit 3"
+            unit_id_3 = self.database_service.repository.create_global_unit(
+                unit_name=unit_name_3,
+                single_display_name="Test Unit 3",
+                plural_display_name="Test Units 3",
+                unit_type="mass",
+                aliases=["test alias 3.1, test alias 3.2"]
+            )
+
+            # Read all the global mass units
+            fetched_global_mass_units = self.database_service.read_all_global_mass_units()
+            # Check the length of the fetched global mass units is the same as the number of created global mass units
+            self.assertEqual(len(fetched_global_mass_units), 2)
+            # Check the global mass units are in the fetched global mass units
+            self.assertIn(unit_id_1, fetched_global_mass_units)
+            self.assertIn(unit_id_3, fetched_global_mass_units)
+            self.assertNotIn(unit_id_2, fetched_global_mass_units)
+            # Check that the unit is a mass unit
+            self.assertIsInstance(fetched_global_mass_units[unit_id_1], Unit)
+            self.assertIsInstance(fetched_global_mass_units[unit_id_3], Unit)
+            # Check the data is correct for unit 1
+            self.assertEqual(fetched_global_mass_units[unit_id_1].unit_name, unit_name_1)
+            self.assertEqual(fetched_global_mass_units[unit_id_1].single_display_name, "Test Unit 1")
+            self.assertEqual(fetched_global_mass_units[unit_id_1].plural_display_name, "Test Units 1")
+            self.assertEqual(fetched_global_mass_units[unit_id_1].type, "mass")
+            self.assertEqual(fetched_global_mass_units[unit_id_1].aliases, ["test alias 1.1, test alias 1.2"])
+            # Check the data is correct for unit 3
+            self.assertEqual(fetched_global_mass_units[unit_id_3].unit_name, unit_name_3)
+            self.assertEqual(fetched_global_mass_units[unit_id_3].single_display_name, "Test Unit 3")
+            self.assertEqual(fetched_global_mass_units[unit_id_3].plural_display_name, "Test Units 3")
+            self.assertEqual(fetched_global_mass_units[unit_id_3].type, "mass")
+            self.assertEqual(fetched_global_mass_units[unit_id_3].aliases, ["test alias 3.1, test alias 3.2"])
+
 class TestReadAllGlobalUnitConversions(DatabaseTestCase):
     
         def test_read_all_global_unit_conversions_reads_all_global_unit_conversions(self):

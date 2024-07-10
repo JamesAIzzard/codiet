@@ -418,6 +418,19 @@ class DatabaseService:
             )
         return units
 
+    def read_all_global_mass_units(self) -> dict[int, Unit]:
+        """Returns all the global mass units.
+        Returns:
+            dict[int, Unit]: A dictionary of global mass units, where the key is the
+            id of each specific mass unit.
+        """
+        # Read all the units
+        all_units = self.read_all_global_units()
+        # Filter out only the mass units
+        mass_units = {unit_id: unit for unit_id, unit in all_units.items() if unit.type == "mass"}
+        # Return
+        return mass_units
+
     def read_all_global_unit_conversions(self) -> dict[int, UnitConversion]:
         """Returns all the global unit conversions.
         Returns:

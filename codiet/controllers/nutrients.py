@@ -20,7 +20,6 @@ class NutrientQuantitiesEditorCtrl:
             [], dict[int, IngredientNutrientQuantity]
         ],
         on_nutrient_qty_changed: Callable[[IngredientNutrientQuantity], None],
-        gram_unit_id: int,
         scale_1g_to_new_unit: Callable[[int], float],
     ) -> None:
         """Initialise the NutrientQuantitiesEditorCtrl object.
@@ -31,7 +30,6 @@ class NutrientQuantitiesEditorCtrl:
             available_mass_units (dict[int, Unit]): A dictionary of available mass units.            
             get_ingredient_nutrient_data (Callable[[], dict[int, IngredientNutrientQuantity]]): A function that returns the nutrient data for the ingredient.
             on_nutrient_qty_changed (Callable[[IngredientNutrientQuantity], None]): A function to call when a nutrient quantity is changed.
-            gram_unit_id (int): The id of the gram unit.
             scale_1g_to_new_unit (Callable[[int], float]): A function to scale 1g to a new unit.
         
         global_leaf_nutrients:
@@ -47,7 +45,7 @@ class NutrientQuantitiesEditorCtrl:
             IngredientNutrientQuantity: The nutrient quantity data.
         
         scale_1g_to_new_unit:
-            int: The unit id.
+            int: The new unit id.
             float: The conversion factor.
         """
         self.view = view
@@ -55,8 +53,13 @@ class NutrientQuantitiesEditorCtrl:
         self._available_mass_units = available_mass_units
         self._get_ingredient_nutrient_data = get_ingredient_nutrient_data
         self._on_nutrient_qty_changed_callback = on_nutrient_qty_changed
-        self._gram_unit_id = gram_unit_id
         self._scale_1g_to_new_unit = scale_1g_to_new_unit
+        # Find the gram unit ID
+        self._gram_unit_id = next(
+            unit_id
+            for unit_id, unit in available_mass_units.items()
+            if unit.unit_name == "gram"
+        )
 
         # Create a map between leaf nutrient names and id's
         self.leaf_nutrient_name_id_map = BidirectionalMap()

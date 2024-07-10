@@ -1,15 +1,18 @@
 from typing import Tuple
 
 from codiet.db.database_service import DatabaseService
+from codiet.utils.map import BidirectionalMap
 from codiet.models.units import Unit, IngredientUnitConversion, IngredientUnitsSystem
 from codiet.models.ingredients import Ingredient
 from codiet.models.nutrients import filter_leaf_nutrients, IngredientNutrientQuantity
 from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.views.dialog_box_views import (
+    EntityNameDialogView,
     ErrorDialogBoxView,
     ConfirmDialogBoxView,
 )
 from codiet.controllers.search import SearchColumnCtrl
+from codiet.controllers.entity_name_dialog_ctrl import EntityNameDialogCtrl
 from codiet.controllers.units import StandardUnitEditorCtrl, UnitConversionsEditorCtrl
 from codiet.controllers.costs import CostEditorCtrl
 from codiet.controllers.flags import FlagEditorCtrl
@@ -22,25 +25,30 @@ class IngredientEditorCtrl:
         # Store the view and database service
         self.view = view
         self.db_service = db_service
+        # Init the ingredient instance
         self._ingredient: Ingredient
-
         # Cache some things for search and general use
-        self._ingredient_name_ids = self.db_service.build_ingredient_name_id_map()
+        self._ingredient_name_ids = self._cache_ingredient_name_id_map()
         self._global_unit_name_ids = self.db_service.build_unit_name_id_map()
         self._global_units = self.db_service.read_all_global_units()
+        self._gram_id = next(
+            unit_id for unit_id, unit in self._global_units.items() if unit.unit_name == "gram"
+        )
+        self._global_mass_units = self.db_service.read_all_global_mass_units()
         self._global_unit_conversions = self.db_service.read_all_global_unit_conversions()
         self.global_leaf_nutrients = filter_leaf_nutrients(
             self.db_service.read_all_global_nutrients()
         )
-        self._ingredient_unit_conversions: dict[int, IngredientUnitConversion] = {}
-        # TODO: Consider moving this to the ingredient itself.
+        self._ingredient_unit_conversions: dict[int, IngredientUnitConversion]
         self._ingredient_unit_system = IngredientUnitsSystem(
             global_units=self._global_units,
             global_unit_conversions=self._global_unit_conversions,
-            ingredient_unit_conversions=self._ingredient_unit_conversions,
+            ingredient_unit_conversions={}, # Update when ingredient is loaded
         )
-
+        # Connect signals and slots
         self._connect_toolbar()
+        self.view.txt_gi.textChanged.connect(self._on_gi_value_changed)
+        # Instantiate the module controllers
         self.search_column_ctrl = SearchColumnCtrl(
             view=self.view.ingredient_search,
             get_searchable_strings=lambda: self._ingredient_name_ids.str_values,
@@ -77,19 +85,58 @@ class IngredientEditorCtrl:
             get_flags=lambda: self.ingredient.flags,
             on_flag_changed=self._on_flag_changed,
         )
-        self.view.txt_gi.textChanged.connect(self._on_gi_value_changed)
         self.ingredient_nutrient_editor_ctrl = NutrientQuantitiesEditorCtrl(
             view=self.view.nutrient_quantities_editor,
             global_leaf_nutrients=self.global_leaf_nutrients,
+            available_mass_units=self._global_mass_units,
             get_ingredient_nutrient_data=lambda: self.ingredient.nutrient_quantities,
             on_nutrient_qty_changed=self._on_nutrient_qty_changed,
+            scale_1g_to_new_unit=lambda new_unit_id: self._ingredient_unit_system.convert_units(
+                quantity=1,
+                from_unit_id=self._gram_id,
+                to_unit_id=new_unit_id,
+            ),
         )
+
+        # Create dialog boxes
+        self._ingredient_name_editor_dialog_view: EntityNameDialogView
+        self._select_ingredient_name_for_delete_dialog_view: ErrorDialogBoxView
 
         # Load the first ingredient into the view
         self.ingredient = self.db_service.read_ingredient(
             ingredient_id=self._ingredient_name_ids.int_values[0]
         )
-        self.update_view()
+        self.load_ingredient(self.ingredient)
+
+    @property
+    def ingredient_name_editor_dialog_view(self) -> EntityNameDialogView:
+        """Get the ingredient name editor dialog.
+        Lazy loads the dialog if it doesn't exist.
+        """
+        if self._ingredient_name_editor_dialog_view is None:
+            self._ingredient_name_editor_dialog_view = EntityNameDialogView(entity_name="ingredient")
+            self._ingredient_name_editor_dialog_ctrl = EntityNameDialogCtrl(
+                view=self.ingredient_name_editor_dialog_view,
+                check_name_available=lambda name: name not in self._ingredient_name_ids.str_values,
+                on_name_accepted=self._on_ingredient_name_accepted,
+            )    
+        return self._ingredient_name_editor_dialog_view        
+
+    @property
+    def select_ingredient_name_for_delete_dialog_view(self) -> ErrorDialogBoxView:
+        """Get the dialog for selecting an ingredient to delete.
+        Lazy loads the dialog if it doesn't exist.
+        """
+        if self._select_ingredient_name_for_delete_dialog_view is None:
+            self._select_ingredient_name_for_delete_dialog_view = ErrorDialogBoxView(
+                message="Please select an ingredient to delete.",
+                title="No Ingredient Selected",
+                parent=self.view,
+            )
+            self._select_ingredient_name_for_delete_dialog_view.okClicked.connect(
+                lambda: self._select_ingredient_name_for_delete_dialog_view.hide()
+            )
+        return self._select_ingredient_name_for_delete_dialog_view
 
     @property
     def ingredient(self) -> Ingredient:
@@ -100,6 +147,12 @@ class IngredientEditorCtrl:
     def ingredient(self, ingredient: Ingredient):
         """Set the ingredient instance."""
         self._ingredient = ingredient
+
+    def load_ingredient(self, ingredient: Ingredient) -> None:
+        """Load an ingredient into the editor."""
+        self.ingredient = ingredient
+        self._ingredient_unit_system.ingredient_unit_conversions = ingredient.unit_conversions
+        self.update_view()
 
     def update_view(self) -> None:
         """Update the view to reflect the state of the current ingredient.
@@ -121,15 +174,14 @@ class IngredientEditorCtrl:
         # Set the nutrients
         self.ingredient_nutrient_editor_ctrl.set_nutrient_quantities(self.ingredient.nutrient_quantities)
 
-    def _cache_leaf_nutrient_names(self) -> None:
-        """Cache the leaf nutrient names."""
-        with DatabaseService() as db_service:
-            self._leaf_nutrient_names = db_service.fetch_all_leaf_nutrient_names()
-
-    def _cache_ingredient_names(self) -> None:
-        """Cache the ingredient names."""
-        with DatabaseService() as db_service:
-            self._ingredient_name_ids = db_service.fetch_all_ingredient_names()
+    def _cache_ingredient_name_id_map(self) -> BidirectionalMap:
+        """Cache the ingredient names and IDs.
+        Returns:
+            BidirectionalMap: The name to ID map.
+        """
+        name_id_map = self.db_service.build_ingredient_name_id_map()
+        self._ingredient_name_ids = name_id_map
+        return name_id_map
 
     def _on_ingredient_selected(self, ing_name_and_id: Tuple[str, int]) -> None:
         """Handles the user clicking on an ingredient in the search results.
@@ -138,34 +190,29 @@ class IngredientEditorCtrl:
         Returns:
             None
         """
-        # We only need the ID to load the ingredient
-        _, ingredient_id = ing_name_and_id
-        # We know the id is an int, assert it
-        assert isinstance(ingredient_id, int)
+        ingredient_id = ing_name_and_id[1]
         # Read the ingredient from the database
         ingredient = self.db_service.read_ingredient(ingredient_id=ingredient_id)
         # Load the ingredient into the view
-        self.load_ingredient_into_view(ingredient)
+        self.load_ingredient(ingredient)
 
     def _on_add_new_ingredient_clicked(self) -> None:
-        """Handler for adding a new ingredient."""
+        """Handles user clicking the add new ingredient button.
+        Shows the dialog to guide the user through adding an ingredient.
+        """
         # Open the create new ingredient dialog box
-        self.ingredient_name_editor_dialog.clear()
-        self.ingredient_name_editor_dialog.show()
+        self.ingredient_name_editor_dialog_view.clear()
+        self.ingredient_name_editor_dialog_view.show()
 
     def _on_delete_ingredient_clicked(self) -> None:
-        """Handler for deleting an ingredient."""
-        # If no ingredient is selected, show the info box to tell the user
-        # to select an ingredient.
-        if self.view.ingredient_search.results_list.item_is_selected is False:
-            # Create a dialog to tell the user they need to select an ingredient
-            dialog = ErrorDialogBoxView(
-                message="Please select an ingredient to delete.",
-                title="No Ingredient Selected",
-                parent=self.view,
-            )
-            dialog.okClicked.connect(lambda: dialog.hide())
-            dialog.show()
+        """Handles user clicking the delete ingredient button.
+        If no ingredient is selected, creates an error dialog to tell the user to select one.
+        If an ingredient is selected, creates a confirm dialog to confirm deletion.
+        """
+        # If no ingredient is selected,
+        if self.view.ingredient_search.lst_search_results.item_is_selected is False:
+            # Show the dialog to tell the user to eselect it.
+            self.select_ingredient_name_for_delete_dialog_view.show()
         else:
             # Create the confirm dialog
             dialog = ConfirmDialogBoxView(

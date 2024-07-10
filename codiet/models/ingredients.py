@@ -1,11 +1,18 @@
 from codiet.models.nutrients import IngredientNutrientQuantity
-from codiet.models.units import IngredientUnitConversion
+from codiet.models.units import IngredientUnitConversion, IngredientUnitsSystem
 
 
 class Ingredient:
     """Ingredient model."""
 
     def __init__(self, name:str, id:int, standard_unit_id:int):
+        """Initialises the class.
+        Args:
+            name (str): The name of the ingredient.
+            id (int): The ID of the ingredient.
+            standard_unit_id (int): The ID of the standard unit.
+                This gets used as the default unit for the ingredient.
+        """
         self.name: str = name
         self.id: int = id
         self.description: str | None = None

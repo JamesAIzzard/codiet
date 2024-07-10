@@ -9,11 +9,22 @@ from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.views import block_signals
 from codiet.views.text_editors import NumericLineEdit
+from codiet.views.units import UnitDropdown
 from codiet.views.search import SearchColumnView
 
 class NutrientQuantitiesEditorView(QWidget):
-    """UI element for editing the quantities of nutrients in an ingredient."""
-    nutrientQuantityChanged = pyqtSignal(int, QVariant, str)
+    """UI element for editing the quantities of nutrients in an ingredient.
+    Signals:
+        nutrientQuantityAdded(int, int): Emitted when a nutrient is added to the ingredient.
+            The signal carries the global nutrient ID and the nutrient mass ID.
+        nutrientQuantityChanged(int, QVariant, str): Emitted when the quantity of a nutrient is changed.
+            The signal carries the global nutrient ID, the nutrient mass, and the nutrient mass ID.
+        nutrientQuantityRemoved(int): Emitted when a nutrient is removed from the ingredient.
+            The signal carries the global nutrient ID.
+    """
+    nutrientQuantityAdded = pyqtSignal(int, int)
+    nutrientQuantityChanged = pyqtSignal(int, QVariant, int)
+    nutrientQuantityRemoved = pyqtSignal(int)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -47,7 +58,13 @@ class NutrientQuantitiesEditorView(QWidget):
         lyt_top_level.addWidget(self.display_column)
 
 class NutrientQuantityEditorView(QWidget):
-    """UI element for quantity of a nutrient in an ingredient."""
+    """UI element for quantity of a nutrient in an ingredient.
+    Signals:
+        nutrientMassChanged(int, float): Emitted when the nutrient mass value is changed.
+            The signal carries the global nutrient ID and the new mass value.
+        nutrientMassUnitsChanged(int, int): Emitted when the nutrient mass unit is changed.
+            The signal carries the global nutrient ID and the new unit ID.    
+    """
 
     # Define signals
     nutrientMassChanged = pyqtSignal(int, float)
@@ -65,8 +82,20 @@ class NutrientQuantityEditorView(QWidget):
         super().__init__(*args, **kwargs)
         self._global_nutrient_id = global_nutrient_id
         self._nutrient_name = nutrient_name
-        self.nutrient_mass_units = nutrient_mass_units
+        self._available_mass_units = available_mass_units
+        self._selected_mass_unit_id = selected_mass_unit_id
+        self._nutrient_mass_value = nutrient_mass_value
+        # Build the UI
         self._build_ui()
+        # Connect signals and slots
+        # When the mass value textbox loses focus, emit the nutrientMassChanged signal
+        self.txt_nutrient_mass.lostFocus.connect(
+            lambda value: self.nutrientMassChanged.emit(self._global_nutrient_id, value)
+        )
+        # When the mass units dropdown changes, emit the nutrientMassUnitsChanged signal
+        self.cmb_mass_units.currentTextChanged.connect(
+            lambda units: self.nutrientMassUnitsChanged.emit(self._global_nutrient_id, self.nutrient_mass_unit_id)
+        )        
 
     @property
     def nutrient_mass_value(self) -> float | None:
@@ -80,15 +109,15 @@ class NutrientQuantityEditorView(QWidget):
             self.txt_nutrient_mass.setText(value)
 
     @property
-    def nutrient_mass_units(self) -> str:
+    def nutrient_mass_unit_id(self) -> int:
         """Returns the nutrient mass units."""
-        return self.cmb_mass_units.currentText()
+        return self.cmb_mass_units.selected_unit_id
     
-    @nutrient_mass_units.setter
-    def nutrient_mass_units(self, value: str):
+    @nutrient_mass_unit_id.setter
+    def nutrient_mass_units(self, unit_id: int) -> None:
         """Sets the nutrient mass units."""
         with block_signals(self.cmb_mass_units):
-            self.cmb_mass_units.setCurrentText(value)
+            self.cmb_mass_units.selected_unit_id = unit_id
 
     def _build_ui(self):
         """Initializes the UI elements."""
@@ -110,22 +139,12 @@ class NutrientQuantityEditorView(QWidget):
         # Limit the textbox to 10 pixels
         self.txt_nutrient_mass.setMaximumWidth(60)
         layout.addWidget(self.txt_nutrient_mass)
-        # Connect the valueChanged signal to the nutrientMassChanged signal
-        self.txt_nutrient_mass.lostFocus.connect(
-            lambda value: self.nutrientMassChanged.emit(self._nutrient_name, value)
-        )
 
         # Create a dropdown for mass units
-        self.cmb_mass_units = QComboBox()
-        # Add some mass units to the dropdown
-        # These will utimately get pulled from a config
-        # TODO - pull mass units from config
-        self.cmb_mass_units.addItems(["g", "mg", "ug"])
+        self.cmb_mass_units = UnitDropdown()
+        # Add the available mass units
+        self.cmb_mass_units.add_units(self._available_mass_units)
         layout.addWidget(self.cmb_mass_units)
-        # Connect the currentTextChanged signal to the nutrientMassUnitsChanged signal
-        self.cmb_mass_units.currentTextChanged.connect(
-            lambda units: self.nutrientMassUnitsChanged.emit(self._nutrient_name, units)
-        )
 
         # Add a little space at either end of the widget
         layout.setContentsMargins(5, 0, 5, 0)
