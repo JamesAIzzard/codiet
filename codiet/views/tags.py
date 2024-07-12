@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import (
 )
 
 from codiet.views.buttons import AddButton, RemoveButton
-from codiet.views.dialog_box_views import DialogBoxView
+from codiet.views.dialogs import DialogBoxView
 from codiet.views.search import SearchColumnView
 
 class RecipeTagEditorView(QWidget):

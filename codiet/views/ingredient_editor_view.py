@@ -17,7 +17,7 @@ from codiet.views.buttons import (
     SaveJSONButton, 
     AutopopulateButton
 )
-from codiet.views.search import SearchColumnView
+from codiet.views.search.search_column_view import SearchColumnView
 from codiet.views.cost import CostEditorView
 from codiet.views.nutrients import NutrientQuantitiesEditorView
 from codiet.views.text_editors import LineEdit, MultilineEdit, NumericLineEdit
@@ -39,9 +39,9 @@ class IngredientEditorView(QWidget):
     ingredientGIChanged = pyqtSignal(QVariant)
 
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         """Initialise the ingredient editor view."""
-        super().__init__()
+        super().__init__(*args, **kwargs)
         self._build_ui()
 
     @property

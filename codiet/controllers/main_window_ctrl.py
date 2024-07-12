@@ -1,12 +1,12 @@
 from codiet.utils.search import filter_text
 from codiet.models.recipes import Recipe
 from codiet.db.database_service import DatabaseService
-from codiet.views.dialog_box_views import ErrorDialogBoxView
+from codiet.views.dialogs import ErrorDialogBoxView
 from codiet.views.main_window_view import MainWindowView
 from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.views.recipe_editor_view import RecipeEditorView
 from codiet.views.meal_planner_view import MealPlannerView
-from codiet.controllers.ingredient_editor_ctrl import IngredientEditorCtrl
+from codiet.controllers.ingredient_editor_ctrl import IngredientEditor
 from codiet.controllers.recipe_editor_ctrl import RecipeEditorCtrl
 from codiet.controllers.meal_planner_ctrl import MealPlannerCtrl
 
@@ -30,7 +30,7 @@ class MainWindowCtrl:
         self.view.add_page("meal-planner", MealPlannerView())
 
         # Instantiate the controllers
-        self.ingredient_editor_ctrl = IngredientEditorCtrl(
+        self.ingredient_editor_ctrl = IngredientEditor(
             view=self.view.get_page("ingredient-editor"), # type: ignore
             db_service=self.db_service
         )

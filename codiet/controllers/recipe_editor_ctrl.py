@@ -14,7 +14,7 @@ from codiet.utils.strings import convert_to_snake_case
 from codiet.utils.recipes import convert_recipe_to_json, save_recipe_datafile, recipe_datafile_exists
 from codiet.models.recipes import Recipe
 from codiet.models.ingredients import IngredientQuantity
-from codiet.views.dialog_box_views import (
+from codiet.views.dialogs import (
     DialogBoxView,
     EntityNameDialogView, 
     OkDialogBoxView, 
@@ -22,11 +22,11 @@ from codiet.views.dialog_box_views import (
 )
 from codiet.views.recipe_editor_view import RecipeEditorView
 from codiet.views.search import SearchColumnView
-from codiet.views.dialog_box_views import ErrorDialogBoxView
+from codiet.views.dialogs import ErrorDialogBoxView
 from codiet.views.time_interval_popup_view import TimeIntervalPopupView
 from codiet.views.tags import RecipeTagSelectorPopup
-from codiet.controllers.search import SearchColumnCtrl
-from codiet.controllers.entity_name_dialog_ctrl import EntityNameDialogCtrl
+from codiet.controllers.search.search_column import SearchColumn
+from codiet.controllers.dialogs.entity_name_dialog_ctrl import EntityNameDialog
 from codiet.controllers.tags import RecipeTagEditorCtrl
 
 
@@ -49,26 +49,26 @@ class RecipeEditorCtrl:
             entity_name="Recipe",
             parent=self.view
         )
-        self.recipe_name_editor_ctrl = EntityNameDialogCtrl(
+        self.recipe_name_editor_ctrl = EntityNameDialog(
             view=self.recipe_name_editor_view,
             check_name_available=lambda name: name not in self._recipe_names,
-            on_name_accepted=self._on_recipe_name_accepted,
+            on_name_accepted_callback=self._on_recipe_name_accepted,
         )  
 
         # Configure search column controller
-        self.search_column_ctrl = SearchColumnCtrl(
+        self.search_column_ctrl = SearchColumn(
             view=self.view.recipe_search,
             get_searchable_strings=lambda: self._recipe_names,
-            on_result_selected=self._on_recipe_selected,
+            on_result_selected_callback=self._on_recipe_selected,
         )   
 
         # Configure the ingredient search popup
         # First init a search column
         self.ingredient_search_column_view = SearchColumnView()
-        self.ingredient_search_column_ctrl = SearchColumnCtrl(
+        self.ingredient_search_column_ctrl = SearchColumn(
             view=self.ingredient_search_column_view,
             get_searchable_strings=lambda: self._all_ingredient_names,
-            on_result_selected=self._on_ingredient_selected,
+            on_result_selected_callback=self._on_ingredient_selected,
         )
         # Place into a dialog box
         self.ingredients_editor_popup = DialogBoxView(

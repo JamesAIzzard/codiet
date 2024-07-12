@@ -1,29 +1,43 @@
 from typing import Callable
 
-from codiet.views.dialog_box_views import EntityNameDialogView
+from PyQt6.QtCore import pyqtSignal, QObject
+from PyQt6.QtWidgets import QWidget
 
-class EntityNameDialogCtrl:
+from codiet.views.dialogs.entity_name_editor_dialog_view import EntityNameEditorDialogView
+
+class EntityNameEditorDialog(QObject):
     """A controller for the entity name dialog."""
+
+    onNameAccepted = pyqtSignal(str)
+
     def __init__(
-            self, 
-            view:EntityNameDialogView,
+            self,
+            entity_name:str,
             check_name_available:Callable[[str], bool],
-            on_name_accepted:Callable[[str], None]
+            view: EntityNameEditorDialogView|None=None,  
+            parent: QWidget|None=None      
     ):
-        self.view = view
+        # Instantiate the view if not submitted
+        if view is None:
+            self.view = EntityNameEditorDialogView(
+                parent=parent or None,
+                entity_name=entity_name
+            )
+        else:
+            self.view = view
+        
+        # Stash constructor arguments
         self._check_name_available = check_name_available
-        self._on_name_accepted = on_name_accepted
+
+        # Connect signals and slots
         self.view.nameChanged.connect(self._on_name_changed)
-        self.view.nameAccepted.connect(lambda name: self._on_name_accepted(name))
+        self.view.nameAccepted.connect(self.onNameAccepted.emit)
         self.view.nameCancelled.connect(self._on_name_edit_cancelled)
+
         # On initialisation, show the instructions, clear the box and disable the OK button
         self.view.show_instructions()
         self.view.clear()
         self.view.disable_ok_button()
-        
-    def set_accept_handler(self, handler:Callable[[str], None]) -> None:
-        """Set the handler for accepting the name."""
-        self._on_name_accepted = handler
 
     def _on_name_changed(self, name: str) -> None:
         """Handler for changes to the name."""

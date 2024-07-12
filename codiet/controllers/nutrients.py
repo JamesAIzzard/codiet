@@ -7,7 +7,7 @@ from codiet.views.nutrients import (
     NutrientQuantitiesEditorView,
     NutrientQuantityEditorView,
 )
-from codiet.controllers.search import SearchColumnCtrl
+from codiet.controllers.search.search_column import SearchColumn
 
 
 class NutrientQuantitiesEditorCtrl:
@@ -75,11 +75,11 @@ class NutrientQuantitiesEditorCtrl:
         }
 
         # Bring in a search view controller to handle the search column
-        self.search_column_ctrl = SearchColumnCtrl(
+        self.search_column_ctrl = SearchColumn(
             view=self.view.display_column,
             get_view_item_and_data_for_string=self._get_nutrient_quantity_view_and_id_for_nutrient_name,
             get_searchable_strings=lambda: self.leaf_nutrient_name_id_map.str_values,
-            on_result_selected=lambda item: None,  # No action required.
+            on_result_selected_callback=lambda item: None,  # No action required.
         )
 
     def rescale_nutrient_quantities(
