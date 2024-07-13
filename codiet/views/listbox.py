@@ -98,11 +98,12 @@ class ListBox(QListWidget):
         
         return item
         
-    def remove_item(self, index: int|None=None, item: QListWidgetItem|None=None) -> None:
+    def remove_item(self, index: int|None=None, item: QListWidgetItem|None=None, data: Any|None=None) -> None:
         """Remove a result from the search column.
         Args:
             index (int, optional): The index of the item to remove. Defaults to None.
             item (QListWidgetItem, optional): The item to remove. Defaults to None.
+            data (Any, optional): The data associated with the item. Defaults to None.
         Returns:
             None
         """
@@ -110,6 +111,12 @@ class ListBox(QListWidget):
             self.takeItem(self.row(item))
         elif index is not None:
             self.takeItem(index)
+        elif data is not None:
+            for i in range(self.count()):
+                item = self.item(i)
+                if item and item.data(Qt.ItemDataRole.UserRole) == data:
+                    self.takeItem(i)
+                    break
         else:
             raise ValueError("You must provide either an index or an item to remove.")
         
@@ -143,10 +150,6 @@ class ListBox(QListWidget):
         self.clear()
         for item_content, data in item_content_and_data:
             self.add_item(item_content=item_content, data=data)
-
-    def clear_list(self):
-        """Clear the search results."""
-        self.clear()
 
     def _on_item_clicked(self):
         """Called when a result is selected.

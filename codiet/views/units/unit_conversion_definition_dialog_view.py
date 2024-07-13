@@ -1,4 +1,11 @@
-class UnitConversionDefinitionPopupView(DialogBoxView):
+from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel
+from PyQt6.QtCore import pyqtSignal
+
+from codiet.views.dialogs.dialog_view import DialogView
+from codiet.views.search.search_column_view import SearchColumnView
+from codiet.views.buttons import OKButton, CancelButton
+
+class UnitConversionDefinitionDialogView(DialogView):
     """A dialog box for defining a unit conversion."""
 
     selectionChanged = pyqtSignal(int, int)
@@ -14,19 +21,6 @@ class UnitConversionDefinitionPopupView(DialogBoxView):
         self.to_unit_selector.resultClicked.connect(self._on_selection_changed)
         self.btn_ok.clicked.connect(self._on_OK_clicked)
         self.btn_cancel.clicked.connect(self.cancelClicked.emit)
-
-    @property
-    def selected_from_unit_id(self) -> int:
-        """Return the selected from unit ID.
-        Returns:
-            int: The global ID of the selected from unit.
-        """
-        return self.from_unit_selector.lst_search_results.selected_item_data
-
-    @property
-    def selected_to_unit_id(self) -> int | None:
-        """Return the selected to unit ID."""
-        return self.to_unit_selector.lst_search_results.selected_item_data
 
     def _on_selection_changed(self) -> None:
         """Called when the selection is changed."""

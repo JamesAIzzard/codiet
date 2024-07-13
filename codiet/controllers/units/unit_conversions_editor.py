@@ -3,12 +3,15 @@ from typing import Callable
 from PyQt6.QtWidgets import QWidget
 from PyQt6.QtCore import QObject, pyqtSignal, QVariant
 
-from codiet.models.units import Unit
+from codiet.models.units.unit import Unit
+from codiet.models.units.entity_unit_conversion import EntityUnitConversion
+from codiet.views.units.unit_conversion_editor_view import UnitConversionEditorView
 from codiet.views.units.unit_conversions_editor_view import UnitConversionsEditorView
+from codiet.controllers.units.unit_conversion_definition_dialog import UnitConversionDefinitionDialog
 
 
 class UnitConversionsEditor(QObject):
-    """Controller for the unit conversions editor view.
+    """Module to manage unit conversions associated with an entity.
 
     Signals:
         onConversionAdded: Emitted when a unit conversion is added.
@@ -20,15 +23,15 @@ class UnitConversionsEditor(QObject):
                        from_unit_qty (QVariant), to_unit_qty (QVariant).
     """
 
-    onConversionAdded = pyqtSignal(int, int)
-    onConversionRemoved = pyqtSignal(int)
-    onConversionUpdated = pyqtSignal(int, int, int, QVariant, QVariant)
+    conversionRemoved = pyqtSignal(int)
+    conversionUpdated = pyqtSignal(int, int, int, QVariant, QVariant)
 
     def __init__(
         self,
-        get_existing_conversions: Callable[[], dict[int, UnitConversion]],
-        get_available_units: Callable[[], dict[int, Unit]],
+        global_units: dict[int, Unit],
+        get_existing_conversions: Callable[[], dict[int, EntityUnitConversion]],
         check_conversion_available: Callable[[int, int], bool],
+        create_conversion_callback: Callable[[int, int], tuple[int, int]],
         view: UnitConversionsEditorView | None = None,
         parent: QWidget | None = None,
     ):
@@ -41,18 +44,28 @@ class UnitConversionsEditor(QObject):
         self.view = view
 
         # Stash the callbacks
-        self._get_available_units = get_available_units
+        self._global_units = global_units
+        self._get_existing_conversions = get_existing_conversions
         self._check_conversion_available = check_conversion_available
+        self._create_conversion_callback = create_conversion_callback
 
         # Connect the signals
         self.view.addUnitClicked.connect(self._on_add_conversion_clicked)
-        self.view.removeUnitClicked.connect(self._on_unit_conversion_removed)
+        self.view.removeUnitClicked.connect(self.conversionRemoved.emit)
         self.view.flipConversionClicked.connect(self._on_unit_conversion_updated)
 
-        # Init the conversion definition dialog
+        # Init and connect the conversion definition dialog
+        self.conversion_definition_dialog = UnitConversionDefinitionDialog(
+            global_units=self._global_units,
+            check_conversion_available=self._check_conversion_available,
+            parent=self.view
+        )
+        self.conversion_definition_dialog.conversionCreated.connect(
+            self._on_unit_conversion_added
+        )
 
 
-    def add_unit_conversion(self, unit_conversion: UnitConversion) -> None:
+    def add_unit_conversion_to_view(self, unit_conversion: EntityUnitConversion) -> None:
         """Add a unit conversion to the view.
         Args:
             unit_conversion (IngredientUnitConversion): The unit conversion to add.
@@ -64,21 +77,22 @@ class UnitConversionsEditor(QObject):
             id=unit_conversion.id,
             from_unit_id=unit_conversion.from_unit_id,
             to_unit_id=unit_conversion.to_unit_id,
-            from_unit_display_name=self.global_units[
+            from_unit_display_name=self._global_units[
                 unit_conversion.from_unit_id
             ].plural_display_name,
-            to_unit_display_name=self.global_units[
+            to_unit_display_name=self._global_units[
                 unit_conversion.to_unit_id
             ].plural_display_name,
         )
         # Connect the signals
         view.conversionUpdated.connect(self._on_unit_conversion_updated)
         # Add the unit conversion to the view
-        self.view.add_unit_conversion(
-            unit_conversion_view=view, unit_conversion_id=unit_conversion.id
+        self.view.conversion_list.add_item(
+            item_content=view, 
+            data=unit_conversion.id
         )
 
-    def add_unit_conversions(self, unit_conversions: dict[int, UnitConversion]) -> None:
+    def add_unit_conversions(self, unit_conversions: dict[int, EntityUnitConversion]) -> None:
         """Add multiple unit conversions to the view.
         Args:
             unit_conversions (dict[int, IngredientUnitConversion]): A dictionary of unit conversions, keyed against their global IDs.
@@ -86,32 +100,23 @@ class UnitConversionsEditor(QObject):
             None
         """
         for unit_conversion in unit_conversions.values():
-            self.add_unit_conversion(unit_conversion)
+            self.add_unit_conversion_to_view(unit_conversion)
 
-    def set_unit_conversions(self, unit_conversions: dict[int, UnitConversion]) -> None:
+    def reset_unit_conversions(self, unit_conversions: dict[int, EntityUnitConversion]) -> None:
         """Reset the unit conversions in the view.
         Args:
             unit_conversions (dict[int, IngredientUnitConversion]): A dictionary of unit conversions, keyed against their global IDs.
         Returns:
             None
         """
-        self.view.clear_all_unit_conversions()
+        self.view.conversion_list.clear()
         self.add_unit_conversions(unit_conversions)
 
     def _on_add_conversion_clicked(self):
         """Called when the add conversion button is clicked. Opens the popup to help the user
         define a new unit conversion."""
-        # Init a unit conversion definition popup
-        popup = UnitConversionDefinitionPopupCtrl(
-            view=UnitConversionDefinitionPopupView(),
-            on_unit_conversion_added=self._on_unit_conversion_added,
-            global_units=self.global_units,
-            check_conversion_available=self._check_conversion_available,
-        )
-        # Bind the OK button to the on_unit_conversion_added method
-        popup.view.btn_ok.clicked.connect(self._on_unit_conversion_added)
-        # Show the unit conversion definition dialog
-        popup.view.show()
+        # Show the conversion definition dialog
+        self.conversion_definition_dialog.view.show()
 
     def _on_unit_conversion_added(self, from_unit_id: int, to_unit_id: int) -> None:
         """Called when a unit conversion is added.
@@ -122,25 +127,32 @@ class UnitConversionsEditor(QObject):
             None
         """
         # Call the callback and collect the ID
-        id = self._on_unit_conversion_added_callback(from_unit_id, to_unit_id)
+        id, entity_id = self._create_conversion_callback(from_unit_id, to_unit_id)
         # Create a unit conversion instance
-        unit_conversion = UnitConversion(
-            id=id, from_unit_id=from_unit_id, to_unit_id=to_unit_id
+        unit_conversion = EntityUnitConversion(
+            id=id,
+            entity_id=entity_id,
+            from_unit_id=from_unit_id, 
+            to_unit_id=to_unit_id
         )
         # Add the unit conversion to the view
-        self.add_unit_conversion(unit_conversion)
+        self.add_unit_conversion_to_view(unit_conversion)
 
     def _on_unit_conversion_removed(self, unit_conversion_id: int):
         """Called when a unit conversion is removed.
         Args:
             unit_conversion_id (int): The global ID of the unit conversion.
         """
-        # Call the callback
-        self._on_unit_conversion_removed_callback(unit_conversion_id)
+        # Remove the conversion from the view
+        self.view.conversion_list.remove_item(data=unit_conversion_id)
+        # Emit the signal
+        self.conversionRemoved.emit(unit_conversion_id)
 
     def _on_unit_conversion_updated(
         self,
         unit_conversion_id: int,
+        from_unit_id: int,
+        to_unit_id: int,
         from_unit_qty: float | None,
         to_unit_qty: float | None,
     ):
@@ -150,7 +162,7 @@ class UnitConversionsEditor(QObject):
             from_unit_qty (float): The quantity of the from unit.
             to_unit_qty (float): The quantity of the to unit.
         """
-        # Call the callback
-        self._on_unit_conversion_updated_callback(
-            unit_conversion_id, from_unit_qty, to_unit_qty
+        # Emit the signal
+        self.conversionUpdated.emit(
+            unit_conversion_id, from_unit_id, to_unit_id, from_unit_qty, to_unit_qty
         )

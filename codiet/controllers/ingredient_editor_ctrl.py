@@ -4,9 +4,10 @@ from PyQt6.QtWidgets import QWidget
 
 from codiet.db.database_service import DatabaseService
 from codiet.utils.map import BidirectionalMap
-from codiet.models.units import Unit, IngredientUnitConversion, IngredientUnitsSystem
+
 from codiet.models.ingredients import Ingredient
 from codiet.models.nutrients import filter_leaf_nutrients, IngredientNutrientQuantity
+from codiet.models.units.entity_units_system import EntityUnitsSystem
 from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.controllers.search.search_column import SearchColumn
 from codiet.controllers.dialogs.entity_name_editor_dialog import EntityNameEditorDialog
@@ -51,11 +52,10 @@ class IngredientEditor:
         self._global_leaf_nutrients = filter_leaf_nutrients(
             self.db_service.read_all_global_nutrients()
         )
-        self._ingredient_unit_conversions: dict[int, IngredientUnitConversion]
-        self._ingredient_unit_system = IngredientUnitsSystem(
+        self._ingredient_unit_system = EntityUnitsSystem(
             global_units=self._global_units,
             global_unit_conversions=self._global_unit_conversions,
-            ingredient_unit_conversions={}, # Update when ingredient is loaded
+            entity_unit_conversions={}, # Update when ingredient is loaded
         )
 
         # Instantiate child modules and connect signals
@@ -92,21 +92,20 @@ class IngredientEditor:
         )
         # Unit conversions editor
         self.unit_conversion_ctrl = UnitConversionsEditor(
+            global_units=self._global_units,
             get_existing_conversions=lambda: self.ingredient.unit_conversions,
-            get_available_units=lambda: self._ingredient_unit_system.get_available_units(),
             check_conversion_available=lambda from_unit_id, to_unit_id: not self._ingredient_unit_system.can_convert_units(
                 from_unit_id=from_unit_id,
                 to_unit_id=to_unit_id,
             ),
+            create_conversion_callback=self._on_unit_conversion_added,
             view=self.view.unit_conversions_editor,
         )
-        self.unit_conversion_ctrl.onConversionAdded.connect(self._on_unit_conversion_added)
-        self.unit_conversion_ctrl.onConversionRemoved.connect(self._on_unit_conversion_removed)
-        self.unit_conversion_ctrl.onConversionUpdated.connect(self._on_unit_conversion_updated)
+        self.unit_conversion_ctrl.conversionRemoved.connect(self._on_unit_conversion_removed)
+        self.unit_conversion_ctrl.conversionUpdated.connect(self._on_unit_conversion_updated)
         # Cost editor
         self.cost_editor_ctrl = CostEditorCtrl(
             view=self.view.cost_editor,
-            on_cost_changed=self._on_ingredient_cost_changed,
             get_available_units=lambda: self._ingredient_unit_system.get_available_units(),
         )
         self.flag_editor_ctrl = FlagEditorCtrl(
@@ -202,7 +201,7 @@ class IngredientEditor:
         self.view.ingredient_name = self.ingredient.name
         self.view.ingredient_description = self.ingredient.description
         self.standard_unit_editor_ctrl.selected_unit_id = self.ingredient.standard_unit_id
-        self.unit_conversion_ctrl.set_unit_conversions(self.ingredient.unit_conversions) # type: ignore
+        self.unit_conversion_ctrl.reset_unit_conversions(self.ingredient.unit_conversions) # type: ignore
         self.cost_editor_ctrl.set_cost_info(
             cost_value=self.ingredient.cost_value,
             cost_qty_value=self.ingredient.cost_qty_value,
@@ -322,13 +321,13 @@ class IngredientEditor:
             )
             db_service.commit()
     
-    def _on_unit_conversion_added(self, from_unit_id: int, to_unit_id) -> int:
+    def _on_unit_conversion_added(self, from_unit_id: int, to_unit_id) -> tuple[int, int]:
         """Handler for a unit conversion being added to the ingredient.
         Args:
             from_unit_id (int): The ID of the unit to convert from.
             to_unit_id (int): The ID of the unit to convert to.
         Returns:
-            int: The ID of the new unit conversion.
+            tuple[int, int]: The IDs of the new unit conversion, and the ID of the entity.
         """
         # Insert the new unit conversion into the database
         unit_conversion = self.db_service.create_ingredient_unit_conversion(
