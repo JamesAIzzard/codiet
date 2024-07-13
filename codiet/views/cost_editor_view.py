@@ -9,8 +9,8 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.views import block_signals
-from codiet.views.units import UnitDropdown
-from codiet.views.text_editors import NumericLineEdit
+from codiet.views.units.unit_dropdown import UnitDropdown
+from codiet.views.text_editors.numeric_line_editor import NumericLineEdit
 
 class CostEditorView(QWidget):
     """The UI element to allow the user to edit costs."""
@@ -46,7 +46,7 @@ class CostEditorView(QWidget):
     @property
     def cost_quantity_unit_id(self) -> int:
         """Return the unit id of the ingredient."""
-        return self.cmb_cost_qty_unit.selected_unit_id
+        return self.cost_qty_unit_dropdown.selected_unit_id
     
     @cost_quantity_unit_id.setter
     def cost_quantity_unit(self, unit_id: int) -> None:
@@ -54,7 +54,7 @@ class CostEditorView(QWidget):
         Args:
             unit_id (int): The global id of the unit.
         """
-        self.cmb_cost_qty_unit.selected_unit_id = unit_id
+        self.cost_qty_unit_dropdown.selected_unit_id = unit_id
 
     def _build_ui(self):
         # Create a top level layout
@@ -100,9 +100,9 @@ class CostEditorView(QWidget):
         )
 
         # Create a units dropdown
-        self.cmb_cost_qty_unit = UnitDropdown()
-        lyt_cost.addWidget(self.cmb_cost_qty_unit)
-        self.cmb_cost_qty_unit.currentTextChanged.connect(
+        self.cost_qty_unit_dropdown = UnitDropdown()
+        lyt_cost.addWidget(self.cost_qty_unit_dropdown)
+        self.cost_qty_unit_dropdown.currentTextChanged.connect(
             lambda: self.costChanged.emit(
                 self.cost_value,
                 self.cost_quantity_value,

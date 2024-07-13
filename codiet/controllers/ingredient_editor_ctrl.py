@@ -13,7 +13,7 @@ from codiet.controllers.search.search_column import SearchColumn
 from codiet.controllers.dialogs.entity_name_editor_dialog import EntityNameEditorDialog
 from codiet.controllers.units.standard_unit_editor import StandardUnitEditor
 from codiet.controllers.units.unit_conversions_editor import UnitConversionsEditor
-from codiet.controllers.costs import CostEditorCtrl
+from codiet.controllers.cost_editor import CostEditor
 from codiet.controllers.flags import FlagEditorCtrl
 from codiet.controllers.nutrients import NutrientQuantitiesEditorCtrl
 
@@ -104,10 +104,12 @@ class IngredientEditor:
         self.unit_conversion_ctrl.conversionRemoved.connect(self._on_unit_conversion_removed)
         self.unit_conversion_ctrl.conversionUpdated.connect(self._on_unit_conversion_updated)
         # Cost editor
-        self.cost_editor_ctrl = CostEditorCtrl(
+        self.cost_editor_ctrl = CostEditor(
             view=self.view.cost_editor,
             get_available_units=lambda: self._ingredient_unit_system.get_available_units(),
         )
+        self.cost_editor_ctrl.costUpdated.connect(self._on_ingredient_cost_changed)
+        # Flags editor
         self.flag_editor_ctrl = FlagEditorCtrl(
             view=self.view.flag_editor,
             get_flags=lambda: self.ingredient.flags,

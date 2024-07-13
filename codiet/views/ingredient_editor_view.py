@@ -18,7 +18,7 @@ from codiet.views.buttons import (
     AutopopulateButton
 )
 from codiet.views.search.search_column_view import SearchColumnView
-from codiet.views.cost import CostEditorView
+from codiet.views.cost_editor_view import CostEditorView
 from codiet.views.nutrients import NutrientQuantitiesEditorView
 from codiet.views.text_editors import LineEdit, MultilineEdit, NumericLineEdit
 from codiet.views.flags import FlagEditorView

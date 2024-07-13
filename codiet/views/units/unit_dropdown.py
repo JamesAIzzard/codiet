@@ -75,16 +75,6 @@ class UnitDropdown(QComboBox):
         """
         self.addItem(unit_display_name, unit_global_id)
 
-    def clear_units(self) -> None:
-        """Clear all units from the combo box.
-        Args:
-            None
-        Returns:
-            None
-        """
-        # Clear existing
-        self.clear()
-
     def add_units(self, units: dict[int, str]) -> None:
         """Add a dictionary of units to the combo box.
         Args:
