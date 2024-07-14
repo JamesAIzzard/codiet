@@ -1,12 +1,12 @@
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel
 
-from codiet.views import block_signals
 from codiet.views.text_editors.numeric_line_editor import NumericLineEditor
 from codiet.views.units.unit_dropdown import UnitDropdown
 
 class NutrientQuantityEditorView(QWidget):
     """UI element for quantity of a nutrient in an ingredient.
+
     Signals:
         nutrientMassChanged(int, float): Emitted when the nutrient mass value is changed.
             The signal carries the global nutrient ID and the new mass value.
@@ -14,7 +14,6 @@ class NutrientQuantityEditorView(QWidget):
             The signal carries the global nutrient ID and the new unit ID.    
     """
 
-    # Define signals
     nutrientMassChanged = pyqtSignal(int, float)
     nutrientMassUnitsChanged = pyqtSignal(int, int)
 
@@ -22,50 +21,24 @@ class NutrientQuantityEditorView(QWidget):
             self,
             global_nutrient_id: int,
             nutrient_name: str,
-            available_mass_units: dict[int,str],
-            selected_mass_unit_id: int,
-            nutrient_mass_value: float | None = None,
             *args, **kwargs
         ):
         super().__init__(*args, **kwargs)
+
+        # Store the global nutrient ID and nutrient name
         self._global_nutrient_id = global_nutrient_id
         self._nutrient_name = nutrient_name
-        self._available_mass_units = available_mass_units
-        self._selected_mass_unit_id = selected_mass_unit_id
-        self._nutrient_mass_value = nutrient_mass_value
+
         # Build the UI
         self._build_ui()
+
         # Connect signals and slots
         # When the mass value textbox loses focus, emit the nutrientMassChanged signal
-        self.txt_nutrient_mass.lostFocus.connect(
+        self.nutrient_mass.lostFocus.connect(
             lambda value: self.nutrientMassChanged.emit(self._global_nutrient_id, value)
         )
         # When the mass units dropdown changes, emit the nutrientMassUnitsChanged signal
-        self.cmb_mass_units.currentTextChanged.connect(
-            lambda units: self.nutrientMassUnitsChanged.emit(self._global_nutrient_id, self.nutrient_mass_unit_id)
-        )        
-
-    @property
-    def nutrient_mass_value(self) -> float | None:
-        """Returns the nutrient mass."""
-        return self.txt_nutrient_mass.text()
-
-    @nutrient_mass_value.setter
-    def nutrient_mass_value(self, value: float | None):
-        """Sets the nutrient mass."""
-        with block_signals(self.txt_nutrient_mass):
-            self.txt_nutrient_mass.setText(value)
-
-    @property
-    def nutrient_mass_unit_id(self) -> int:
-        """Returns the nutrient mass units."""
-        return self.cmb_mass_units.selected_unit_id
-    
-    @nutrient_mass_unit_id.setter
-    def nutrient_mass_units(self, unit_id: int) -> None:
-        """Sets the nutrient mass units."""
-        with block_signals(self.cmb_mass_units):
-            self.cmb_mass_units.selected_unit_id = unit_id
+        self.nutrient_mass_units.unitChanged.connect(self.nutrientMassUnitsChanged.emit)       
 
     def _build_ui(self):
         """Initializes the UI elements."""
@@ -83,16 +56,14 @@ class NutrientQuantityEditorView(QWidget):
         layout.addStretch(1)
 
         # Create a textbox for nutrient mass
-        self.txt_nutrient_mass = NumericLineEditor()
+        self.nutrient_mass = NumericLineEditor()
         # Limit the textbox to 10 pixels
-        self.txt_nutrient_mass.setMaximumWidth(60)
-        layout.addWidget(self.txt_nutrient_mass)
+        self.nutrient_mass.setMaximumWidth(60)
+        layout.addWidget(self.nutrient_mass)
 
         # Create a dropdown for mass units
-        self.cmb_mass_units = UnitDropdown()
-        # Add the available mass units
-        self.cmb_mass_units.add_units(self._available_mass_units)
-        layout.addWidget(self.cmb_mass_units)
+        self.nutrient_mass_units = UnitDropdown()
+        layout.addWidget(self.nutrient_mass_units)
 
         # Add a little space at either end of the widget
         layout.setContentsMargins(5, 0, 5, 0)
