@@ -21,7 +21,7 @@ from codiet.views.search.search_column_view import SearchColumnView
 from codiet.views.cost_editor_view import CostEditorView
 from codiet.views.nutrients import NutrientQuantitiesEditorView
 from codiet.views.text_editors import LineEdit, MultilineEdit, NumericLineEdit
-from codiet.views.flags import FlagEditorView
+from codiet.views.flag_editor_view import FlagEditorView
 from codiet.views.units import StandardUnitEditorView, UnitConversionsEditorView
 
 class IngredientEditorView(QWidget):

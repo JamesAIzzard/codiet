@@ -9,7 +9,15 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import pyqtSignal
 
 class ListBox(QListWidget):
-    """Customised version of the listbox widget."""
+    """Customised version of the listbox widget.
+
+    Notes:
+    The distinction between the view item, the view item content and
+    the data associated with the view item is important.
+    - View Item: The QListWidgetItem that is displayed in the list box.
+    - View Item Content: The content of the view item. This can be a string or a widget.
+    - Data: The data associated with the view item. This can be any object.
+    """
 
     itemClicked = pyqtSignal(object, object)
 
@@ -55,6 +63,40 @@ class ListBox(QListWidget):
             return item.data(Qt.ItemDataRole.UserRole) # type: ignore
         else:
             return None
+        
+    @property
+    def all_items_content_and_data(self) -> list[tuple[str|QWidget, Any]]:
+        """Return the content and data of all items in the list.
+        Returns:
+            list[tuple[str|QWidget, Any]]: A list of tuples containing the content and data for each item.
+        """
+        items = []
+        for i in range(self.count()):
+            item = self.item(i)
+            # If the widget is not None
+            if self.itemWidget(item):
+                # grab the content from the widget
+                content = self.itemWidget(item)
+            else:
+                # otherwise grab the text content from the item
+                content = item.text() # type: ignore
+            # Grab the data associated with the item
+            data = item.data(Qt.ItemDataRole.UserRole) # type: ignore
+            items.append((content, data))
+        return items
+    
+    @property
+    def all_items_and_data(self) -> list[tuple[QListWidgetItem, Any]]:
+        """Return all items and their associated data.
+        Returns:
+            list[tuple[QListWidgetItem, Any]]: A list of tuples containing the item and data for each item.
+        """
+        items = []
+        for i in range(self.count()):
+            item = self.item(i)
+            data = item.data(Qt.ItemDataRole.UserRole) # type: ignore
+            items.append((item, data))
+        return items
 
     @property
     def selected_index(self) -> int:
@@ -71,9 +113,20 @@ class ListBox(QListWidget):
             bool: True if a result is selected, False otherwise."""
         return self.selected_index != -1
 
-    def add_item(self, item_content: str | QWidget, data: Any = None) -> QListWidgetItem:
+    def add_item(self, item: QListWidgetItem, data: Any = None) -> None:
+        """Add a QListWidgetItem to the list box.
+
+        Args:
+            item (QListWidgetItem): The item to add.
+            data (Any, optional): The data to associate with the item. Defaults to None.
+        """
+        if data is not None:
+            item.setData(Qt.ItemDataRole.UserRole, data)
+        self.addItem(item)
+
+    def add_item_content(self, item_content: str | QWidget, data: Any = None) -> QListWidgetItem:
         """Add an item to the list box.
-        The item can be a string or a widget. The string or widget are passed in as the 
+        The item content can be a string or a widget. The string or widget are passed in as the 
         item_content argument. The method converts the item_content to a QListWidgetItem and
         adds it to the list box. The data argument is optional and can be used to associate
         data with the item, for example a model's UID from the database.
@@ -125,7 +178,49 @@ class ListBox(QListWidget):
         if self.item_is_selected:
             self.remove_item(index=self.selected_index)
 
-    def get_view_item_for_data(self, data: Any) -> str | QWidget:
+    def data_in_list(self, data: Any) -> bool:
+        """Check if the data is in the list.
+        Args:
+            data (Any): The data to check for.
+        Returns:
+            bool: True if the data is in the list, False otherwise.
+        """
+        for i in range(self.count()):
+            item = self.item(i)
+            if item and item.data(Qt.ItemDataRole.UserRole) == data:
+                return True
+        return False
+
+    def get_item_for_data(self, data: Any) -> QListWidgetItem:
+        """Return the view item associated with the data.
+        Args:
+            data (Any): The data associated with the item.
+        Returns:
+            QListWidgetItem: The view item associated with the data.
+        Raises:
+            ValueError: If no item is found for the data.
+        """
+        for i in range(self.count()):
+            item = self.item(i)
+            if item and item.data(Qt.ItemDataRole.UserRole) == data:
+                return item
+        raise ValueError(f"No item found for data: {data}")
+
+    def get_data_for_item(self, item: QListWidgetItem) -> Any:
+        """Return the data associated with the item.
+        Args:
+            item (QListWidgetItem): The item to get the data for.
+        Returns:
+            Any: The data associated with the item.
+        Raises:
+            ValueError: If no data is found for the item.
+        """
+        data = item.data(Qt.ItemDataRole.UserRole)
+        if data is None:
+            raise ValueError(f"No data found for item: {item}")
+        return data
+
+    def get_widget_for_data(self, data: Any) -> str | QWidget:
         """Return the view item associated with the data.
         Args:
             data (Any): The data associated with the item.
@@ -149,7 +244,7 @@ class ListBox(QListWidget):
         """
         self.clear()
         for item_content, data in item_content_and_data:
-            self.add_item(item_content=item_content, data=data)
+            self.add_item_content(item_content=item_content, data=data)
 
     def _on_item_clicked(self):
         """Called when a result is selected.

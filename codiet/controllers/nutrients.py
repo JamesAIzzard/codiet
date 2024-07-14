@@ -1,6 +1,6 @@
 from typing import Callable
 
-from codiet.utils.map import BidirectionalMap
+from codiet.utils.map import IntStrMap
 from codiet.models.nutrients import Nutrient, IngredientNutrientQuantity
 from codiet.models.units import Unit
 from codiet.views.nutrients import (
@@ -62,7 +62,7 @@ class NutrientQuantitiesEditorCtrl:
         )
 
         # Create a map between leaf nutrient names and id's
-        self.leaf_nutrient_name_id_map = BidirectionalMap()
+        self.leaf_nutrient_name_id_map = IntStrMap()
         for nutrient_id, nutrient in global_leaf_nutrients.items():
             self.leaf_nutrient_name_id_map.add_mapping(
                 nutrient.nutrient_name, nutrient_id
@@ -114,7 +114,7 @@ class NutrientQuantitiesEditorCtrl:
             # Calculate the new mass
             new_mass = nutrient_qty.nutrient_mass_value * conv_factor
             # Grab the view
-            view_item: NutrientQuantityEditorView = self.search_column_ctrl.view.lst_search_results.get_view_item_for_data(nutrient_id)  # type: ignore
+            view_item: NutrientQuantityEditorView = self.search_column_ctrl.view.lst_search_results.get_widget_for_data(nutrient_id)  # type: ignore
             # Write the new mass to the view
             view_item.nutrient_mass_value = new_mass
 

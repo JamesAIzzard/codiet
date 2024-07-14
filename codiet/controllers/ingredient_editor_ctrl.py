@@ -3,7 +3,7 @@ from typing import Tuple
 from PyQt6.QtWidgets import QWidget
 
 from codiet.db.database_service import DatabaseService
-from codiet.utils.map import BidirectionalMap
+from codiet.utils.map import IntStrMap
 
 from codiet.models.ingredients import Ingredient
 from codiet.models.nutrients import filter_leaf_nutrients, IngredientNutrientQuantity
@@ -14,7 +14,7 @@ from codiet.controllers.dialogs.entity_name_editor_dialog import EntityNameEdito
 from codiet.controllers.units.standard_unit_editor import StandardUnitEditor
 from codiet.controllers.units.unit_conversions_editor import UnitConversionsEditor
 from codiet.controllers.cost_editor import CostEditor
-from codiet.controllers.flags import FlagEditorCtrl
+from codiet.controllers.flag_editor import FlagEditor
 from codiet.controllers.nutrients import NutrientQuantitiesEditorCtrl
 
 
@@ -41,7 +41,7 @@ class IngredientEditor:
         self._ingredient: Ingredient
 
         # Cache some things for search and general use
-        self._ingredient_name_ids = self._cache_ingredient_name_id_map()
+        self._ingredient_name_ids = self.db_service.build_ingredient_name_id_map()
         self._global_unit_name_ids = self.db_service.build_unit_name_id_map()
         self._global_units = self.db_service.read_all_global_units()
         self._gram_id = next(
@@ -49,6 +49,7 @@ class IngredientEditor:
         )
         self._global_mass_units = self.db_service.read_all_global_mass_units()
         self._global_unit_conversions = self.db_service.read_all_global_unit_conversions()
+        self._flag_name_ids = self.db_service.build_flag_name_id_map()
         self._global_leaf_nutrients = filter_leaf_nutrients(
             self.db_service.read_all_global_nutrients()
         )
@@ -110,11 +111,12 @@ class IngredientEditor:
         )
         self.cost_editor_ctrl.costUpdated.connect(self._on_ingredient_cost_changed)
         # Flags editor
-        self.flag_editor_ctrl = FlagEditorCtrl(
+        self.flag_editor = FlagEditor(
             view=self.view.flag_editor,
-            get_flags=lambda: self.ingredient.flags,
-            on_flag_changed=self._on_flag_changed,
+            get_global_flags=lambda: {flag_id: flag_name for flag_name, flag_id in self._flag_name_ids.int_to_str.items()},
+            get_entity_flags=lambda: self.ingredient.flags
         )
+        self.flag_editor.flagChanged.connect(self._on_flag_changed)
         self.ingredient_nutrient_editor_ctrl = NutrientQuantitiesEditorCtrl(
             view=self.view.nutrient_quantities_editor,
             global_leaf_nutrients=self._global_leaf_nutrients,
@@ -150,36 +152,6 @@ class IngredientEditor:
         self.load_ingredient(self.ingredient)
 
     @property
-    def ingredient_name_editor_dialog_view(self) -> EntityNameDialogView:
-        """Get the ingredient name editor dialog.
-        Lazy loads the dialog if it doesn't exist.
-        """
-        if self._ingredient_name_editor_dialog_view is None:
-            self._ingredient_name_editor_dialog_view = EntityNameDialogView(entity_name="ingredient")
-            self._ingredient_name_editor_dialog_ctrl = EntityNameDialog(
-                view=self.ingredient_name_editor_dialog_view,
-                check_name_available=lambda name: name not in self._ingredient_name_ids.str_values,
-                on_name_accepted_callback=self._on_ingredient_name_accepted,
-            )    
-        return self._ingredient_name_editor_dialog_view        
-
-    @property
-    def select_ingredient_name_for_delete_dialog_view(self) -> ErrorDialogBoxView:
-        """Get the dialog for selecting an ingredient to delete.
-        Lazy loads the dialog if it doesn't exist.
-        """
-        if self._select_ingredient_name_for_delete_dialog_view is None:
-            self._select_ingredient_name_for_delete_dialog_view = ErrorDialogBoxView(
-                message="Please select an ingredient to delete.",
-                title="No Ingredient Selected",
-                parent=self.view,
-            )
-            self._select_ingredient_name_for_delete_dialog_view.okClicked.connect(
-                lambda: self._select_ingredient_name_for_delete_dialog_view.hide()
-            )
-        return self._select_ingredient_name_for_delete_dialog_view
-
-    @property
     def ingredient(self) -> Ingredient:
         """Get the ingredient instance."""
         return self._ingredient
@@ -209,20 +181,11 @@ class IngredientEditor:
             cost_qty_value=self.ingredient.cost_qty_value,
             cost_qty_unit_id=self.ingredient.cost_qty_unit_id,
         )
-        self.flag_editor_ctrl.set_flags(self.ingredient.flags)
+        self.flag_editor.set_flags(self.ingredient.flags)
         # Update the GI field
         self.view.update_gi(self.ingredient.gi)
         # Set the nutrients
         self.ingredient_nutrient_editor_ctrl.set_nutrient_quantities(self.ingredient.nutrient_quantities)
-
-    def _cache_ingredient_name_id_map(self) -> BidirectionalMap:
-        """Cache the ingredient names and IDs.
-        Returns:
-            BidirectionalMap: The name to ID map.
-        """
-        name_id_map = self.db_service.build_ingredient_name_id_map()
-        self._ingredient_name_ids = name_id_map
-        return name_id_map
 
     def _on_ingredient_selected(self, ing_name_and_id: Tuple[str, int]) -> None:
         """Handles the user clicking on an ingredient in the search results.

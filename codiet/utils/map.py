@@ -1,4 +1,4 @@
-class BidirectionalMap:
+class IntStrMap:
     """A bidirectional map that stores a mapping between integers and strings."""
     def __init__(self):
         self.int_to_str = {}

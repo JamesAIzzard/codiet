@@ -87,7 +87,7 @@ class UnitConversionsEditor(QObject):
         # Connect the signals
         view.conversionUpdated.connect(self._on_unit_conversion_updated)
         # Add the unit conversion to the view
-        self.view.conversion_list.add_item(
+        self.view.conversion_list.add_item_content(
             item_content=view, 
             data=unit_conversion.id
         )
