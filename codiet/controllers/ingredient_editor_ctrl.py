@@ -14,7 +14,7 @@ from codiet.controllers.dialogs.entity_name_editor_dialog import EntityNameEdito
 from codiet.controllers.units.standard_unit_editor import StandardUnitEditor
 from codiet.controllers.units.unit_conversions_editor import UnitConversionsEditor
 from codiet.controllers.cost_editor import CostEditor
-from codiet.controllers.flag_editor import FlagEditor
+from codiet.controllers.flags.flag_editor import FlagEditor
 from codiet.controllers.nutrients import NutrientQuantitiesEditorCtrl
 
 
@@ -112,11 +112,12 @@ class IngredientEditor:
         self.cost_editor_ctrl.costUpdated.connect(self._on_ingredient_cost_changed)
         # Flags editor
         self.flag_editor = FlagEditor(
+            global_flags=self._flag_name_ids,
             view=self.view.flag_editor,
-            get_global_flags=lambda: {flag_id: flag_name for flag_name, flag_id in self._flag_name_ids.int_to_str.items()},
             get_entity_flags=lambda: self.ingredient.flags
         )
         self.flag_editor.flagChanged.connect(self._on_flag_changed)
+        # Ingredient nutrient editor
         self.ingredient_nutrient_editor_ctrl = NutrientQuantitiesEditorCtrl(
             view=self.view.nutrient_quantities_editor,
             global_leaf_nutrients=self._global_leaf_nutrients,

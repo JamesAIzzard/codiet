@@ -1,5 +1,5 @@
+from codiet.models.units.entity_unit_conversion import EntityUnitConversion
 from codiet.models.nutrients import IngredientNutrientQuantity
-from codiet.models.units import IngredientUnitConversion, IngredientUnitsSystem
 
 
 class Ingredient:
@@ -17,17 +17,17 @@ class Ingredient:
         self.id: int = id
         self.description: str | None = None
         self.standard_unit_id: int = standard_unit_id
-        self._unit_conversions: dict[int, IngredientUnitConversion] = {}   
+        self._unit_conversions: dict[int, EntityUnitConversion] = {}   
         self.cost_unit_id: int | None = None
         self.cost_value: float | None = None
         self.cost_qty_unit_id: int = standard_unit_id
         self.cost_qty_value: float | None = None
-        self._flags: dict[int, bool|None] = {}
+        self._flags: dict[int, bool] = {}
         self.gi: float | None = None
         self._nutrient_quantities: dict[int, IngredientNutrientQuantity] = {}
 
     @property
-    def unit_conversions(self) -> dict[int, IngredientUnitConversion]:
+    def unit_conversions(self) -> dict[int, EntityUnitConversion]:
         """Returns the unit conversions associated with this ingredient.
         Returns:
             dict[int, IngredientUnitConversion]: The unit conversions.
@@ -37,7 +37,7 @@ class Ingredient:
         return self._unit_conversions
 
     @property
-    def flags(self) -> dict[int, bool|None]:
+    def flags(self) -> dict[int, bool]:
         """Returns the flags.
         Returns:
             dict[int, bool|None]: The flags.
@@ -53,7 +53,7 @@ class Ingredient:
                 Where the key is the gloabl nutrient ID."""
         return self._nutrient_quantities
 
-    def add_unit_conversion(self, unit_conversion: IngredientUnitConversion) -> None:
+    def add_unit_conversion(self, unit_conversion: EntityUnitConversion) -> None:
         """Adds a unit conversion.
         Args:
             unit_conversion (IngredientUnitConversion): The unit conversion to add.
@@ -67,7 +67,7 @@ class Ingredient:
         # If not found, add the unit conversion
         self._unit_conversions[unit_conversion.id] = unit_conversion
 
-    def update_unit_conversion(self, unit_conversion: IngredientUnitConversion) -> None:
+    def update_unit_conversion(self, unit_conversion: EntityUnitConversion) -> None:
         """Updates a unit conversion.
         Args:
             unit_conversion (IngredientUnitConversion): The unit conversion to update.

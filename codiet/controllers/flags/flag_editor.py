@@ -3,7 +3,9 @@ from typing import Callable
 from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtWidgets import QWidget
 
-from codiet.views.flag_editor_view import FlagEditorView
+from codiet.utils.map import IntStrMap
+from codiet.views.flags.flag_editor_view import FlagEditorView
+from codiet.controllers.flags.add_flag_dialog import AddFlagDialog
 
 class FlagEditor(QObject):
     """Controller for the flag editor view.
@@ -19,8 +21,8 @@ class FlagEditor(QObject):
 
     def __init__(
         self,
-        get_global_flags: Callable[[], dict[int, str]],
-        get_entity_flags: Callable[[], dict[int, bool|None]],
+        global_flags: IntStrMap,
+        get_entity_flags: Callable[[], dict[int, bool]],
         view: FlagEditorView|None=None,
         parent: QWidget|None=None,
     ) -> None:
@@ -40,13 +42,13 @@ class FlagEditor(QObject):
         self.view = view
 
         # Stash the callbacks
-        self._get_global_flags = get_global_flags
+        self._global_flags = global_flags
         self._get_entity_flags = get_entity_flags
 
         # Build the add flag dialog
         self.add_flag_dialog = AddFlagDialog(
-            get_global_flags=self._get_global_flags,
-            can_add_flag=self._can_add_flag,
+            global_flags=self._global_flags,
+            can_add_flag=lambda flag_id: flag_id not in self._get_entity_flags().keys(),
             parent=self.view
         )
         self.add_flag_dialog.flagAdded.connect(self.view.add_flag)
@@ -63,9 +65,10 @@ class FlagEditor(QObject):
             self._on_invert_selection_flags_clicked
         )
 
-    def set_flags(self, flags: dict[int, bool|None]) -> None:
-        """Set the flags on the view."""
-        self.view.set_flags(flags)
+        # Add the current entity flags to the view
+        for flag_id, flag_value in self._get_entity_flags().items():
+            self.view.add_flag(flag_id, self._global_flags.get_str(flag_id))
+            self.view.set_flag(flag_id, flag_value)
 
     def _on_select_all_flags_clicked(self):
         """Handler for selecting all flags."""
