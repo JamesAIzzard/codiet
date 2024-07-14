@@ -3,7 +3,7 @@ from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.views.text_editors.line_editor import LineEditor
 
-class NumericLineEdit(LineEditor):
+class NumericLineEditor(LineEditor):
     """A QLineEdit widget that only accepts numeric input."""
     # Define the signals
     valueChanged = pyqtSignal(QVariant)

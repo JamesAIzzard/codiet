@@ -3,7 +3,6 @@ from typing import Tuple
 from PyQt6.QtWidgets import QWidget
 
 from codiet.db.database_service import DatabaseService
-from codiet.utils.map import IntStrMap
 
 from codiet.models.ingredients import Ingredient
 from codiet.models.nutrients import filter_leaf_nutrients, IngredientNutrientQuantity
@@ -15,7 +14,7 @@ from codiet.controllers.units.standard_unit_editor import StandardUnitEditor
 from codiet.controllers.units.unit_conversions_editor import UnitConversionsEditor
 from codiet.controllers.cost_editor import CostEditor
 from codiet.controllers.flags.flag_editor import FlagEditor
-from codiet.controllers.nutrients import NutrientQuantitiesEditorCtrl
+from codiet.controllers.nutrients import NutrientQuantitiesEditor
 
 
 class IngredientEditor:
@@ -118,7 +117,7 @@ class IngredientEditor:
         )
         self.flag_editor.flagChanged.connect(self._on_flag_changed)
         # Ingredient nutrient editor
-        self.ingredient_nutrient_editor_ctrl = NutrientQuantitiesEditorCtrl(
+        self.ingredient_nutrient_editor_ctrl = NutrientQuantitiesEditor(
             view=self.view.nutrient_quantities_editor,
             global_leaf_nutrients=self._global_leaf_nutrients,
             available_mass_units=self._global_mass_units,

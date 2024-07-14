@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QHBoxLayout, QLabel, QWidget
 from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.views import block_signals
-from codiet.views.text_editors.numeric_line_editor import NumericLineEdit
+from codiet.views.text_editors.numeric_line_editor import NumericLineEditor
 
 class UnitConversionEditorView(QWidget):
     """A widget for editing a unit conversion.
@@ -108,7 +108,7 @@ class UnitConversionEditorView(QWidget):
         layout = QHBoxLayout()
         self.setLayout(layout)
         # Create a numeric box for the from unit quantity
-        self.txt_from_unit_qty = NumericLineEdit()
+        self.txt_from_unit_qty = NumericLineEditor()
         layout.addWidget(self.txt_from_unit_qty)
         # Create a label for the from unit
         self.lbl_from_unit = QLabel(self.from_unit_display_name)
@@ -116,7 +116,7 @@ class UnitConversionEditorView(QWidget):
         lbl_equals = QLabel(" = ")
         layout.addWidget(lbl_equals)
         # Create a numeric box for the to unit quantity
-        self.txt_to_unit_qty = NumericLineEdit()
+        self.txt_to_unit_qty = NumericLineEditor()
         layout.addWidget(self.txt_to_unit_qty)
         # Create a label for the to unit
         self.lbl_to_unit = QLabel(self.to_unit_display_name)

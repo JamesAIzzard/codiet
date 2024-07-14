@@ -10,7 +10,7 @@ from codiet.views.nutrients import (
 from codiet.controllers.search.search_column import SearchColumn
 
 
-class NutrientQuantitiesEditorCtrl:
+class NutrientQuantitiesEditor:
     def __init__(
         self,
         view: NutrientQuantitiesEditorView,

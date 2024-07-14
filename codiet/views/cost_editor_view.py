@@ -10,7 +10,7 @@ from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.views import block_signals
 from codiet.views.units.unit_dropdown import UnitDropdown
-from codiet.views.text_editors.numeric_line_editor import NumericLineEdit
+from codiet.views.text_editors.numeric_line_editor import NumericLineEditor
 
 class CostEditorView(QWidget):
     """The UI element to allow the user to edit costs."""
@@ -74,7 +74,7 @@ class CostEditorView(QWidget):
         lyt_cost.addWidget(label)
 
         # Create a textbox for the cost of the ingredient
-        self.txt_cost = NumericLineEdit()
+        self.txt_cost = NumericLineEditor()
         lyt_cost.addWidget(self.txt_cost)
         self.txt_cost.lostFocus.connect(
             lambda: self.costChanged.emit(
@@ -89,7 +89,7 @@ class CostEditorView(QWidget):
         lyt_cost.addWidget(label)
 
         # Create a textbox and add it to the layout
-        self.txt_cost_quantity_value = NumericLineEdit()
+        self.txt_cost_quantity_value = NumericLineEditor()
         lyt_cost.addWidget(self.txt_cost_quantity_value)
         self.txt_cost_quantity_value.lostFocus.connect(
             lambda: self.costChanged.emit(
