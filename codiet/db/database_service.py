@@ -8,7 +8,7 @@ from codiet.models.units.entity_unit_conversion import EntityUnitConversion
 from codiet.models.nutrients import Nutrient
 from codiet.models.ingredients import Ingredient, IngredientQuantity
 from codiet.models.nutrients import (
-    IngredientNutrientQuantity,
+    EntityNutrientQuantity,
 )
 from codiet.models.time import RecipeServeTimeWindow
 from codiet.models.recipes import Recipe
@@ -197,7 +197,7 @@ class DatabaseService:
         ntr_mass_value: float,
         ntr_mass_unit_id: int,
         ing_grams_value: float,
-    ) -> IngredientNutrientQuantity:
+    ) -> EntityNutrientQuantity:
         """Creates a nutrient quantity for the given ingredient.
         Args:
             ingredient_id (int): The id of the ingredient.
@@ -217,7 +217,7 @@ class DatabaseService:
             ing_grams_value=ing_grams_value,
         )
         # Init the nutrient quantity
-        nutrient_quantity = IngredientNutrientQuantity(
+        nutrient_quantity = EntityNutrientQuantity(
             id=nutrient_quantity_id,
             nutrient_id=nutrient_id,
             ingredient_id=ingredient_id,
@@ -565,7 +565,7 @@ class DatabaseService:
 
     def read_ingredient_nutrient_quantities(
         self, ingredient_id: int
-    ) -> dict[int, IngredientNutrientQuantity]:
+    ) -> dict[int, EntityNutrientQuantity]:
         """Returns the nutrient quantities for the given ingredient.
         Args:
             ingredient_id (int): The id of the ingredient.
@@ -574,7 +574,7 @@ class DatabaseService:
             id of each specific nutrient quantity.
         """
         # Init a dict to hold the nutrient quantities
-        nutrient_quantities: dict[int, IngredientNutrientQuantity] = {}
+        nutrient_quantities: dict[int, EntityNutrientQuantity] = {}
         # Fetch the raw data from the repo
         raw_nutrient_quantities = self._repo.read_ingredient_nutrient_quantities(
             ingredient_id
@@ -582,7 +582,7 @@ class DatabaseService:
         # Cycle through the raw data
         for nutrient_id, nutrient_qty_data in raw_nutrient_quantities.items():
             # And add the data to the dict
-            nutrient_quantities[nutrient_id] = IngredientNutrientQuantity(
+            nutrient_quantities[nutrient_id] = EntityNutrientQuantity(
                 id=nutrient_qty_data["id"],
                 nutrient_id=nutrient_id,
                 ingredient_id=ingredient_id,

@@ -26,16 +26,16 @@ class UnitConversionDefinitionDialogView(DialogView):
         """Called when the selection is changed."""
         # Emit the OKClicked signal with the from and to unit IDs
         self.selectionChanged.emit(
-            self.from_unit_selector.lst_search_results.selected_item_data,
-            self.to_unit_selector.lst_search_results.selected_item_data,
+            self.from_unit_selector.search_results.selected_item_data,
+            self.to_unit_selector.search_results.selected_item_data,
         )
 
     def _on_OK_clicked(self) -> None:
         """Called when the OK button is clicked."""
         # Emit the OKClicked signal with the from and to unit IDs
         self.OKClicked.emit(
-            self.from_unit_selector.lst_search_results.selected_item_data,
-            self.to_unit_selector.lst_search_results.selected_item_data,
+            self.from_unit_selector.search_results.selected_item_data,
+            self.to_unit_selector.search_results.selected_item_data,
         )
 
     def _build_ui(self):

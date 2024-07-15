@@ -36,7 +36,7 @@ class Database:
         self.create_ingredients_table(cursor)
         self.create_ingredient_unit_conversions_table(cursor)
         self.create_ingredient_flags_table(cursor)
-        self.create_ingredient_nutrients_table(cursor)
+        self.create_ingredient_nutrient_quantities_table(cursor)
         # Recipes tables
         self.create_recipe_table(cursor)
         self.create_recipe_ingredients_table(cursor)
@@ -170,7 +170,7 @@ class Database:
             )
         """)
 
-    def create_ingredient_nutrients_table(self, cursor:sqlite3.Cursor) -> None:
+    def create_ingredient_nutrient_quantities_table(self, cursor:sqlite3.Cursor) -> None:
         """Create the table to associate nutrient quantities with recipes."""
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS ingredient_nutrient_quantities (

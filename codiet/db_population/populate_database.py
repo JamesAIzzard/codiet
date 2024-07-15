@@ -14,7 +14,7 @@ from codiet.db_population import (
     GLOBAL_RECIPE_TAG_DATA_FILEPATH,
 )
 from codiet.utils.tags import flatten_tree
-from codiet.models.ingredients import IngredientNutrientQuantity
+from codiet.models.ingredients import EntityNutrientQuantity
 from codiet.models.recipes import Recipe
 from codiet.db.database_service import DatabaseService
 
@@ -178,10 +178,10 @@ def push_recipes_to_db():
 
 def _load_ingredient_nutrient_qty_from_json(
     nutrient_name: str, nutrient_data: dict
-) -> IngredientNutrientQuantity:
+) -> EntityNutrientQuantity:
     """Load an ingredient nutrient quantity object from a json data dict."""
     # Create the ingredient nutrient quantity instance
-    nutrient_qty = IngredientNutrientQuantity(
+    nutrient_qty = EntityNutrientQuantity(
         nutrient_name=nutrient_name,
         ntr_mass_value=nutrient_data["ntr_mass_value"],
         ntr_mass_unit=nutrient_data["ntr_mass_unit"],

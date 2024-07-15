@@ -21,13 +21,13 @@ class SearchColumnView(QWidget):
         super().__init__(*args, **kwargs)
         self._build_ui()
         # Connect signals and slots
-        self.lst_search_results.itemClicked.connect(self._on_item_clicked)
+        self.search_results.itemClicked.connect(self._on_item_clicked)
         self.searchbox_view.searchTermChanged.connect(self.searchTermChanged.emit)
         self.searchbox_view.clearSearchTermClicked.connect(self.searchTermCleared.emit)
 
     def _on_item_clicked(self, item: QListWidgetItem):
         # Determine if the item contains a widget or just text
-        widget = self.lst_search_results.itemWidget(item)
+        widget = self.search_results.itemWidget(item)
         if widget:
             item_content = widget
         else:
@@ -45,9 +45,9 @@ class SearchColumnView(QWidget):
         self.searchbox_view = SearchboxView(parent=self)
         lyt_top_level.addWidget(self.searchbox_view)
         # Create a dropdown and add it to the layout
-        self.lst_search_results = ListBox(parent=self)
+        self.search_results = ListBox(parent=self)
         # Make the dropdown fill the space
-        self.lst_search_results.setSizePolicy(
+        self.search_results.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
-        lyt_top_level.addWidget(self.lst_search_results)
+        lyt_top_level.addWidget(self.search_results)

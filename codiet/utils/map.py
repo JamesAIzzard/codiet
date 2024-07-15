@@ -14,7 +14,7 @@ class IntStrMap:
         """Return a list of string keys."""
         return list(self.str_to_int.keys())
 
-    def add_mapping(self, integer, string) -> None:
+    def add_mapping(self, integer:int, string:str) -> None:
         """Add a new mapping between an integer and a string."""
         if integer in self.int_to_str:
             raise ValueError("Integer key already exists in the map.")

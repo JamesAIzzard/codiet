@@ -1,5 +1,5 @@
 from codiet.models.units.entity_unit_conversion import EntityUnitConversion
-from codiet.models.nutrients import IngredientNutrientQuantity
+from codiet.models.nutrients import EntityNutrientQuantity
 
 
 class Ingredient:
@@ -24,7 +24,7 @@ class Ingredient:
         self.cost_qty_value: float | None = None
         self._flags: dict[int, bool] = {}
         self.gi: float | None = None
-        self._nutrient_quantities: dict[int, IngredientNutrientQuantity] = {}
+        self._nutrient_quantities: dict[int, EntityNutrientQuantity] = {}
 
     @property
     def unit_conversions(self) -> dict[int, EntityUnitConversion]:
@@ -46,7 +46,7 @@ class Ingredient:
         return self._flags
 
     @property
-    def nutrient_quantities(self) -> dict[int, IngredientNutrientQuantity]:
+    def nutrient_quantities(self) -> dict[int, EntityNutrientQuantity]:
         """Returns the nutrient quantities.
         Returns:
             dict[int, IngredientNutrientQuantity]: The nutrient quantities.
@@ -105,7 +105,7 @@ class Ingredient:
             self.set_flag(flag, False)
 
     def add_nutrient_quantity(
-        self, ingredient_nutrient_quantity: IngredientNutrientQuantity
+        self, ingredient_nutrient_quantity: EntityNutrientQuantity
     ) -> None:
         """Updates a nutrient quantity on the ingredient."""
         self._nutrient_quantities[ingredient_nutrient_quantity.nutrient_id] = ingredient_nutrient_quantity

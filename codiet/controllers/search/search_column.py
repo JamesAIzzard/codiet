@@ -73,7 +73,7 @@ class SearchColumn(QObject):
         """Show every possible result in the results list, without filtering."""
         # Get a list of items for all the searchable strings
         items_and_data = self._get_view_items_and_data_for_results(self._get_searchable_strings())
-        self.view.lst_search_results.update_list(items_and_data)
+        self.view.search_results.update_list(items_and_data)
 
     def reset_search(self) -> None:
         """Reset the search column.
@@ -118,12 +118,12 @@ class SearchColumn(QObject):
             # For each best match, get the corresponding list item
             best_match_items_and_data = self._get_view_items_and_data_for_results(best_matches)
             # Add the best matches to the search column
-            self.view.lst_search_results.update_list(best_match_items_and_data)
+            self.view.search_results.update_list(best_match_items_and_data)
 
     def _on_search_term_cleared(self) -> None:
         """Handler for clearing the search term."""
         # Clear the search column
-        self.view.lst_search_results.clear()
+        self.view.search_results.clear()
         # Clear the search term
         self.view.searchbox_view.clear()
         # Populate the list with all ingredient names

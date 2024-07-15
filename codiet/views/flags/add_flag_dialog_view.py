@@ -46,7 +46,7 @@ class AddFlagDialogView(DialogView):
         # Connect the signals
         self.btn_add.clicked.connect(
             lambda: self.flagAdded.emit(
-                self.flag_search_column.lst_search_results.selected_item_data
+                self.flag_search_column.search_results.selected_item_data
             )
         )
         self.btn_cancel.clicked.connect(self.cancelClicked.emit)

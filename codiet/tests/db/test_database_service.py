@@ -4,7 +4,7 @@ from codiet.db_population.flags import get_global_flags
 from codiet.db_population.nutrients import get_global_nutrients
 from codiet.models.units import Unit, UnitConversion, IngredientUnitConversion
 from codiet.models.nutrients import Nutrient
-from codiet.models.ingredients import Ingredient, IngredientQuantity, IngredientNutrientQuantity
+from codiet.models.ingredients import Ingredient, IngredientQuantity, EntityNutrientQuantity
 from codiet.models.time import RecipeServeTimeWindow
 
 def flatten_nutrients(nutrient_data, parent_id=None):
@@ -793,7 +793,7 @@ class TestUpdateIngredient(DatabaseTestCase):
         
         # Set nutrient quantities
         alanine_id = nutrient_name_to_id.get_int("alanine")
-        ing_alanine_qty = IngredientNutrientQuantity(
+        ing_alanine_qty = EntityNutrientQuantity(
             id=alanine_id,
             ingredient_id=ingredient.id,
             nutrient_id=alanine_id,
