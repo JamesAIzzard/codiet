@@ -7,7 +7,7 @@ from codiet.models.units.unit_conversion import UnitConversion
 from codiet.models.units.entity_unit_conversion import EntityUnitConversion
 from codiet.models.nutrients import Nutrient
 from codiet.models.ingredients import Ingredient, IngredientQuantity
-from codiet.models.nutrients import (
+from codiet.models.nutrients.entity_nutrient_quantity import (
     EntityNutrientQuantity,
 )
 from codiet.models.time import RecipeServeTimeWindow
@@ -190,43 +190,26 @@ class DatabaseService:
         # Return the unit conversion
         return unit_conversion
 
-    def create_ingredient_nutrient_quantity(
-        self,
-        ingredient_id: int,
-        nutrient_id: int,
-        ntr_mass_value: float,
-        ntr_mass_unit_id: int,
-        ing_grams_value: float,
-    ) -> EntityNutrientQuantity:
-        """Creates a nutrient quantity for the given ingredient.
+    def create_ingredient_nutrient_quantity(self, ing_nutr_qty: EntityNutrientQuantity) -> EntityNutrientQuantity:
+        """Creates an entry for the ingredient nutrient quantity in the database.
+        Returns the object, with the id populated.
+
         Args:
-            ingredient_id (int): The id of the ingredient.
-            nutrient_id (int): The id of the nutrient.
-            ntr_mass_value (float): The mass value of the nutrient.
-            ntr_mass_unit_id (int): The unit id of the mass value.
-            ing_grams_value (float): The grams value of the ingredient.
+            ing_nutr_qty (EntityNutrientQuantity): The nutrient quantity object.
         Returns:
-            IngredientNutrientQuantity: The created nutrient quantity.
+            EntityNutrientQuantity: The created nutrient quantity object.
         """
         # Insert the nutrient quantity into the database
         nutrient_quantity_id = self.repository.create_ingredient_nutrient_quantity(
-            ingredient_id=ingredient_id,
-            nutrient_id=nutrient_id,
-            ntr_mass_value=ntr_mass_value,
-            ntr_mass_unit_id=ntr_mass_unit_id,
-            ing_grams_value=ing_grams_value,
+            ingredient_id=ing_nutr_qty.parent_entity_id,
+            nutrient_id=ing_nutr_qty.nutrient_id,
+            ntr_mass_value=ing_nutr_qty.nutrient_mass_value,
+            ntr_mass_unit_id=ing_nutr_qty.nutrient_mass_unit_id,
+            ing_grams_value=ing_nutr_qty.entity_grams_value,
         )
-        # Init the nutrient quantity
-        nutrient_quantity = EntityNutrientQuantity(
-            id=nutrient_quantity_id,
-            nutrient_id=nutrient_id,
-            ingredient_id=ingredient_id,
-            ntr_mass_value=ntr_mass_value,
-            ntr_mass_unit_id=ntr_mass_unit_id,
-            ing_grams_value=ing_grams_value,
-        )
-        # Return the nutrient quantity
-        return nutrient_quantity
+        # Populate the ID and return the object
+        ing_nutr_qty.id = nutrient_quantity_id
+        return ing_nutr_qty
 
     def create_empty_recipe(self, recipe_name: str) -> Recipe:
         """Creates an empty recipe with the given name."""

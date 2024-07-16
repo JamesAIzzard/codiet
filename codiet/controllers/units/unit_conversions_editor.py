@@ -14,24 +14,24 @@ class UnitConversionsEditor(QObject):
     """Module to manage unit conversions associated with an entity.
 
     Signals:
-        onConversionAdded: Emitted when a unit conversion is added.
-            Args: unit_conversion_id (int), from_unit_id (int), to_unit_id (int).
-        onConversionRemoved: Emitted when a unit conversion is removed.
-            Args: unit_conversion_id (int).
-        onConversionChanged: Emitted when a unit conversion is changed.
-            Args: unit_conversion_id (int), from_unit_id (int), to_unit_id (int),
-                       from_unit_qty (QVariant), to_unit_qty (QVariant).
+        conversionAdded (object): Emitted when a unit conversion is added.
+            object: The unit conversion object.
+        conversionRemoved (int): Emitted when a unit conversion is removed.
+            int: The global ID of the unit conversion.
+        conversionUpdated (object): Emitted when a unit conversion is updated.
+            object: The unit conversion object.
     """
 
+    conversionAdded = pyqtSignal(object)
     conversionRemoved = pyqtSignal(int)
-    conversionUpdated = pyqtSignal(int, int, int, QVariant, QVariant)
+    conversionUpdated = pyqtSignal(object)
 
     def __init__(
         self,
         global_units: dict[int, Unit],
         get_existing_conversions: Callable[[], dict[int, EntityUnitConversion]],
         check_conversion_available: Callable[[int, int], bool],
-        create_conversion_callback: Callable[[int, int], tuple[int, int]],
+        create_conversion_callback: Callable[[int, int], EntityUnitConversion],
         view: UnitConversionsEditorView | None = None,
         parent: QWidget | None = None,
     ):
@@ -127,16 +127,11 @@ class UnitConversionsEditor(QObject):
             None
         """
         # Call the callback and collect the ID
-        id, entity_id = self._create_conversion_callback(from_unit_id, to_unit_id)
-        # Create a unit conversion instance
-        unit_conversion = EntityUnitConversion(
-            id=id,
-            entity_id=entity_id,
-            from_unit_id=from_unit_id, 
-            to_unit_id=to_unit_id
-        )
+        conversion = self._create_conversion_callback(from_unit_id, to_unit_id)
         # Add the unit conversion to the view
-        self.add_unit_conversion_to_view(unit_conversion)
+        self.add_unit_conversion_to_view(conversion)
+        # Emit the signal
+        self.conversionAdded.emit(conversion)
 
     def _on_unit_conversion_removed(self, unit_conversion_id: int):
         """Called when a unit conversion is removed.
@@ -162,7 +157,12 @@ class UnitConversionsEditor(QObject):
             from_unit_qty (float): The quantity of the from unit.
             to_unit_qty (float): The quantity of the to unit.
         """
+        # Grab the conversion object
+        conversion = self._get_existing_conversions()[unit_conversion_id]
+        # Update the conversion object
+        conversion.from_unit_id = from_unit_id
+        conversion.to_unit_id = to_unit_id
+        conversion.from_unit_qty = from_unit_qty
+        conversion.to_unit_qty = to_unit_qty
         # Emit the signal
-        self.conversionUpdated.emit(
-            unit_conversion_id, from_unit_id, to_unit_id, from_unit_qty, to_unit_qty
-        )
+        self.conversionUpdated.emit(conversion)
