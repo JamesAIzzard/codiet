@@ -4,9 +4,16 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QWidget
 
 from codiet.utils.bidirectional_map import BidirectionalMap
+from codiet.views.dialogs.add_entity_dialog_view import AddEntityDialogView
 from codiet.controllers.search.search_column import SearchColumn
 
 class AddEntityDialog(QObject):
+    """Dialog to select a named entity from a list adding or inclusion.
+    
+    Signals:
+        entityAdded: Emitted when an entity is added. The signal is emitted with
+            the entity ID.
+    """
 
     entityAdded = pyqtSignal(int)
 
@@ -44,10 +51,35 @@ class AddEntityDialog(QObject):
                     entity_name,
                     self._get_entity_list().get_keys(entity_name)
                 ),
-                view=self.view.entity_search_column,
+                view=self.view.entity_search_column
             )
 
             # Connect the signals
-            self.view.entity_search_column.onResultSelected.connect(self._on_entity_selected)
-            self.view.cancelButton.clicked.connect(self.view.close)
-            self.view.addButton.clicked.connect(self._on_add_button_clicked)
+            self.view.entity_search_column.search_results.itemClicked.connect(
+                lambda item_content, item_data: self._on_entity_selected(item_data)
+            )
+            self.view.btn_cancel.clicked.connect(self.view.close)
+            self.view.btn_add.clicked.connect(self._on_add_button_clicked)
+
+    def _on_entity_selected(self, entity_id: int) -> None:
+        """Handles the selection of an entity.
+        Uses the callback to check if the entity can be added. Enables or disables the add button accordingly.
+
+        Args:
+            entity_id (int): The ID of the selected entity.
+        """
+        # Check if the entity can be added and set the add button state accordingly
+        if self._can_add_entity(entity_id):
+            self.view.btn_add.setEnabled(True)
+        else:
+            self.view.btn_add.setEnabled(False)
+
+    def _on_add_button_clicked(self) -> None:
+        """Handles the add button click event.
+        Emits the entityAdded signal with the selected entity ID.
+        """
+        # Emit the entity added signal
+        self.entityAdded.emit(
+            self.entity_search_column.view.search_results.selected_item_data
+        )
+        self.view.close()

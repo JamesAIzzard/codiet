@@ -17,6 +17,9 @@ class ListBox(QListWidget):
     - View Item: The QListWidgetItem that is displayed in the list box.
     - View Item Content: The content of the view item. This can be a string or a widget.
     - Data: The data associated with the view item. This can be any object.
+
+    Signals:
+        itemClicked: Emitted when an item is clicked. The signal is emitted with the item content and data.
     """
 
     itemClicked = pyqtSignal(object, object)
