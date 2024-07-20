@@ -13,7 +13,7 @@ from codiet.utils.time import (
 from codiet.utils.strings import convert_to_snake_case
 from codiet.utils.recipes import convert_recipe_to_json, save_recipe_datafile, recipe_datafile_exists
 from codiet.models.recipes import Recipe
-from codiet.models.ingredients import IngredientQuantity
+from codiet.models.ingredients.ingredient import IngredientQuantity
 from codiet.views.dialogs import (
     DialogBoxView,
     EntityNameDialogView, 

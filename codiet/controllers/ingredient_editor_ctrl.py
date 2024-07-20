@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QWidget
 
 from codiet.db.database_service import DatabaseService
 
-from codiet.models.ingredients import Ingredient
+from codiet.models.ingredients.ingredient import Ingredient
 from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
 from codiet.models.units.entity_unit_conversion import EntityUnitConversion
 from codiet.models.units.entity_units_system import EntityUnitsSystem

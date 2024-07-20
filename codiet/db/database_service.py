@@ -6,12 +6,13 @@ from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
 from codiet.models.units.entity_unit_conversion import EntityUnitConversion
 from codiet.models.nutrients import Nutrient
-from codiet.models.ingredients import Ingredient, IngredientQuantity
+from codiet.models.ingredients.ingredient import Ingredient
+from codiet.models.ingredients.ingredient_quantity import IngredientQuantity
 from codiet.models.nutrients.entity_nutrient_quantity import (
     EntityNutrientQuantity,
 )
 from codiet.models.time import RecipeServeTimeWindow
-from codiet.models.recipes import Recipe
+from codiet.models.recipes.recipe import Recipe
 
 
 class DatabaseService:
@@ -685,7 +686,9 @@ class DatabaseService:
         # Delete any nutrient quantities that are no longer needed
         for nutrient_quantity_id in existing_nutrient_quantities.keys():
             if nutrient_quantity_id not in ingredient.nutrient_quantities:
-                self.repository.delete_ingredient_nutrient_quantity(nutrient_quantity_id)
+                self.repository.delete_ingredient_nutrient_quantity(
+                    ingredient_id=ingredient.id, global_nutrient_id=nutrient_quantity_id
+                )
 
     def update_ingredient_unit_conversion(self, unit_conversion: EntityUnitConversion) -> None:
         """Updates the unit conversion in the database."""

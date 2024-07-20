@@ -6,7 +6,9 @@ from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
 from codiet.models.units.entity_unit_conversion import EntityUnitConversion
 from codiet.models.nutrients import Nutrient
-from codiet.models.ingredients import Ingredient, IngredientQuantity, EntityNutrientQuantity
+from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
+from codiet.models.ingredients.ingredient import Ingredient
+from codiet.models.ingredients.ingredient_quantity import IngredientQuantity
 from codiet.models.time import RecipeServeTimeWindow
 
 def flatten_nutrients(nutrient_data, parent_id=None):

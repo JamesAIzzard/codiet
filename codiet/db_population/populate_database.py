@@ -14,7 +14,7 @@ from codiet.db_population import (
     GLOBAL_RECIPE_TAG_DATA_FILEPATH,
 )
 from codiet.utils.tags import flatten_tree
-from codiet.models.ingredients import EntityNutrientQuantity
+from codiet.models.ingredients.ingredient import EntityNutrientQuantity
 from codiet.models.recipes import Recipe
 from codiet.db.database_service import DatabaseService
 

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from codiet.models.ingredients import IngredientQuantity
+from codiet.models.ingredients.ingredient_quantity import IngredientQuantity
 from codiet.models.time import RecipeServeTimeWindow
 
 class Recipe:

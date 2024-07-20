@@ -9,8 +9,9 @@ from codiet.db_population.recipes.recipe_tags import get_global_recipe_tags
 from codiet.db.database import Database
 from codiet.db.repository import Repository
 from codiet.db.database_service import DatabaseService
-from codiet.models.ingredients import Ingredient
-from codiet.models.recipes import Recipe
+from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
+from codiet.models.ingredients.ingredient import Ingredient
+from codiet.models.recipes.recipe import Recipe
 
 class DatabaseTestCase(unittest.TestCase):
     """Base class for Repository test cases."""
@@ -104,45 +105,45 @@ class DatabaseTestCase(unittest.TestCase):
         test_ingredient.cost_value = 1.0
         test_ingredient.cost_qty_value = 100.0
         test_ingredient.cost_qty_unit_id = self.unit_id_name_map.get_int("gram")
-        # Set a couple of flags
+        # Add a couple of flags
         vegan_flag_id = self.flag_id_name_map.get_int("vegan")
         self.database_service.repository.create_ingredient_flag(
             ingredient_id=test_ingredient.id, 
             flag_id=vegan_flag_id,
             flag_value=True
         )
-        test_ingredient.set_flag(vegan_flag_id, True)
+        test_ingredient.add_flag(vegan_flag_id, True)
         vegetarian_flag_id = self.flag_id_name_map.get_int("vegetarian")
         self.database_service.repository.create_ingredient_flag(
             ingredient_id=test_ingredient.id, 
             flag_id=vegetarian_flag_id,
             flag_value=True
         )
-        test_ingredient.set_flag(vegetarian_flag_id, True)
+        test_ingredient.add_flag(vegetarian_flag_id, True)
         # Set the gylycemic index
         test_ingredient.gi = 50
         self.database_service.repository.update_ingredient_gi(
             ingredient_id=test_ingredient.id,
             gi=test_ingredient.gi
         )
-        # Add a couple of nutrient quantities
-        alanine_nq = self.database_service.create_ingredient_nutrient_quantity(
-            ingredient_id=test_ingredient.id,
+        # Create a couple of nutrient quantities
+        alanine_nq = EntityNutrientQuantity(
             nutrient_id=self.nutrient_id_name_map.get_int("alanine"),
             ntr_mass_unit_id=self.unit_id_name_map.get_int("milligram"),
             ntr_mass_value=100,
-            ing_qty_unit_id=self.unit_id_name_map.get_int("slice"),
-            ing_grams_value=1.0
+            entity_grams_qty=100,
+            entity_id=test_ingredient.id
         )
+        alanine_nq = self.database_service.create_ingredient_nutrient_quantity(alanine_nq)
         test_ingredient.add_nutrient_quantity(alanine_nq)
-        arginine_nq = self.database_service.create_ingredient_nutrient_quantity(
-            ingredient_id=test_ingredient.id,
+        arginine_nq = EntityNutrientQuantity(
             nutrient_id=self.nutrient_id_name_map.get_int("arginine"),
             ntr_mass_unit_id=self.unit_id_name_map.get_int("milligram"),
             ntr_mass_value=200,
-            ing_qty_unit_id=self.unit_id_name_map.get_int("ounce"),
-            ing_grams_value=1.0
+            entity_grams_qty=100,
+            entity_id=test_ingredient.id
         )
+        arginine_nq = self.database_service.create_ingredient_nutrient_quantity(arginine_nq)
         test_ingredient.add_nutrient_quantity(arginine_nq)
         return test_ingredient
 
