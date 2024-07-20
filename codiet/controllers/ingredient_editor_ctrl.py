@@ -5,7 +5,8 @@ from PyQt6.QtWidgets import QWidget
 from codiet.db.database_service import DatabaseService
 
 from codiet.models.ingredients import Ingredient
-from codiet.models.nutrients import EntityNutrientQuantity
+from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
+from codiet.models.units.entity_unit_conversion import EntityUnitConversion
 from codiet.models.units.entity_units_system import EntityUnitsSystem
 from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.controllers.search.search_column import SearchColumn
@@ -134,18 +135,6 @@ class IngredientEditor:
 
         # Connect signals and slots
         self.view.txt_gi.textChanged.connect(self._on_gi_value_changed)
-
-        # Create dialog boxes
-        self._ingredient_name_editor_dialog_view = EntityNameEditorDialog(
-            parent=self.view,
-            check_name_available=lambda name: name not in self._ingredient_name_ids.str_values,
-            on_name_accepted_callback=self._on_ingredient_name_accepted,
-        )
-        self._select_ingredient_name_for_delete_dialog_view: ErrorDialogBoxView
-        self._confirm_delete_ingredient_dialog = ConfirmFileDeleteDialog(
-            entity_name="Ingredient",
-            confirm_delete_callback=self._on_confirm_delete_ingredient_clicked,
-        )
 
         # Load the first ingredient into the view
         self.ingredient = self.db_service.read_ingredient(
@@ -288,13 +277,13 @@ class IngredientEditor:
             )
             db_service.commit()
     
-    def _on_unit_conversion_added(self, from_unit_id: int, to_unit_id) -> tuple[int, int]:
+    def _on_unit_conversion_added(self, from_unit_id: int, to_unit_id) -> EntityUnitConversion:
         """Handler for a unit conversion being added to the ingredient.
         Args:
             from_unit_id (int): The ID of the unit to convert from.
             to_unit_id (int): The ID of the unit to convert to.
         Returns:
-            tuple[int, int]: The IDs of the new unit conversion, and the ID of the entity.
+            EntityUnitConversion: The new unit conversion, with the ID, and from/to unit quantities set.
         """
         # Insert the new unit conversion into the database
         unit_conversion = self.db_service.create_ingredient_unit_conversion(
@@ -306,7 +295,7 @@ class IngredientEditor:
         # Add the new unit conversion to the ingredient
         self.ingredient.add_unit_conversion(unit_conversion)
         # Return the ID of the new unit conversion
-        return unit_conversion.id
+        return unit_conversion
 
     def _on_unit_conversion_removed(self, unit_conversion_id: int) -> None:
         """Handler for a unit conversion being removed from the ingredient.
@@ -389,31 +378,36 @@ class IngredientEditor:
         )
         self.db_service.repository.commit()
 
-    def _on_nutrient_qty_added(self, nutrient_id:int):
+    def _on_nutrient_qty_added(self, nutrient_quantity: EntityNutrientQuantity) -> None:
         """Handler for adding a nutrient quantity to the ingredient."""
-        # Create a new nutrient quantity
-        nutrient_quantity = EntityNutrientQuantity(
-            ingredient_id=self.ingredient.id,
-            nutrient_id=nutrient_id,
-            mass_value=0.0,
-            mass_unit_id=self._gram_id,
-        )
+        # Add the ingredient ID to the nutrient quantity
+        nutrient_quantity.parent_entity_id = self.ingredient.id
         # Add the nutrient quantity to the ingredient
         self.ingredient.add_nutrient_quantity(nutrient_quantity)
         # Add the nutrient quantity to the database
-        self.db_service.insert_ingredient_nutrient_quantity(nutrient_quantity)
+        self.db_service.create_ingredient_nutrient_quantity(nutrient_quantity)
         self.db_service.repository.commit()
 
     def _on_nutrient_qty_changed(self, nutrient_quantity: EntityNutrientQuantity):
         """Handler for changes to the ingredient nutrient quantities."""
         # Update the nutrient quantity on the model
-        self.ingredient.upsert_nutrient_quantity(nutrient_quantity)
+        self.ingredient.update_nutrient_quantity(nutrient_quantity)
         # Update the nutrient quantity in the database
-        with DatabaseService() as db_service:
-            db_service.update_ingredient_nutrient_quantity(
-                nutrient_quantity=nutrient_quantity,
-            )
-            db_service.commit()
+        self.db_service.update_ingredient_nutrient_quantity(nutrient_quantity)
+
+    def _on_nutrient_qty_removed(self, nutrient_id: int):
+        """Handler for removing a nutrient quantity from the ingredient."""
+        # Raise an exception if the nutrient is not in the ingredient
+        if nutrient_id not in self.ingredient.nutrient_quantities:
+            raise KeyError(f"Nutrient ID '{nutrient_id}' not in ingredient.")
+        # Remove the nutrient quantity from the ingredient
+        self.ingredient.remove_nutrient_quantity(nutrient_id)
+        # Remove the nutrient quantity from the database
+        self.db_service.repository.delete_ingredient_nutrient_quantity(
+            ingredient_id=self.ingredient.id,
+            global_nutrient_id=nutrient_id
+        )
+        self.db_service.repository.commit()
 
     def _connect_toolbar(self) -> None:
         """Connect the toolbar button signals."""

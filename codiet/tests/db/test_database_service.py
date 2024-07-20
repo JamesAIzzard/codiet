@@ -578,10 +578,10 @@ class TestReadIngredient(DatabaseTestCase):
         # Set these nutrient quantities on the ingredient
         self.database_service.repository.create_ingredient_nutrient_quantity(
             ingredient_id=ingredient.id,
-            nutrient_id=alanine_id,
+            global_nutrient_id=alanine_id,
             ntr_mass_unit_id=g_id,
-            ntr_mass_value=1.0,
-            ing_grams_value=100.0
+            ntr_mass_qty=1.0,
+            ing_grams_qty=100.0
         )
         # Read the ingredient
         fetched_ingredient = self.database_service.read_ingredient(ingredient.id)

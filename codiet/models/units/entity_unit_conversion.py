@@ -19,4 +19,4 @@ class EntityUnitConversion(UnitConversion):
             to_unit_qty (float): The quantity of the to unit.
         """
         super().__init__(*args, **kwargs)
-        self.ingredient_id = entity_id
+        self.entity_id = entity_id

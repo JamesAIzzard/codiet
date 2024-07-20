@@ -164,7 +164,7 @@ class Database:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 ingredient_id INTEGER,
                 flag_id INTEGER,
-                flag_value BOOLEAN,
+                flag_value BOOLEAN NOT NULL,
                 FOREIGN KEY (ingredient_id) REFERENCES ingredients(id),
                 FOREIGN KEY (flag_id) REFERENCES global_flags(id)
             )
@@ -179,7 +179,7 @@ class Database:
                 nutrient_id INTEGER NOT NULL,
                 ntr_mass_unit_id INTEGER NOT NULL,
                 ntr_mass_value REAL,
-                ing_grams_qty REAL NOT NULL,
+                ing_grams_qty REAL,
                 FOREIGN KEY (ingredient_id) REFERENCES ingredients(id),
                 FOREIGN KEY (nutrient_id) REFERENCES nutrient_list(id),
                 FOREIGN KEY (ntr_mass_unit_id) REFERENCES global_units(id)

@@ -109,14 +109,14 @@ class DatabaseTestCase(unittest.TestCase):
         self.database_service.repository.create_ingredient_flag(
             ingredient_id=test_ingredient.id, 
             flag_id=vegan_flag_id,
-            value=True
+            flag_value=True
         )
         test_ingredient.set_flag(vegan_flag_id, True)
         vegetarian_flag_id = self.flag_id_name_map.get_int("vegetarian")
         self.database_service.repository.create_ingredient_flag(
             ingredient_id=test_ingredient.id, 
             flag_id=vegetarian_flag_id,
-            value=True
+            flag_value=True
         )
         test_ingredient.set_flag(vegetarian_flag_id, True)
         # Set the gylycemic index

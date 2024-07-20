@@ -144,7 +144,7 @@ class DatabaseService:
         to_unit_id: int,
         to_unit_qty: float | None = None,
         from_unit_qty: float | None = None,
-    ) -> IngredientUnitConversion:
+    ) -> EntityUnitConversion:
         """Creates a unit conversion for the given ingredient.
         Args:
             ingredient_id (int): The id of the ingredient.
@@ -179,8 +179,8 @@ class DatabaseService:
             to_unit_qty=to_unit_qty,
         )
         # Init the unit conversion
-        unit_conversion = IngredientUnitConversion(
-            ingredient_id=ingredient_id,
+        unit_conversion = EntityUnitConversion(
+            entity_id=ingredient_id,
             id=conversion_id,
             from_unit_id=from_unit_id,
             from_unit_qty=from_unit_qty,
@@ -199,13 +199,16 @@ class DatabaseService:
         Returns:
             EntityNutrientQuantity: The created nutrient quantity object.
         """
+        # Raise an exception if the parent entity ID is not set
+        if ing_nutr_qty.parent_entity_id is None:
+            raise ValueError("The parent entity ID must be set.")
         # Insert the nutrient quantity into the database
         nutrient_quantity_id = self.repository.create_ingredient_nutrient_quantity(
             ingredient_id=ing_nutr_qty.parent_entity_id,
-            nutrient_id=ing_nutr_qty.nutrient_id,
-            ntr_mass_value=ing_nutr_qty.nutrient_mass_value,
+            global_nutrient_id=ing_nutr_qty.nutrient_id,
+            ntr_mass_qty=ing_nutr_qty.nutrient_mass_value,
             ntr_mass_unit_id=ing_nutr_qty.nutrient_mass_unit_id,
-            ing_grams_value=ing_nutr_qty.entity_grams_value,
+            ing_grams_qty=ing_nutr_qty.entity_grams_value,
         )
         # Populate the ID and return the object
         ing_nutr_qty.id = nutrient_quantity_id
@@ -498,33 +501,35 @@ class DatabaseService:
         ingredient.cost_value = cost_data["cost_value"]
         ingredient.cost_qty_unit_id = cost_data["cost_qty_unit_id"]
         ingredient.cost_qty_value = cost_data["cost_qty_value"]
-        # Fetch the standard unit
-        ingredient.standard_unit_id = self.repository.read_ingredient_standard_unit_id(
-            ingredient.id
-        )
         # Fetch the unit conversions
-        ingredient._unit_conversions = self.read_ingredient_unit_conversions(
+        unit_conversions = self.read_ingredient_unit_conversions(
             ingredient_id=ingredient.id
         )
+        for _, conversion in unit_conversions.items():
+            ingredient.add_unit_conversion(conversion)
         # Fetch the flags
-        ingredient._flags = self.repository.read_ingredient_flags(ingredient.id)
+        flags = self.repository.read_ingredient_flags(ingredient.id)
+        for flag_id, flag_value in flags.items():
+            ingredient.add_flag(flag_id, flag_value)
         # Fetch the GI
         ingredient.gi = self.repository.read_ingredient_gi(ingredient.id)
         # Fetch the nutrients
-        ingredient._nutrient_quantities = self.read_ingredient_nutrient_quantities(
+        nutrient_quantities = self.read_ingredient_nutrient_quantities(
             ingredient_id=ingredient.id
         )
+        for _, nutrient_quantity in nutrient_quantities.items():
+            ingredient.add_nutrient_quantity(nutrient_quantity)
         # Return the completed ingredient
         return ingredient
 
     def read_ingredient_unit_conversions(
         self, ingredient_id: int
-    ) -> dict[int, IngredientUnitConversion]:
+    ) -> dict[int, EntityUnitConversion]:
         """Returns a list of unit conversions for the given ingredient.
         Args:
             ingredient_id (int): The id of the ingredient.
         Returns:
-            dict[int, IngredientUnitConversion]: A dictionary of custom units, where the key is the
+            dict[int, EntityUnitConversion]: A dictionary of unit conversions, where the key is the
             id of each specific unit conversion.
         """
         # Init a list to hold the custom units
@@ -536,8 +541,8 @@ class DatabaseService:
         # Cycle through the raw data
         for conversion_id, conversion_data in raw_conversion_data.items():
             # Create a new custom unit
-            conversions[conversion_id] = IngredientUnitConversion(
-                ingredient_id=ingredient_id,
+            conversions[conversion_id] = EntityUnitConversion(
+                entity_id=ingredient_id,
                 id=conversion_id,
                 from_unit_id=conversion_data["from_unit_id"],
                 from_unit_qty=conversion_data["from_unit_qty"],
@@ -568,10 +573,10 @@ class DatabaseService:
             nutrient_quantities[nutrient_id] = EntityNutrientQuantity(
                 id=nutrient_qty_data["id"],
                 nutrient_id=nutrient_id,
-                ingredient_id=ingredient_id,
+                entity_id=ingredient_id,
                 ntr_mass_value=nutrient_qty_data["ntr_mass_value"],
                 ntr_mass_unit_id=nutrient_qty_data["ntr_mass_unit_id"],
-                ing_grams_value=nutrient_qty_data["ing_grams_value"],
+                entity_grams_value=nutrient_qty_data["ing_grams_value"],
             )
         return nutrient_quantities
 
@@ -592,18 +597,34 @@ class DatabaseService:
             ingredient.id, ingredient.standard_unit_id
         )
         # Update the unit conversions
-        # First delete all the existing unit conversions
+        # Read the existing saved unit conversions
+        existing_unit_conversions = self.repository.read_ingredient_unit_conversions(
+            ingredient.id
+        )
+        # Compare the existing unit conversions with the new ones
         for unit_conversion in ingredient.unit_conversions.values():
-            self.repository.delete_ingredient_unit_conversion(unit_conversion.id)
-        # Then add the new ones
-        for unit_conversion in ingredient.unit_conversions.values():
-            self.repository.create_ingredient_unit_conversion(
-                ingredient_id=ingredient.id,
-                from_unit_id=unit_conversion.from_unit_id,
-                from_unit_qty=unit_conversion.from_unit_qty,
-                to_unit_id=unit_conversion.to_unit_id,
-                to_unit_qty=unit_conversion.to_unit_qty,
-            )        
+            # If the unit conversion is new, add it
+            if unit_conversion.id not in existing_unit_conversions:
+                self.repository.create_ingredient_unit_conversion(
+                    ingredient_id=ingredient.id,
+                    from_unit_id=unit_conversion.from_unit_id,
+                    from_unit_qty=unit_conversion.from_unit_qty,
+                    to_unit_id=unit_conversion.to_unit_id,
+                    to_unit_qty=unit_conversion.to_unit_qty,
+                )
+            # If the unit conversion is already saved, update it
+            else:
+                self.repository.update_ingredient_unit_conversion(
+                    ingredient_unit_id=unit_conversion.id,
+                    from_unit_id=unit_conversion.from_unit_id,
+                    from_unit_qty=unit_conversion.from_unit_qty,
+                    to_unit_id=unit_conversion.to_unit_id,
+                    to_unit_qty=unit_conversion.to_unit_qty,
+                )
+        # Delete any unit conversions that are no longer needed
+        for unit_conversion_id in existing_unit_conversions.keys():
+            if unit_conversion_id not in ingredient.unit_conversions:
+                self.repository.delete_ingredient_unit_conversion(unit_conversion_id)      
         # Update the cost data
         self.repository.update_ingredient_cost(
             ingredient_id=ingredient.id,
@@ -612,25 +633,59 @@ class DatabaseService:
             cost_qty_value=ingredient.cost_qty_value,
         )
         # Update the flags
-        # First, remove all the flags
-        self.repository.delete_ingredient_flags(ingredient.id)
-        # Then add the new ones
+        # Read the existing saved flags
+        existing_flags = self.repository.read_ingredient_flags(ingredient.id)
+        # Compare the existing flags with the new ones
         for flag_id, flag_value in ingredient.flags.items():
-            self.repository.create_ingredient_flag(ingredient.id, flag_id, flag_value)
+            # If the flag is new, add it
+            if flag_id not in existing_flags:
+                self.repository.create_ingredient_flag(
+                    ingredient_id=ingredient.id,
+                    flag_id=flag_id,
+                    flag_value=flag_value,
+                )
+            # If the flag is already saved, update it
+            else:
+                self.repository.update_ingredient_flag(
+                    ingredient_id=ingredient.id,
+                    flag_id=flag_id,
+                    flag_value=flag_value,
+                )
+        # Delete any flags that are no longer needed
+        for flag_id in existing_flags.keys():
+            if flag_id not in ingredient.flags:
+                self.repository.delete_ingredient_flag(ingredient.id, flag_id)
         # Update the GI
         self.repository.update_ingredient_gi(ingredient.id, ingredient.gi)
         # Update the nutrient quantities
-        # First, remove all the nutrient quantities
-        self.repository.delete_ingredient_nutrient_quantities(ingredient.id)
-        # Then add the new ones
+        # First, read the existing saved nutrient quantities
+        existing_nutrient_quantities = self.repository.read_ingredient_nutrient_quantities(
+            ingredient.id
+        )
+        # Compare the existing nutrient quantities with the new ones
         for nutrient_quantity in ingredient.nutrient_quantities.values():
-            self.repository.create_ingredient_nutrient_quantity(
-                ingredient_id=ingredient.id,
-                nutrient_id=nutrient_quantity.nutrient_id,
-                ntr_mass_value=nutrient_quantity.nutrient_mass_value,
-                ntr_mass_unit_id=nutrient_quantity.nutrient_mass_unit_id,
-                ing_grams_value=nutrient_quantity.ing_grams_value,
-            )
+            # If the nutrient quantity is new, add it
+            if nutrient_quantity.id not in existing_nutrient_quantities:
+                self.repository.create_ingredient_nutrient_quantity(
+                    ingredient_id=ingredient.id,
+                    global_nutrient_id=nutrient_quantity.nutrient_id,
+                    ntr_mass_qty=nutrient_quantity.nutrient_mass_value,
+                    ntr_mass_unit_id=nutrient_quantity.nutrient_mass_unit_id,
+                    ing_grams_qty=nutrient_quantity.entity_grams_value,
+                )
+            # If the nutrient quantity is already saved, update it
+            else:
+                self.repository.update_ingredient_nutrient_quantity(
+                    ingredient_id=ingredient.id,
+                    global_nutrient_id=nutrient_quantity.nutrient_id,
+                    ntr_mass_qty=nutrient_quantity.nutrient_mass_value,
+                    ntr_mass_unit_id=nutrient_quantity.nutrient_mass_unit_id,
+                    ing_grams_qty=nutrient_quantity.entity_grams_value,
+                )
+        # Delete any nutrient quantities that are no longer needed
+        for nutrient_quantity_id in existing_nutrient_quantities.keys():
+            if nutrient_quantity_id not in ingredient.nutrient_quantities:
+                self.repository.delete_ingredient_nutrient_quantity(nutrient_quantity_id)
 
     def update_ingredient_unit_conversion(self, unit_conversion: EntityUnitConversion) -> None:
         """Updates the unit conversion in the database."""
@@ -640,6 +695,23 @@ class DatabaseService:
             from_unit_qty=unit_conversion.from_unit_qty,
             to_unit_id=unit_conversion.to_unit_id,
             to_unit_qty=unit_conversion.to_unit_qty,
+        )
+
+    def update_ingredient_nutrient_quantity(self, ing_nutr_qty: EntityNutrientQuantity) -> None:
+        """Updates the nutrient quantity in the database.
+        Args:
+            ing_nutr_qty (EntityNutrientQuantity): The nutrient quantity object.
+        """
+        # Raise an exception if the parent entity ID is not set
+        if ing_nutr_qty.parent_entity_id is None:
+            raise ValueError("The parent entity ID must be set.")
+        # Update the nutrient quantity in the database
+        self.repository.update_ingredient_nutrient_quantity(
+            ingredient_id=ing_nutr_qty.parent_entity_id,
+            global_nutrient_id=ing_nutr_qty.nutrient_id,
+            ntr_mass_qty=ing_nutr_qty.nutrient_mass_value,
+            ntr_mass_unit_id=ing_nutr_qty.nutrient_mass_unit_id,
+            ing_grams_qty=ing_nutr_qty.entity_grams_value,
         )
 
     def delete_ingredient_unit_conversions(self, ingredient_id: int) -> None:

@@ -172,7 +172,7 @@ class TestCreateIngredientFlag(DatabaseTestCase):
         self.repository.create_ingredient_flag(
             ingredient_id=ingredient_id,
             flag_id=flag_id,
-            value=True,
+            flag_value=True,
         )
         # Fetch the ingredient flags again
         flags = self.repository.read_ingredient_flags(ingredient_id)
@@ -251,10 +251,10 @@ class TestCreateIngredientNutrientQuantity(DatabaseTestCase):
         # Add the nutrient to the ingredient
         self.repository.create_ingredient_nutrient_quantity(
             ingredient_id=ingredient_id,
-            nutrient_id=nutrient_id,
-            ntr_mass_value=1,
+            global_nutrient_id=nutrient_id,
+            ntr_mass_qty=1,
             ntr_mass_unit_id=g_id,
-            ing_grams_value=100,
+            ing_grams_qty=100,
         )
         # Fetch the ingredient nutrients again
         ingredient_ntr_quantities = self.repository.read_ingredient_nutrient_quantities(ingredient_id)
@@ -698,7 +698,7 @@ class TestUpdateIngredientFlag(DatabaseTestCase):
         self.repository.create_ingredient_flag(
             ingredient_id=ingredient_id,
             flag_id=flag_id,
-            value=True,
+            flag_value=True,
         )
         # Fetch the ingredient flags
         flags = self.repository.read_ingredient_flags(ingredient_id)
@@ -770,10 +770,10 @@ class TestUpdateIngredientNutrientQuantity(DatabaseTestCase):
         # Add the nutrient to the ingredient
         self.repository.create_ingredient_nutrient_quantity(
             ingredient_id=ingredient_id,
-            nutrient_id=nutrient_id,
-            ntr_mass_value=1,
+            global_nutrient_id=nutrient_id,
+            ntr_mass_qty=1,
             ntr_mass_unit_id=g_id,
-            ing_grams_value=100,
+            ing_grams_qty=100,
         )
         # Fetch the ingredient nutrients again
         ing_nutr_quantities = self.repository.read_ingredient_nutrient_quantities(ingredient_id)
