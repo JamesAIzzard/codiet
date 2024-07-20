@@ -1070,15 +1070,15 @@ class Repository:
                 (ingredient_id,),
             )
 
-    def delete_ingredient_nutrient_quantity(self, nutrient_qty_id:int) -> None:
-        """Deletes the given nutrient quantity for the given ID"""
+    def delete_ingredient_nutrient_quantity(self, global_nutrient_id:int, ingredient_id:int) -> None:
+        """Deletes the given nutrient quantity for the given ID and ingredient ID"""
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
                 DELETE FROM ingredient_nutrient_quantities
-                WHERE id = ?;
+                WHERE nutrient_id = ? AND ingredient_id = ?;
             """,
-                (nutrient_qty_id,),
+                (global_nutrient_id, ingredient_id),
             )
 
     def delete_ingredient_nutrient_quantities(self, ingredient_id: int) -> None:

@@ -1,11 +1,9 @@
 import unittest
 
-from codiet.models.units import (
-    Unit,
-    UnitConversion,
-    IngredientUnitConversion,
-    IngredientUnitsSystem,
-)
+from codiet.models.units.unit import Unit
+from codiet.models.units.unit_conversion import UnitConversion
+from codiet.models.units.entity_unit_conversion import EntityUnitConversion
+from codiet.models.units.entity_units_system import EntityUnitsSystem
 
 class TestIngredientUnitsSystem(unittest.TestCase):
 
@@ -27,27 +25,27 @@ class TestIngredientUnitsSystem(unittest.TestCase):
         }
         
         self.ingredient_unit_conversions = {
-            1: IngredientUnitConversion(1, 1, 1, 6, 100, 1)  # 100 grams = 1 slice (for ingredient 1)
+            1: EntityUnitConversion(1, 1, 1, 6, 100, 1)  # 100 grams = 1 slice (for ingredient 1)
         }
         
         # Create a system with disconnected graph
-        self.disconnected_system = IngredientUnitsSystem(
+        self.disconnected_system = EntityUnitsSystem(
             global_units=self.global_units,
             global_unit_conversions=self.global_unit_conversions,
-            ingredient_unit_conversions=self.ingredient_unit_conversions
+            entity_unit_conversions=self.ingredient_unit_conversions
         )
 
         # Create a system with connected graph
         connected_conversions = self.global_unit_conversions.copy()
         connected_conversions[4] = UnitConversion(4, 1, 4, 1, 1)  # 1 gram = 1 millilitre (for testing purposes)
-        self.connected_system = IngredientUnitsSystem(
+        self.connected_system = EntityUnitsSystem(
             global_units=self.global_units,
             global_unit_conversions=connected_conversions,
-            ingredient_unit_conversions=self.ingredient_unit_conversions
+            entity_unit_conversions=self.ingredient_unit_conversions
         )
 
     def test_init(self):
-        self.assertIsInstance(self.disconnected_system, IngredientUnitsSystem)
+        self.assertIsInstance(self.disconnected_system, EntityUnitsSystem)
         self.assertEqual(len(self.disconnected_system.graph), 6)  # All units should be in the graph
 
     def test_gram_id_correct(self):

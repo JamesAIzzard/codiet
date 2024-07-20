@@ -2,7 +2,9 @@ from . import DatabaseTestCase
 from codiet.db_population.units import get_global_units
 from codiet.db_population.flags import get_global_flags
 from codiet.db_population.nutrients import get_global_nutrients
-from codiet.models.units import Unit, UnitConversion, IngredientUnitConversion
+from codiet.models.units.unit import Unit
+from codiet.models.units.unit_conversion import UnitConversion
+from codiet.models.units.entity_unit_conversion import EntityUnitConversion
 from codiet.models.nutrients import Nutrient
 from codiet.models.ingredients import Ingredient, IngredientQuantity, EntityNutrientQuantity
 from codiet.models.time import RecipeServeTimeWindow
@@ -112,8 +114,6 @@ class TestCreateEmptyIngredient(DatabaseTestCase):
         self.assertIsNone(ingredient.description)
         # Assert the standard unit is set to grams
         self.assertEqual(ingredient.standard_unit_id, g_id)
-        # Check the cost unit id is None
-        self.assertIsNone(ingredient.cost_unit_id)
         # Check the cost value is None
         self.assertIsNone(ingredient.cost_value)
         # Check the cost quantity unit id is grams
@@ -775,9 +775,9 @@ class TestUpdateIngredient(DatabaseTestCase):
             from_unit_qty=150,
             to_unit_qty=1
         )
-        ing_slice_uc = IngredientUnitConversion(
+        ing_slice_uc = EntityUnitConversion(
             id=slice_uc_id,
-            ingredient_id=ingredient.id,
+            entity_id=ingredient.id,
             from_unit_id=g_id,
             to_unit_id=slice_id,
             from_unit_qty=150,
@@ -785,20 +785,20 @@ class TestUpdateIngredient(DatabaseTestCase):
         )
         ingredient.add_unit_conversion(ing_slice_uc)
         
-        # Set flags
+        # Add flags
         gf_flag_id = flag_name_to_id.get_int("gluten free")
         v_flag_id = flag_name_to_id.get_int("vegetarian")
-        ingredient.set_flag(gf_flag_id, True)
-        ingredient.set_flag(v_flag_id, False)
+        ingredient.add_flag(gf_flag_id, True)
+        ingredient.add_flag(v_flag_id, False)
         
         # Set nutrient quantities
         alanine_id = nutrient_name_to_id.get_int("alanine")
         ing_alanine_qty = EntityNutrientQuantity(
             id=alanine_id,
-            ingredient_id=ingredient.id,
+            entity_id=ingredient.id,
             nutrient_id=alanine_id,
             ntr_mass_unit_id=g_id,
-            ing_grams_value=100.0
+            entity_grams_qty=100.0
         )
         ingredient.add_nutrient_quantity(ing_alanine_qty)
         

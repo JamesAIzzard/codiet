@@ -15,7 +15,7 @@ class EntityNutrientQuantity:
         nutrient_id: int,
         ntr_mass_unit_id: int,
         ntr_mass_value: float | None = None,
-        entity_grams_value: float | None = None,
+        entity_grams_qty: float | None = None,
         id: int|None=None,
         entity_id: int|None=None,        
     ):
@@ -24,4 +24,4 @@ class EntityNutrientQuantity:
         self.parent_entity_id = entity_id
         self.nutrient_mass_value = ntr_mass_value
         self.nutrient_mass_unit_id = ntr_mass_unit_id
-        self.entity_grams_value = entity_grams_value
+        self.entity_grams_value = entity_grams_qty
