@@ -6,7 +6,7 @@ from codiet.views.main_window_view import MainWindowView
 from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.views.recipe_editor_view import RecipeEditorView
 from codiet.views.meal_planner_view import MealPlannerView
-from codiet.controllers.ingredient_editor_ctrl import IngredientEditor
+from codiet.controllers.ingredient_editor import IngredientEditor
 from codiet.controllers.recipe_editor_ctrl import RecipeEditorCtrl
 from codiet.controllers.meal_planner_ctrl import MealPlannerCtrl
 

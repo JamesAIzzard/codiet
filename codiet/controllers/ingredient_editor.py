@@ -92,14 +92,11 @@ class IngredientEditor:
         # Unit conversions editor
         self.unit_conversion_editor = UnitConversionsEditor(
             global_units=self._global_units,
-            get_existing_conversions=lambda: self.ingredient.unit_conversions,
-            check_conversion_available=lambda from_unit_id, to_unit_id: not self._ingredient_unit_system.can_convert_units(
-                from_unit_id=from_unit_id,
-                to_unit_id=to_unit_id,
-            ),
+            conversion_list=self.ingredient.unit_conversions,
             create_conversion_callback=self._on_unit_conversion_added,
             view=self.view.unit_conversions_editor,
         )
+        self.unit_conversion_editor.conversionAdded.connect(self._on_unit_conversion_added)
         self.unit_conversion_editor.conversionRemoved.connect(self._on_unit_conversion_removed)
         self.unit_conversion_editor.conversionUpdated.connect(self._on_unit_conversion_updated)
         # Cost editor
