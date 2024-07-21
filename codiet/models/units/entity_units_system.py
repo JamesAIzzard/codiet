@@ -22,7 +22,7 @@ class EntityUnitsSystem:
             entity_unit_conversions (dict[int, EntityUnitConversion]): A dictionary mapping conversion IDs to entity unit conversions.
         """
         self._global_units = global_units
-        self._gram_id = next((unit_id for unit_id, unit in global_units.items() if unit.unit_name == "grams"))
+        self._gram_id:int
         self._global_unit_conversions = global_unit_conversions
         self._entity_unit_conversions = entity_unit_conversions
         self._graph: dict[int, dict[int, float]] = {}
@@ -47,6 +47,13 @@ class EntityUnitsSystem:
         Returns:
             int: The ID of the gram unit.
         """
+        if not hasattr(self, '_gram_id'):
+            for unit_id, unit in self._global_units.items():
+                if unit.unit_name.lower() == "gram":
+                    self._gram_id = unit_id
+                    break
+            else:
+                raise ValueError("No gram unit found in the global units")
         return self._gram_id
     
     @property
@@ -78,7 +85,7 @@ class EntityUnitsSystem:
         Returns:
             Dict[int, Unit]: A dictionary mapping unit IDs to units.
         """
-        return self.get_available_units(self._gram_id)
+        return self.get_available_units_from_root(self._gram_id)
 
     @property
     def entity_unit_conversions(self) -> dict[int, EntityUnitConversion]:
@@ -162,7 +169,7 @@ class EntityUnitsSystem:
         conversion_factor = self.get_conversion_factor(from_unit_id, to_unit_id)
         return quantity * conversion_factor
 
-    def get_available_units(self, root_unit_id: int|None=None) -> dict[int, Unit]:
+    def get_available_units_from_root(self, root_unit_id: int|None=None) -> dict[int, Unit]:
         """
         Retrieves all available units starting from a root unit ID.
         If the root unit ID is None, the root unit is assumed to be grams.
@@ -178,7 +185,7 @@ class EntityUnitsSystem:
             Dict[int, Unit]: A dictionary mapping unit IDs to units.
         """
         if root_unit_id is None:
-            root_unit_id = self._gram_id
+            root_unit_id = self.gram_id
 
         available_units = {}
         stack = [root_unit_id]

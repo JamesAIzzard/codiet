@@ -1,3 +1,5 @@
+from typing import Callable
+
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QWidget
 
@@ -17,7 +19,7 @@ class StandardUnitEditor(QObject):
 
     def __init__(
         self,
-        available_units: dict[int, Unit],
+        get_available_units: Callable[[], dict[int, Unit]],
         view: StandardUnitEditorView|None = None,
         parent: QWidget|None = None,
     ):
@@ -35,17 +37,33 @@ class StandardUnitEditor(QObject):
             view = StandardUnitEditorView(parent=parent or None)
         self.view = view
         
+        # Stash the constructor args
+        self._get_available_units = get_available_units
+
         # Connect signals and slots
         self.view.onUnitChanged.connect(self.onUnitChanged.emit)
 
-        # Populate units on the view
-        self.set_available_units(available_units=available_units)
+        # Populate the units
+        self.set_available_units(get_available_units=get_available_units)
 
-    def set_available_units(self, available_units:dict[int, Unit]) -> None:
-        """Reset the available units in the view."""
+    @property
+    def selected_unit(self) -> int:
+        """Return the ID of the selected unit."""
+        return self.view.unit_dropdown.selected_unit_id
+    
+    @selected_unit.setter
+    def selected_unit(self, unit_id: int) -> None:
+        """Set the selected unit."""
+        self.view.unit_dropdown.selected_unit_id = unit_id
+
+    def set_available_units(self, get_available_units: Callable[[],dict[int, Unit]]) -> None:
+        """Set the function to get available units."""
+        # Update the source callback on the module
+        self._get_available_units = get_available_units
+        # Update the available units on the view
         # Clear the old ones
         self.view.unit_dropdown.clear()
         # For each unit from the source
-        for unit_id, unit in available_units.items():
+        for unit_id, unit in get_available_units.items():
             # Add it to the view
             self.view.unit_dropdown.addItem(unit.plural_display_name, unit_id)

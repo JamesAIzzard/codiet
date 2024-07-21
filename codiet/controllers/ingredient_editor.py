@@ -82,7 +82,7 @@ class IngredientEditor:
         )
         # Standard unit editor
         self.standard_unit_editor = StandardUnitEditor(
-            available_units=self._ingredient_unit_system.get_available_units(),
+            get_available_units=lambda: self._ingredient_unit_system.available_units,
             view=self.view.standard_unit_editor,
             parent=self.view,
         )
@@ -91,9 +91,9 @@ class IngredientEditor:
         )
         # Unit conversions editor
         self.unit_conversion_editor = UnitConversionsEditor(
-            global_units=self._global_units,
-            conversion_list=self.ingredient.unit_conversions,
-            create_conversion_callback=self._on_unit_conversion_added,
+            get_global_units=lambda: self._global_units,
+            get_global_unit_conversions=lambda: self._global_unit_conversions,
+            get_entity_unit_conversions=lambda: self.ingredient.unit_conversions,
             view=self.view.unit_conversions_editor,
         )
         self.unit_conversion_editor.conversionAdded.connect(self._on_unit_conversion_added)
@@ -102,14 +102,14 @@ class IngredientEditor:
         # Cost editor
         self.cost_editor_ctrl = CostEditor(
             view=self.view.cost_editor,
-            get_available_units=lambda: self._ingredient_unit_system.get_available_units(),
+            get_available_units=lambda: self._ingredient_unit_system.get_available_units_from_root(),
         )
         self.cost_editor_ctrl.costUpdated.connect(self._on_ingredient_cost_changed)
         # Flags editor
         self.flag_editor = FlagEditor(
             global_flags=self._flag_name_ids,
+            entity_flags=self.ingredient.flags,
             view=self.view.flag_editor,
-            get_entity_flags=lambda: self.ingredient.flags
         )
         self.flag_editor.flagChanged.connect(self._on_flag_changed)
         # Ingredient nutrient editor
@@ -147,33 +147,37 @@ class IngredientEditor:
         return self._ingredient
 
     def load_ingredient(self, ingredient: Ingredient) -> None:
-        """Load an ingredient into the editor."""
+        """
+        Load an ingredient into the editor and update all views and sub-modules.
+        This method should be called whenever a new ingredient is selected or created.
+        """
         # Set the ingredient instance
         self._ingredient = ingredient
-        # Update the ingredient unit system with the unit conversions on the ingredient instance.
-        self._ingredient_unit_system.entity_unit_conversions = ingredient.unit_conversions
-        # Update the views
-        self.update_view()
 
-    def update_view(self) -> None:
-        """Update the view to reflect the state of the current ingredient.
-        This is an expensive operation and should be used sparingly.
-        """
-        # Update the views
-        self.view.ingredient_name = self.ingredient.name
-        self.view.ingredient_description = self.ingredient.description
-        self.standard_unit_editor.view.unit_dropdown.selected_unit_id = self.ingredient.standard_unit_id
-        self.unit_conversion_editor.set_unit_conversions(self.ingredient.unit_conversions) # type: ignore
+        # Update the ingredient unit system
+        self._ingredient_unit_system.entity_unit_conversions = ingredient.unit_conversions
+
+        # Update main view elements
+        self.view.ingredient_name = ingredient.name
+        self.view.ingredient_description = ingredient.description
+        self.view.gi = ingredient.gi
+
+        # Update sub-modules
+        # Standard unit editor
+        self.standard_unit_editor.selected_unit = ingredient.standard_unit_id
+        
+        self.unit_conversion_editor.unit_conversions(ingredient.unit_conversions)
+        
         self.cost_editor_ctrl.set_cost_info(
-            cost_value=self.ingredient.cost_value,
-            cost_qty_value=self.ingredient.cost_qty_value,
-            cost_qty_unit_id=self.ingredient.cost_qty_unit_id,
+            cost_value=ingredient.cost_value,
+            cost_qty_value=ingredient.cost_qty_value,
+            cost_qty_unit_id=ingredient.cost_qty_unit_id,
         )
-        self.flag_editor.set_flags(self.ingredient.flags)
-        # Update the GI field
-        self.view.update_gi(self.ingredient.gi)
-        # Set the nutrients
-        self.ingredient_nutrient_editor_ctrl.set_nutrient_quantities(self.ingredient.nutrient_quantities)
+        
+        self.flag_editor.set_entity_flags(ingredient.flags)
+        
+        self.nutrient_quantities_editor.set_entity_nutrient_data(ingredient.nutrient_quantities)
+
 
     def _on_ingredient_selected(self, ing_name_and_id: Tuple[str, int]) -> None:
         """Handles the user clicking on an ingredient in the search results.
@@ -274,25 +278,21 @@ class IngredientEditor:
             )
             db_service.commit()
     
-    def _on_unit_conversion_added(self, from_unit_id: int, to_unit_id) -> EntityUnitConversion:
+    def _on_unit_conversion_added(self, unit_conversion: EntityUnitConversion) -> None:
         """Handler for a unit conversion being added to the ingredient.
         Args:
-            from_unit_id (int): The ID of the unit to convert from.
-            to_unit_id (int): The ID of the unit to convert to.
+            unit_conversion (EntityUnitConversion): The unit conversion to add.
+                id and entity_id are not set.
         Returns:
             EntityUnitConversion: The new unit conversion, with the ID, and from/to unit quantities set.
         """
+        # Populate the unit conversion with the ingredient ID
+        unit_conversion.entity_id = self.ingredient.id
         # Insert the new unit conversion into the database
-        unit_conversion = self.db_service.create_ingredient_unit_conversion(
-            ingredient_id=self.ingredient.id,
-            from_unit_id=from_unit_id,
-            to_unit_id=to_unit_id
-        )
+        unit_conversion = self.db_service.create_ingredient_unit_conversion(unit_conversion)
         self.db_service.repository.commit()
         # Add the new unit conversion to the ingredient
         self.ingredient.add_unit_conversion(unit_conversion)
-        # Return the ID of the new unit conversion
-        return unit_conversion
 
     def _on_unit_conversion_removed(self, unit_conversion_id: int) -> None:
         """Handler for a unit conversion being removed from the ingredient.

@@ -13,16 +13,22 @@ class FlagEditor(QObject):
     entities in the application.
 
     Signals:
-        flagChanged: Emitted when a flag is changed. The signal is emitted
-            with the flag ID and the new value of the flag.
+        flagAdded: Emitted when a flag is added.
+            Arguments: flag_id (int), flag_value (bool).
+        flagChanged: Emitted when a flag is changed.
+            Arguments: flag_id (int), flag_value (bool).
+        flag_removed: Emitted when a flag is removed.
+            Arguments: flag_id (int).
     """
 
-    flagChanged = pyqtSignal(int, bool|None)
+    flagAdded = pyqtSignal(int, bool)
+    flagChanged = pyqtSignal(int, bool)
+    flag_removed = pyqtSignal(int)
 
     def __init__(
         self,
         global_flags: IntStrMap,
-        get_entity_flags: Callable[[], dict[int, bool]],
+        entity_flags: dict[int, bool],
         view: FlagEditorView|None=None,
         parent: QWidget|None=None,
     ) -> None:
@@ -41,20 +47,19 @@ class FlagEditor(QObject):
             view = FlagEditorView(parent=parent)
         self.view = view
 
-        # Stash the callbacks
+        # Stash the constructor args
         self._global_flags = global_flags
-        self._get_entity_flags = get_entity_flags
+        self._entity_flags = entity_flags
 
         # Build the add flag dialog
         self.add_flag_dialog = AddFlagDialog(
             global_flags=self._global_flags,
-            can_add_flag=lambda flag_id: flag_id not in self._get_entity_flags().keys(),
+            can_add_flag=lambda flag_id: flag_id not in self._entity_flags.keys(),
             parent=self.view
         )
         self.add_flag_dialog.flagAdded.connect(self.view.add_flag)
 
         # Connect the flag editor signals
-        self.view.flagChanged.connect(self.flagChanged.emit)
         self.view.selectAllFlagsClicked.connect(
             self._on_select_all_flags_clicked
         )
@@ -66,7 +71,7 @@ class FlagEditor(QObject):
         )
 
         # Add the current entity flags to the view
-        for flag_id, flag_value in self._get_entity_flags().items():
+        for flag_id, flag_value in self._entity_flags.items():
             self.view.add_flag(flag_id, self._global_flags.get_str(flag_id))
             self.view.set_flag(flag_id, flag_value)
 

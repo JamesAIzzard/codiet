@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QWidget
 from PyQt6.QtCore import QObject, pyqtSignal
 
 from codiet.models.units.unit import Unit
+from codiet.models.units.unit_conversion import UnitConversion
 from codiet.models.units.entity_unit_conversion import EntityUnitConversion
 from codiet.views.units.unit_conversion_editor_view import UnitConversionEditorView
 from codiet.views.units.unit_conversions_editor_view import UnitConversionsEditorView
@@ -28,9 +29,9 @@ class UnitConversionsEditor(QObject):
 
     def __init__(
         self,
-        global_units: dict[int, Unit],
-        conversion_list: dict[int, EntityUnitConversion],
-        create_conversion_callback: Callable[[int, int], EntityUnitConversion],
+        get_global_units: Callable[[], dict[int, Unit]],
+        get_global_unit_conversions: Callable[[], dict[int, UnitConversion]],
+        get_entity_unit_conversions: Callable[[], dict[int, EntityUnitConversion]],
         view: UnitConversionsEditorView | None = None,
         parent: QWidget | None = None,
     ):
@@ -43,9 +44,9 @@ class UnitConversionsEditor(QObject):
         self.view = view
 
         # Stash the parameters
-        self._global_units = global_units
-        self._unit_conversions = conversion_list
-        self._create_conversion_callback = create_conversion_callback
+        self._get_global_units = get_global_units
+        self._get_global_unit_conversions = get_global_unit_conversions
+        self._get_entity_unit_conversions = get_entity_unit_conversions
 
         # Connect the signals
         self.view.btn_add.clicked.connect(self._on_add_conversion_clicked)
@@ -54,7 +55,7 @@ class UnitConversionsEditor(QObject):
 
         # Init and connect the conversion definition dialog
         self.conversion_definition_dialog = UnitConversionDefinitionDialog(
-            global_units=self._global_units,
+            get_global_units=lambda: self._get_global_units(),
             check_conversion_available=self._check_conversion_available,
             parent=self.view
         )
@@ -62,25 +63,31 @@ class UnitConversionsEditor(QObject):
             self._on_unit_conversion_added
         )
 
+        # Populate the view with the current unit conversions
+        self._refresh_view()
 
-    def add_unit_conversion(self, unit_conversion: EntityUnitConversion) -> None:
+
+    def _refresh_view(self) -> None:
+        """Refresh the view with the current unit conversions."""
+        for unit_conversion in self._get_entity_unit_conversions().values():
+            self._add_unit_conversion(unit_conversion)
+
+    def _add_unit_conversion(self, unit_conversion: EntityUnitConversion) -> None:
         """Add a unit conversion.
         Args:
             unit_conversion (IngredientUnitConversion): The unit conversion to add.
         Returns:
             None
         """
-        # Add the conversion to the internal list
-        self._unit_conversions[unit_conversion.id] = unit_conversion
         # Create the new unit conversion editor view
         view = UnitConversionEditorView(
             id=unit_conversion.id,
             from_unit_id=unit_conversion.from_unit_id,
             to_unit_id=unit_conversion.to_unit_id,
-            from_unit_display_name=self._global_units[
+            from_unit_display_name=self._get_global_units()[
                 unit_conversion.from_unit_id
             ].plural_display_name,
-            to_unit_display_name=self._global_units[
+            to_unit_display_name=self._get_global_units()[
                 unit_conversion.to_unit_id
             ].plural_display_name,
         )
@@ -114,7 +121,7 @@ class UnitConversionsEditor(QObject):
         self.view.conversion_list.clear()
         # Add the new conversions to the view
         for unit_conversion in unit_conversions.values():
-            self.add_unit_conversion(unit_conversion)
+            self._add_unit_conversion(unit_conversion)
 
     def _check_conversion_available(self, from_unit_id: int, to_unit_id: int) -> bool:
         """Check if a conversion is available between two units.
@@ -154,12 +161,17 @@ class UnitConversionsEditor(QObject):
         Returns:
             None
         """
-        # Call the callback and collect the ID
-        conversion = self._create_conversion_callback(from_unit_id, to_unit_id)
-        # Add the unit conversion to the view
-        self.add_unit_conversion(conversion)
+        # Create a unit conversion instance
+        conversion = EntityUnitConversion(
+            from_unit_id=from_unit_id,
+            to_unit_id=to_unit_id,
+            from_unit_qty=None,
+            to_unit_qty=None,
+        )
         # Emit the signal
         self.conversionAdded.emit(conversion)
+        # Refresh the view
+        self._refresh_view()
 
     def _on_unit_conversion_removed(self, unit_conversion_id: int):
         """Called when a unit conversion is removed.

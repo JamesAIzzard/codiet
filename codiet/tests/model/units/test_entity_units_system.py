@@ -5,17 +5,17 @@ from codiet.models.units.unit_conversion import UnitConversion
 from codiet.models.units.entity_unit_conversion import EntityUnitConversion
 from codiet.models.units.entity_units_system import EntityUnitsSystem
 
-class TestIngredientUnitsSystem(unittest.TestCase):
+class TestEntityUnitsSystem(unittest.TestCase):
 
     def setUp(self):
         # Set up test data
         self.global_units = {
-            1: Unit(1, "grams", "gram", "grams", "mass"),
-            2: Unit(2, "kilograms", "kilogram", "kilograms", "mass"),
-            3: Unit(3, "litres", "litre", "litres", "volume"),
-            4: Unit(4, "millilitres", "millilitre", "millilitres", "volume"),
-            5: Unit(5, "cups", "cup", "cups", "volume"),
-            6: Unit(6, "slices", "slice", "slices", "grouping")
+            1: Unit(1, "gram", "gram", "grams", "mass"),
+            2: Unit(2, "kilogram", "kilogram", "kilograms", "mass"),
+            3: Unit(3, "litre", "litre", "litres", "volume"),
+            4: Unit(4, "millilitre", "millilitre", "millilitres", "volume"),
+            5: Unit(5, "cup", "cup", "cups", "volume"),
+            6: Unit(6, "slice", "slice", "slices", "grouping")
         }
         
         self.global_unit_conversions = {
@@ -49,7 +49,7 @@ class TestIngredientUnitsSystem(unittest.TestCase):
         self.assertEqual(len(self.disconnected_system._graph), 6)  # All units should be in the graph
 
     def test_gram_id_correct(self):
-        self.assertEqual(self.disconnected_system._gram_id, 1)
+        self.assertEqual(self.disconnected_system.gram_id, 1)
 
     def test_get_conversion_factor_same_unit(self):
         factor = self.disconnected_system.get_conversion_factor(1, 1)
@@ -80,23 +80,17 @@ class TestIngredientUnitsSystem(unittest.TestCase):
         self.assertEqual(result, 8)  # 2 litres = 8 cups
 
     def test_get_available_units_disconnected(self):
-        available_units = self.disconnected_system.get_available_units(1)
+        available_units = self.disconnected_system.get_available_units_from_root(1)
         self.assertEqual(len(available_units), 3)  # Only mass units and slices should be reachable
 
     def test_get_available_units_connected(self):
-        available_units = self.connected_system.get_available_units(1)
+        available_units = self.connected_system.get_available_units_from_root(1)
         self.assertEqual(len(available_units), 6)  # All units should be reachable
 
     def test_get_available_units_no_id_passed(self):
         # If no ID is passed, the root id is assumed to be grams
-        available_units = self.disconnected_system.get_available_units()
+        available_units = self.disconnected_system.get_available_units_from_root()
         self.assertEqual(len(available_units), 3)  # Only mass units and slices should be reachable
-
-    def test_update_graph(self):
-        new_conversion = UnitConversion(5, 2, 3, 1, 1)  # 1 kilogram = 1 litre (nonsensical, but for testing)
-        self.disconnected_system.update_graph(global_unit_conversions={5: new_conversion})
-        factor = self.disconnected_system.get_conversion_factor(2, 3)
-        self.assertEqual(factor, 1)  # Check if the new conversion is applied
 
     def test_path_caching_connected(self):
         # First conversion (should calculate and cache the path)
@@ -136,3 +130,34 @@ class TestIngredientUnitsSystem(unittest.TestCase):
     def test_conversion_path_not_found_invalid_unit(self):
         with self.assertRaises(ValueError):
             self.connected_system.get_conversion_factor(1, 99)  # 99 is not a valid unit ID
+
+    def test_entity_unit_conversion_update(self):
+        # Set up a simple system with one entity unit conversion
+        units = {
+            1: Unit(1, "gram", "gram", "grams", "mass"),
+            2: Unit(2, "piece", "piece", "pieces", "quantity")
+        }
+        global_conversions = {}
+        entity_conversions = {
+            1: EntityUnitConversion(1, 1, 1, 2, 10, 1)  # 10 grams = 1 piece
+        }
+        
+        system = EntityUnitsSystem(units, global_conversions, entity_conversions)
+        
+        # Initial conversion
+        initial_result = system.convert_units(100, 1, 2)  # Convert 100 grams to pieces
+        self.assertEqual(initial_result, 10)  # 100 grams should be 10 pieces
+        
+        # Update the entity unit conversion
+        new_entity_conversions = {
+            1: EntityUnitConversion(1, 1, 1, 2, 20, 1)  # Now 20 grams = 1 piece
+        }
+        system.entity_unit_conversions = new_entity_conversions
+        
+        # Conversion after update
+        updated_result = system.convert_units(100, 1, 2)  # Convert 100 grams to pieces again
+        self.assertEqual(updated_result, 5)  # Now 100 grams should be 5 pieces
+        
+        # Verify that the reverse conversion also works correctly
+        reverse_result = system.convert_units(1, 2, 1)  # Convert 1 piece to grams
+        self.assertEqual(reverse_result, 20)  # 1 piece should now be 20 grams

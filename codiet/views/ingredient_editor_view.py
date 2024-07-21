@@ -75,7 +75,16 @@ class IngredientEditorView(QWidget):
             else:
                 self.txt_description.clear()
 
-    def update_gi(self, gi: float | None):
+    @property
+    def gi(self) -> float | None:
+        """Return the GI value in the GI textbox."""
+        try:
+            return self.txt_gi.text()
+        except ValueError:
+            return None
+        
+    @gi.setter
+    def gi(self, gi: float | None):
         """Set the GI value in the GI textbox."""
         with block_signals(self.txt_gi):
             if gi is None:

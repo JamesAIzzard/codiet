@@ -5,7 +5,7 @@ class EntityUnitConversion(UnitConversion):
 
     def __init__(
         self,
-        entity_id: int,
+        entity_id: int|None = None,
         *args, **kwargs
     ):
         """Initialises the EntityUnitConversion object.
