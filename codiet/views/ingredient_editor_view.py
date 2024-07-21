@@ -17,12 +17,15 @@ from codiet.views.buttons import (
     SaveJSONButton, 
     AutopopulateButton
 )
+from codiet.views.text_editors.line_editor import LineEditor
+from codiet.views.text_editors.multiline_editor import MultilineEditor
+from codiet.views.text_editors.numeric_line_editor import NumericLineEditor
 from codiet.views.search.search_column_view import SearchColumnView
 from codiet.views.cost_editor_view import CostEditorView
-from codiet.views.nutrients import NutrientQuantitiesEditorView
-from codiet.views.text_editors import LineEdit, MultilineEdit, NumericLineEdit
+from codiet.views.nutrients.nutrient_quantities_editor_view import NutrientQuantitiesEditorView
 from codiet.views.flags.flag_editor_view import FlagEditorView
-from codiet.views.units import StandardUnitEditorView, UnitConversionsEditorView
+from codiet.views.units.standard_unit_editor_view import StandardUnitEditorView
+from codiet.views.units.unit_conversions_editor_view import UnitConversionsEditorView
 
 class IngredientEditorView(QWidget):
     """User interface for editing an ingredient."""
@@ -181,7 +184,7 @@ class IngredientEditorView(QWidget):
         label = QLabel("Name:")
         lyt_ingredient_name.addWidget(label)
         # Create a textbox and add it to the layout
-        self.txt_ingredient_name = LineEdit()
+        self.txt_ingredient_name = LineEditor()
         # Make the line edit not editable
         self.txt_ingredient_name.setReadOnly(True)
         lyt_ingredient_name.addWidget(self.txt_ingredient_name)
@@ -195,7 +198,7 @@ class IngredientEditorView(QWidget):
         # Add a description field and multiline textbox
         label = QLabel("Description:")
         lyt_basic_info.addWidget(label)
-        self.txt_description = MultilineEdit()
+        self.txt_description = MultilineEditor()
         lyt_basic_info.addWidget(self.txt_description)
         self.txt_description.lostFocus.connect(
             lambda: self.ingredientDescriptionChanged.emit(self.txt_description.toPlainText())
@@ -216,7 +219,7 @@ class IngredientEditorView(QWidget):
         column_layout.addWidget(label)
 
         # Create a line edit and add it to the layout
-        self.txt_gi = NumericLineEdit()
+        self.txt_gi = NumericLineEditor()
         column_layout.addWidget(self.txt_gi)
         self.txt_gi.lostFocus.connect(self.ingredientGIChanged.emit)
 

@@ -1,9 +1,7 @@
-from typing import Callable
-
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QWidget
 
-from codiet.models.units import Unit
+from codiet.models.units.unit import Unit
 from codiet.views.units.standard_unit_editor_view import StandardUnitEditorView
 
 class StandardUnitEditor(QObject):
@@ -19,7 +17,7 @@ class StandardUnitEditor(QObject):
 
     def __init__(
         self,
-        get_available_units: Callable[[], dict[int, Unit]],
+        available_units: dict[int, Unit],
         view: StandardUnitEditorView|None = None,
         parent: QWidget|None = None,
     ):
@@ -40,29 +38,14 @@ class StandardUnitEditor(QObject):
         # Connect signals and slots
         self.view.onUnitChanged.connect(self.onUnitChanged.emit)
 
-        # Stash the source of available units
-        self._get_available_units = get_available_units
-
         # Populate units on the view
-        self.reset_available_units()
+        self.set_available_units(available_units=available_units)
 
-    @property
-    def selected_unit_id(self) -> int:
-        """Return the global ID of the selected unit."""
-        return self.view.unit_dropdown.selected_unit_id
-    
-    @selected_unit_id.setter
-    def selected_unit_id(self, unit_id: int):
-        """Set the selected unit by its global ID."""
-        self.view.unit_dropdown.selected_unit_id = unit_id
-
-    def reset_available_units(self) -> None:
+    def set_available_units(self, available_units:dict[int, Unit]) -> None:
         """Reset the available units in the view."""
-        # Grab the available units
-        units = self._get_available_units()
         # Clear the old ones
         self.view.unit_dropdown.clear()
         # For each unit from the source
-        for unit_id, unit in units.items():
+        for unit_id, unit in available_units.items():
             # Add it to the view
             self.view.unit_dropdown.addItem(unit.plural_display_name, unit_id)

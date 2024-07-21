@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QTextEdit
 from PyQt6.QtCore import pyqtSignal, QVariant
 
-class MultilineEdit(QTextEdit):
+class MultilineEditor(QTextEdit):
     """Extend the native QTextEdit class."""
     lostFocus = pyqtSignal(QVariant)
 

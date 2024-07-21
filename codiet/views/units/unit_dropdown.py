@@ -12,19 +12,6 @@ class UnitDropdown(QComboBox):
     Signals:
         unitChanged: This signal is emitted when the selected unit changes. It carries the
             global ID of the unit as the argument.
-
-    Properties:
-        selected_unit_id: Returns the selected unit ID.
-        selected_unit_name: Returns the selected unit name.
-
-    Methods:
-        __init__: Initializes the UnitDropdown widget.
-        selected_unit_id.setter: Sets the selected unit ID.
-        selected_unit_name.setter: Sets the selected unit by its display name.
-        add_unit: Adds a unit to the combo box.
-        add_units: Adds a dictionary of units to the combo box.
-        remove_unit: Removes a unit from the combo box.
-        update_unit: Updates the display name of a unit.
     """
 
     unitChanged = pyqtSignal(int)

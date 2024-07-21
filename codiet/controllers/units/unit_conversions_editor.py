@@ -1,7 +1,7 @@
 from typing import Callable
 
 from PyQt6.QtWidgets import QWidget
-from PyQt6.QtCore import QObject, pyqtSignal, QVariant
+from PyQt6.QtCore import QObject, pyqtSignal
 
 from codiet.models.units.unit import Unit
 from codiet.models.units.entity_unit_conversion import EntityUnitConversion
@@ -23,8 +23,8 @@ class UnitConversionsEditor(QObject):
     """
 
     conversionAdded = pyqtSignal(object)
-    conversionRemoved = pyqtSignal(int)
     conversionUpdated = pyqtSignal(object)
+    conversionRemoved = pyqtSignal(int)
 
     def __init__(
         self,
@@ -102,8 +102,11 @@ class UnitConversionsEditor(QObject):
         for unit_conversion in unit_conversions.values():
             self.add_unit_conversion_to_view(unit_conversion)
 
-    def reset_unit_conversions(self, unit_conversions: dict[int, EntityUnitConversion]) -> None:
-        """Reset the unit conversions in the view.
+    def set_unit_conversions(self, unit_conversions: dict[int, EntityUnitConversion]) -> None:
+        """Sets the unit conversions in the view.
+
+        Removes all existing conversions and replaces them with the new ones.
+
         Args:
             unit_conversions (dict[int, IngredientUnitConversion]): A dictionary of unit conversions, keyed against their global IDs.
         Returns:

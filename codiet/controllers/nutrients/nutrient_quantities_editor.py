@@ -98,7 +98,7 @@ class NutrientQuantitiesEditor(QObject):
         # Create a new EntityNutrientQuantity object
         entity_nutrient_quantity = EntityNutrientQuantity(
             nutrient_id=nutrient_id,
-            ntr_mass_unit_id=self._entity_unit_system.gram_id,
+            ntr_mass_unit_id=self._entity_unit_system._gram_id,
         )        
         # Get the new nutrient quantity view and id
         nutrient_quantity_view = NutrientQuantityEditorView(
@@ -167,7 +167,7 @@ class NutrientQuantitiesEditor(QObject):
         nutrient_quantity_view = NutrientQuantityEditorView(
             global_nutrient_id=nutrient_id,
             nutrient_name=nutrient_name,
-            nutrient_mass_unit_id=self._entity_unit_system.gram_id
+            nutrient_mass_unit_id=self._entity_unit_system._gram_id
         )
         return nutrient_quantity_view, nutrient_id
 

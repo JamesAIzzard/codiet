@@ -82,7 +82,7 @@ class IngredientEditor:
         )
         # Standard unit editor
         self.standard_unit_editor = StandardUnitEditor(
-            get_available_units=lambda: self._global_units,
+            available_units=self._ingredient_unit_system.get_available_units(),
             view=self.view.standard_unit_editor,
             parent=self.view,
         )
@@ -90,7 +90,7 @@ class IngredientEditor:
             lambda unit_id: setattr(self.ingredient, 'standard_unit_id', unit_id)
         )
         # Unit conversions editor
-        self.unit_conversion_ctrl = UnitConversionsEditor(
+        self.unit_conversion_editor = UnitConversionsEditor(
             global_units=self._global_units,
             get_existing_conversions=lambda: self.ingredient.unit_conversions,
             check_conversion_available=lambda from_unit_id, to_unit_id: not self._ingredient_unit_system.can_convert_units(
@@ -100,8 +100,8 @@ class IngredientEditor:
             create_conversion_callback=self._on_unit_conversion_added,
             view=self.view.unit_conversions_editor,
         )
-        self.unit_conversion_ctrl.conversionRemoved.connect(self._on_unit_conversion_removed)
-        self.unit_conversion_ctrl.conversionUpdated.connect(self._on_unit_conversion_updated)
+        self.unit_conversion_editor.conversionRemoved.connect(self._on_unit_conversion_removed)
+        self.unit_conversion_editor.conversionUpdated.connect(self._on_unit_conversion_updated)
         # Cost editor
         self.cost_editor_ctrl = CostEditor(
             view=self.view.cost_editor,
@@ -136,26 +136,26 @@ class IngredientEditor:
         # Connect signals and slots
         self.view.txt_gi.textChanged.connect(self._on_gi_value_changed)
 
-        # Load the first ingredient into the view
-        self.ingredient = self.db_service.read_ingredient(
+        # Load the first ingredient
+        # Fetch it first
+        first_ingredient = self.db_service.read_ingredient(
             ingredient_id=self._ingredient_name_ids.int_values[0]
         )
-        self.load_ingredient(self.ingredient)
+        # Load it
+        self.load_ingredient(first_ingredient)
 
     @property
     def ingredient(self) -> Ingredient:
         """Get the ingredient instance."""
         return self._ingredient
 
-    @ingredient.setter
-    def ingredient(self, ingredient: Ingredient):
-        """Set the ingredient instance."""
-        self._ingredient = ingredient
-
     def load_ingredient(self, ingredient: Ingredient) -> None:
         """Load an ingredient into the editor."""
-        self.ingredient = ingredient
-        self._ingredient_unit_system.ingredient_unit_conversions = ingredient.unit_conversions
+        # Set the ingredient instance
+        self._ingredient = ingredient
+        # Update the ingredient unit system with the unit conversions on the ingredient instance.
+        self._ingredient_unit_system.entity_unit_conversions = ingredient.unit_conversions
+        # Update the views
         self.update_view()
 
     def update_view(self) -> None:
@@ -165,8 +165,8 @@ class IngredientEditor:
         # Update the views
         self.view.ingredient_name = self.ingredient.name
         self.view.ingredient_description = self.ingredient.description
-        self.standard_unit_editor_ctrl.selected_unit_id = self.ingredient.standard_unit_id
-        self.unit_conversion_ctrl.reset_unit_conversions(self.ingredient.unit_conversions) # type: ignore
+        self.standard_unit_editor.view.unit_dropdown.selected_unit_id = self.ingredient.standard_unit_id
+        self.unit_conversion_editor.set_unit_conversions(self.ingredient.unit_conversions) # type: ignore
         self.cost_editor_ctrl.set_cost_info(
             cost_value=self.ingredient.cost_value,
             cost_qty_value=self.ingredient.cost_qty_value,
