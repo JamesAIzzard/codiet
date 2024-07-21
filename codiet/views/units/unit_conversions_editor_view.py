@@ -17,7 +17,6 @@ class UnitConversionsEditorView(QWidget):
             Has a single argument, the ID of the selected unit (int or None if nothing is selected).
     """
 
-    addUnitClicked = pyqtSignal()
     removeUnitClicked = pyqtSignal(QVariant)
     flipConversionClicked = pyqtSignal(QVariant)
 
@@ -28,37 +27,20 @@ class UnitConversionsEditorView(QWidget):
         self._build_ui()
 
         # Connect signals
-        self.btn_add.clicked.connect(self.addUnitClicked.emit)
         self.btn_remove.clicked.connect(self._on_remove_conversion_clicked)
         self.btn_swap_conversion.clicked.connect(self._on_swap_conversion_clicked)
-
-    @property
-    def selected_conversion_id(self) -> int|None:
-        """Return the global ID of the selected conversion."""
-        if self.conversion_list.item_is_selected:
-            return self.conversion_list.selected_item_data
-        else:
-            return None
-        
-    @property
-    def selected_conversion_view(self) -> QWidget|None:
-        """Return the widget of the selected conversion."""
-        if self.conversion_list.item_is_selected:
-            return self.conversion_list.selected_item_content # type: ignore
-        else:
-            return None
 
     def _on_remove_conversion_clicked(self):
         """Called when the remove unit button is clicked."""
         # Emit the signal with the id of the selected measurement, which will be None
         # if nothing is selected. The item data stores the ID.
-        self.removeUnitClicked.emit(self.selected_conversion_id)
+        self.removeUnitClicked.emit(self.conversion_list.selected_item_data)
 
     def _on_swap_conversion_clicked(self):
         """Called when the swap conversion button is clicked."""
         # Emit the signal with the id of the selected measurement, which will be None
         # if nothing is selected. The item data stores the ID.
-        self.removeUnitClicked.emit(self.selected_conversion_id)
+        self.removeUnitClicked.emit(self.conversion_list.selected_item_data)
 
     def _build_ui(self):
         """Constructs the user interface."""
