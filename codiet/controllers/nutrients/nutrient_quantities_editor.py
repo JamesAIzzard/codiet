@@ -3,14 +3,18 @@ from typing import Callable
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QWidget
 
-from codiet.utils.map import IntStrMap
+from codiet.utils.bidirectional_map import BidirectionalMap
 from codiet.models.nutrients import filter_leaf_nutrients
 from codiet.models.nutrients.nutrient import Nutrient
 from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
 from codiet.models.units.unit import Unit
 from codiet.models.units.entity_units_system import EntityUnitsSystem
-from codiet.views.nutrients.nutrient_quantity_editor_view import NutrientQuantityEditorView
-from codiet.views.nutrients.nutrient_quantities_editor_view import NutrientQuantitiesEditorView
+from codiet.views.nutrients.nutrient_quantity_editor_view import (
+    NutrientQuantityEditorView,
+)
+from codiet.views.nutrients.nutrient_quantities_editor_view import (
+    NutrientQuantitiesEditorView,
+)
 from codiet.controllers.search.search_column import SearchColumn
 
 
@@ -19,16 +23,9 @@ class NutrientQuantitiesEditor(QObject):
     Controller class for managing the editing of nutrient quantities.
 
     Signals:
-        nutrientQuantityAdded (int): Signal emitted when a nutrient quantity is added.
-            int: The nutrient global ID.
-        nutrientQuantityRemoved (int): Signal emitted when a nutrient quantity is removed.
-            int: The nutrient global ID.
-        nutrientQuantityChanged (int, int, float, float): Signal emitted when a nutrient quantity is changed.
-            int: The nutrient global ID.
-            int: The nutrient mass unit ID.
-            float: The nutrient mass value.
-            float: The ingredient grams value.
-
+        nutrientQuantityAdded (EntityNutrientQuantity).
+        nutrientQuantityRemoved (int).
+        nutrientQuantityChanged (EntityNutrientQuantity).
     """
 
     nutrientQuantityAdded = pyqtSignal(object)
@@ -37,12 +34,13 @@ class NutrientQuantitiesEditor(QObject):
 
     def __init__(
         self,
-        global_nutrients: dict[int, Nutrient],
-        global_units: dict[int, Unit],
-        entity_unit_system: EntityUnitsSystem,
-        get_entity_nutrient_data: Callable[[], dict[int, EntityNutrientQuantity]],
-        view: NutrientQuantitiesEditorView|None = None,
-        parent: QWidget|None = None
+        get_global_nutrients: Callable[[], dict[int, Nutrient]],
+        get_global_mass_units: Callable[[], dict[int, Unit]],
+        get_entity_available_units: Callable[[], dict[int, Unit]],
+        get_entity_nutrient_quantities: Callable[[], dict[int, EntityNutrientQuantity]],
+        rescale_nutrient_mass: Callable[[int, int, float, float, float], float],
+        view: NutrientQuantitiesEditorView | None = None,
+        parent: QWidget | None = None,
     ) -> None:
         """Initialise the NutrientQuantitiesEditor.
 
@@ -59,6 +57,7 @@ class NutrientQuantitiesEditor(QObject):
             view = NutrientQuantitiesEditorView(parent=parent)
         self.view = view
 
+        # HERE: Updating this to work with the new constructor signature.
         # Stash the callable arguments
         self._global_units = global_units
         self._global_nutrients = global_nutrients
@@ -70,7 +69,9 @@ class NutrientQuantitiesEditor(QObject):
         # Create a map of leaf nutrient id's to their names
         self._leaf_nutrient_name_id_map = IntStrMap()
         for nutrient_id, nutrient in self._leaf_nutrients.items():
-            self._leaf_nutrient_name_id_map.add_mapping(nutrient_id, nutrient.nutrient_name)
+            self._leaf_nutrient_name_id_map.add_mapping(
+                nutrient_id, nutrient.nutrient_name
+            )
 
         # Init the search column controller in the view
         self.nutrient_quantities_column = SearchColumn(
@@ -82,14 +83,14 @@ class NutrientQuantitiesEditor(QObject):
         # Connect the signals up
         self.view.addNutrientClicked.connect(self._on_add_nutrient_clicked)
         self.view.removeNutrientClicked.connect(self._on_remove_nutrient_clicked)
-    
+
     def _on_add_nutrient_clicked(self) -> None:
         """Handler for when the add nutrient button is clicked."""
         # Open the AddEntityDialog
         raise NotImplementedError
 
     def _on_nutrient_quantity_added(self, nutrient_id: int) -> None:
-        """Handler for when the user has selected a nutrient from the 
+        """Handler for when the user has selected a nutrient from the
         add nutrient dialog. Adds the new nutrient quantity to the listbox.
 
         Args:
@@ -99,17 +100,16 @@ class NutrientQuantitiesEditor(QObject):
         entity_nutrient_quantity = EntityNutrientQuantity(
             nutrient_id=nutrient_id,
             ntr_mass_unit_id=self._entity_unit_system._gram_id,
-        )        
+        )
         # Get the new nutrient quantity view and id
         nutrient_quantity_view = NutrientQuantityEditorView(
             global_nutrient_id=nutrient_id,
             nutrient_name=self._leaf_nutrient_name_id_map.get_str(nutrient_id),
-            nutrient_mass_unit_id=entity_nutrient_quantity.nutrient_mass_unit_id
+            nutrient_mass_unit_id=entity_nutrient_quantity.nutrient_mass_unit_id,
         )
         # Add the new nutrient quantity to the listbox
         self.nutrient_quantities_column.view.search_results.add_item_content(
-            item_content=nutrient_quantity_view,
-            data=nutrient_id
+            item_content=nutrient_quantity_view, data=nutrient_id
         )
         # Emit the nutrientQuantityAdded signal
         self.nutrientQuantityAdded.emit(entity_nutrient_quantity)
@@ -117,7 +117,9 @@ class NutrientQuantitiesEditor(QObject):
     def _on_remove_nutrient_clicked(self) -> None:
         """Handler for when the remove nutrient button is clicked."""
         # Grab the ID of the selected nutrient
-        selected_nutrient_id = self.nutrient_quantities_column.view.search_results.selected_item_data
+        selected_nutrient_id = (
+            self.nutrient_quantities_column.view.search_results.selected_item_data
+        )
         if selected_nutrient_id is not None:
             # Remove the nutrient from the listbox
             self.nutrient_quantities_column.view.search_results.remove_selected_item()
@@ -152,7 +154,9 @@ class NutrientQuantitiesEditor(QObject):
         # Emit the nutrientQuantityChanged signal
         self.nutrientQuantityChanged.emit(entity_nutrient_quantity)
 
-    def _get_nutrient_quantity_view_and_id(self, nutrient_name:str) -> tuple[NutrientQuantityEditorView, int]:
+    def _get_nutrient_quantity_view_and_id(
+        self, nutrient_name: str
+    ) -> tuple[NutrientQuantityEditorView, int]:
         """Generates the nutrient quantity view and ID from the nutrient name.
 
         Args:
@@ -167,8 +171,6 @@ class NutrientQuantitiesEditor(QObject):
         nutrient_quantity_view = NutrientQuantityEditorView(
             global_nutrient_id=nutrient_id,
             nutrient_name=nutrient_name,
-            nutrient_mass_unit_id=self._entity_unit_system._gram_id
+            nutrient_mass_unit_id=self._entity_unit_system._gram_id,
         )
         return nutrient_quantity_view, nutrient_id
-
-

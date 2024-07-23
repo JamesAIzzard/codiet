@@ -49,6 +49,7 @@ class IngredientEditor:
         )
         self._global_mass_units = self.db_service.read_all_global_mass_units()
         self._global_unit_conversions = self.db_service.read_all_global_unit_conversions()
+        self._global_flags = self.db_service.repository.read_all_global_flags()
         self._flag_name_ids = self.db_service.build_flag_name_id_map()
         self._global_nutrients = self.db_service.read_all_global_nutrients()
         self._ingredient_unit_system = EntityUnitsSystem(
@@ -64,7 +65,7 @@ class IngredientEditor:
         # Ingredient search column
         self.ingredient_search_column = SearchColumn(
             view=self.view.ingredient_search,
-            get_searchable_strings=lambda: self._ingredient_name_ids.str_values,
+            get_searchable_strings=lambda: self._ingredient_name_ids.values,
         )
         self.ingredient_search_column.onResultSelected.connect(self._on_ingredient_selected)
         # Ingredient name editor
@@ -73,7 +74,7 @@ class IngredientEditor:
         )
         self.ingredient_name_editor_dialog = EntityNameEditorDialog(
             entity_name="ingredient",
-            check_name_available=lambda name: name not in self._ingredient_name_ids.str_values,
+            check_name_available=lambda name: name not in self._ingredient_name_ids.values,
         )
         self.ingredient_name_editor_dialog.onNameAccepted.connect(self._on_ingredient_name_accepted)
         # Ingredient description editor
@@ -112,18 +113,21 @@ class IngredientEditor:
         self.cost_editor.costUpdated.connect(self._on_ingredient_cost_changed)
         # Flags editor
         self.flag_editor = FlagEditor(
-            get_global_flags=lambda: self._flag_name_ids,
+            get_global_flags=lambda: self._global_flags,
             get_entity_flags=lambda: self.ingredient.flags,
             view=self.view.flag_editor
         )
         self.flag_editor.flagChanged.connect(self._on_flag_changed)
         # Ingredient nutrient editor
+        # TODO: Update this to use callbacks so we don't risk mutating the ingredient directly
+        # TODO: Investigate passing in a method which can convert and scale?
         self.nutrient_quantities_editor = NutrientQuantitiesEditor(
             view=self.view.nutrient_quantities_editor,
-            global_nutrients=self._global_nutrients,
-            global_units=self._global_units,
-            entity_unit_system=self._ingredient_unit_system,
-            get_entity_nutrient_data=lambda: self.ingredient.nutrient_quantities,
+            get_global_nutrients=lambda: self._global_nutrients,
+            get_global_mass_units=lambda: self._global_mass_units,
+            get_entity_available_units=lambda: self._ingredient_unit_system.available_units,
+            get_entity_nutrient_quantities=lambda: self.ingredient.nutrient_quantities,
+            rescale_nutrient_mass=self._ingredient_unit_system.rescale_quantity,
         )
         self.nutrient_quantities_editor.nutrientQuantityAdded.connect(
             self._on_nutrient_qty_added
@@ -141,7 +145,7 @@ class IngredientEditor:
         # Load the first ingredient
         # Fetch it first
         first_ingredient = self.db_service.read_ingredient(
-            ingredient_id=self._ingredient_name_ids.int_values[0]
+            ingredient_id=self._ingredient_name_ids.keys[0]
         )
         # Load it
         self.load_ingredient(first_ingredient)

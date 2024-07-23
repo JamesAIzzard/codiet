@@ -169,6 +169,22 @@ class EntityUnitsSystem:
         conversion_factor = self.get_conversion_factor(from_unit_id, to_unit_id)
         return quantity * conversion_factor
 
+    def rescale_quantity(
+            self,
+            ref_from_unit_id: int,
+            ref_to_unit_id: int,
+            ref_from_quantity: float,
+            ref_to_quantity: float,
+            quantity: float,
+    ) -> float:
+        """Rescales a quantity based on a transition between two reference quantities.
+        This is used in a scenario where we have a quantity of one thing associated with
+        a quantity of another, and the reference quantity changes, and we need to rescale
+        the first thing.
+        """
+        # HERE: Finish developing this method.
+        raise NotImplementedError
+
     def get_available_units_from_root(self, root_unit_id: int|None=None) -> dict[int, Unit]:
         """
         Retrieves all available units starting from a root unit ID.
