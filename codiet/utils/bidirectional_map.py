@@ -6,10 +6,30 @@ V = TypeVar('V', bound=Hashable)
 class BidirectionalMap(Generic[K, V]):
     """A bidirectional map that stores mappings between two types of hashable objects."""
     
-    def __init__(self, one_to_one: bool = False):
+    def __init__(
+            self,
+            from_list: list[K]|None = None,
+            to_list: list[V]|None = None,
+            one_to_one: bool = True
+        ):
+        # Raise an exception if the lists are present not the same length
+        if from_list is not None and to_list is not None and len(from_list) != len(to_list):
+            raise ValueError("The from_list and to_list must be the same length.")
+        
+        # Store whether the map is one-to-one
+        self.one_to_one = one_to_one
+
+        # Create the forward and reverse mappings
         self.forward: dict[K, list[V]] = {}
         self.reverse: dict[V, list[K]] = {}
-        self.one_to_one = one_to_one
+
+        # If arguments were provided, add the mappings
+        if from_list is not None and to_list is not None:
+            assert from_list is not None
+            assert to_list is not None
+            if from_list is not None:
+                for from_item, to_item in zip(from_list, to_list):
+                    self.add_mapping(from_item, to_item)
 
     @property
     def keys(self) -> list[K]:
@@ -67,13 +87,39 @@ class BidirectionalMap(Generic[K, V]):
                     del self.forward[key]
             del self.reverse[value]
 
-    def get_values(self, key: K) -> list[V]|None:
-        """Return the list of values for a given key, or None if not found."""
-        return self.forward.get(key)
+    def get_values(self, key: K) -> list[V]:
+        """Return the list of values for a given key. Returns an empty list if the key is not found."""
+        return self.forward.get(key, [])
 
-    def get_keys(self, value: V) -> list[K]|None:
-        """Return the list of keys for a given value, or None if not found."""
-        return self.reverse.get(value)
+    def get_keys(self, value: V) -> list[K]:
+        """Return the list of keys for a given value. Returns an empty list if the value is not found."""
+        return self.reverse.get(value, [])
+
+    def get_value(self, key: K) -> V|None:
+        """
+        Return a single value for a given key.
+        Returns None if the key is not found.
+        Raises ValueError if there is more than one value for the key.
+        """
+        values = self.get_values(key)
+        if not values:
+            return None
+        if len(values) > 1:
+            raise ValueError(f"Multiple values found for key '{key}'. Use get_values() instead.")
+        return values[0]
+
+    def get_key(self, value: V) -> K|None:
+        """
+        Return a single key for a given value.
+        Returns None if the value is not found.
+        Raises ValueError if there is more than one key for the value.
+        """
+        keys = self.get_keys(value)
+        if not keys:
+            return None
+        if len(keys) > 1:
+            raise ValueError(f"Multiple keys found for value '{value}'. Use get_keys() instead.")
+        return keys[0]
 
     def __str__(self) -> str:
         return f"BidirectionalMap(one_to_one={self.one_to_one}, forward={self.forward}, reverse={self.reverse})"

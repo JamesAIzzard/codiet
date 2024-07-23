@@ -23,7 +23,7 @@
     "microgram": {
         "type": "mass",
         "single_display_name": "μg",
-        "plural_display_name": "μg",
+        "plural_display_name": "ug",
         "aliases": ["microgram", "micrograms", "mcg", "ug"],
         "conversions": {"gram": 0.000001}
     },

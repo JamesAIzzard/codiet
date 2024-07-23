@@ -56,7 +56,7 @@ class AddEntityDialog(QObject):
 
             # Connect the signals
             self.view.entity_search_column.search_results.itemClicked.connect(
-                lambda item_content, item_data: self._on_entity_selected(item_data)
+                lambda _, item_data: self._on_entity_selected(item_data)
             )
             self.view.btn_cancel.clicked.connect(self.view.close)
             self.view.btn_add.clicked.connect(self._on_add_button_clicked)

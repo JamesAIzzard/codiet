@@ -15,6 +15,7 @@ class CostEditor(QObject):
     def __init__(
         self,
         get_available_units: Callable[[], dict[int, Unit]],
+        get_cost_data: Callable[[], tuple[float|None, float|None, int]],
         view: CostEditorView|None=None,
         parent: QWidget|None=None,
     ):
@@ -26,22 +27,27 @@ class CostEditor(QObject):
             view = CostEditorView(parent=parent)
         self.view = view
 
-        # Stash the callbacks
+        # Stash the constructor arguments
         self._get_available_units = get_available_units
+        self._get_cost_data = get_cost_data
 
         # Populate the units dropdown
-        self.set_available_units()
+        self.refresh_available_units()
 
         # Connect the view signals to the callback
         self.view.costChanged.connect(self.costUpdated.emit)
 
-    def set_cost_info(self, cost_value: float | None, cost_qty_value: float | None, cost_qty_unit_id: int):
-        """Set the cost information."""
+    def refresh(self):
+        """Refresh the view with the latest cost data."""
+        # Refresh the cost data fields
+        cost_value, cost_qty_value, cost_qty_unit_id = self._get_cost_data()
         self.view.cost_value = cost_value
         self.view.cost_quantity_value = cost_qty_value
         self.view.cost_quantity_unit = cost_qty_unit_id
+        # Refresh the available units
+        self.refresh_available_units()
 
-    def set_available_units(self):
+    def refresh_available_units(self):
         """Set the available units in the dropdown."""
         self.view.cost_qty_unit_dropdown.clear()
         for unit in self._get_available_units().values():

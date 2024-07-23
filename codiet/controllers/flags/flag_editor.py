@@ -3,9 +3,9 @@ from typing import Callable
 from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtWidgets import QWidget
 
-from codiet.utils.map import IntStrMap
+from codiet.utils.bidirectional_map import BidirectionalMap
 from codiet.views.flags.flag_editor_view import FlagEditorView
-from codiet.controllers.flags.add_flag_dialog import AddFlagDialog
+from codiet.controllers.dialogs.add_entity_dialog import AddEntityDialog
 
 class FlagEditor(QObject):
     """Controller for the flag editor view.
@@ -23,22 +23,21 @@ class FlagEditor(QObject):
 
     flagAdded = pyqtSignal(int, bool)
     flagChanged = pyqtSignal(int, bool)
-    flag_removed = pyqtSignal(int)
+    flagRemoved = pyqtSignal(int)
 
     def __init__(
         self,
-        global_flags: IntStrMap,
-        entity_flags: dict[int, bool],
+        get_global_flags: Callable[[], dict[int, str]],
+        get_entity_flags: Callable[[], dict[int, bool]],
         view: FlagEditorView|None=None,
         parent: QWidget|None=None,
     ) -> None:
         """Initialise the controller.
         Args:
-            get_entity_flags: A callback that returns a dictionary of flag
-                IDs and their values associated with the current entity.
-            view: The view to use for the flag editor. If not provided, a new
-                view will be created.
-            parent: The parent widget for the view.
+            get_global_flags: A callable that returns a dictionary of global flags.
+            get_entity_flags: A callable that returns a dictionary of entity flags.
+            view: The view to use for the flag editor.
+            parent: The parent widget
         """
         super().__init__()
 
@@ -48,16 +47,16 @@ class FlagEditor(QObject):
         self.view = view
 
         # Stash the constructor args
-        self._global_flags = global_flags
-        self._entity_flags = entity_flags
+        self._get_global_flags = get_global_flags
+        self._get_entity_flags = get_entity_flags
 
         # Build the add flag dialog
-        self.add_flag_dialog = AddFlagDialog(
-            global_flags=self._global_flags,
-            can_add_flag=lambda flag_id: flag_id not in self._entity_flags.keys(),
+        self.add_flag_dialog = AddEntityDialog(
+            get_entity_list=lambda: BidirectionalMap(self._get_global_flags.keys(), self._get_global_flags.values()),
+            can_add_entity=lambda id: id not in self._get_entity_flags().keys(),
             parent=self.view
         )
-        self.add_flag_dialog.flagAdded.connect(self.view.add_flag)
+        self.add_flag_dialog.entityAdded.connect(self._on_flag_added)
 
         # Connect the flag editor signals
         self.view.selectAllFlagsClicked.connect(
@@ -71,9 +70,18 @@ class FlagEditor(QObject):
         )
 
         # Add the current entity flags to the view
-        for flag_id, flag_value in self._entity_flags.items():
-            self.view.add_flag(flag_id, self._global_flags.get_str(flag_id))
+        for flag_id, flag_value in self._get_entity_flags.items():
+            self.view.add_flag(flag_id, self._get_global_flags()[flag_id])
             self.view.set_flag(flag_id, flag_value)
+
+    def _on_flag_added(self, flag_id: int) -> None:
+        """Handler for when a flag is added."""
+        # Add the flag to the view
+        self.view.add_flag(flag_id, self._get_global_flags()[flag_id])
+        # Set the flag value to False
+        self.view.set_flag(flag_id, False)
+        # Emit the flagAdded signal
+        self.flagAdded.emit(flag_id, False)
 
     def _on_select_all_flags_clicked(self):
         """Handler for selecting all flags."""

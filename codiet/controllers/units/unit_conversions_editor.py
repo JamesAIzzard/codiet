@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Callable
 
 from PyQt6.QtWidgets import QWidget
@@ -64,11 +65,14 @@ class UnitConversionsEditor(QObject):
         )
 
         # Populate the view with the current unit conversions
-        self._refresh_view()
+        self.refresh()
 
 
-    def _refresh_view(self) -> None:
-        """Refresh the view with the current unit conversions."""
+    def refresh(self) -> None:
+        """Refresh the module with the current unit conversions."""
+        # Clear the existing unit conversions
+        self.view.conversion_list.clear()
+        # Add the new unit conversions
         for unit_conversion in self._get_entity_unit_conversions().values():
             self._add_unit_conversion(unit_conversion)
 
@@ -99,30 +103,6 @@ class UnitConversionsEditor(QObject):
             data=unit_conversion.id
         )
 
-    @property
-    def unit_conversions(self) -> dict[int, EntityUnitConversion]:
-        """Returns the existing unit conversions."""
-        return self._unit_conversions
-
-    @unit_conversions.setter
-    def unit_conversions(self, unit_conversions: dict[int, EntityUnitConversion]) -> None:
-        """Sets the unit conversions in the view.
-
-        Removes all existing conversions and replaces them with the new ones.
-
-        Args:
-            unit_conversions (dict[int, IngredientUnitConversion]): A dictionary of unit conversions, keyed against their global IDs.
-        Returns:
-            None
-        """
-        # Update the internal register
-        self._unit_conversions = unit_conversions
-        # Clear the list in the view
-        self.view.conversion_list.clear()
-        # Add the new conversions to the view
-        for unit_conversion in unit_conversions.values():
-            self._add_unit_conversion(unit_conversion)
-
     def _check_conversion_available(self, from_unit_id: int, to_unit_id: int) -> bool:
         """Check if a conversion is available between two units.
         Args:
@@ -131,8 +111,13 @@ class UnitConversionsEditor(QObject):
         Returns:
             bool: True if the conversion is available, False otherwise.
         """
+        # Concatenate the global and entity unit conversions
+        all_unit_conversions = {
+            **self._get_global_unit_conversions(),
+            **self._get_entity_unit_conversions(),
+        }
         # Check if the conversion already exists
-        for conversion in self._unit_conversions.values():
+        for conversion in all_unit_conversions.values():
             # Check one way
             if (
                 conversion.from_unit_id == from_unit_id
@@ -171,7 +156,7 @@ class UnitConversionsEditor(QObject):
         # Emit the signal
         self.conversionAdded.emit(conversion)
         # Refresh the view
-        self._refresh_view()
+        self.refresh()
 
     def _on_unit_conversion_removed(self, unit_conversion_id: int):
         """Called when a unit conversion is removed.
@@ -198,7 +183,9 @@ class UnitConversionsEditor(QObject):
             to_unit_qty (float): The quantity of the to unit.
         """
         # Grab the conversion object
-        conversion = self._unit_conversions[unit_conversion_id]
+        conversion = self._get_entity_unit_conversions()[unit_conversion_id]
+        # Copy it to avoid mutating the original
+        conversion = deepcopy(conversion)
         # Update the conversion object
         conversion.from_unit_id = from_unit_id
         conversion.to_unit_id = to_unit_id

@@ -100,16 +100,21 @@ class IngredientEditor:
         self.unit_conversion_editor.conversionRemoved.connect(self._on_unit_conversion_removed)
         self.unit_conversion_editor.conversionUpdated.connect(self._on_unit_conversion_updated)
         # Cost editor
-        self.cost_editor_ctrl = CostEditor(
+        self.cost_editor = CostEditor(
             view=self.view.cost_editor,
             get_available_units=lambda: self._ingredient_unit_system.get_available_units_from_root(),
+            get_cost_data=lambda: (
+                self.ingredient.cost_value,
+                self.ingredient.cost_qty_value,
+                self.ingredient.cost_qty_unit_id,
+            ),
         )
-        self.cost_editor_ctrl.costUpdated.connect(self._on_ingredient_cost_changed)
+        self.cost_editor.costUpdated.connect(self._on_ingredient_cost_changed)
         # Flags editor
         self.flag_editor = FlagEditor(
-            global_flags=self._flag_name_ids,
-            entity_flags=self.ingredient.flags,
-            view=self.view.flag_editor,
+            get_global_flags=lambda: self._flag_name_ids,
+            get_entity_flags=lambda: self.ingredient.flags,
+            view=self.view.flag_editor
         )
         self.flag_editor.flagChanged.connect(self._on_flag_changed)
         # Ingredient nutrient editor
@@ -166,15 +171,13 @@ class IngredientEditor:
         # Standard unit editor
         self.standard_unit_editor.selected_unit = ingredient.standard_unit_id
         
-        self.unit_conversion_editor.unit_conversions(ingredient.unit_conversions)
+        # Unit conversion editor
+        self.unit_conversion_editor.refresh()
         
-        self.cost_editor_ctrl.set_cost_info(
-            cost_value=ingredient.cost_value,
-            cost_qty_value=ingredient.cost_qty_value,
-            cost_qty_unit_id=ingredient.cost_qty_unit_id,
-        )
+        # Cost editor
+        self.cost_editor.refresh()
         
-        self.flag_editor.set_entity_flags(ingredient.flags)
+        self.flag_editor.refresh()
         
         self.nutrient_quantities_editor.set_entity_nutrient_data(ingredient.nutrient_quantities)
 
