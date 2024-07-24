@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import QWidget
 from codiet.db.database_service import DatabaseService
 
 from codiet.models.ingredients.ingredient import Ingredient
+from codiet.models.nutrients import filter_leaf_nutrients
 from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
 from codiet.models.units.entity_unit_conversion import EntityUnitConversion
 from codiet.models.units.entity_units_system import EntityUnitsSystem
@@ -52,6 +53,7 @@ class IngredientEditor:
         self._global_flags = self.db_service.repository.read_all_global_flags()
         self._flag_name_ids = self.db_service.build_flag_name_id_map()
         self._global_nutrients = self.db_service.read_all_global_nutrients()
+        self._global_leaf_nutrients = filter_leaf_nutrients(self._global_nutrients)
         self._ingredient_unit_system = EntityUnitsSystem(
             global_units=self._global_units,
             global_unit_conversions=self._global_unit_conversions,
@@ -123,11 +125,12 @@ class IngredientEditor:
         # TODO: Investigate passing in a method which can convert and scale?
         self.nutrient_quantities_editor = NutrientQuantitiesEditor(
             view=self.view.nutrient_quantities_editor,
-            get_global_nutrients=lambda: self._global_nutrients,
+            get_global_leaf_nutrients=lambda: self._global_leaf_nutrients,
             get_global_mass_units=lambda: self._global_mass_units,
             get_entity_available_units=lambda: self._ingredient_unit_system.available_units,
             get_entity_nutrient_quantities=lambda: self.ingredient.nutrient_quantities,
             rescale_nutrient_mass=self._ingredient_unit_system.rescale_quantity,
+            default_mass_unit_id=self._gram_id,
         )
         self.nutrient_quantities_editor.nutrientQuantityAdded.connect(
             self._on_nutrient_qty_added

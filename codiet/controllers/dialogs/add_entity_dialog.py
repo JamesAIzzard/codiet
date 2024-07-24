@@ -25,7 +25,7 @@ class AddEntityDialog(QObject):
             view: AddEntityDialogView|None = None,
         ):
             """
-            Initializes an instance of the AddEntityDialog class.
+            Initialises an instance of the AddEntityDialog class.
 
             Args:
                 entity_list (BidirectionalMap[int, str]): A bidirectional map representing the entity list.
@@ -34,6 +34,10 @@ class AddEntityDialog(QObject):
                 view (AddEntityDialogView|None, optional): The view for the add entity dialog. Defaults to None.
             """
             super().__init__()
+
+            # Raise an exception if the view is not provided and the parent is not provided
+            if view is None and parent is None:
+                raise ValueError("The parent widget must be provided if the view is not provided.")
 
             # Build the view if it is not provided
             if view is None:

@@ -4,7 +4,6 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QWidget
 
 from codiet.utils.bidirectional_map import BidirectionalMap
-from codiet.models.nutrients import filter_leaf_nutrients
 from codiet.models.nutrients.nutrient import Nutrient
 from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
 from codiet.models.units.unit import Unit
@@ -16,11 +15,12 @@ from codiet.views.nutrients.nutrient_quantities_editor_view import (
     NutrientQuantitiesEditorView,
 )
 from codiet.controllers.search.search_column import SearchColumn
+from codiet.controllers.dialogs.add_entity_dialog import AddEntityDialog
 
 
 class NutrientQuantitiesEditor(QObject):
     """
-    Controller class for managing the editing of nutrient quantities.
+    Controller class for the managing the nutrient quantities associated with an entity.
 
     Signals:
         nutrientQuantityAdded (EntityNutrientQuantity).
@@ -34,22 +34,25 @@ class NutrientQuantitiesEditor(QObject):
 
     def __init__(
         self,
-        get_global_nutrients: Callable[[], dict[int, Nutrient]],
+        get_global_leaf_nutrients: Callable[[], dict[int, Nutrient]],
         get_global_mass_units: Callable[[], dict[int, Unit]],
         get_entity_available_units: Callable[[], dict[int, Unit]],
         get_entity_nutrient_quantities: Callable[[], dict[int, EntityNutrientQuantity]],
         rescale_nutrient_mass: Callable[[int, int, float, float, float], float],
+        default_mass_unit_id: int,
         view: NutrientQuantitiesEditorView | None = None,
         parent: QWidget | None = None,
     ) -> None:
         """Initialise the NutrientQuantitiesEditor.
 
         Args:
-            view (NutrientQuantitiesEditorView): The view associated with the editor.
-            global_nutrients (dict[int, Nutrient]): A dictionary of global nutrients.
-            global_units (dict[int, Unit]): A dictionary of global units.
-            entity_unit_system (EntityUnitsSystem): The unit system for the entity.
-            get_entity_nutrient_data (Callable[[], dict[int, EntityNutrientQuantity]]): A function to get the entity's nutrient data.
+            get_global_leaf_nutrients (Callable[[], dict[int, Nutrient]]): A callable that returns the global leaf nutrients.
+            get_global_mass_units (Callable[[], dict[int, Unit]]): A callable that returns the global mass units.
+            get_entity_available_units (Callable[[], dict[int, Unit]]): A callable that returns the available units.
+            get_entity_nutrient_quantities (Callable[[], dict[int, EntityNutrientQuantity]]): A callable that returns the entity nutrient quantities.
+            rescale_nutrient_mass (Callable[[int, int, float, float, float], float]): A callable that rescales the nutrient mass.
+            view (NutrientQuantitiesEditorView, optional): The view to use. Defaults to None.
+            parent (QWidget, optional): The parent widget. Defaults to None.
 
         """
         # Build the view if not provided
@@ -57,32 +60,40 @@ class NutrientQuantitiesEditor(QObject):
             view = NutrientQuantitiesEditorView(parent=parent)
         self.view = view
 
-        # HERE: Updating this to work with the new constructor signature.
-        # Stash the callable arguments
-        self._global_units = global_units
-        self._global_nutrients = global_nutrients
-        self._entity_unit_system = entity_unit_system
-        self._get_entity_nutrient_data = get_entity_nutrient_data
+        # Stash the constructor arguments
+        self._get_global_leaf_nutrients = get_global_leaf_nutrients
+        self._get_global_mass_units = get_global_mass_units
+        self._get_entity_available_units = get_entity_available_units
+        self._get_entity_nutrient_quantities = get_entity_nutrient_quantities
+        self._rescale_nutrient_mass = rescale_nutrient_mass
+        self._default_mass_unit_id = default_mass_unit_id
 
-        # Create a list of just leaf nutrients
-        self._leaf_nutrients = filter_leaf_nutrients(global_nutrients)
-        # Create a map of leaf nutrient id's to their names
-        self._leaf_nutrient_name_id_map = IntStrMap()
-        for nutrient_id, nutrient in self._leaf_nutrients.items():
-            self._leaf_nutrient_name_id_map.add_mapping(
-                nutrient_id, nutrient.nutrient_name
-            )
+        # Cache some values that don't often change
+        self._cached_leaf_nutrients = get_global_leaf_nutrients()
+        self._cached_mass_units = get_global_mass_units()
+        self._cached_leaf_nutrient_name_id_map = BidirectionalMap[int, str]()
+        for nutrient_id, nutrient in self._cached_leaf_nutrients.items():
+            self._cached_leaf_nutrient_name_id_map.add_mapping(nutrient_id, nutrient.nutrient_name)
 
-        # Init the search column controller in the view
+        # Init the controller for the view search column
         self.nutrient_quantities_column = SearchColumn(
-            get_searchable_strings=lambda: self._leaf_nutrient_name_id_map.str_values,
+            get_searchable_strings=lambda: self._cached_leaf_nutrient_name_id_map.values,
             get_view_item_and_data_for_string=self._get_nutrient_quantity_view_and_id,
             view=self.view.nutrient_quantities_column,
         )
 
+        # Init the dialog to add nutrients
+        self._add_nutrient_quantity_dialog = AddEntityDialog(
+            get_entity_list=lambda: self._cached_leaf_nutrient_name_id_map,
+            can_add_entity=lambda nutrient_id: nutrient_id not in self._get_entity_nutrient_quantities().keys(),
+            parent=self.view
+        )
+        self._add_nutrient_quantity_dialog.entityAdded.connect(self._on_nutrient_quantity_added)
+
         # Connect the signals up
         self.view.addNutrientClicked.connect(self._on_add_nutrient_clicked)
         self.view.removeNutrientClicked.connect(self._on_remove_nutrient_clicked)
+    
 
     def _on_add_nutrient_clicked(self) -> None:
         """Handler for when the add nutrient button is clicked."""
@@ -99,18 +110,17 @@ class NutrientQuantitiesEditor(QObject):
         # Create a new EntityNutrientQuantity object
         entity_nutrient_quantity = EntityNutrientQuantity(
             nutrient_id=nutrient_id,
-            ntr_mass_unit_id=self._entity_unit_system._gram_id,
+            ntr_mass_unit_id=self._default_mass_unit_id,
         )
         # Get the new nutrient quantity view and id
-        nutrient_quantity_view = NutrientQuantityEditorView(
-            global_nutrient_id=nutrient_id,
-            nutrient_name=self._leaf_nutrient_name_id_map.get_str(nutrient_id),
-            nutrient_mass_unit_id=entity_nutrient_quantity.nutrient_mass_unit_id,
+        nutrient_quantity_view, _ = self._get_nutrient_quantity_view_and_id(
+            nutrient_name=self._cached_leaf_nutrient_name_id_map.get_value(nutrient_id)
         )
         # Add the new nutrient quantity to the listbox
         self.nutrient_quantities_column.view.search_results.add_item_content(
             item_content=nutrient_quantity_view, data=nutrient_id
         )
+        # TODO: Connect up its quantity changed signal.
         # Emit the nutrientQuantityAdded signal
         self.nutrientQuantityAdded.emit(entity_nutrient_quantity)
 
@@ -166,11 +176,13 @@ class NutrientQuantitiesEditor(QObject):
             tuple[NutrientQuantityEditorView, int]: The nutrient quantity view and the nutrient global ID.
         """
         # Get the global nutrient ID from the name
-        nutrient_id = self._leaf_nutrient_name_id_map.get_int(nutrient_name)
+        nutrient_id = self._cached_leaf_nutrient_name_id_map.get_key(nutrient_name)
+        if nutrient_id is None:
+            raise ValueError(f"Could not find nutrient ID for nutrient name: {nutrient_name}")
         # Create a new NutrientQuantityEditorView
         nutrient_quantity_view = NutrientQuantityEditorView(
             global_nutrient_id=nutrient_id,
             nutrient_name=nutrient_name,
-            nutrient_mass_unit_id=self._entity_unit_system._gram_id,
+            nutrient_mass_unit_id=self._default_mass_unit_id
         )
         return nutrient_quantity_view, nutrient_id

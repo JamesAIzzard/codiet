@@ -22,6 +22,7 @@ class NutrientQuantityEditorView(QWidget):
             global_nutrient_id: int,
             nutrient_name: str,
             nutrient_mass_unit_id: int,
+            nutrient_mass_value: float|None = None,
             *args, **kwargs
         ):
         super().__init__(*args, **kwargs)
@@ -33,8 +34,12 @@ class NutrientQuantityEditorView(QWidget):
         # Build the UI
         self._build_ui()
 
+        # Init the units on the UI
         # Set the mass unit
         self.nutrient_mass_units.selected_unit_id = nutrient_mass_unit_id
+        # Set the mass value
+        if nutrient_mass_value is not None:
+            self.nutrient_mass.setText(nutrient_mass_value)
 
         # Connect signals and slots
         # When the mass value textbox loses focus, emit the nutrientMassChanged signal

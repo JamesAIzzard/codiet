@@ -199,7 +199,7 @@ class TestBidirectionalMap(unittest.TestCase):
 
         This test verifies that:
         1. get_value returns the correct single value for a given key.
-        2. get_value returns None for a non-existent key.
+        2. get_value raises a ValueError when a key is not found.
         3. get_value raises a ValueError when multiple values exist for a key in many-to-many mode.
         """
         bm = BidirectionalMap()
@@ -208,7 +208,7 @@ class TestBidirectionalMap(unittest.TestCase):
         
         self.assertEqual(bm.get_value(1), "one")
         self.assertEqual(bm.get_value(2), "two")
-        self.assertIsNone(bm.get_value(3))
+        self.assertRaises(ValueError, bm.get_value, 3)
         
         # Test many-to-many scenario
         bm_many = BidirectionalMap(one_to_one=False)
@@ -224,7 +224,7 @@ class TestBidirectionalMap(unittest.TestCase):
 
         This test verifies that:
         1. get_key returns the correct single key for a given value.
-        2. get_key returns None for a non-existent value.
+        2. get_key raises a ValueError when a value is not found.
         3. get_key raises a ValueError when multiple keys exist for a value in many-to-many mode.
         """
         bm = BidirectionalMap()
@@ -233,7 +233,7 @@ class TestBidirectionalMap(unittest.TestCase):
         
         self.assertEqual(bm.get_key("one"), 1)
         self.assertEqual(bm.get_key("two"), 2)
-        self.assertIsNone(bm.get_key("three"))
+        self.assertRaises(ValueError, bm.get_key, "three")
         
         # Test many-to-many scenario
         bm_many = BidirectionalMap(one_to_one=False)
@@ -249,7 +249,8 @@ class TestBidirectionalMap(unittest.TestCase):
 
         This test verifies that:
         1. Both methods raise ValueError when multiple mappings exist.
-        2. The methods work correctly for unique mappings in many-to-many mode.
+        2. Both methods raise ValueError when the key or value is not found.
+        3. The methods work correctly for unique mappings in many-to-many mode.
         """
         bm = BidirectionalMap(one_to_one=False)
         bm.add_mapping("a", 1)
@@ -266,5 +267,5 @@ class TestBidirectionalMap(unittest.TestCase):
         self.assertEqual(bm.get_value("b"), 2)
         self.assertEqual(bm.get_key(1), "a")
         
-        self.assertIsNone(bm.get_value("d"))
-        self.assertIsNone(bm.get_key(4))        
+        self.assertRaises(ValueError, bm.get_value, "d")
+        self.assertRaises(ValueError, bm.get_key, 4)      

@@ -95,30 +95,30 @@ class BidirectionalMap(Generic[K, V]):
         """Return the list of keys for a given value. Returns an empty list if the value is not found."""
         return self.reverse.get(value, [])
 
-    def get_value(self, key: K) -> V|None:
+    def get_value(self, key: K) -> V:
         """
         Return a single value for a given key.
         Returns None if the key is not found.
         Raises ValueError if there is more than one value for the key.
         """
         values = self.get_values(key)
-        if not values:
-            return None
         if len(values) > 1:
             raise ValueError(f"Multiple values found for key '{key}'. Use get_values() instead.")
+        if len(values) == 0:
+            raise ValueError(f"No values found for key '{key}'.")
         return values[0]
 
-    def get_key(self, value: V) -> K|None:
+    def get_key(self, value: V) -> K:
         """
         Return a single key for a given value.
         Returns None if the value is not found.
         Raises ValueError if there is more than one key for the value.
         """
         keys = self.get_keys(value)
-        if not keys:
-            return None
         if len(keys) > 1:
             raise ValueError(f"Multiple keys found for value '{value}'. Use get_keys() instead.")
+        if len(keys) == 0:
+            raise ValueError(f"No keys found for value '{value}'.")
         return keys[0]
 
     def __str__(self) -> str:
