@@ -121,8 +121,6 @@ class IngredientEditor:
         )
         self.flag_editor.flagChanged.connect(self._on_flag_changed)
         # Ingredient nutrient editor
-        # TODO: Update this to use callbacks so we don't risk mutating the ingredient directly
-        # TODO: Investigate passing in a method which can convert and scale?
         self.nutrient_quantities_editor = NutrientQuantitiesEditor(
             view=self.view.nutrient_quantities_editor,
             get_global_leaf_nutrients=lambda: self._global_leaf_nutrients,

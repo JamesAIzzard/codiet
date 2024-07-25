@@ -177,13 +177,39 @@ class EntityUnitsSystem:
             ref_to_quantity: float,
             quantity: float,
     ) -> float:
-        """Rescales a quantity based on a transition between two reference quantities.
-        This is used in a scenario where we have a quantity of one thing associated with
-        a quantity of another, and the reference quantity changes, and we need to rescale
-        the first thing.
         """
-        # HERE: Finish developing this method.
-        raise NotImplementedError
+        Rescales a quantity based on a change in a reference quantity.
+
+        This method is useful in scenarios where we have two related quantities (e.g., protein and ingredient),
+        and we want to adjust one quantity proportionally when the other changes. For example, if we know that
+        10g of protein corresponds to 100g of an ingredient, and we change the ingredient quantity to 200g,
+        this method will calculate the new protein quantity (20g in this case).
+
+        Args:
+            ref_from_unit_id (int): The unit ID of the original reference quantity (e.g., grams of ingredient).
+            ref_to_unit_id (int): The unit ID of the quantity to be rescaled (e.g., grams of protein).
+            ref_from_quantity (float): The original reference quantity (e.g., 100g of ingredient).
+            ref_to_quantity (float): The original quantity to be rescaled (e.g., 10g of protein).
+            quantity (float): The new reference quantity (e.g., 200g of ingredient).
+
+        Returns:
+            float: The rescaled quantity (e.g., 20g of protein).        
+        """
+        # First, ensure all quantities are in the same unit system
+        ref_from_quantity_base = self.convert_units(ref_from_quantity, ref_from_unit_id, self.gram_id)
+        ref_to_quantity_base = self.convert_units(ref_to_quantity, ref_to_unit_id, self.gram_id)
+        quantity_base = self.convert_units(quantity, ref_from_unit_id, self.gram_id)
+
+        # Calculate the scaling factor
+        scaling_factor = quantity_base / ref_from_quantity_base
+
+        # Apply the scaling factor to the original 'to' quantity
+        result_base = ref_to_quantity_base * scaling_factor
+
+        # Convert the result back to the original 'to' unit
+        result = self.convert_units(result_base, self.gram_id, ref_to_unit_id)
+
+        return result
 
     def get_available_units_from_root(self, root_unit_id: int|None=None) -> dict[int, Unit]:
         """

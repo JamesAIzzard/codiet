@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Callable
 
 from PyQt6.QtCore import QObject, pyqtSignal
@@ -98,7 +99,7 @@ class NutrientQuantitiesEditor(QObject):
     def _on_add_nutrient_clicked(self) -> None:
         """Handler for when the add nutrient button is clicked."""
         # Open the AddEntityDialog
-        raise NotImplementedError
+        self._add_nutrient_quantity_dialog.view.show()
 
     def _on_nutrient_quantity_added(self, nutrient_id: int) -> None:
         """Handler for when the user has selected a nutrient from the
@@ -112,15 +113,21 @@ class NutrientQuantitiesEditor(QObject):
             nutrient_id=nutrient_id,
             ntr_mass_unit_id=self._default_mass_unit_id,
         )
+
         # Get the new nutrient quantity view and id
         nutrient_quantity_view, _ = self._get_nutrient_quantity_view_and_id(
             nutrient_name=self._cached_leaf_nutrient_name_id_map.get_value(nutrient_id)
         )
+
         # Add the new nutrient quantity to the listbox
         self.nutrient_quantities_column.view.search_results.add_item_content(
             item_content=nutrient_quantity_view, data=nutrient_id
         )
-        # TODO: Connect up its quantity changed signal.
+
+        # Connect the mass and units changed signals.
+        nutrient_quantity_view.nutrientMassChanged.connect(self._on_nutrient_mass_changed)
+        nutrient_quantity_view.nutrientMassUnitsChanged.connect(self._on_nutrient_mass_units_changed)
+
         # Emit the nutrientQuantityAdded signal
         self.nutrientQuantityAdded.emit(entity_nutrient_quantity)
 
@@ -136,19 +143,19 @@ class NutrientQuantitiesEditor(QObject):
             # Emit the nutrientQuantityRemoved signal
             self.nutrientQuantityRemoved.emit(selected_nutrient_id)
 
-    def _on_nutrient_mass_changed(self, nutrient_id: int, nutrient_mass: float) -> None:
+    def _on_nutrient_mass_changed(self, nutrient_id: int, nutrient_mass: float|None) -> None:
         """Handler for when the mass of a nutrient is changed.
 
         Args:
             nutrient_id (int): The global nutrient ID.
-            nutrient_mass (float): The new mass value.
+            nutrient_mass (float|None): The new mass value.
         """
-        # Grab the corresponding object
-        entity_nutrient_quantity = self._get_entity_nutrient_data()[nutrient_id]
+        # Grab the corresponding object. Take a copy so we don't mutate the original.
+        nutrient_quantity = deepcopy(self._get_entity_nutrient_quantities()[nutrient_id])
         # Update the mass value
-        entity_nutrient_quantity.nutrient_mass_value = nutrient_mass
+        nutrient_quantity.nutrient_mass_value = nutrient_mass
         # Emit the nutrientQuantityChanged signal
-        self.nutrientQuantityChanged.emit(entity_nutrient_quantity)
+        self.nutrientQuantityChanged.emit(nutrient_quantity)
 
     def _on_nutrient_mass_units_changed(self, nutrient_id: int, unit_id: int) -> None:
         """Handler for when the mass units of a nutrient are changed.
@@ -157,8 +164,8 @@ class NutrientQuantitiesEditor(QObject):
             nutrient_id (int): The global nutrient ID.
             unit_id (int): The new unit ID.
         """
-        # Grab the corresponding object
-        entity_nutrient_quantity = self._get_entity_nutrient_data()[nutrient_id]
+        # Grab the corresponding object. Take a copy so we don't mutate the original.
+        entity_nutrient_quantity = deepcopy(self._get_entity_nutrient_quantities()[nutrient_id])
         # Update the mass unit
         entity_nutrient_quantity.nutrient_mass_unit_id = unit_id
         # Emit the nutrientQuantityChanged signal

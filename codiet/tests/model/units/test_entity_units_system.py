@@ -161,3 +161,25 @@ class TestEntityUnitsSystem(unittest.TestCase):
         # Verify that the reverse conversion also works correctly
         reverse_result = system.convert_units(1, 2, 1)  # Convert 1 piece to grams
         self.assertEqual(reverse_result, 20)  # 1 piece should now be 20 grams
+
+    def test_rescale_quantity_basic(self):
+        # Test the basic functionality: 10g protein in 100g ingredient, scaled to 200g ingredient
+        result = self.connected_system.rescale_quantity(
+            ref_from_unit_id=1,  # grams (ingredient)
+            ref_to_unit_id=1,    # grams (protein)
+            ref_from_quantity=100,
+            ref_to_quantity=10,
+            quantity=200
+        )
+        self.assertAlmostEqual(result, 20, places=2)
+
+    def test_rescale_quantity_different_units(self):
+        # Test with different units: 10g protein in 0.1kg ingredient, scaled to 0.3kg ingredient
+        result = self.connected_system.rescale_quantity(
+            ref_from_unit_id=2,  # kilograms (ingredient)
+            ref_to_unit_id=1,    # grams (protein)
+            ref_from_quantity=0.1,
+            ref_to_quantity=10,
+            quantity=0.3
+        )
+        self.assertAlmostEqual(result, 30, places=2)  

@@ -1,4 +1,4 @@
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, QVariant
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel
 
 from codiet.views.text_editors.numeric_line_editor import NumericLineEditor
@@ -8,13 +8,13 @@ class NutrientQuantityEditorView(QWidget):
     """UI element for quantity of a nutrient in an ingredient.
 
     Signals:
-        nutrientMassChanged(int, float): Emitted when the nutrient mass value is changed.
+        nutrientMassChanged(int, float|None): Emitted when the nutrient mass value is changed.
             The signal carries the global nutrient ID and the new mass value.
         nutrientMassUnitsChanged(int, int): Emitted when the nutrient mass unit is changed.
             The signal carries the global nutrient ID and the new unit ID.    
     """
 
-    nutrientMassChanged = pyqtSignal(int, float)
+    nutrientMassChanged = pyqtSignal(int, QVariant)
     nutrientMassUnitsChanged = pyqtSignal(int, int)
 
     def __init__(
