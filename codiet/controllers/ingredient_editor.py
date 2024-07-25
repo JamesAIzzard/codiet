@@ -120,6 +120,8 @@ class IngredientEditor:
             view=self.view.flag_editor
         )
         self.flag_editor.flagChanged.connect(self._on_flag_changed)
+        # GI editor
+        self.view.txt_gi.textChanged.connect(self._on_gi_value_changed)        
         # Ingredient nutrient editor
         self.nutrient_quantities_editor = NutrientQuantitiesEditor(
             view=self.view.nutrient_quantities_editor,
@@ -140,8 +142,10 @@ class IngredientEditor:
             self._on_nutrient_qty_removed
         )
 
-        # Connect signals and slots
-        self.view.txt_gi.textChanged.connect(self._on_gi_value_changed)
+        # Create some other supporting dialogs
+        # TODO: Update these to use the new dialog system
+        self.error_dialog = ErrorDialog(parent=self.view)
+        self.confirm_dialog = ConfirmDialogBoxView(parent=self.view)
 
         # Load the first ingredient
         # Fetch it first
@@ -153,7 +157,9 @@ class IngredientEditor:
 
     @property
     def ingredient(self) -> Ingredient:
-        """Get the ingredient instance."""
+        """Get the ingredient instance.
+        To set the ingredient, use the load_ingredient method.
+        """
         return self._ingredient
 
     def load_ingredient(self, ingredient: Ingredient) -> None:
@@ -173,19 +179,11 @@ class IngredientEditor:
         self.view.gi = ingredient.gi
 
         # Update sub-modules
-        # Standard unit editor
         self.standard_unit_editor.selected_unit = ingredient.standard_unit_id
-        
-        # Unit conversion editor
         self.unit_conversion_editor.refresh()
-        
-        # Cost editor
         self.cost_editor.refresh()
-        
         self.flag_editor.refresh()
-        
-        self.nutrient_quantities_editor.set_entity_nutrient_data(ingredient.nutrient_quantities)
-
+        self.nutrient_quantities_editor.refresh()
 
     def _on_ingredient_selected(self, ing_name_and_id: Tuple[str, int]) -> None:
         """Handles the user clicking on an ingredient in the search results.
@@ -205,8 +203,8 @@ class IngredientEditor:
         Shows the dialog to guide the user through adding an ingredient.
         """
         # Open the create new ingredient dialog box
-        self.ingredient_name_editor_dialog_view.clear()
-        self.ingredient_name_editor_dialog_view.show()
+        self.ingredient_name_editor_dialog.view.clear()
+        self.ingredient_name_editor_dialog.view.show()
 
     def _on_delete_ingredient_clicked(self) -> None:
         """Handles user clicking the delete ingredient button.
@@ -216,17 +214,17 @@ class IngredientEditor:
         # If no ingredient is selected,
         if self.view.ingredient_search.search_results.item_is_selected is False:
             # Show the dialog to tell the user to select it.
-            self.select_ingredient_name_for_delete_dialog_view.show()
+            self.error_dialog.title = "No Ingredient Selected"
+            self.error_dialog.message = "Please select an ingredient to delete."
+            self.error_dialog.show()
         else:
-            # Create the confirm dialog
-            dialog = ConfirmDialogBoxView(
-                message=f"Are you sure you want to delete {self.view.ingredient_search.results_list.selected_item.text()}?",  # type: ignore
-                parent=self.view,
+            # Show the confirm dialog to confirm deletion
+            self.confirm_dialog.title = "Delete Ingredient?"
+            self.confirm_dialog.message = (
+                f"Are you sure you want to delete {self.view.ingredient_search.search_results.selected_item.text()}?" # type: ignore
             )
-            dialog.confirmClicked.connect(
-                self._on_confirm_delete_ingredient_clicked.show
-            )
-            dialog.cancelClicked.connect(lambda: dialog.hide())
+            self.confirm_dialog.on_accept_action = self._on_confirm_delete_ingredient_clicked
+            self.confirm_dialog.show()
 
     def _on_confirm_delete_ingredient_clicked(self) -> None:
         """Handler for confirming the deletion of an ingredient."""

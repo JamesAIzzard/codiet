@@ -74,6 +74,15 @@ class FlagEditor(QObject):
             self.view.add_flag(flag_id, self._get_global_flags()[flag_id])
             self.view.set_flag(flag_id, flag_value)
 
+    def refresh(self) -> None:
+        """Refresh the view."""
+        # Clear the view
+        self.view.flag_list.clear()
+        # Add the current entity flags to the view
+        for flag_id, flag_value in self._get_entity_flags.items():
+            self.view.add_flag(flag_id, self._get_global_flags()[flag_id])
+            self.view.set_flag(flag_id, flag_value)
+
     def _on_flag_added(self, flag_id: int) -> None:
         """Handler for when a flag is added."""
         # Add the flag to the view

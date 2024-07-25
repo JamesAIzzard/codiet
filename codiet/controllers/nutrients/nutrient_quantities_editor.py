@@ -95,6 +95,13 @@ class NutrientQuantitiesEditor(QObject):
         self.view.addNutrientClicked.connect(self._on_add_nutrient_clicked)
         self.view.removeNutrientClicked.connect(self._on_remove_nutrient_clicked)
     
+    def refresh(self) -> None:
+        """Refreshes the view."""
+        # Clear the nutrient quantities listbox
+        self.nutrient_quantities_column.view.search_results.clear()
+        # Add the nutrient quantities to the listbox
+        for nutrient_quantity in self._get_entity_nutrient_quantities().values():
+            self._add_nutrient_quantity(nutrient_quantity)
 
     def _on_add_nutrient_clicked(self) -> None:
         """Handler for when the add nutrient button is clicked."""
@@ -130,6 +137,47 @@ class NutrientQuantitiesEditor(QObject):
 
         # Emit the nutrientQuantityAdded signal
         self.nutrientQuantityAdded.emit(entity_nutrient_quantity)
+
+    def _add_nutrient_quantity(self, nutrient_quantity: EntityNutrientQuantity) -> None:
+        """Adds a nutrient quantity to the listbox.
+
+        Args:
+            nutrient_quantity (EntityNutrientQuantity): The nutrient quantity to add.
+        """
+        # Get the nutrient name
+        nutrient_name = self._cached_leaf_nutrient_name_id_map.get_value(nutrient_quantity.nutrient_id)
+        # Get the nutrient quantity view
+        nutrient_quantity_view, _ = self._get_nutrient_quantity_view_and_id(nutrient_name)
+        # Add the nutrient quantity to the listbox
+        self.nutrient_quantities_column.view.search_results.add_item_content(
+            item_content=nutrient_quantity_view, data=nutrient_quantity.nutrient_id
+        )
+        # Set the current values on the view
+        nutrient_quantity_view.nutrient_mass_value = nutrient_quantity.nutrient_mass_value
+        nutrient_quantity_view.nutrient_mass_unit_id = nutrient_quantity.nutrient_mass_unit_id
+
+    def _get_nutrient_quantity_view_and_id(
+        self, nutrient_name: str
+    ) -> tuple[NutrientQuantityEditorView, int]:
+        """Generates the nutrient quantity view and ID from the nutrient name.
+
+        Args:
+            nutrient_name (str): The name of the nutrient.
+
+        Returns:
+            tuple[NutrientQuantityEditorView, int]: The nutrient quantity view and the nutrient global ID.
+        """
+        # Get the global nutrient ID from the name
+        nutrient_id = self._cached_leaf_nutrient_name_id_map.get_key(nutrient_name)
+        if nutrient_id is None:
+            raise ValueError(f"Could not find nutrient ID for nutrient name: {nutrient_name}")
+        # Create a new NutrientQuantityEditorView
+        nutrient_quantity_view = NutrientQuantityEditorView(
+            global_nutrient_id=nutrient_id,
+            nutrient_name=nutrient_name,
+            nutrient_mass_unit_id=self._default_mass_unit_id
+        )
+        return nutrient_quantity_view, nutrient_id
 
     def _on_remove_nutrient_clicked(self) -> None:
         """Handler for when the remove nutrient button is clicked."""
@@ -170,26 +218,3 @@ class NutrientQuantitiesEditor(QObject):
         entity_nutrient_quantity.nutrient_mass_unit_id = unit_id
         # Emit the nutrientQuantityChanged signal
         self.nutrientQuantityChanged.emit(entity_nutrient_quantity)
-
-    def _get_nutrient_quantity_view_and_id(
-        self, nutrient_name: str
-    ) -> tuple[NutrientQuantityEditorView, int]:
-        """Generates the nutrient quantity view and ID from the nutrient name.
-
-        Args:
-            nutrient_name (str): The name of the nutrient.
-
-        Returns:
-            tuple[NutrientQuantityEditorView, int]: The nutrient quantity view and the nutrient global ID.
-        """
-        # Get the global nutrient ID from the name
-        nutrient_id = self._cached_leaf_nutrient_name_id_map.get_key(nutrient_name)
-        if nutrient_id is None:
-            raise ValueError(f"Could not find nutrient ID for nutrient name: {nutrient_name}")
-        # Create a new NutrientQuantityEditorView
-        nutrient_quantity_view = NutrientQuantityEditorView(
-            global_nutrient_id=nutrient_id,
-            nutrient_name=nutrient_name,
-            nutrient_mass_unit_id=self._default_mass_unit_id
-        )
-        return nutrient_quantity_view, nutrient_id

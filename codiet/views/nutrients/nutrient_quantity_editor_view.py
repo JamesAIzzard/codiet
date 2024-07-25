@@ -1,6 +1,7 @@
 from PyQt6.QtCore import pyqtSignal, QVariant
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel
 
+from codiet.views import block_signals
 from codiet.views.text_editors.numeric_line_editor import NumericLineEditor
 from codiet.views.units.unit_dropdown import UnitDropdown
 
@@ -48,6 +49,33 @@ class NutrientQuantityEditorView(QWidget):
         )
         # When the mass units dropdown changes, emit the nutrientMassUnitsChanged signal
         self.nutrient_mass_units.unitChanged.connect(self.nutrientMassUnitsChanged.emit)       
+
+    @property
+    def nutrient_mass_value(self) -> float|None:
+        """Returns the mass value of the nutrient."""
+        return self.nutrient_mass.text()
+    
+    @nutrient_mass_value.setter
+    def nutrient_mass_value(self, value: float|None):
+        """Sets the mass value of the nutrient."""
+        with block_signals(self.nutrient_mass):
+            self.nutrient_mass.setText(value)
+
+    @property
+    def nutrient_mass_unit_id(self) -> int:
+        """Returns the mass unit ID of the nutrient."""
+        return self.nutrient_mass_units.selected_unit_id
+    
+    @nutrient_mass_unit_id.setter
+    def nutrient_mass_unit_id(self, value: int):
+        """Sets the mass unit ID of the nutrient."""
+        with block_signals(self.nutrient_mass_units):
+            self.nutrient_mass_units.selected_unit_id = value
+
+    @property
+    def nutrient_mass_unit_name(self) -> str:
+        """Returns the mass unit name of the nutrient."""
+        return self.nutrient_mass_units.selected_unit_name
 
     def _build_ui(self):
         """Initializes the UI elements."""
