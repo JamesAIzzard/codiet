@@ -17,6 +17,8 @@ class MainWindow(QMainWindow):
     def show_dialog(self):
         dialog = IconMessageDialog(
             parent=self,
+            message="Hello World",
+            icon_filename="filter-icon.png"
         )
         dialog.show()
 

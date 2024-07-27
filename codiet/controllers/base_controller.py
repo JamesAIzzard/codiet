@@ -12,7 +12,9 @@ class ControllerMeta(type(QObject), ABC.__class__):
     pass
 
 class BaseController(QObject, Generic[T], metaclass=ControllerMeta):
-    """Base controller class for all controllers in the application."""
+    """Base controller class for all controllers in the application.
+    This is a generic because it can be used with any view type.
+    """
 
     def __init__(
         self,

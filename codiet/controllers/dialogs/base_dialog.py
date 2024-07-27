@@ -1,6 +1,4 @@
-from typing import Type, TypeVar
-
-from PyQt6.QtWidgets import QWidget
+from typing import TypeVar
 
 from codiet.views.dialogs.base_dialog_view import BaseDialogView
 from codiet.controllers.base_controller import BaseController
@@ -12,16 +10,10 @@ class BaseDialog(BaseController[T]):
 
     def __init__(
             self, 
-            view_type: Type[T] = BaseDialogView, # If a specific view class is not provided, fall back on BaseDialogView
-            view: T|None = None,
             title: str|None = None,
-            parent: QWidget|None = None,
             *args, **kwargs
         ):
         super().__init__(
-            view_type=view_type, 
-            view=view,
-            parent=parent,
             *args, **kwargs
         )
         if title is not None:

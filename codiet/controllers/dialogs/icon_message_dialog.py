@@ -1,35 +1,19 @@
-from typing import Type, TypeVar
-
-from PyQt6.QtWidgets import QWidget
-
 from codiet.views.dialogs.icon_message_dialog_view import IconMessageDialogView
 from codiet.controllers.dialogs.base_dialog import BaseDialog
-
-T = TypeVar('T', bound=IconMessageDialogView) # bound is forcing T to be a subclass of IconMessageDialogView
 
 class IconMessageDialog(BaseDialog):
     """A dialog box with an icon, and a message."""
 
     def __init__(
             self, 
-            title:str = "Title",
-            message:str = "Message", 
+            message:str = "Message",
             icon_filename:str = "app-icon.png", 
-            parent:QWidget|None=None,
-            view:T|None=None,
-            view_type:Type[T]=IconMessageDialogView,
             *args, **kwargs
         ):
         super().__init__(
-            view=view,
-            view_type=view_type,
-            title=title,
-            parent=parent,
+            view_type=IconMessageDialogView,
             *args, **kwargs
         )
-
-        # Tell the type checker that the view is an IconMessageDialogView
-        self.view: IconMessageDialogView
 
         # Set the message
         self.message = message
