@@ -1,6 +1,6 @@
+from typing import TypeVar, Generic
 import logging
-from typing import Type, TypeVar, Generic
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from PyQt6.QtCore import QObject
 from PyQt6.QtWidgets import QWidget
@@ -13,12 +13,12 @@ class ControllerMeta(type(QObject), ABC.__class__):
 
 class BaseController(QObject, Generic[T], metaclass=ControllerMeta):
     """Base controller class for all controllers in the application.
-    This is a generic because it can be used with any view type.
+    This is a generic because it can be used with any view type, provided the view is a
+    subclass of QWidget.
     """
 
     def __init__(
         self,
-        view_type: Type[T],
         parent: QWidget|None = None,
         view: T|None = None,
         *args, **kwargs
@@ -34,12 +34,13 @@ class BaseController(QObject, Generic[T], metaclass=ControllerMeta):
 
         super().__init__(parent=parent)
         
-        self._view: T = view if view is not None else self._create_view(view_type, parent, *args, **kwargs)
+        self._view: T = view if view is not None else self._create_view(parent, *args, **kwargs)
 
-    def _create_view(self, view_type: Type[T], parent: QWidget|None, *args, **kwargs) -> T:
+    @abstractmethod
+    def _create_view(self, parent: QWidget|None, *args, **kwargs) -> T:
         """Create a new view instance."""
-        return view_type(parent=parent, *args, **kwargs)  # type: ignore
-
+        raise NotImplementedError
+    
     @property
     def view(self) -> T:
         """Get or set the view associated with this controller."""

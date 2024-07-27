@@ -1,23 +1,19 @@
-from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QWidget
+from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
 from codiet.views.dialogs.base_dialog_view import BaseDialogView
 from codiet.views.labels import IconTextLabel
 
 class IconMessageDialogView(BaseDialogView):
-    """A dialog box with an icon, and a message."""
+    """A dialog box with an icon, and a message.
+    Extends the base dialog view to include an icon and a message.
+    """
     def __init__(
             self, 
-            title:str = "Title",
             message:str = "Message", 
             icon_filename:str = "app-icon.png", 
-            parent:QWidget|None=None,
             *args, **kwargs
         ):
-        super().__init__(
-            title=title,
-            parent=parent,
-            *args, **kwargs
-        )
+        super().__init__(*args, **kwargs)
 
         # Set the top level layout
         self.lyt_top_level = QVBoxLayout(self)

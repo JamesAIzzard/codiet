@@ -1,8 +1,12 @@
 import sys, logging
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton
 
+from codiet.views.dialogs.icon_message_dialog_view import IconMessageDialogView
 from codiet.controllers.dialogs.base_dialog import BaseDialog
 from codiet.controllers.dialogs.icon_message_dialog import IconMessageDialog
+from codiet.controllers.dialogs.icon_message_buttons_dialog import IconMessageButtonsDialog
+from codiet.controllers.dialogs.confirm_dialog import ConfirmDialog
+from codiet.controllers.dialogs.error_dialog import ErrorDialog
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -15,11 +19,29 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(button)
 
     def show_dialog(self):
-        dialog = IconMessageDialog(
-            parent=self,
-            message="Hello World",
-            icon_filename="filter-icon.png"
-        )
+        # dialog = BaseDialog(
+        #     parent=self,
+        #     title="Test Dialog",
+        # )
+        # dialog = IconMessageDialog(
+        #     parent=self,
+        #     title="Test Dialog",
+        #     message="This is a test message.",
+        # )
+        # Create a close button
+        # close_button = QPushButton("Close")
+        # close_button.clicked.connect(lambda: print("clicked"))
+        # dialog = IconMessageButtonsDialog(
+        #     parent=self,
+        #     title="Buttons Dialog",
+        #     message="I'm a buttons dialog.",
+        #     buttons=[
+        #         QPushButton("Button 1"),
+        #         close_button,
+        #     ]
+        # )
+        dialog = ErrorDialog(parent=self, title="Error!", message="An error occurred.")
+        dialog.okClicked.connect(lambda: dialog.close())
         dialog.show()
 
 def configure_logging():

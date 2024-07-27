@@ -1,11 +1,9 @@
-from typing import TypeVar
+from PyQt6.QtWidgets import QWidget
 
 from codiet.views.dialogs.base_dialog_view import BaseDialogView
 from codiet.controllers.base_controller import BaseController
 
-T = TypeVar('T', bound=BaseDialogView) # bound is forcing T to be a subclass of BaseDialogView
-
-class BaseDialog(BaseController[T]):
+class BaseDialog(BaseController[BaseDialogView]):
     """Base controller class for dialog boxes."""
 
     def __init__(
@@ -40,3 +38,6 @@ class BaseDialog(BaseController[T]):
     def close(self):
         """Close the dialog box."""
         self.view.close()
+
+    def _create_view(self, parent: QWidget, *args, **kwargs) -> BaseDialogView:
+        return BaseDialogView(parent=parent, *args, **kwargs)

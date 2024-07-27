@@ -1,24 +1,26 @@
-from PyQt6.QtWidgets import QWidget
+from PyQt6.QtCore import pyqtSignal
 
-from codiet.views.dialogs.error_dialog_view import ErrorDialogView
-from codiet.controllers.dialogs.message_dialog import MessageDialog
+from codiet.views.buttons import ConfirmButton
+from codiet.controllers.dialogs.icon_message_buttons_dialog import IconMessageButtonsDialog
 
-class ErrorDialog(MessageDialog):
-    """A specific type of message dialog for dipslaying errors."""
-    def __init__(
-            self, 
-            view: ErrorDialogView|None=None,
-            parent: QWidget|None=None, 
-            title:str|None=None, 
-            message:str|None=None,
-            *args, **kwargs
-        ):
+class ErrorDialog(IconMessageButtonsDialog):
+    """A specific type of message dialog for displaying errors.
+    Specialises the IconMessageButtonsDialog to show the error Icon and an OK button.
+    """
+
+    okClicked = pyqtSignal()
+
+    def __init__(self, *args, **kwargs):
+        # Create the OK button
+        self.btn_OK = ConfirmButton()
+
         super().__init__(
-            view=view,
-            parent=parent,
-            view_type=ErrorDialogView,
-            title=title,
-            message=message,
-            message_icon="error.png",
+            icon_filename="error-icon.png",
+            buttons=[
+                self.btn_OK
+            ],
             *args, **kwargs
         )
+
+        # Connect the OK button to its signal
+        self.btn_OK.clicked.connect(self.okClicked)
