@@ -8,7 +8,6 @@ from codiet.utils.bidirectional_map import BidirectionalMap
 from codiet.models.nutrients.nutrient import Nutrient
 from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
 from codiet.models.units.unit import Unit
-from codiet.models.units.entity_units_system import EntityUnitsSystem
 from codiet.views.nutrients.nutrient_quantity_editor_view import (
     NutrientQuantityEditorView,
 )

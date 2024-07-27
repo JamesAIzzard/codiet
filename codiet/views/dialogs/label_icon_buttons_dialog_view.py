@@ -1,8 +1,8 @@
 from PyQt6.QtWidgets import QHBoxLayout, QPushButton
 
-from codiet.views.dialogs.label_icon_dialog_view import LabelIconDialog
+from codiet.views.dialogs.icon_message_dialog_view import IconMessageDialog
 
-class LabelIconButtonsDialogView(LabelIconDialog):
+class LabelIconButtonsDialogView(IconMessageDialog):
     """A dialog box with a label, an icon, and a button box."""
 
     def __init__(self, *args, **kwargs):

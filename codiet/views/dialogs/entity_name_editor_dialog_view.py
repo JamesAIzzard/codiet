@@ -2,12 +2,12 @@ from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QVBoxLayout, QStackedWidget, QHBoxLayout
 
 from codiet.views import block_signals
-from codiet.views.dialogs.dialog_view import DialogView
+from codiet.views.dialogs.base_dialog_view import BaseDialogView
 from codiet.views.labels import IconTextLabel
 from codiet.views.buttons import ConfirmButton, ClearButton
 from codiet.views.text_editors import LineEdit
 
-class EntityNameEditorDialogView(DialogView):
+class EntityNameEditorDialogView(BaseDialogView):
     """A dialog box for creating and editing the name of an entity."""
 
     nameChanged = pyqtSignal(str)

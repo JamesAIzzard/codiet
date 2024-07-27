@@ -1,12 +1,12 @@
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
-from codiet.views.dialogs.dialog_view import DialogView
+from codiet.views.dialogs.base_dialog_view import BaseDialogView
 from codiet.views.buttons import AddButton, CancelButton
 from codiet.views.search.search_column_view import SearchColumnView
 
 
-class AddEntityDialogView(DialogView):
+class AddEntityDialogView(BaseDialogView):
     """A dialog box for selecting and adding an entity.
 
     This class represents a dialog box that allows the user to select an entity from a list

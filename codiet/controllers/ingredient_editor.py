@@ -12,6 +12,7 @@ from codiet.models.units.entity_units_system import EntityUnitsSystem
 from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.controllers.search.search_column import SearchColumn
 from codiet.controllers.dialogs.entity_name_editor_dialog import EntityNameEditorDialog
+from codiet.controllers.dialogs.error_dialog import ErrorDialog
 from codiet.controllers.units.standard_unit_editor import StandardUnitEditor
 from codiet.controllers.units.unit_conversions_editor import UnitConversionsEditor
 from codiet.controllers.cost_editor import CostEditor
@@ -144,6 +145,7 @@ class IngredientEditor:
 
         # Create some other supporting dialogs
         # TODO: Update these to use the new dialog system
+        # HERE: Update these to use the new dialog system   
         self.error_dialog = ErrorDialog(parent=self.view)
         self.confirm_dialog = ConfirmDialogBoxView(parent=self.view)
 
@@ -228,6 +230,7 @@ class IngredientEditor:
 
     def _on_confirm_delete_ingredient_clicked(self) -> None:
         """Handler for confirming the deletion of an ingredient."""
+        # HERE: Keep working down removing errors.
         ingredient_id = self.ingredient_search.selected_item_data
         assert ingredient_id is not None and type(ingredient_id) == int
         # Grab the selected ingredient name from the search widget

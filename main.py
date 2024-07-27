@@ -1,7 +1,6 @@
-import sys
+import sys, logging
 
 from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import qInstallMessageHandler
 
 from codiet.db import DB_PATH
 from codiet.db.database import Database
@@ -11,17 +10,20 @@ from codiet.views import load_stylesheet
 from codiet.views.main_window_view import MainWindowView
 from codiet.controllers.main_window_ctrl import MainWindowCtrl
 
-
-def pyqt_message_breakpoint(*args, **kwargs):
-    # Print the message
-    print(args, kwargs)
-    breakpoint()
+def configure_logging():
+    logging.basicConfig(
+        level=logging.DEBUG,  # Set to DEBUG for development, INFO or WARNING for production
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stderr),
+            # You can add file handlers here if you want to log to a file as well
+        ]
+    )
 
 if __name__ == "__main__":
-    # Install the custom message handler
-    qInstallMessageHandler(pyqt_message_breakpoint) # type: ignore
     # Create the application object
     app = QApplication(sys.argv)
+    # Load the stylesheet
     app.setStyleSheet(load_stylesheet("main.qss"))
     # Create the database objects
     database = Database(DB_PATH)
@@ -33,5 +35,7 @@ if __name__ == "__main__":
         view=window,
         db_service=db_service
     )
+    # Show the main window
     window.show()
+    # Run the application
     sys.exit(app.exec())

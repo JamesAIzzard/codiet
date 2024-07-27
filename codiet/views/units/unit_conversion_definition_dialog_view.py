@@ -1,11 +1,11 @@
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel
 from PyQt6.QtCore import pyqtSignal
 
-from codiet.views.dialogs.dialog_view import DialogView
+from codiet.views.dialogs.base_dialog_view import BaseDialogView
 from codiet.views.search.search_column_view import SearchColumnView
 from codiet.views.buttons import OKButton, CancelButton
 
-class UnitConversionDefinitionDialogView(DialogView):
+class UnitConversionDefinitionDialogView(BaseDialogView):
     """A dialog box for defining a unit conversion."""
 
     selectionChanged = pyqtSignal(int, int)
