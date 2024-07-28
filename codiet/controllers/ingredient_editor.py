@@ -57,7 +57,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self._connect_toolbar()
         # Ingredient search column
         self.ingredient_search_column = SearchColumn[int, QLabel](
-            parent=self.view,
+            view=self.view.ingredient_search_column,
             get_searchable_strings=lambda: self._ingredient_name_ids.values,
             get_item_and_view_for_string=lambda ingredient_name: (
                 self._ingredient_name_ids.get_key(ingredient_name),
@@ -207,7 +207,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         If an ingredient is selected, creates a confirm dialog to confirm deletion.
         """
         # If no ingredient is selected,
-        if self.view.ingredient_search.results_list_view.item_is_selected is False:
+        if self.view.ingredient_search_column.results_list_view.item_is_selected is False:
             # Show the dialog to tell the user to select it.
             self.error_dialog.title = "No Ingredient Selected"
             self.error_dialog.message = "Please select an ingredient to delete."
@@ -216,7 +216,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
             # Show the confirm dialog to confirm deletion
             self.confirm_dialog.title = "Delete Ingredient?"
             self.confirm_dialog.message = (
-                f"Are you sure you want to delete {self.view.ingredient_search.results_list_view.selected_item.text()}?" # type: ignore
+                f"Are you sure you want to delete {self.view.ingredient_search_column.results_list_view.selected_item.text()}?" # type: ignore
             )
             self.confirm_dialog.confirmClicked.connect(self._on_confirm_delete_ingredient_clicked)
             self.confirm_dialog.cancelClicked.connect(self.confirm_dialog.close)
@@ -228,7 +228,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         ingredient_id = self.ingredient_search.selected_item_data
         assert ingredient_id is not None and type(ingredient_id) == int
         # Grab the selected ingredient name from the search widget
-        ingredient_name = self.view.ingredient_search.results_list_view.selected_item.text()  # type: ignore
+        ingredient_name = self.view.ingredient_search_column.results_list_view.selected_item.text()  # type: ignore
         # Delete the ingredient from the database
         self.db_service.repository.delete_ingredient(ingredient_id)
         # Recache the ingredient names

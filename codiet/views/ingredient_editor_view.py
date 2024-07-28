@@ -166,8 +166,8 @@ class IngredientEditorView(QWidget):
 
     def _build_search_ui(self, container: QBoxLayout):
         """Build the search UI for the ingredient editor page."""
-        self.ingredient_search = SearchColumnView()
-        container.addWidget(self.ingredient_search)
+        self.ingredient_search_column = SearchColumnView()
+        container.addWidget(self.ingredient_search_column)
 
     def _build_basic_info_UI(self, container: QBoxLayout):
         """Build the UI for the basic info section of the ingredient editor page."""
