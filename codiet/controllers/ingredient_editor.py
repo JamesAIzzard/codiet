@@ -411,7 +411,5 @@ class IngredientEditor(BaseController[IngredientEditorView]):
 
     def _connect_toolbar(self) -> None:
         """Connect the toolbar button signals."""
-        self.view.addIngredientClicked.connect(self._on_add_new_ingredient_clicked)
-        self.view.deleteIngredientClicked.connect(self._on_delete_ingredient_clicked)
-        self.view.autopopulateClicked.connect(self._on_autopopulate_ingredient_clicked)
+        pass
 

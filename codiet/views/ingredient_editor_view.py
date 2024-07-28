@@ -24,10 +24,6 @@ from codiet.views.units.unit_conversions_editor_view import UnitConversionsEdito
 class IngredientEditorView(QWidget):
     """User interface for editing an ingredient."""
     # Define signals
-    addIngredientClicked = pyqtSignal()
-    deleteIngredientClicked = pyqtSignal()
-    autopopulateClicked = pyqtSignal()
-    saveJSONClicked = pyqtSignal()
     editIngredientNameClicked = pyqtSignal()
     ingredientDescriptionChanged = pyqtSignal(str)
     ingredientCostValueChanged = pyqtSignal(QVariant)
@@ -147,21 +143,21 @@ class IngredientEditorView(QWidget):
         # Build the toolbar
         toolbar = QToolBar(self)
         container.addWidget(toolbar)
-        btn_add = IconButton(icon_filename="add-icon.png")
-        btn_add.setToolTip("Add new ingredient.")
-        btn_add.clicked.connect(self.addIngredientClicked.emit)
-        btn_delete = IconButton(icon_filename="delete-icon.png")
-        btn_delete.setToolTip("Delete selected ingredient.")
-        btn_delete.clicked.connect(self.deleteIngredientClicked.emit)
-        btn_autopopulate = IconButton(icon_filename="autopopulate-icon.png")
-        btn_autopopulate.setToolTip("Autopopulate ingredient.")
-        btn_autopopulate.clicked.connect(self.autopopulateClicked.emit)
+
+        btn_add_ingredient = IconButton(icon_filename="add-icon.png")
+        btn_add_ingredient.setToolTip("Add new ingredient.")
+        toolbar.addWidget(btn_add_ingredient)
+
+        btn_delete_ingredient = IconButton(icon_filename="delete-icon.png")
+        btn_delete_ingredient.setToolTip("Delete selected ingredient.")
+        toolbar.addWidget(btn_delete_ingredient)
+
+        btn_autopopulate_ingredient = IconButton(icon_filename="autopopulate-icon.png")
+        btn_autopopulate_ingredient.setToolTip("Autopopulate ingredient.")
+        toolbar.addWidget(btn_autopopulate_ingredient)
+        
         btn_json_save = IconButton(icon_filename="save-icon.png", text="Save to JSON")
         btn_json_save.setToolTip("Save ingredient to JSON.")
-        btn_json_save.clicked.connect(self.saveJSONClicked.emit)
-        toolbar.addWidget(btn_add)
-        toolbar.addWidget(btn_delete)
-        toolbar.addWidget(btn_autopopulate)
         toolbar.addWidget(btn_json_save)
 
     def _build_search_ui(self, container: QBoxLayout):
