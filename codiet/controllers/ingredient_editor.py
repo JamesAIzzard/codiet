@@ -11,13 +11,20 @@ from codiet.models.units.entity_units_system import EntityUnitsSystem
 from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.controllers.base_controller import BaseController
 from codiet.controllers.search.search_column import SearchColumn
-from codiet.controllers.dialogs.entity_name_editor_dialog import EntityNameEditorDialog
-from codiet.controllers.dialogs import (OKDialog, YesNoDialog, IconMessageDialog)
+from codiet.controllers.dialogs import (
+    OKDialog,
+    YesNoDialog,
+    IconMessageDialog,
+    AddEntityDialog,
+    EntityNameEditorDialog,
+)
 from codiet.controllers.units.standard_unit_editor import StandardUnitEditor
 from codiet.controllers.units.unit_conversions_editor import UnitConversionsEditor
 from codiet.controllers.cost_editor import CostEditor
 from codiet.controllers.flags.flag_editor import FlagEditor
-from codiet.controllers.nutrients.nutrient_quantities_editor import NutrientQuantitiesEditor
+from codiet.controllers.nutrients.nutrient_quantities_editor import (
+    NutrientQuantitiesEditor,
+)
 
 
 class IngredientEditor(BaseController[IngredientEditorView]):
@@ -35,11 +42,10 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self._ingredient_name_ids = self.db_service.build_ingredient_name_id_map()
         self._global_unit_name_ids = self.db_service.build_unit_name_id_map()
         self._global_units = self.db_service.read_all_global_units()
-        self._gram_id = next(
-            unit_id for unit_id, unit in self._global_units.items() if unit.unit_name == "gram"
-        )
         self._global_mass_units = self.db_service.read_all_global_mass_units()
-        self._global_unit_conversions = self.db_service.read_all_global_unit_conversions()
+        self._global_unit_conversions = (
+            self.db_service.read_all_global_unit_conversions()
+        )
         self._global_flags = self.db_service.repository.read_all_global_flags()
         self._flag_name_ids = self.db_service.build_flag_name_id_map()
         self._global_nutrients = self.db_service.read_all_global_nutrients()
@@ -47,16 +53,26 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self._ingredient_unit_system = EntityUnitsSystem(
             global_units=self._global_units,
             global_unit_conversions=self._global_unit_conversions,
-            entity_unit_conversions={}, # Update when ingredient is loaded
+            entity_unit_conversions={},  # Update when ingredient is loaded
         )
 
-        # Create some supporting dialogs  
-        self.error_dialog = IconMessageDialog(parent=self.view, icon_filename="error-icon.png")
+        # Create some supporting dialogs
+        self.error_dialog = IconMessageDialog(
+            parent=self.view, icon_filename="error-icon.png"
+        )
         self.confirm_dialog = YesNoDialog(parent=self.view)
 
         # Controllers, signals and slots
         # Toolbar
+        self.view.toolbar.btn_add.clicked.connect(self._on_add_new_ingredient_clicked)
 
+        # Add ingredient dialog
+        self.add_ingredient_dialog = EntityNameEditorDialog(
+            parent=self.view,
+            entity_name="ingredient",
+            check_name_available=lambda name: name not in self._ingredient_name_ids.values,
+        )
+        self.add_ingredient_dialog.onNameAccepted.connect(self._on_ingredient_added)
 
         # Ingredient search column
         self.ingredient_search_column = SearchColumn[int, QLabel](
@@ -67,17 +83,23 @@ class IngredientEditor(BaseController[IngredientEditorView]):
                 QLabel(ingredient_name),
             ),
         )
-        self.ingredient_search_column.results_list.itemClicked.connect(self._on_ingredient_selected)
+        self.ingredient_search_column.results_list.itemClicked.connect(
+            self._on_ingredient_selected
+        )
         # Ingredient name editor
         # self.view.editIngredientNameClicked.connect(
         #     self._on_edit_ingredient_name_clicked
         # )
-        # self.ingredient_name_editor_dialog = EntityNameEditorDialog(
-        #     entity_name="ingredient",
-        #     check_name_available=lambda name: name not in self._ingredient_name_ids.values,
-        # )
-        # self.ingredient_name_editor_dialog.onNameAccepted.connect(self._on_ingredient_name_accepted)
-        # # Ingredient description editor
+        self.ingredient_name_editor_dialog = EntityNameEditorDialog(
+            parent=self.view,
+            entity_name="ingredient",
+            check_name_available=lambda name: name
+            not in self._ingredient_name_ids.values,
+        )
+        self.ingredient_name_editor_dialog.onNameAccepted.connect(
+            self._on_ingredient_name_accepted
+        )
+        # Ingredient description editor
         # self.view.ingredientDescriptionChanged.connect(
         #     self._on_ingredient_description_changed
         # )
@@ -88,7 +110,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
             parent=self.view,
         )
         self.standard_unit_editor.onUnitChanged.connect(
-            lambda unit_id: setattr(self.ingredient, 'standard_unit_id', unit_id)
+            lambda unit_id: setattr(self.ingredient, "standard_unit_id", unit_id)
         )
         # # Unit conversions editor
         # self.unit_conversion_editor = UnitConversionsEditor(
@@ -119,7 +141,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         # )
         # self.flag_editor.flagChanged.connect(self._on_flag_changed)
         # # GI editor
-        # self.view.txt_gi.textChanged.connect(self._on_gi_value_changed)        
+        # self.view.txt_gi.textChanged.connect(self._on_gi_value_changed)
         # # Ingredient nutrient editor
         # self.nutrient_quantities_editor = NutrientQuantitiesEditor(
         #     view=self.view.nutrient_quantities_editor,
@@ -164,7 +186,9 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self._ingredient = ingredient
 
         # Update the ingredient unit system
-        self._ingredient_unit_system.entity_unit_conversions = ingredient.unit_conversions
+        self._ingredient_unit_system.entity_unit_conversions = (
+            ingredient.unit_conversions
+        )
 
         # Update main view elements
         self.view.ingredient_name = ingredient.name
@@ -197,8 +221,14 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         Shows the dialog to guide the user through adding an ingredient.
         """
         # Open the create new ingredient dialog box
-        self.ingredient_name_editor_dialog.view.clear()
-        self.ingredient_name_editor_dialog.view.show()
+        self.ingredient_name_editor_dialog.clear()
+        self.ingredient_name_editor_dialog.show()
+
+    def _on_ingredient_added(self, name: str) -> None:
+        """Handler for adding a new ingredient."""
+        ingredient = Ingredient(name=name)
+        self.db_service.create_ingredient(ingredient)
+        self.load_ingredient(ingredient)
 
     def _on_delete_ingredient_clicked(self) -> None:
         """Handles user clicking the delete ingredient button.
@@ -206,7 +236,10 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         If an ingredient is selected, creates a confirm dialog to confirm deletion.
         """
         # If no ingredient is selected,
-        if self.view.ingredient_search_column.results_list_view.item_is_selected is False:
+        if (
+            self.view.ingredient_search_column.results_list_view.item_is_selected
+            is False
+        ):
             # Show the dialog to tell the user to select it.
             self.error_dialog.title = "No Ingredient Selected"
             self.error_dialog.message = "Please select an ingredient to delete."
@@ -214,10 +247,10 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         else:
             # Show the confirm dialog to confirm deletion
             self.confirm_dialog.title = "Delete Ingredient?"
-            self.confirm_dialog.message = (
-                f"Are you sure you want to delete {self.view.ingredient_search_column.results_list_view.selected_item.text()}?" # type: ignore
+            self.confirm_dialog.message = f"Are you sure you want to delete {self.view.ingredient_search_column.results_list_view.selected_item.text()}?"  # type: ignore
+            self.confirm_dialog.confirmClicked.connect(
+                self._on_confirm_delete_ingredient_clicked
             )
-            self.confirm_dialog.confirmClicked.connect(self._on_confirm_delete_ingredient_clicked)
             self.confirm_dialog.cancelClicked.connect(self.confirm_dialog.close)
             self.confirm_dialog.show()
 
@@ -279,7 +312,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
                 description=description,
             )
             db_service.commit()
-    
+
     def _on_unit_conversion_added(self, unit_conversion: EntityUnitConversion) -> None:
         """Handler for a unit conversion being added to the ingredient.
         Args:
@@ -291,7 +324,9 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         # Populate the unit conversion with the ingredient ID
         unit_conversion.entity_id = self.ingredient.id
         # Insert the new unit conversion into the database
-        unit_conversion = self.db_service.create_ingredient_unit_conversion(unit_conversion)
+        unit_conversion = self.db_service.create_ingredient_unit_conversion(
+            unit_conversion
+        )
         self.db_service.repository.commit()
         # Add the new unit conversion to the ingredient
         self.ingredient.add_unit_conversion(unit_conversion)
@@ -309,7 +344,12 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self.db_service.repository.delete_ingredient_unit_conversion(unit_conversion_id)
         self.db_service.repository.commit()
 
-    def _on_unit_conversion_updated(self, unit_conversion_id: int, from_unit_qty: float|None, to_unit_qty: float|None) -> None:
+    def _on_unit_conversion_updated(
+        self,
+        unit_conversion_id: int,
+        from_unit_qty: float | None,
+        to_unit_qty: float | None,
+    ) -> None:
         """Handler for a unit conversion being updated.
         Args:
             unit_conversion_id (int): The ID of the unit conversion to update.
@@ -355,7 +395,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         )
         self.db_service.repository.commit()
 
-    def _on_flag_changed(self, flag_id: int, flag_value: bool|None) -> None:
+    def _on_flag_changed(self, flag_id: int, flag_value: bool | None) -> None:
         """Handler for changes to the ingredient flags."""
         # Update flag on the model
         self.ingredient.set_flag(flag_id, flag_value)
@@ -403,8 +443,6 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self.ingredient.remove_nutrient_quantity(nutrient_id)
         # Remove the nutrient quantity from the database
         self.db_service.repository.delete_ingredient_nutrient_quantity(
-            ingredient_id=self.ingredient.id,
-            global_nutrient_id=nutrient_id
+            ingredient_id=self.ingredient.id, global_nutrient_id=nutrient_id
         )
         self.db_service.repository.commit()
-

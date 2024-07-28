@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from PyQt6.QtCore import QObject
 from PyQt6.QtWidgets import QWidget
 
-T = TypeVar('T')
+T = TypeVar('T', bound=QWidget)
 logger = logging.getLogger(__name__)
 
 class ControllerMeta(type(QObject), ABC.__class__):

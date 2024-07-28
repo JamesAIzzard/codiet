@@ -1,11 +1,11 @@
 from typing import Callable
 
-from PyQt6.QtCore import pyqtSignal, QObject
-from PyQt6.QtWidgets import QWidget
+from PyQt6.QtCore import pyqtSignal
 
 from codiet.views.dialogs.entity_name_editor_dialog_view import EntityNameEditorDialogView
+from codiet.controllers.dialogs.base_dialog import BaseDialog
 
-class EntityNameEditorDialog(QObject):
+class EntityNameEditorDialog(BaseDialog):
     """A controller for the entity name dialog."""
 
     onNameAccepted = pyqtSignal(str)
@@ -14,30 +14,31 @@ class EntityNameEditorDialog(QObject):
             self,
             entity_name:str,
             check_name_available:Callable[[str], bool],
-            view: EntityNameEditorDialogView|None=None,  
-            parent: QWidget|None=None      
+            *args, **kwargs   
     ):
-        # Instantiate the view if not submitted
-        if view is None:
-            self.view = EntityNameEditorDialogView(
-                parent=parent or None,
-                entity_name=entity_name
-            )
-        else:
-            self.view = view
+        super().__init__(entity_name=entity_name, *args, **kwargs)
         
         # Stash constructor arguments
         self._check_name_available = check_name_available
 
         # Connect signals and slots
-        self.view.nameChanged.connect(self._on_name_changed)
-        self.view.nameAccepted.connect(self.onNameAccepted.emit)
-        self.view.nameCancelled.connect(self._on_name_edit_cancelled)
+        self.view.txt_name.textChanged.connect(self._on_name_changed)
+        self.view.btn_ok.clicked.connect(self._on_name_accepted)
+        self.view.btn_cancel.clicked.connect(self._on_name_edit_cancelled)
 
         # On initialisation, show the instructions, clear the box and disable the OK button
         self.view.show_instructions()
-        self.view.clear()
-        self.view.disable_ok_button()
+        self.view.txt_name.clear()
+        self.view.txt_name.setEnabled(True)
+
+    def clear(self) -> None:
+        """Clear the dialog."""
+        self.view.txt_name.clear()
+        self.view.show_instructions()
+        self.view.txt_name.setEnabled(True)
+
+    def _create_view(self, *args, **kwargs) -> EntityNameEditorDialogView:
+        return EntityNameEditorDialogView(*args, **kwargs)
 
     def _on_name_changed(self, name: str) -> None:
         """Handler for changes to the name."""
@@ -48,21 +49,30 @@ class EntityNameEditorDialog(QObject):
                 # Show the name unavailable message
                 self.view.show_name_unavailable()
                 # Disable the OK button
-                self.view.disable_ok_button()
+                self.view.btn_ok.setEnabled(False)
             else:
                 # Show the name available message
                 self.view.show_name_available()
                 # Enable the OK button
-                self.view.enable_ok_button()
+                self.view.btn_ok.setEnabled(True)
         else:
             # Show the instructions message
             self.view.show_instructions()
             # Disable the OK button
-            self.view.disable_ok_button()
+            self.view.btn_ok.setEnabled(False)
+
+    def _on_name_accepted(self) -> None:
+        """Handler for accepting the new ingredient name."""
+        # Emit the signal with the name
+        self.onNameAccepted.emit(self.view.entity_name)
+        # Clear the new ingredient dialog
+        self.view.txt_name.clear()
+        # Hide the new ingredient dialog
+        self.view.hide()
 
     def _on_name_edit_cancelled(self) -> None:
         """Handler for cancelling the new ingredient name."""
         # Clear the new ingredient dialog
-        self.view.clear()
+        self.view.txt_name.clear()
         # Hide the new ingredient dialog
         self.view.hide()            

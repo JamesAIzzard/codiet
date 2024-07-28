@@ -1,13 +1,13 @@
 from typing import Callable
 
-from PyQt6.QtCore import QObject, pyqtSignal
-from PyQt6.QtWidgets import QWidget
+from PyQt6.QtCore import pyqtSignal
 
 from codiet.utils.bidirectional_map import BidirectionalMap
 from codiet.views.dialogs.add_entity_dialog_view import AddEntityDialogView
+from codiet.controllers.base_controller import BaseController
 from codiet.controllers.search.search_column import SearchColumn
 
-class AddEntityDialog(QObject):
+class AddEntityDialog(BaseController[AddEntityDialogView]):
     """Dialog to select a named entity from a list adding or inclusion.
     
     Signals:
@@ -21,8 +21,7 @@ class AddEntityDialog(QObject):
             self,
             get_entity_list: Callable[[], BidirectionalMap[int, str]],
             can_add_entity: Callable[[int], bool],
-            parent: QWidget|None = None,
-            view: AddEntityDialogView|None = None,
+            *args, **kwargs
         ):
             """
             Initialises an instance of the AddEntityDialog class.
@@ -33,16 +32,7 @@ class AddEntityDialog(QObject):
                 parent (QWidget|None, optional): The parent widget. Defaults to None.
                 view (AddEntityDialogView|None, optional): The view for the add entity dialog. Defaults to None.
             """
-            super().__init__()
-
-            # Raise an exception if the view is not provided and the parent is not provided
-            if view is None and parent is None:
-                raise ValueError("The parent widget must be provided if the view is not provided.")
-
-            # Build the view if it is not provided
-            if view is None:
-                view = AddEntityDialogView(parent=parent)
-            self.view = view
+            super().__init__(*args, **kwargs)
 
             # Stash the constructor arguments
             self._get_entity_list = get_entity_list

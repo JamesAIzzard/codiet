@@ -1,4 +1,3 @@
-from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QVBoxLayout, QStackedWidget, QHBoxLayout
 
 from codiet.views import block_signals
@@ -9,10 +8,6 @@ from codiet.views.text_editors.line_editor import LineEditor
 
 class EntityNameEditorDialogView(BaseDialogView):
     """A dialog box for creating and editing the name of an entity."""
-
-    nameChanged = pyqtSignal(str)
-    nameAccepted = pyqtSignal(str)
-    nameCancelled = pyqtSignal()
 
     def __init__(self, entity_name:str, *args, **kwargs):
         super().__init__(
@@ -52,22 +47,15 @@ class EntityNameEditorDialogView(BaseDialogView):
         # Add a textbox for the entity name
         self.txt_name = LineEditor()
         lyt_top_level.addWidget(self.txt_name)
-        # Connect the text changed signal
-        self.txt_name.textChanged.connect(self.nameChanged)
 
         # Add a horizontal layout for buttons
         lyt_buttons = QHBoxLayout()
         lyt_top_level.addLayout(lyt_buttons)
         # Add an OK button
-        self.btn_ok = ConfirmButton()
-        self.btn_cancel = ClearButton()
+        self.btn_ok = IconButton(icon_filename="ok-icon.png")
+        self.btn_cancel = IconButton(icon_filename="cancel-icon.png")
         lyt_buttons.addWidget(self.btn_ok)
         lyt_buttons.addWidget(self.btn_cancel)
-        # When the buttons are clicked, emit the signals
-        self.btn_ok.clicked.connect(
-            lambda: self.nameAccepted.emit(self.txt_name.text())
-        )
-        self.btn_cancel.clicked.connect(self.nameCancelled)
 
     @property
     def entity_name(self) -> str | None:
@@ -99,15 +87,3 @@ class EntityNameEditorDialogView(BaseDialogView):
     def show_name_unavailable(self) -> None:
         """Show the name unavailable label."""
         self.stackedWidget.setCurrentWidget(self.lbl_name_unavailable)
-
-    def enable_ok_button(self) -> None:
-        """Enable/disable the OK button."""
-        self.btn_ok.setEnabled(self.name_is_set)
-    
-    def disable_ok_button(self) -> None:
-        """Disable the OK button."""
-        self.btn_ok.setEnabled(False)
-
-    def clear(self) -> None:
-        """Clear the name text box."""
-        self.txt_name.clear()

@@ -1,9 +1,13 @@
+from typing import TypeVar
+
 from PyQt6.QtWidgets import QWidget
 
 from codiet.views.dialogs.base_dialog_view import BaseDialogView
 from codiet.controllers.base_controller import BaseController
 
-class BaseDialog(BaseController[BaseDialogView]):
+T = TypeVar('T', bound=BaseDialogView)
+
+class BaseDialog(BaseController[T]):
     """Base controller class for dialog boxes."""
 
     def __init__(
