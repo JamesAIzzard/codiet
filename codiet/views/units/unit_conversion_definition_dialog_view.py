@@ -17,8 +17,8 @@ class UnitConversionDefinitionDialogView(BaseDialogView):
         super().__init__(*args, **kwargs)
         self._build_ui()
         # Connect the signals
-        self.from_unit_selector.resultClicked.connect(self._on_selection_changed)
-        self.to_unit_selector.resultClicked.connect(self._on_selection_changed)
+        # self.from_unit_selector.resultClicked.connect(self._on_selection_changed)
+        # self.to_unit_selector.resultClicked.connect(self._on_selection_changed)
         self.btn_ok.clicked.connect(self._on_OK_clicked)
         self.btn_cancel.clicked.connect(self.cancelClicked.emit)
 
@@ -26,16 +26,16 @@ class UnitConversionDefinitionDialogView(BaseDialogView):
         """Called when the selection is changed."""
         # Emit the OKClicked signal with the from and to unit IDs
         self.selectionChanged.emit(
-            self.from_unit_selector.search_results.selected_item_data,
-            self.to_unit_selector.search_results.selected_item_data,
+            self.from_unit_selector.results_list_view.selected_item_data,
+            self.to_unit_selector.results_list_view.selected_item_data,
         )
 
     def _on_OK_clicked(self) -> None:
         """Called when the OK button is clicked."""
         # Emit the OKClicked signal with the from and to unit IDs
         self.OKClicked.emit(
-            self.from_unit_selector.search_results.selected_item_data,
-            self.to_unit_selector.search_results.selected_item_data,
+            self.from_unit_selector.results_list_view.selected_item_data,
+            self.to_unit_selector.results_list_view.selected_item_data,
         )
 
     def _build_ui(self):

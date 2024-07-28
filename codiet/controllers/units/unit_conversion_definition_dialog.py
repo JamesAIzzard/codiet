@@ -41,12 +41,12 @@ class UnitConversionDefinitionDialog(QObject):
         self._from_unit_selector = SearchColumn(
             view=self.view.from_unit_selector,
             get_searchable_strings=lambda: [unit.unit_name for unit in self._get_global_units().values()],
-            get_view_item_and_data_for_string=lambda unit_name: (unit_name, self._unit_name_id_map.get_keys(unit_name)[0]), # type: ignore
+            get_item_and_view_for_string=lambda unit_name: (unit_name, self._unit_name_id_map.get_keys(unit_name)[0]), # type: ignore
         )
         self._to_unit_selector = SearchColumn(
             view=self.view.to_unit_selector,
             get_searchable_strings=lambda: [unit.unit_name for unit in self._get_global_units().values()],
-            get_view_item_and_data_for_string=lambda unit_name: (unit_name, self._unit_name_id_map.get_keys(unit_name)[0]), # type: ignore
+            get_item_and_view_for_string=lambda unit_name: (unit_name, self._unit_name_id_map.get_keys(unit_name)[0]), # type: ignore
         )
 
         # Connect to the view

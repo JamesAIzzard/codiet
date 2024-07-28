@@ -30,7 +30,7 @@ class AddEntityDialogView(BaseDialogView):
         # Connect the signals
         self.btn_add.clicked.connect(
             lambda: self.entityAdded.emit(
-                self.entity_search_column.search_results.selected_item_data
+                self.entity_search_column.results_list_view.selected_item_data
             )
         )
 

@@ -5,7 +5,7 @@ from codiet.views import block_signals
 from codiet.views.dialogs.base_dialog_view import BaseDialogView
 from codiet.views.labels import IconTextLabel
 from codiet.views.buttons import ConfirmButton, ClearButton
-from codiet.views.text_editors import LineEdit
+from codiet.views.text_editors.line_editor import LineEditor
 
 class EntityNameEditorDialogView(BaseDialogView):
     """A dialog box for creating and editing the name of an entity."""
@@ -50,7 +50,7 @@ class EntityNameEditorDialogView(BaseDialogView):
         self.show_instructions()
 
         # Add a textbox for the entity name
-        self.txt_name = LineEdit()
+        self.txt_name = LineEditor()
         lyt_top_level.addWidget(self.txt_name)
         # Connect the text changed signal
         self.txt_name.textChanged.connect(self.nameChanged)

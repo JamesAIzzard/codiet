@@ -2,7 +2,7 @@ import os
 import tempfile
 import unittest
 
-from codiet.db_population.units import get_global_units
+from codiet.db_population.units import read_global_units_from_json
 from codiet.db_population.flags import get_global_flags
 from codiet.db_population.nutrients import get_global_nutrients
 from codiet.db_population.recipes.recipe_tags import get_global_recipe_tags
@@ -32,12 +32,12 @@ class DatabaseTestCase(unittest.TestCase):
         self.repository = Repository(self.database)
         self.database_service = DatabaseService(self.repository)
         # Create the database
-        self.database._create_database()
+        self.database.create_database_file()
 
     def setup_global_units(self) -> None:
         """Populate the global units."""
         if not self.global_units_setup:
-            global_units = get_global_units()
+            global_units = read_global_units_from_json()
             self.database_service.create_global_units(global_units)
             self.global_flags_setup = True
 

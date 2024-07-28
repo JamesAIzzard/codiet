@@ -1,5 +1,5 @@
 from . import DatabaseTestCase
-from codiet.db_population.units import get_global_units
+from codiet.db_population.units import read_global_units_from_json
 from codiet.db_population.flags import get_global_flags
 from codiet.db_population.nutrients import get_global_nutrients
 from codiet.models.units.unit import Unit
@@ -34,7 +34,7 @@ class TestCreateGlobalUnits(DatabaseTestCase):
     def test_create_global_units_creates_global_units(self):
         """Test creating global units in the database."""
         # Grab the JSON config data for the global units
-        global_units = get_global_units()
+        global_units = read_global_units_from_json()
         # Insert the global units
         self.database_service.create_global_units(global_units)
         # Fetch all the global units
@@ -95,7 +95,7 @@ class TestCreateEmptyIngredient(DatabaseTestCase):
         # Configure the flags and nutrients
         self.database_service.create_global_flags(get_global_flags())
         self.database_service.create_global_nutrients(get_global_nutrients())
-        self.database_service.create_global_units(get_global_units())
+        self.database_service.create_global_units(read_global_units_from_json())
         # Grab the unit name to id map
         unit_name_to_id = self.database_service.build_unit_name_id_map()        
         # Grab the id for grams
@@ -166,7 +166,7 @@ class TestCreateRecipeIngredientQuantity(DatabaseTestCase):
         recipe_name = "Test Recipe"
         recipe = self.database_service.create_empty_recipe(recipe_name)
         # Init the units
-        self.database_service.create_global_units(get_global_units())
+        self.database_service.create_global_units(read_global_units_from_json())
         # Init the unit id map
         unit_name_to_id = self.database_service.build_unit_name_id_map()
         # Create an empty ingredient
@@ -531,7 +531,7 @@ class TestReadIngredient(DatabaseTestCase):
     def test_read_ingredient_reads_ingredient(self):
         """Test reading an ingredient."""
         # Configure the units, flags and nutrients
-        self.database_service.create_global_units(get_global_units())
+        self.database_service.create_global_units(read_global_units_from_json())
         self.database_service.create_global_flags(get_global_flags())
         self.database_service.create_global_nutrients(get_global_nutrients())
         # Fetch id name maps
@@ -629,7 +629,7 @@ class TestReadRecipe(DatabaseTestCase):
     def test_read_recipe_reads_recipe(self):
         """Test reading a recipe."""
         # Configure the units, flags and nutrients
-        self.database_service.create_global_units(get_global_units())
+        self.database_service.create_global_units(read_global_units_from_json())
         self.database_service.create_global_flags(get_global_flags())
         self.database_service.create_global_nutrients(get_global_nutrients())
         # Fetch id name maps
@@ -740,7 +740,7 @@ class TestUpdateIngredient(DatabaseTestCase):
     def test_update_ingredient_updates_ingredient(self):
         """Test updating an ingredient."""
         # Configure the units, flags, and nutrients
-        self.database_service.create_global_units(get_global_units())
+        self.database_service.create_global_units(read_global_units_from_json())
         self.database_service.create_global_flags(get_global_flags())
         self.database_service.create_global_nutrients(get_global_nutrients())
         

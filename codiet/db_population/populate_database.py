@@ -8,26 +8,29 @@ import os, json
 from codiet.db_population import (
     INGREDIENT_DATA_DIR,
     RECIPE_DATA_DIR,
-    GLOBAL_CUSTOM_UNIT_DATA_FILEPATH,
     GLOBAL_FLAG_DATA_FILEPATH,
     GLOBAL_NUTRIENT_DATA_FILEPATH,
     GLOBAL_RECIPE_TAG_DATA_FILEPATH,
 )
+from codiet.db_population.units import read_global_units_from_json
 from codiet.utils.tags import flatten_tree
 from codiet.models.ingredients.ingredient import EntityNutrientQuantity
-from codiet.models.recipes import Recipe
 from codiet.db.database_service import DatabaseService
 
-def push_global_custom_units_to_db() -> None:
+def push_global_units_to_db(db_service:DatabaseService) -> None:
     """Populate the custom units table in the database using the
     .json custom unit list file."""
-    # Get the list of custom units
-    custom_units = get_global_custom_units()
+    # Get the list of global units
+    global_units = read_global_units_from_json
     # Push the custom units to the database
-    with DatabaseService() as db_service:
-        db_service.insert_global_custom_units(custom_units)
-        # Save changes
-        db_service.commit()
+    for unit_name, unit_data in global_units.items():
+        db_service.repository.create_global_unit(
+            unit_name=unit_name,
+            unit_type=unit_data["type"],
+            single_display_name=unit_data["single_display_name"],
+            plural_display_name=unit_data["plural_display_name"],
+            aliases=unit_data["aliases"],
+        )
 
 def push_global_flags_to_db():
     """Populate the flags table in the database using the

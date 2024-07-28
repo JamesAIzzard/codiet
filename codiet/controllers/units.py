@@ -1,30 +1,13 @@
 from typing import Callable
 
-from PyQt6.QtCore import pyqtSignal
-
-from codiet.models.units import Unit, UnitConversion
-from codiet.views.units import (
-    StandardUnitEditorView,
-    UnitConversionEditorView,
-    UnitConversionsEditorView,
-    UnitConversionDefinitionPopupView,
-)
-from codiet.views.dialogs import EntityNameDialogView, OkDialogBoxView
-from codiet.controllers.dialogs.entity_name_dialog_ctrl import EntityNameDialog
-
-
-
-
-
-
-
+from codiet.models.units.unit import Unit
 
 class UnitConversionDefinitionPopupCtrl:
     """Controller for the unit conversion definition popup."""
 
     def __init__(
         self,
-        view: UnitConversionDefinitionPopupView,
+        view,
         on_unit_conversion_added: Callable[[int, int], None],
         global_units: dict[int, Unit],
         check_conversion_available: Callable[[int, int], bool],

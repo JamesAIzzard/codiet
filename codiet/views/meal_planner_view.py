@@ -7,7 +7,6 @@ from PyQt6.QtWidgets import (
 )
 
 from codiet.views.buttons import AddButton, RemoveButton, SolveButton
-from codiet.views.search import SearchTermView
 
 class MealPlannerView(QWidget):
     """UI element to allow the user to plan meals."""
@@ -82,8 +81,8 @@ class MealPlannerView(QWidget):
         lyt_days_top_row.addStretch()
         
         # Add a search view
-        self.days_search_view = SearchTermView()
-        lyt_days_column.addWidget(self.days_search_view)
+        # self.days_search_view = SearchTermView()
+        # lyt_days_column.addWidget(self.days_search_view)
         
         # Add a list widget to hold the days
         self.lst_days = QListWidget() 
@@ -109,8 +108,8 @@ class MealPlannerView(QWidget):
         lyt_meals_top_row.addStretch()
         
         # Add a search view
-        self.meals_search_view = SearchTermView()
-        lyt_meals_column.addWidget(self.meals_search_view)
+        # self.meals_search_view = SearchTermView()
+        # lyt_meals_column.addWidget(self.meals_search_view)
         
         # Add a list widget to hold the meals
         self.lst_meals = QListWidget() 
@@ -133,8 +132,8 @@ class MealPlannerView(QWidget):
         lyt_goals_top_row.addStretch()
 
         # Add a search view
-        self.goals_search_view = SearchTermView()
-        lyt_goals_column.addWidget(self.goals_search_view)
+        # self.goals_search_view = SearchTermView()
+        # lyt_goals_column.addWidget(self.goals_search_view)
 
         # Add a list widget to hold the goals
         self.lst_goals = QListWidget()
@@ -157,8 +156,8 @@ class MealPlannerView(QWidget):
         lyt_constraints_top_row.addStretch()
         
         # Add a search view
-        self.constraints_search_view = SearchTermView()
-        lyt_constraints_column.addWidget(self.constraints_search_view)
+        # self.constraints_search_view = SearchTermView()
+        # lyt_constraints_column.addWidget(self.constraints_search_view)
 
         # Add a list widget to hold the constraints
         self.lst_constraints = QListWidget()

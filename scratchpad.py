@@ -1,6 +1,7 @@
 import sys, logging
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton
 
+from codiet.utils.delegate import delegate
 from codiet.views.dialogs.icon_message_dialog_view import IconMessageDialogView
 from codiet.controllers.dialogs.base_dialog import BaseDialog
 from codiet.controllers.dialogs.icon_message_dialog import IconMessageDialog
@@ -41,7 +42,6 @@ class MainWindow(QMainWindow):
         #     ]
         # )
         dialog = ErrorDialog(parent=self, title="Error!", message="An error occurred.")
-        dialog.okClicked.connect(lambda: dialog.close())
         dialog.show()
 
 def configure_logging():

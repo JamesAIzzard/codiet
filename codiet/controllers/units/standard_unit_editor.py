@@ -64,6 +64,6 @@ class StandardUnitEditor(QObject):
         # Clear the old ones
         self.view.unit_dropdown.clear()
         # For each unit from the source
-        for unit_id, unit in get_available_units.items():
+        for unit_id, unit in get_available_units().items():
             # Add it to the view
             self.view.unit_dropdown.addItem(unit.plural_display_name, unit_id)

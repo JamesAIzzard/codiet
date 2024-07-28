@@ -51,7 +51,7 @@ class AddEntityDialog(QObject):
             # Init the search column instance
             self.entity_search_column = SearchColumn(
                 get_searchable_strings=lambda: self._get_entity_list().values,
-                get_view_item_and_data_for_string=lambda entity_name: (
+                get_item_and_view_for_string=lambda entity_name: (
                     entity_name,
                     self._get_entity_list().get_keys(entity_name)
                 ),
@@ -59,7 +59,7 @@ class AddEntityDialog(QObject):
             )
 
             # Connect the signals
-            self.view.entity_search_column.search_results.itemClicked.connect(
+            self.view.entity_search_column.results_list_view.itemClicked.connect(
                 lambda _, item_data: self._on_entity_selected(item_data)
             )
             self.view.btn_cancel.clicked.connect(self.view.close)
@@ -84,6 +84,6 @@ class AddEntityDialog(QObject):
         """
         # Emit the entity added signal
         self.entityAdded.emit(
-            self.entity_search_column.view.search_results.selected_item_data
+            self.entity_search_column.view.results_list_view.selected_item_data
         )
         self.view.close()

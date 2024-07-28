@@ -10,7 +10,7 @@ from PyQt6.QtCore import Qt, pyqtSignal
 
 from codiet.views import block_signals
 from codiet.views.buttons import AddButton, DeleteButton
-from codiet.views.listbox import ListBox
+
 
 class FlagEditorView(QWidget):
     """The UI element to allow the user to edit flags."""
@@ -117,12 +117,12 @@ class FlagEditorView(QWidget):
         grp_outer_box.setLayout(columns_layout)
 
         # Add a listbox of checkable items to the LHS column
-        self.flag_list = ListBox(parent=self)
-        # Connect the itemChanged signal to the _on_flag_changed method
-        self.flag_list.itemChanged.connect(self._on_flag_changed)
-        # Reduce padding at the top of the group box
-        columns_layout.setContentsMargins(5, 5, 5, 5)
-        columns_layout.addWidget(self.flag_list, 1)
+        # self.flag_list = ListBox(parent=self)
+        # # Connect the itemChanged signal to the _on_flag_changed method
+        # self.flag_list.itemChanged.connect(self._on_flag_changed)
+        # # Reduce padding at the top of the group box
+        # columns_layout.setContentsMargins(5, 5, 5, 5)
+        # columns_layout.addWidget(self.flag_list, 1)
 
         # Create a vertical list of buttons in the RHS column
         buttons_layout = QVBoxLayout()

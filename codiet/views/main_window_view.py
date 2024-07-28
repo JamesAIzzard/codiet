@@ -17,8 +17,8 @@ class MainWindowView(QMainWindow):
     recipesClicked = pyqtSignal()
     mealPlannerClicked = pyqtSignal()
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         # Set the window title
         self.setWindowTitle("CoDiet - Computational Nutrition")
         # Set the window size
@@ -94,7 +94,7 @@ class MainWindowView(QMainWindow):
         # Create a status bar
         self.footer = QStatusBar(self)
         # Put a label in the status bar
-        self.footer.showMessage("V0.01")
+        self.footer.showMessage("V0.2")
         # Set the status bar for the main window
         self.setStatusBar(self.footer)
 

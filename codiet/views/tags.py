@@ -13,8 +13,7 @@ from PyQt6.QtWidgets import (
 )
 
 from codiet.views.buttons import AddButton, RemoveButton
-from codiet.views.dialogs import DialogBoxView
-from codiet.views.search import SearchColumnView
+from codiet.views.dialogs.base_dialog_view import BaseDialogView
 
 class RecipeTagEditorView(QWidget):
     # Define signals
@@ -99,7 +98,7 @@ class RecipeTagEditorView(QWidget):
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
 
-class RecipeTagSelectorPopup(DialogBoxView):
+class RecipeTagSelectorPopup(BaseDialogView):
     # Define signals
     tagSearchChanged = pyqtSignal(str)
     tagSearchCleared = pyqtSignal()

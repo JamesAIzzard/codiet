@@ -2,12 +2,11 @@ import json, os, copy
 
 from codiet.utils.strings import convert_to_snake_case
 from codiet.utils.time import convert_datetime_interval_to_time_string_interval
-from codiet.models.recipes import Recipe
-from codiet.db_population import (
-    RECIPE_TEMPLATE_FILEPATH, 
-    RECIPE_INGREDIENT_TEMPLATE_FILEPATH,
-    RECIPE_DATA_DIR
-)
+# from codiet.db_population import (
+#     RECIPE_TEMPLATE_FILEPATH, 
+#     RECIPE_INGREDIENT_TEMPLATE_FILEPATH,
+#     RECIPE_DATA_DIR
+# )
 
 _recipe_template = None
 _recipe_ingredient_template = None
@@ -40,7 +39,7 @@ def load_recipe_ingredient_template() -> dict:
     # Return a copy of the template
     return copy.deepcopy(_recipe_ingredient_template)
 
-def convert_recipe_to_json(recipe: Recipe) -> dict:
+def convert_recipe_to_json(recipe) -> dict:
     """Convert a recipe to a JSON serializable dictionary."""
     # Create a dictionary to store the recipe
     recipe_data = load_recipe_json_template()

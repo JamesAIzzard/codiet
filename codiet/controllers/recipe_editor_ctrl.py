@@ -12,29 +12,19 @@ from codiet.utils.time import (
 )
 from codiet.utils.strings import convert_to_snake_case
 from codiet.utils.recipes import convert_recipe_to_json, save_recipe_datafile, recipe_datafile_exists
-from codiet.models.recipes import Recipe
-from codiet.models.ingredients.ingredient import IngredientQuantity
-from codiet.views.dialogs import (
-    DialogBoxView,
-    EntityNameDialogView, 
-    OkDialogBoxView, 
-    ConfirmDialogBoxView,
-)
+from codiet.models.ingredients.ingredient_quantity import IngredientQuantity
 from codiet.views.recipe_editor_view import RecipeEditorView
-from codiet.views.search import SearchColumnView
-from codiet.views.dialogs import ErrorDialogBoxView
 from codiet.views.time_interval_popup_view import TimeIntervalPopupView
 from codiet.views.tags import RecipeTagSelectorPopup
 from codiet.controllers.search.search_column import SearchColumn
-from codiet.controllers.dialogs.entity_name_dialog_ctrl import EntityNameDialog
 from codiet.controllers.tags import RecipeTagEditorCtrl
 
 
-class RecipeEditorCtrl:
+class RecipeEditor:
     def __init__(self, view: RecipeEditorView, db_service: DatabaseService):
         self.view = view
         self.db_service = db_service
-        self.recipe = Recipe()
+        # self.recipe = Recipe()
 
         # Cache some searchable things
         self._recipe_names: list[str] = []
@@ -45,15 +35,15 @@ class RecipeEditorCtrl:
         self._cache_ingredient_names()
 
         # Configure name editor
-        self.recipe_name_editor_view = EntityNameDialogView(
-            entity_name="Recipe",
-            parent=self.view
-        )
-        self.recipe_name_editor_ctrl = EntityNameDialog(
-            view=self.recipe_name_editor_view,
-            check_name_available=lambda name: name not in self._recipe_names,
-            on_name_accepted_callback=self._on_recipe_name_accepted,
-        )  
+        # self.recipe_name_editor_view = EntityNameDialogView(
+        #     entity_name="Recipe",
+        #     parent=self.view
+        # )
+        # self.recipe_name_editor_ctrl = EntityNameDialog(
+        #     view=self.recipe_name_editor_view,
+        #     check_name_available=lambda name: name not in self._recipe_names,
+        #     on_name_accepted_callback=self._on_recipe_name_accepted,
+        # )  
 
         # Configure search column controller
         self.search_column_ctrl = SearchColumn(
@@ -99,7 +89,7 @@ class RecipeEditorCtrl:
         self._connect_ingredients_editor()
         self._connect_serve_time_editor()
 
-    def load_recipe_instance(self, recipe: Recipe) -> None:
+    def load_recipe_instance(self, recipe) -> None:
         """Load a recipe instance into the editor."""
         # Update the stored instance
         self.recipe = recipe

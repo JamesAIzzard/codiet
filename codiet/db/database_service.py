@@ -25,43 +25,39 @@ class DatabaseService:
     def repository(self) -> Repository:
         return self._repo
 
-    def create_global_units(self, units: dict[str, Any]) -> None:
-        """Insert the global units into the database.
-        Designed to accept the dictionary structure defined in the
-        JSON config file.
+    def create_global_units(self, units: dict[str, Unit]) -> dict[int, Unit]:
+        """Insert a dictionary of global units into the database.
+
         Args:
-            units (dict[str, Any]): A dictionary of unit data.
+            units (dict[str, Units]): A dictionary of unit data.
         """
-        # First, insert each unit and its alias
-        for unit_name, unit_info in units.items():
-            # Insert the unit
-            unit_id = self.repository.create_global_unit(
-                unit_name=unit_name,
-                unit_type=unit_info["type"],
-                single_display_name=unit_info["single_display_name"],
-                plural_display_name=unit_info["plural_display_name"],
+        # Init return dict
+        persisted_units = {}
+        # Insert each unit into the database
+        for unit in units.values():
+            persisted_unit = self.create_global_unit(unit)
+            persisted_units[persisted_unit.id] = persisted_unit
+        return persisted_units
+
+    def create_global_unit(self, unit:Unit) -> Unit:
+        """Creates a global unit."""
+        # Insert the unit name into the database
+        unit_id = self.repository.create_global_unit(
+            unit_name=unit.unit_name,
+            unit_type=unit.type,
+            single_display_name=unit.single_display_name,
+            plural_display_name=unit.plural_display_name,
+        )
+        # Insert the aliases for the unit
+        for alias in unit.aliases:
+            self.repository.create_global_unit_alias(
+                alias=alias,
+                unit_id=unit_id,
             )
-            # Insert the aliases for the unit
-            for alias in unit_info.get("aliases", []):
-                self.repository.create_global_unit_alias(
-                    alias=alias,
-                    unit_id=unit_id,
-                )
-        # Read the names of all units
-        unit_name_id_map = self.build_unit_name_id_map()
-        # Then, insert the conversion factors
-        for unit_name, unit_info in units.items():
-            # For each conversion factor
-            for to_unit_name, factor in unit_info["conversions"].items():
-                # Get the id of the to and from units
-                to_unit_id = unit_name_id_map.get_keys(to_unit_name)[0]
-                # Insert the conversion factor
-                self.repository.create_global_unit_conversion(
-                    from_unit_id=unit_name_id_map.get_keys(unit_name)[0],
-                    to_unit_id=to_unit_id,
-                    from_unit_qty=1.0,
-                    to_unit_qty=factor,
-                )
+        # Init the unit id
+        unit.id = unit_id
+        # Return the unit
+        return unit
 
     def create_global_flags(self, flags: list[str]) -> None:
         """Insert the global flags into the database.

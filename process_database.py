@@ -1,14 +1,23 @@
 """
-Module to handle all data sourcing and database population.
+Top level module for data sourcing and database population.
 """
+# TODO: Consider splitting into two modules, one for data sourcing
+# and one for database population.
 
 import os
 
 from codiet.db import DB_PATH
+from codiet.db.database import Database
+from codiet.db.repository import Repository
+from codiet.db.database_service import DatabaseService
+from codiet.db_population import populate_db_from_json
 from codiet.db_population.ingredients import ingredient_datafile_utils
 from codiet.db_population.ingredients.ingredient_datafile_utils import apply_to_each_ingredient_datafile as for_all_ingredients
-from codiet.db_population import populate_database, reset_database
-from codiet.db_population.create_schema import create_schema
+
+# Create the database objects
+database = Database(DB_PATH)
+repository = Repository(database)
+db_service = DatabaseService(repository)
 
 if __name__ == '__main__':
     # Update the console
@@ -51,24 +60,14 @@ if __name__ == '__main__':
     # # Use the OpenAI model to populate the ingredient datafiles
     # for_all_ingredients(ingredient_datafile_utils.autocomplete_ingredient_datafile)
 
-    # DATABASE CREATION
-    reset_database()
+    # Reset the database schema
+    print("Resetting database schema...")
+    database.delete_database_file()
+    database.create_database_file()
 
-    # DATABASE POPULATION
-    # Push all of the ingredient .json data into the database
-    # print("Pushing datafile data into database...")
-    # print("Pushing custom units into database...")
-    # populate_database.push_global_custom_units_to_db()
-    # print("Pushing global flags into database...")
-    # populate_database.push_global_flags_to_db()
-    # print("Pushing global nutrients into database...")
-    # populate_database.push_global_nutrients_to_db()
-    # print("Pushing ingredients into database...")
-    # populate_database.push_ingredients_to_db()
-    # print("Pushing global recipe tags into database...")
-    # populate_database.push_global_recipe_tags_to_db()
-    # print("Pushing recipes into database...")
-    # populate_database.push_recipes_to_db()
+    # Push the json data into the database.
+    print("Pushing JSON data into database...")
+    populate_db_from_json(db_service)
 
     # Update the console
-    print("Database processing complete.")
+    print("Database processing complete...")

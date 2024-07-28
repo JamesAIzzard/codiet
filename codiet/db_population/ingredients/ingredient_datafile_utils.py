@@ -7,19 +7,10 @@ from typing import Callable
 
 from codiet.db_population import openai
 
-from codiet.db_population import (
-    GLOBAL_FLAG_DATA_FILEPATH,
-    GLOBAL_NUTRIENT_DATA_FILEPATH,
-    INGREDIENT_DATA_DIR,
-    INGREDIENT_TEMPLATE_FILEPATH,
-    INGREDIENT_COST_TEMPLATE_FILEPATH,
-    INGREDIENT_CUSTOM_UNITS_TEMPLATE_FILEPATH,
-    INGREDIENT_NUTRIENT_QUANTITY_TEMPLATE_FILEPATH
-)
+
 from codiet.utils.dict import align_keys_with_template
 from codiet.utils.strings import string_is_populated, convert_snake_case_to_title_case
 from codiet.utils.numbers import value_is_positive_number
-from codiet.utils.nutrients import find_leaf_nutrients, get_missing_leaf_nutrient_names
 from codiet.utils.flags import get_missing_flags
 
 # Define some data caches to avoid reloading the same data multiple times

@@ -23,6 +23,8 @@ class IconMessageButtonsDialogView(IconMessageDialogView):
             for button in buttons:
                 self.add_button(button)
 
+        self._hello = "Hello, world!"
+
     def add_button(self, button:QPushButton) -> QPushButton:
         """Add a button to the button box."""
         self.lyt_button_box.addWidget(button)

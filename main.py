@@ -1,14 +1,13 @@
 import sys, logging
 
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication, QWidget
 
 from codiet.db import DB_PATH
 from codiet.db.database import Database
 from codiet.db.repository import Repository
 from codiet.db.database_service import DatabaseService
 from codiet.views import load_stylesheet
-from codiet.views.main_window_view import MainWindowView
-from codiet.controllers.main_window_ctrl import MainWindowCtrl
+from codiet.controllers import MainWindow
 
 def configure_logging():
     logging.basicConfig(
@@ -29,13 +28,10 @@ if __name__ == "__main__":
     database = Database(DB_PATH)
     repository = Repository(database)
     db_service = DatabaseService(repository)
-    # Create the main window
-    window = MainWindowView()
-    main_window_ctrl = MainWindowCtrl(
-        view=window,
+    main_window = MainWindow(
         db_service=db_service
     )
     # Show the main window
-    window.show()
+    main_window.show()
     # Run the application
     sys.exit(app.exec())

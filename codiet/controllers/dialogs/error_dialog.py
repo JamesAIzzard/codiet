@@ -23,4 +23,4 @@ class ErrorDialog(IconMessageButtonsDialog):
         )
 
         # Connect the OK button to its signal
-        self.btn_OK.clicked.connect(self.okClicked)
+        self.btn_OK.clicked.connect(self.okClicked)  

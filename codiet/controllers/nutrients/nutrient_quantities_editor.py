@@ -78,7 +78,7 @@ class NutrientQuantitiesEditor(QObject):
         # Init the controller for the view search column
         self.nutrient_quantities_column = SearchColumn(
             get_searchable_strings=lambda: self._cached_leaf_nutrient_name_id_map.values,
-            get_view_item_and_data_for_string=self._get_nutrient_quantity_view_and_id,
+            get_item_and_view_for_string=self._get_nutrient_quantity_view_and_id,
             view=self.view.nutrient_quantities_column,
         )
 
@@ -97,7 +97,7 @@ class NutrientQuantitiesEditor(QObject):
     def refresh(self) -> None:
         """Refreshes the view."""
         # Clear the nutrient quantities listbox
-        self.nutrient_quantities_column.view.search_results.clear()
+        self.nutrient_quantities_column.view.results_list_view.clear()
         # Add the nutrient quantities to the listbox
         for nutrient_quantity in self._get_entity_nutrient_quantities().values():
             self._add_nutrient_quantity(nutrient_quantity)
@@ -126,7 +126,7 @@ class NutrientQuantitiesEditor(QObject):
         )
 
         # Add the new nutrient quantity to the listbox
-        self.nutrient_quantities_column.view.search_results.add_item_content(
+        self.nutrient_quantities_column.view.results_list_view.add_item_content(
             item_content=nutrient_quantity_view, data=nutrient_id
         )
 
@@ -148,7 +148,7 @@ class NutrientQuantitiesEditor(QObject):
         # Get the nutrient quantity view
         nutrient_quantity_view, _ = self._get_nutrient_quantity_view_and_id(nutrient_name)
         # Add the nutrient quantity to the listbox
-        self.nutrient_quantities_column.view.search_results.add_item_content(
+        self.nutrient_quantities_column.view.results_list_view.add_item_content(
             item_content=nutrient_quantity_view, data=nutrient_quantity.nutrient_id
         )
         # Set the current values on the view
@@ -182,11 +182,11 @@ class NutrientQuantitiesEditor(QObject):
         """Handler for when the remove nutrient button is clicked."""
         # Grab the ID of the selected nutrient
         selected_nutrient_id = (
-            self.nutrient_quantities_column.view.search_results.selected_item_data
+            self.nutrient_quantities_column.view.results_list_view.selected_item_data
         )
         if selected_nutrient_id is not None:
             # Remove the nutrient from the listbox
-            self.nutrient_quantities_column.view.search_results.remove_selected_item()
+            self.nutrient_quantities_column.view.results_list_view.remove_selected_item()
             # Emit the nutrientQuantityRemoved signal
             self.nutrientQuantityRemoved.emit(selected_nutrient_id)
 

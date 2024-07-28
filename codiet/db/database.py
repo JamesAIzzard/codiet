@@ -3,14 +3,14 @@ import sqlite3
 
 class Database:
     def __init__(self, db_path:str):
-        self.db_path = db_path
+        self._db_path = db_path
         self._connection = None
 
     @property
     def connection(self) -> sqlite3.Connection:
         """Return a connection to the database."""
         if self._connection is None:
-            self._connection = self._connection = sqlite3.connect(self.db_path)
+            self._connection = self._connection = sqlite3.connect(self._db_path)
         return self._connection
     
     def close_connection(self) -> None:
@@ -19,7 +19,7 @@ class Database:
             self._connection.close()
             self._connection = None
 
-    def _create_database(self) -> None:
+    def create_database_file(self) -> None:
         """Create the database file."""
         connection = self.connection
         cursor = connection.cursor()
@@ -44,6 +44,11 @@ class Database:
         self.create_recipe_tags_table(cursor)
         # Commit the changes
         connection.commit()
+
+    def delete_database_file(self) -> None:
+        """Delete the database file."""
+        self.close_connection()
+        os.remove(self._db_path)
 
     def create_global_units_table(self, cursor:sqlite3.Cursor) -> None:
         """Create the global unit table in the database."""

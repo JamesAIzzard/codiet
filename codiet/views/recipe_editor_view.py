@@ -7,23 +7,16 @@ from PyQt6.QtWidgets import (
     QToolBar,
     QLabel,
     QLineEdit,
-    QTextEdit,
 )
 from PyQt6.QtWidgets import (
     QRadioButton
 )
-from PyQt6.QtCore import pyqtSignal, QVariant
+from PyQt6.QtCore import pyqtSignal
 
-from codiet.views.text_editors import MultilineEdit
+from codiet.views.text_editors.multiline_editor import MultilineEditor
 from codiet.views.buttons import EditButton, AddButton, DeleteButton, SaveJSONButton, AutopopulateButton
-from codiet.views.dialogs import OkDialogBoxView, ConfirmDialogBoxView
-from codiet.views.search import SearchColumnView
 from codiet.views.ingredients_editor_view import IngredientsEditorView
 from codiet.views.times import ServeTimeIntervalsEditorView
-from codiet.views.tags import RecipeTagEditorView, RecipeTagSelectorPopup
-from codiet.controllers.tags import RecipeTagEditorCtrl
-from codiet.utils.pyqt import block_signals
-
 
 class RecipeEditorView(QWidget):
     """User interface for editing recipes."""
@@ -97,7 +90,7 @@ class RecipeEditorView(QWidget):
         lyt_search_column = QVBoxLayout()
         lyt_columns.addLayout(lyt_search_column, 1)
         lyt_search_column.setContentsMargins(0, 0, 0, 0)
-        self._build_search_ui(lyt_search_column)
+        # self._build_search_ui(lyt_search_column)
 
         # Create the basic info column
         lyt_basic_info_column = QVBoxLayout()
@@ -184,7 +177,7 @@ class RecipeEditorView(QWidget):
         # Add a row containing the recipe description label and multiline textbox
         label = QLabel("Description:")
         lyt_basic_info.addWidget(label)
-        self.txt_recipe_description = MultilineEdit()
+        self.txt_recipe_description = MultilineEditor()
         lyt_basic_info.addWidget(self.txt_recipe_description)
         # Make the description box just three lines high
         self.txt_recipe_description.setFixedHeight(60)
@@ -196,7 +189,7 @@ class RecipeEditorView(QWidget):
         # Add a row containing the recipe instructions label and multiline textbox
         label = QLabel("Instructions:")
         lyt_basic_info.addWidget(label)
-        self.textbox_recipe_instructions = MultilineEdit()
+        self.textbox_recipe_instructions = MultilineEditor()
         lyt_basic_info.addWidget(self.textbox_recipe_instructions)
         # Connect to the signal, also passing the text
         self.textbox_recipe_instructions.textChanged.connect(
@@ -222,5 +215,5 @@ class RecipeEditorView(QWidget):
         self.serve_time_intervals_editor_view.removeServeTimeClicked.connect(self.removeServeTimeClicked.emit)
 
         # Add the recipe tag selector widget to the third col
-        self.recipe_tag_editor_view = RecipeTagEditorView(parent=self)
-        container.addWidget(self.recipe_tag_editor_view)
+        # self.recipe_tag_editor_view = RecipeTagEditorView(parent=self)
+        # container.addWidget(self.recipe_tag_editor_view)

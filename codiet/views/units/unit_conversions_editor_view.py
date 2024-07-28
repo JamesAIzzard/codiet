@@ -2,7 +2,6 @@ from PyQt6.QtCore import pyqtSignal, QVariant
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QHBoxLayout
 
 from codiet.views.buttons import AddButton, RemoveButton, IconButton
-from codiet.views.listbox import ListBox
 
 class UnitConversionsEditorView(QWidget):
     """A widget for defining custom measurement units.
@@ -65,10 +64,9 @@ class UnitConversionsEditorView(QWidget):
         self.btn_swap_conversion = IconButton(
             icon_filename="swap-icon.png",
             text="Swap Conversion",
-            tooltip="Flip the conversion"
         )
         # Drop in a spacer to push buttons to lhs
         lyt_buttons.addStretch()
         # Add a listbox of custom measurements
-        self.conversion_list = ListBox()
-        lyt_top_level.addWidget(self.conversion_list)
+        # self.conversion_list = ListBox()
+        # lyt_top_level.addWidget(self.conversion_list)

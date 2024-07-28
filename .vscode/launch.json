@@ -10,7 +10,7 @@
             "justMyCode": true
         },
         {
-            "name": "Rebuild CoDiet Database",
+            "name": "Process CoDiet Database",
             "type": "debugpy",
             "request": "launch",
             "program": "process_database.py",

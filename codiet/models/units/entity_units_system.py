@@ -85,7 +85,7 @@ class EntityUnitsSystem:
         Returns:
             Dict[int, Unit]: A dictionary mapping unit IDs to units.
         """
-        return self.get_available_units_from_root(self._gram_id)
+        return self.get_available_units_from_root(self.gram_id)
 
     @property
     def entity_unit_conversions(self) -> dict[int, EntityUnitConversion]:
