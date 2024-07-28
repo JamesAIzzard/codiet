@@ -1,7 +1,7 @@
 from PyQt6.QtCore import pyqtSignal, QVariant
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QHBoxLayout
 
-from codiet.views.buttons import AddButton, RemoveButton, IconButton
+from codiet.views.icon_button import IconButton
 
 class UnitConversionsEditorView(QWidget):
     """A widget for defining custom measurement units.
@@ -57,9 +57,9 @@ class UnitConversionsEditorView(QWidget):
         lyt_buttons = QHBoxLayout()
         lyt_top_level.addLayout(lyt_buttons)
         # Add the buttons
-        self.btn_add = AddButton()
+        self.btn_add = IconButton(icon_filename="add-icon.png")
         lyt_buttons.addWidget(self.btn_add)
-        self.btn_remove = RemoveButton()
+        self.btn_remove = IconButton(icon_filename="remove-icon.png")
         lyt_buttons.addWidget(self.btn_remove)
         self.btn_swap_conversion = IconButton(
             icon_filename="swap-icon.png",

@@ -3,7 +3,7 @@ from PyQt6.QtCore import pyqtSignal
 
 from codiet.views.dialogs.base_dialog_view import BaseDialogView
 from codiet.views.search.search_column_view import SearchColumnView
-from codiet.views.buttons import OKButton, CancelButton
+from codiet.views.icon_button import IconButton
 
 class UnitConversionDefinitionDialogView(BaseDialogView):
     """A dialog box for defining a unit conversion."""
@@ -68,8 +68,8 @@ class UnitConversionDefinitionDialogView(BaseDialogView):
         lyt_buttons = QHBoxLayout()
         lyt_outer.addLayout(lyt_buttons)
         # Create an OK button
-        self.btn_ok = OKButton()
+        self.btn_ok = IconButton(icon_filename="ok-icon.png")
         lyt_buttons.addWidget(self.btn_ok)
         # Create a Cancel button
-        self.btn_cancel = CancelButton()
+        self.btn_cancel = IconButton(icon_filename="cancel-icon.png")
         lyt_buttons.addWidget(self.btn_cancel)

@@ -14,7 +14,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import pyqtSignal
 
 from codiet.views.text_editors.multiline_editor import MultilineEditor
-from codiet.views.buttons import EditButton, AddButton, DeleteButton, SaveJSONButton, AutopopulateButton
+from codiet.views.icon_button import IconButton
 from codiet.views.ingredients_editor_view import IngredientsEditorView
 from codiet.views.times import ServeTimeIntervalsEditorView
 

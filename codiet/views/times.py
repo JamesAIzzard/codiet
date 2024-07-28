@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import pyqtSignal
 
-from codiet.views.buttons import AddButton, RemoveButton
+from codiet.views.icon_button import IconButton
 
 class ServeTimeIntervalsEditorView(QWidget):
     """UI element to allow the user to edit the serve time intervals."""

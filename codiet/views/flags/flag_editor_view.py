@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, pyqtSignal
 
 from codiet.views import block_signals
-from codiet.views.buttons import AddButton, DeleteButton
+from codiet.views.icon_button import IconButton
 
 
 class FlagEditorView(QWidget):
@@ -131,11 +131,11 @@ class FlagEditorView(QWidget):
         add_remove_layout = QHBoxLayout()
         buttons_layout.addLayout(add_remove_layout)
         # Add an 'Add' button
-        self.btn_add_flag = AddButton()
+        self.btn_add_flag = IconButton(icon_filename="add-icon.png")
         add_remove_layout.addWidget(self.btn_add_flag)
         self.btn_add_flag.clicked.connect(self.addFlagClicked.emit)
         # Add a 'Remove' button
-        self.btn_remove_flag = DeleteButton()
+        self.btn_remove_flag = IconButton(icon_filename="remove-icon.png")
         add_remove_layout.addWidget(self.btn_remove_flag)
         self.btn_remove_flag.clicked.connect(self.removeFlagClicked.emit)
         # Populate buttons column with helper buttons

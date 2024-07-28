@@ -3,7 +3,7 @@ from PyQt6.QtCore import pyqtSignal
 
 from codiet.views import block_signals
 from codiet.views.labels import SearchIconLabel
-from codiet.views.buttons import ClearButton
+from codiet.views.icon_button import IconButton
 from codiet.views.text_editors.line_editor import LineEditor
 
 class SearchTermEditorView(QWidget):
@@ -64,5 +64,5 @@ class SearchTermEditorView(QWidget):
         layout.setStretchFactor(self.txt_search, 1)
 
         # Create a cancel button and add it to the layout
-        self.btn_clear = ClearButton()
+        self.btn_clear = IconButton(icon_filename="cancel-icon.png")
         layout.addWidget(self.btn_clear)

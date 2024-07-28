@@ -1,7 +1,7 @@
-from PyQt6.QtCore import pyqtSignal, QVariant
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox
 
-from codiet.views.buttons import AddButton, DeleteButton
+from codiet.views.icon_button import IconButton
 from codiet.views.text_editors.numeric_line_editor import NumericLineEditor
 from codiet.views.search.search_column_view import SearchColumnView
 
@@ -32,10 +32,10 @@ class NutrientQuantitiesEditorView(QWidget):
         toolbar = QHBoxLayout()
         lyt_top_level.addLayout(toolbar)
         # Add an add and remove button
-        self.btn_add_nutrient = AddButton()
+        self.btn_add_nutrient = IconButton(icon_filename="add-icon.png")
         self.btn_add_nutrient.clicked.connect(self.addNutrientClicked.emit)
         toolbar.addWidget(self.btn_add_nutrient)
-        self.btn_delete_nutrient = DeleteButton()
+        self.btn_delete_nutrient = IconButton(icon_filename="delete-icon.png")
         # Add the ingredient reference qty label
         lbl_ingredient_ref_qty = QLabel("Ingredient Reference Quantity:")
         toolbar.addWidget(lbl_ingredient_ref_qty)

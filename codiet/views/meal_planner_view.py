@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
     QListWidget
 )
 
-from codiet.views.buttons import AddButton, RemoveButton, SolveButton
+from codiet.views.icon_button import IconButton
 
 class MealPlannerView(QWidget):
     """UI element to allow the user to plan meals."""

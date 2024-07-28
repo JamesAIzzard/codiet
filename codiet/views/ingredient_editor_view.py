@@ -10,13 +10,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import pyqtSignal, QVariant
 
 from codiet.views import block_signals
-from codiet.views.buttons import (
-    AddButton, 
-    DeleteButton, 
-    EditButton, 
-    SaveJSONButton, 
-    AutopopulateButton
-)
+from codiet.views.icon_button import IconButton
 from codiet.views.text_editors.line_editor import LineEditor
 from codiet.views.text_editors.multiline_editor import MultilineEditor
 from codiet.views.text_editors.numeric_line_editor import NumericLineEditor
@@ -153,22 +147,22 @@ class IngredientEditorView(QWidget):
         # Build the toolbar
         toolbar = QToolBar(self)
         container.addWidget(toolbar)
-        btn_add = AddButton()
+        btn_add = IconButton(icon_filename="add-icon.png")
         btn_add.setToolTip("Add new ingredient.")
         btn_add.clicked.connect(self.addIngredientClicked.emit)
-        btn_delete = DeleteButton()
+        btn_delete = IconButton(icon_filename="delete-icon.png")
         btn_delete.setToolTip("Delete selected ingredient.")
         btn_delete.clicked.connect(self.deleteIngredientClicked.emit)
-        btn_autopopulate = AutopopulateButton()
+        btn_autopopulate = IconButton(icon_filename="autopopulate-icon.png")
         btn_autopopulate.setToolTip("Autopopulate ingredient.")
         btn_autopopulate.clicked.connect(self.autopopulateClicked.emit)
-        btn_save = SaveJSONButton()
-        btn_save.setToolTip("Save ingredient to JSON.")
-        btn_save.clicked.connect(self.saveJSONClicked.emit)
+        btn_json_save = IconButton(icon_filename="save-icon.png", text="Save to JSON")
+        btn_json_save.setToolTip("Save ingredient to JSON.")
+        btn_json_save.clicked.connect(self.saveJSONClicked.emit)
         toolbar.addWidget(btn_add)
         toolbar.addWidget(btn_delete)
         toolbar.addWidget(btn_autopopulate)
-        toolbar.addWidget(btn_save)
+        toolbar.addWidget(btn_json_save)
 
     def _build_search_ui(self, container: QBoxLayout):
         """Build the search UI for the ingredient editor page."""
@@ -198,7 +192,7 @@ class IngredientEditorView(QWidget):
         self.txt_ingredient_name.setReadOnly(True)
         lyt_ingredient_name.addWidget(self.txt_ingredient_name)
         # Add an edit button
-        btn_edit = EditButton()
+        btn_edit = IconButton(icon_filename="edit-icon.png")
         lyt_ingredient_name.addWidget(btn_edit)
         btn_edit.clicked.connect(self.editIngredientNameClicked.emit)
         # Reduce the vertical padding in this layout

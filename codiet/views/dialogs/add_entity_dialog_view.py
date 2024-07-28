@@ -2,7 +2,7 @@ from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
 from codiet.views.dialogs.base_dialog_view import BaseDialogView
-from codiet.views.buttons import AddButton, CancelButton
+from codiet.views.icon_button import IconButton
 from codiet.views.search.search_column_view import SearchColumnView
 
 

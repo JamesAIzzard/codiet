@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import pyqtSignal
 
 from codiet.views import load_icon
-from codiet.views.buttons import IconButton
+from codiet.views.icon_button import IconButton
 
 class MainWindowView(QMainWindow):
     """The main window view for the CoDiet application."""

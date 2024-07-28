@@ -1,6 +1,6 @@
 from PyQt6.QtCore import pyqtSignal
 
-from codiet.views.buttons import ConfirmButton
+from codiet.views.icon_button import IconButton
 from codiet.controllers.dialogs.icon_message_buttons_dialog import IconMessageButtonsDialog
 
 class ErrorDialog(IconMessageButtonsDialog):
@@ -12,7 +12,7 @@ class ErrorDialog(IconMessageButtonsDialog):
 
     def __init__(self, *args, **kwargs):
         # Create the OK button
-        self.btn_OK = ConfirmButton()
+        self.btn_OK = IconButton(icon_filename="ok-icon.png", text="OK")
 
         super().__init__(
             icon_filename="error-icon.png",

@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (
     QListWidget,
 )
 
-from codiet.views.buttons import AddButton, RemoveButton
+from codiet.views.icon_button import IconButton
 from codiet.views.dialogs.base_dialog_view import BaseDialogView
 
 class RecipeTagEditorView(QWidget):

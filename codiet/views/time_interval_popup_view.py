@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import pyqtSignal
 
-from codiet.views.buttons import ConfirmButton
+from codiet.views.icon_button import IconButton
 
 class TimeIntervalPopupView(QDialog):
     # Define signals

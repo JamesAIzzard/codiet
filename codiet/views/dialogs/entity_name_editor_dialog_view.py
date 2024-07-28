@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QVBoxLayout, QStackedWidget, QHBoxLayout
 from codiet.views import block_signals
 from codiet.views.dialogs.base_dialog_view import BaseDialogView
 from codiet.views.labels import IconTextLabel
-from codiet.views.buttons import ConfirmButton, ClearButton
+from codiet.views.icon_button import IconButton
 from codiet.views.text_editors.line_editor import LineEditor
 
 class EntityNameEditorDialogView(BaseDialogView):

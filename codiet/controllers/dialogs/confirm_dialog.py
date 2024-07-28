@@ -1,6 +1,6 @@
 from PyQt6.QtCore import pyqtSignal
 
-from codiet.views.buttons import ConfirmButton, ClearButton
+from codiet.views.icon_button import IconButton
 from codiet.controllers.dialogs.icon_message_buttons_dialog import IconMessageButtonsDialog
 
 class ConfirmDialog(IconMessageButtonsDialog):
@@ -13,8 +13,8 @@ class ConfirmDialog(IconMessageButtonsDialog):
 
     def __init__(self, *args, **kwargs):
         # Create a Confirm and Cancel button
-        self.btn_confirm = ConfirmButton()
-        self.btn_clear = ClearButton()
+        self.btn_confirm = IconButton(icon_filename="confirm-icon.png")
+        self.btn_clear = IconButton(icon_filename="clear-icon.png")
 
         super().__init__(
             icon_filename="question-icon.png",
