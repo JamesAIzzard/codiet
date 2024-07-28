@@ -73,18 +73,17 @@ class MainWindowView(QMainWindow):
 
     def _build_toolbar(self) -> None:
         """Builds the main page menu bar."""
-        # Build the toolbar
         toolbar = QToolBar(self)
         self.addToolBar(toolbar)
-        # Add an ingredients button
+
         self.btn_ingredients = IconButton("ingredients-icon.png", "Ingredients")
         self.btn_ingredients.clicked.connect(self.ingredientsClicked.emit)
         toolbar.addWidget(self.btn_ingredients)
-        # Add a recipes button
+
         self.btn_recipes = IconButton("recipes-icon.png", "Recipes")
         self.btn_recipes.clicked.connect(self.recipesClicked.emit)
         toolbar.addWidget(self.btn_recipes)
-        # Add a meal planner button
+
         self.btn_meal_planner = IconButton("meal-planner-icon.png", "Meal Planner")
         self.btn_meal_planner.clicked.connect(self.mealPlannerClicked.emit)
         toolbar.addWidget(self.btn_meal_planner)

@@ -6,8 +6,8 @@ from codiet.views.dialogs.icon_message_dialog_view import IconMessageDialogView
 from codiet.controllers.dialogs.base_dialog import BaseDialog
 from codiet.controllers.dialogs.icon_message_dialog import IconMessageDialog
 from codiet.controllers.dialogs.icon_message_buttons_dialog import IconMessageButtonsDialog
-from codiet.controllers.dialogs.confirm_dialog import ConfirmDialog
-from codiet.controllers.dialogs.error_dialog import ErrorDialog
+from codiet.controllers.dialogs.yes_no_dialog import YesNoDialog
+from codiet.controllers.dialogs.ok_dialog import OKDialog
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -41,7 +41,7 @@ class MainWindow(QMainWindow):
         #         close_button,
         #     ]
         # )
-        dialog = ErrorDialog(parent=self, title="Error!", message="An error occurred.")
+        dialog = OKDialog(parent=self, title="Error!", message="An error occurred.")
         dialog.show()
 
 def configure_logging():

@@ -3,17 +3,15 @@ from PyQt6.QtWidgets import (
     QBoxLayout,
     QVBoxLayout,
     QHBoxLayout,
-    QToolBar,
     QLabel,
     QGroupBox
 )
-from PyQt6.QtCore import pyqtSignal, QVariant
 
-from codiet.views import block_signals
 from codiet.views.icon_button import IconButton
 from codiet.views.text_editors.line_editor import LineEditor
 from codiet.views.text_editors.multiline_editor import MultilineEditor
 from codiet.views.text_editors.numeric_line_editor import NumericLineEditor
+from codiet.views.editor_toolbar import EditorToolbar
 from codiet.views.search.search_column_view import SearchColumnView
 from codiet.views.cost_editor_view import CostEditorView
 from codiet.views.nutrients.nutrient_quantities_editor_view import NutrientQuantitiesEditorView
@@ -23,64 +21,12 @@ from codiet.views.units.unit_conversions_editor_view import UnitConversionsEdito
 
 class IngredientEditorView(QWidget):
     """User interface for editing an ingredient."""
-    # Define signals
-    editIngredientNameClicked = pyqtSignal()
-    ingredientDescriptionChanged = pyqtSignal(str)
-    ingredientCostValueChanged = pyqtSignal(QVariant)
-    ingredientCostQuantityChanged = pyqtSignal(QVariant)
-    ingredientCostQuantityUnitChanged = pyqtSignal(str)
-    ingredientGIChanged = pyqtSignal(QVariant)
-
 
     def __init__(self, *args, **kwargs):
         """Initialise the ingredient editor view."""
         super().__init__(*args, **kwargs)
+
         self._build_ui()
-
-    @property
-    def ingredient_name(self) -> str|None:
-        """Return the name of the ingredient."""
-        return self.txt_ingredient_name.text()
-    
-    @ingredient_name.setter
-    def ingredient_name(self, name: str | None):
-        """Set the name of the ingredient."""
-        with block_signals(self.txt_ingredient_name):
-            if name is not None:
-                self.txt_ingredient_name.setText(name)
-            else:
-                self.txt_ingredient_name.clear()
-
-    @property
-    def ingredient_description(self) -> str | None:
-        """Return the description of the ingredient."""
-        return self.txt_description.toPlainText()
-
-    @ingredient_description.setter
-    def ingredient_description(self, description: str | None):
-        """Set the description of the ingredient."""
-        with block_signals(self.txt_description):
-            if description is not None:
-                self.txt_description.setText(description)
-            else:
-                self.txt_description.clear()
-
-    @property
-    def gi(self) -> float | None:
-        """Return the GI value in the GI textbox."""
-        try:
-            return self.txt_gi.text()
-        except ValueError:
-            return None
-        
-    @gi.setter
-    def gi(self, gi: float | None):
-        """Set the GI value in the GI textbox."""
-        with block_signals(self.txt_gi):
-            if gi is None:
-                self.txt_gi.clear()
-            else:
-                self.txt_gi.setText(gi)
 
     def _build_ui(self):
         """Build the UI for the ingredient editor page."""
@@ -90,19 +36,20 @@ class IngredientEditorView(QWidget):
         self.setLayout(lyt_top_level)
 
         # Put the toolbar in it
-        self._build_toolbar(lyt_top_level)
+        self.toolbar = EditorToolbar(entity_name="ingredient")
+        lyt_top_level.addWidget(self.toolbar)
 
         # Create a horizontal layout for the columns
         lyt_columns = QHBoxLayout()
         lyt_columns.setContentsMargins(5, 5, 5, 5)
         lyt_top_level.addLayout(lyt_columns)
 
-        # Create a col for searching ingredients
+        # Create the ingredient search column
         lyt_search_column = QVBoxLayout()
-        # Reduce vertical padding
+        lyt_columns.addLayout(lyt_search_column, 1)        
+        self.ingredient_search_column = SearchColumnView()
+        lyt_search_column.addWidget(self.ingredient_search_column)
         lyt_search_column.setContentsMargins(0, 0, 0, 0)
-        lyt_columns.addLayout(lyt_search_column, 1)
-        self._build_search_ui(lyt_search_column)
 
         # Create a col for the basic info, cost, flags and GI
         lyt_first_col = QVBoxLayout()
@@ -138,33 +85,6 @@ class IngredientEditorView(QWidget):
         self.nutrient_quantities_editor = NutrientQuantitiesEditorView()
         lyt_nutrients.addWidget(self.nutrient_quantities_editor)
 
-    def _build_toolbar(self, container: QBoxLayout) -> None:
-        """Builds the main page toolbar."""
-        # Build the toolbar
-        toolbar = QToolBar(self)
-        container.addWidget(toolbar)
-
-        btn_add_ingredient = IconButton(icon_filename="add-icon.png")
-        btn_add_ingredient.setToolTip("Add new ingredient.")
-        toolbar.addWidget(btn_add_ingredient)
-
-        btn_delete_ingredient = IconButton(icon_filename="delete-icon.png")
-        btn_delete_ingredient.setToolTip("Delete selected ingredient.")
-        toolbar.addWidget(btn_delete_ingredient)
-
-        btn_autopopulate_ingredient = IconButton(icon_filename="autopopulate-icon.png")
-        btn_autopopulate_ingredient.setToolTip("Autopopulate ingredient.")
-        toolbar.addWidget(btn_autopopulate_ingredient)
-        
-        btn_json_save = IconButton(icon_filename="save-icon.png", text="Save to JSON")
-        btn_json_save.setToolTip("Save ingredient to JSON.")
-        toolbar.addWidget(btn_json_save)
-
-    def _build_search_ui(self, container: QBoxLayout):
-        """Build the search UI for the ingredient editor page."""
-        self.ingredient_search_column = SearchColumnView()
-        container.addWidget(self.ingredient_search_column)
-
     def _build_basic_info_UI(self, container: QBoxLayout):
         """Build the UI for the basic info section of the ingredient editor page."""
 
@@ -190,7 +110,7 @@ class IngredientEditorView(QWidget):
         # Add an edit button
         btn_edit = IconButton(icon_filename="edit-icon.png")
         lyt_ingredient_name.addWidget(btn_edit)
-        btn_edit.clicked.connect(self.editIngredientNameClicked.emit)
+        # btn_edit.clicked.connect(self.editIngredientNameClicked.emit)
         # Reduce the vertical padding in this layout
         lyt_ingredient_name.setContentsMargins(0, 0, 0, 0)
 
@@ -220,7 +140,7 @@ class IngredientEditorView(QWidget):
         # Create a line edit and add it to the layout
         self.txt_gi = NumericLineEditor()
         column_layout.addWidget(self.txt_gi)
-        self.txt_gi.lostFocus.connect(self.ingredientGIChanged.emit)
+        # self.txt_gi.lostFocus.connect(self.ingredientGIChanged.emit)
 
 
 

@@ -1,26 +1,20 @@
-from PyQt6.QtCore import pyqtSignal
-
 from codiet.views.icon_button import IconButton
 from codiet.controllers.dialogs.icon_message_buttons_dialog import IconMessageButtonsDialog
 
-class ErrorDialog(IconMessageButtonsDialog):
+class OKDialog(IconMessageButtonsDialog):
     """A specific type of message dialog for displaying errors.
     Specialises the IconMessageButtonsDialog to show the error Icon and an OK button.
     """
 
-    okClicked = pyqtSignal()
 
     def __init__(self, *args, **kwargs):
         # Create the OK button
         self.btn_OK = IconButton(icon_filename="ok-icon.png", text="OK")
 
         super().__init__(
-            icon_filename="error-icon.png",
+            icon_filename="ok-icon.png",
             buttons=[
                 self.btn_OK
             ],
             *args, **kwargs
         )
-
-        # Connect the OK button to its signal
-        self.btn_OK.clicked.connect(self.okClicked)  

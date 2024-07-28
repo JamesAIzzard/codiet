@@ -12,8 +12,7 @@ from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.controllers.base_controller import BaseController
 from codiet.controllers.search.search_column import SearchColumn
 from codiet.controllers.dialogs.entity_name_editor_dialog import EntityNameEditorDialog
-from codiet.controllers.dialogs.error_dialog import ErrorDialog
-from codiet.controllers.dialogs.confirm_dialog import ConfirmDialog
+from codiet.controllers.dialogs import (OKDialog, YesNoDialog, IconMessageDialog)
 from codiet.controllers.units.standard_unit_editor import StandardUnitEditor
 from codiet.controllers.units.unit_conversions_editor import UnitConversionsEditor
 from codiet.controllers.cost_editor import CostEditor
@@ -51,10 +50,14 @@ class IngredientEditor(BaseController[IngredientEditorView]):
             entity_unit_conversions={}, # Update when ingredient is loaded
         )
 
-        # Instantiate child modules and connect signals
-        # Main page components first
+        # Create some supporting dialogs  
+        self.error_dialog = IconMessageDialog(parent=self.view, icon_filename="error-icon.png")
+        self.confirm_dialog = YesNoDialog(parent=self.view)
+
+        # Controllers, signals and slots
         # Toolbar
-        self._connect_toolbar()
+
+
         # Ingredient search column
         self.ingredient_search_column = SearchColumn[int, QLabel](
             view=self.view.ingredient_search_column,
@@ -66,9 +69,9 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         )
         self.ingredient_search_column.results_list.itemClicked.connect(self._on_ingredient_selected)
         # Ingredient name editor
-        self.view.editIngredientNameClicked.connect(
-            self._on_edit_ingredient_name_clicked
-        )
+        # self.view.editIngredientNameClicked.connect(
+        #     self._on_edit_ingredient_name_clicked
+        # )
         # self.ingredient_name_editor_dialog = EntityNameEditorDialog(
         #     entity_name="ingredient",
         #     check_name_available=lambda name: name not in self._ingredient_name_ids.values,
@@ -136,10 +139,6 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         # self.nutrient_quantities_editor.nutrientQuantityRemoved.connect(
         #     self._on_nutrient_qty_removed
         # )
-
-        # # Create some other supporting dialogs  
-        # self.error_dialog = ErrorDialog(parent=self.view)
-        # self.confirm_dialog = ConfirmDialog(parent=self.view)
 
         # # Load the first ingredient
         # # Fetch it first
@@ -408,8 +407,4 @@ class IngredientEditor(BaseController[IngredientEditorView]):
             global_nutrient_id=nutrient_id
         )
         self.db_service.repository.commit()
-
-    def _connect_toolbar(self) -> None:
-        """Connect the toolbar button signals."""
-        pass
 
