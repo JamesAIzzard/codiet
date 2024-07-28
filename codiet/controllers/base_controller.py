@@ -19,12 +19,13 @@ class BaseController(QObject, Generic[T], metaclass=ControllerMeta):
 
     def __init__(
         self,
-        parent: QWidget|None = None,
+        parent: QWidget|None=None,
         view: T|None = None,
         *args, **kwargs
     ):
-        # if view is None and parent is None:
-        #     raise ValueError("Either a view or a parent must be provided")
+        # Enforce either parent or view provision
+        if view is None and parent is None:
+            raise ValueError("Either a view or a parent must be provided")
 
         if view is not None and parent is not None:
             logger.warning(
