@@ -1,3 +1,4 @@
+from codiet.db.database_object import DatabaseObject
 from codiet.models.units.entity_unit_conversion import EntityUnitConversion
 from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
 

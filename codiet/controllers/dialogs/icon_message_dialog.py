@@ -1,9 +1,13 @@
+from typing import TypeVar, Generic
+
 from PyQt6.QtWidgets import QWidget
 from codiet.views.dialogs.base_dialog_view import BaseDialogView
 from codiet.views.dialogs.icon_message_dialog_view import IconMessageDialogView
 from codiet.controllers.dialogs.base_dialog import BaseDialog
 
-class IconMessageDialog(BaseDialog):
+T = TypeVar('T', bound=IconMessageDialogView)
+
+class IconMessageDialog(BaseDialog[IconMessageDialogView], Generic[T]):
     """A dialog box with an icon, and a message.
     Extends BaseDialog to add an icon and a message.
     """
