@@ -7,7 +7,7 @@ from codiet.controllers.dialogs.base_dialog import BaseDialog
 
 T = TypeVar('T', bound=IconMessageDialogView)
 
-class IconMessageDialog(BaseDialog[IconMessageDialogView], Generic[T]):
+class IconMessageDialog(BaseDialog[T]):
     """A dialog box with an icon, and a message.
     Extends BaseDialog to add an icon and a message.
     """

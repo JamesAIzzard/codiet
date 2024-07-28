@@ -1,6 +1,6 @@
 from typing import Tuple
 
-from PyQt6.QtWidgets import QLabel, QWidget
+from PyQt6.QtWidgets import QLabel
 
 from codiet.db.database_service import DatabaseService
 from codiet.models.ingredients.ingredient import Ingredient
@@ -90,15 +90,15 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         # self.view.editIngredientNameClicked.connect(
         #     self._on_edit_ingredient_name_clicked
         # )
-        self.ingredient_name_editor_dialog = EntityNameEditorDialog(
-            parent=self.view,
-            entity_name="ingredient",
-            check_name_available=lambda name: name
-            not in self._ingredient_name_ids.values,
-        )
-        self.ingredient_name_editor_dialog.onNameAccepted.connect(
-            self._on_ingredient_name_accepted
-        )
+        # self.ingredient_name_editor_dialog = EntityNameEditorDialog(
+        #     parent=self.view,
+        #     entity_name="ingredient",
+        #     check_name_available=lambda name: name
+        #     not in self._ingredient_name_ids.values,
+        # )
+        # self.ingredient_name_editor_dialog.onNameAccepted.connect(
+        #     self._on_ingredient_name_accepted
+        # )
         # Ingredient description editor
         # self.view.ingredientDescriptionChanged.connect(
         #     self._on_ingredient_description_changed
@@ -191,14 +191,14 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         )
 
         # Update main view elements
-        self.view.ingredient_name = ingredient.name
-        self.view.ingredient_description = ingredient.description
-        self.view.gi = ingredient.gi
-        self.standard_unit_editor.selected_unit = ingredient.standard_unit_id
-        self.unit_conversion_editor.refresh()
-        self.cost_editor.refresh()
-        self.flag_editor.refresh()
-        self.nutrient_quantities_editor.refresh()
+        self.view.txt_ingredient_name.setText(ingredient.name)
+        # self.view.ingredient_description = ingredient.description
+        # self.view.gi = ingredient.gi
+        # self.standard_unit_editor.selected_unit = ingredient.standard_unit_id
+        # self.unit_conversion_editor.refresh()
+        # self.cost_editor.refresh()
+        # self.flag_editor.refresh()
+        # self.nutrient_quantities_editor.refresh()
 
     def _create_view(self, *args, **kwargs) -> IngredientEditorView:
         return IngredientEditorView(*args, **kwargs)
@@ -221,13 +221,16 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         Shows the dialog to guide the user through adding an ingredient.
         """
         # Open the create new ingredient dialog box
-        self.ingredient_name_editor_dialog.clear()
-        self.ingredient_name_editor_dialog.show()
+        self.add_ingredient_dialog.clear()
+        self.add_ingredient_dialog.show()
 
     def _on_ingredient_added(self, name: str) -> None:
         """Handler for adding a new ingredient."""
         ingredient = Ingredient(name=name)
+        # Immediately add the default unit, because its required for various unit fields
+        ingredient.standard_unit_id = self._ingredient_unit_system.gram_id
         self.db_service.create_ingredient(ingredient)
+        self.db_service.repository.commit()
         self.load_ingredient(ingredient)
 
     def _on_delete_ingredient_clicked(self) -> None:

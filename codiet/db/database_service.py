@@ -117,22 +117,21 @@ class DatabaseService:
         # Start the recursive insertion with the root tags
         insert_tags(tag_data)
 
-    def create_empty_ingredient(self, ingredient_name: str) -> Ingredient:
-        """Creates an ingredient."""
+    def create_ingredient(self, ingredient: Ingredient) -> Ingredient:
+        """Creates an ingredient in the database.
+        Args:
+            ingredient (Ingredient): The ingredient to create.
+        Returns:
+            Ingredient: The created ingredient.
+        """
         # Insert the ingredient name into the database
-        ingredient_id = self.repository.create_ingredient_name(ingredient_name)
-        # Fetch a map of global unit names to IDs
-        unit_name_id_map = self.build_unit_name_id_map()
-        # Grab the id for grams
-        gram_id = unit_name_id_map.get_key("gram")
-        assert gram_id is not None
-        # Init the ingredient
-        ingredient = Ingredient(
-            name=ingredient_name,
-            id=ingredient_id,
-            standard_unit_id=gram_id,
-        )
-        # Return the ingredient
+        if ingredient.name is None:
+            raise ValueError("Ingredient name must be set.")
+        ingredient.id = self.repository.create_ingredient_name(ingredient.name)
+
+        # Now we have an id, we can use the update method
+        self.update_ingredient(ingredient)
+
         return ingredient
 
     def create_ingredient_unit_conversion(
@@ -580,7 +579,12 @@ class DatabaseService:
 
     def update_ingredient(self, ingredient: Ingredient) -> None:
         """Updates the ingredient in the database."""
+        # To use update, id must be set
+        if ingredient.id is None:
+            raise ValueError("Ingredient ID must be set.")
         # Update the name
+        if ingredient.name is None:
+            raise ValueError("Ingredient name must be set.")
         self.repository.update_ingredient_name(ingredient.id, ingredient.name)
         # Update the description
         self.repository.update_ingredient_description(

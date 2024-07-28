@@ -3,29 +3,40 @@ from codiet.models.units.entity_unit_conversion import EntityUnitConversion
 from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
 
 
-class Ingredient:
+class Ingredient(DatabaseObject):
     """Ingredient model."""
 
-    def __init__(self, name:str, id:int, standard_unit_id:int):
+    def __init__(self, name:str|None=None, *args, **kwargs):
         """Initialises the class.
         Args:
             name (str): The name of the ingredient.
-            id (int): The ID of the ingredient.
-            standard_unit_id (int): The ID of the standard unit.
-                This gets used as the default unit for the ingredient.
         """
-        self.name: str = name
-        self.id: int = id
+        super().__init__(*args, **kwargs)
+    
+        self.name: str|None = name
         self.description: str | None = None
-        self.standard_unit_id: int = standard_unit_id
+        self._standard_unit_id: int|None = None
         self._unit_conversions: dict[int, EntityUnitConversion] = {}   
         self._cost_unit_id: int | None = None # One day this could represent the currency
         self._cost_value: float | None = None
-        self._cost_qty_unit_id: int = standard_unit_id
+        self._cost_qty_unit_id: int|None = None
         self._cost_qty_value: float | None = None
         self._flags: dict[int, bool] = {}
         self.gi: float | None = None
         self._nutrient_quantities: dict[int, EntityNutrientQuantity] = {}
+
+    @property
+    def standard_unit_id(self) -> int|None:
+        """Returns the standard unit ID."""
+        return self._standard_unit_id
+    
+    @standard_unit_id.setter
+    def standard_unit_id(self, value: int) -> None:
+        """Sets the standard unit ID."""
+        self._standard_unit_id = value
+        # If cost unit ID is not set, set it to the standard unit ID
+        if self._cost_unit_id is None:
+            self._cost_unit_id = value
 
     @property
     def unit_conversions(self) -> dict[int, EntityUnitConversion]:
@@ -51,7 +62,7 @@ class Ingredient:
         self._cost_value = value
 
     @property
-    def cost_qty_unit_id(self) -> int:
+    def cost_qty_unit_id(self) -> int|None:
         """Returns the cost quantity unit ID."""
         return self._cost_qty_unit_id
     
