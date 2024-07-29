@@ -3,8 +3,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QGroupBox,
-    QLabel,
-    QComboBox
+    QLabel
 )
 from PyQt6.QtCore import pyqtSignal, QVariant
 

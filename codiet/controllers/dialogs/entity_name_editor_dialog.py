@@ -5,18 +5,18 @@ from PyQt6.QtCore import pyqtSignal
 from codiet.views.dialogs.entity_name_editor_dialog_view import EntityNameEditorDialogView
 from codiet.controllers.dialogs.base_dialog import BaseDialog
 
-class EntityNameEditorDialog(BaseDialog):
+class EntityNameEditorDialog(BaseDialog[EntityNameEditorDialogView]):
     """A controller for the entity name dialog."""
 
     onNameAccepted = pyqtSignal(str)
 
     def __init__(
             self,
-            entity_name:str,
+            entity_type_name:str,
             check_name_available:Callable[[str], bool],
             *args, **kwargs   
     ):
-        super().__init__(entity_name=entity_name, *args, **kwargs)
+        super().__init__(entity_name=entity_type_name, *args, **kwargs)
         
         # Stash constructor arguments
         self._check_name_available = check_name_available

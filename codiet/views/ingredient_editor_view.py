@@ -13,6 +13,7 @@ from codiet.views.text_editors.multiline_editor import MultilineEditor
 from codiet.views.text_editors.numeric_line_editor import NumericLineEditor
 from codiet.views.editor_toolbar import EditorToolbar
 from codiet.views.search.search_column_view import SearchColumnView
+from codiet.views.entity_name_editor_view import EntityNameEditorView
 from codiet.views.cost_editor_view import CostEditorView
 from codiet.views.nutrients.nutrient_quantities_editor_view import NutrientQuantitiesEditorView
 from codiet.views.flags.flag_editor_view import FlagEditorView
@@ -97,22 +98,8 @@ class IngredientEditorView(QWidget):
         gb_basic_info.setLayout(lyt_basic_info)
 
         # Create a horizontal layout for name and textbox
-        lyt_ingredient_name = QHBoxLayout()
-        lyt_basic_info.addLayout(lyt_ingredient_name)
-        # Create a label and add it to the layout
-        label = QLabel("Name:")
-        lyt_ingredient_name.addWidget(label)
-        # Create a textbox and add it to the layout
-        self.txt_ingredient_name = LineEditor()
-        # Make the line edit not editable
-        self.txt_ingredient_name.setReadOnly(True)
-        lyt_ingredient_name.addWidget(self.txt_ingredient_name)
-        # Add an edit button
-        btn_edit = IconButton(icon_filename="edit-icon.png")
-        lyt_ingredient_name.addWidget(btn_edit)
-        # btn_edit.clicked.connect(self.editIngredientNameClicked.emit)
-        # Reduce the vertical padding in this layout
-        lyt_ingredient_name.setContentsMargins(0, 0, 0, 0)
+        self.name_editor_view = EntityNameEditorView(parent=self)
+        lyt_basic_info.addWidget(self.name_editor_view)
 
         # Add a description field and multiline textbox
         label = QLabel("Description:")

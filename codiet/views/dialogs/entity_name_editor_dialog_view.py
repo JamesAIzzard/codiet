@@ -76,6 +76,18 @@ class EntityNameEditorDialogView(BaseDialogView):
         """Returns True/False to indicate if the name is set."""
         return self.entity_name != None
     
+    def set_info_message(self, message: str) -> None:
+        """Set the info message."""
+        self.lbl_info_message.text = message
+
+    def set_name_available_message(self, message: str) -> None:
+        """Set the name available message."""
+        self.lbl_name_available.text = message
+
+    def set_name_unavailable_message(self, message: str) -> None:
+        """Set the name unavailable message."""
+        self.lbl_name_unavailable.text = message
+
     def show_instructions(self) -> None:
         """Show the instructions label."""
         self.stackedWidget.setCurrentWidget(self.lbl_info_message)

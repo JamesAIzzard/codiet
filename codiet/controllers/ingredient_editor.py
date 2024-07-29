@@ -10,7 +10,6 @@ from codiet.models.units.entity_unit_conversion import EntityUnitConversion
 from codiet.models.units.entity_units_system import EntityUnitsSystem
 from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.controllers.base_controller import BaseController
-from codiet.controllers.search.search_column import SearchColumn
 from codiet.controllers.dialogs import (
     OKDialog,
     YesNoDialog,
@@ -18,6 +17,8 @@ from codiet.controllers.dialogs import (
     AddEntityDialog,
     EntityNameEditorDialog,
 )
+from codiet.controllers.search.search_column import SearchColumn
+from codiet.controllers.entity_name_editor import EntityNameEditor
 from codiet.controllers.units.standard_unit_editor import StandardUnitEditor
 from codiet.controllers.units.unit_conversions_editor import UnitConversionsEditor
 from codiet.controllers.cost_editor import CostEditor
@@ -69,7 +70,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         # Add ingredient dialog
         self.add_ingredient_dialog = EntityNameEditorDialog(
             parent=self.view,
-            entity_name="ingredient",
+            entity_type_name="ingredient",
             check_name_available=lambda name: name not in self._ingredient_name_ids.values,
         )
         self.add_ingredient_dialog.onNameAccepted.connect(self._on_ingredient_added)
@@ -86,32 +87,32 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self.ingredient_search_column.results_list.itemClicked.connect(
             self._on_ingredient_selected
         )
+
         # Ingredient name editor
-        # self.view.editIngredientNameClicked.connect(
-        #     self._on_edit_ingredient_name_clicked
-        # )
-        # self.ingredient_name_editor_dialog = EntityNameEditorDialog(
-        #     parent=self.view,
-        #     entity_name="ingredient",
-        #     check_name_available=lambda name: name
-        #     not in self._ingredient_name_ids.values,
-        # )
-        # self.ingredient_name_editor_dialog.onNameAccepted.connect(
-        #     self._on_ingredient_name_accepted
-        # )
+        self.name_editor = EntityNameEditor(
+            entity_type_name="ingredient",
+            get_entity_name=lambda: self.ingredient.name,
+            check_name_available=lambda name: name not in self._ingredient_name_ids.values,
+            view=self.view.name_editor_view,
+        )
+        self.name_editor.nameChanged.connect(self._on_ingredient_name_changed)
+
         # Ingredient description editor
         # self.view.ingredientDescriptionChanged.connect(
         #     self._on_ingredient_description_changed
         # )
+
         # Standard unit editor
         self.standard_unit_editor = StandardUnitEditor(
             get_available_units=lambda: self._ingredient_unit_system.available_units,
             view=self.view.standard_unit_editor,
             parent=self.view,
         )
+
         self.standard_unit_editor.onUnitChanged.connect(
             lambda unit_id: setattr(self.ingredient, "standard_unit_id", unit_id)
         )
+
         # # Unit conversions editor
         # self.unit_conversion_editor = UnitConversionsEditor(
         #     get_global_units=lambda: self._global_units,
@@ -133,6 +134,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         #     ),
         # )
         # self.cost_editor.costUpdated.connect(self._on_ingredient_cost_changed)
+        
         # # Flags editor
         # self.flag_editor = FlagEditor(
         #     get_global_flags=lambda: self._global_flags,
@@ -140,6 +142,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         #     view=self.view.flag_editor
         # )
         # self.flag_editor.flagChanged.connect(self._on_flag_changed)
+        
         # # GI editor
         # self.view.txt_gi.textChanged.connect(self._on_gi_value_changed)
         # # Ingredient nutrient editor
@@ -191,7 +194,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         )
 
         # Update main view elements
-        self.view.txt_ingredient_name.setText(ingredient.name)
+        self.name_editor.refresh()
         # self.view.ingredient_description = ingredient.description
         # self.view.gi = ingredient.gi
         # self.standard_unit_editor.selected_unit = ingredient.standard_unit_id
@@ -231,6 +234,8 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         ingredient.standard_unit_id = self._ingredient_unit_system.gram_id
         self.db_service.create_ingredient(ingredient)
         self.db_service.repository.commit()
+        self._ingredient_name_ids = self.db_service.build_ingredient_name_id_map()
+        self.ingredient_search_column.reset_search()
         self.load_ingredient(ingredient)
 
     def _on_delete_ingredient_clicked(self) -> None:
@@ -271,34 +276,19 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         # Reset the search pane
         self.ingredient_search.reset_search()
 
-    def _on_edit_ingredient_name_clicked(self) -> None:
-        """Handler for editing the ingredient name."""
-        # Clear the box
-        self.ingredient_name_editor_dialog.clear()
-        # If the ingredient has a name already, write it into the box
-        if self.ingredient.name is not None:
-            self.ingredient_name_editor_dialog.entity_name = self.ingredient.name
-        # Show the dialog
-        self.ingredient_name_editor_dialog.show()
 
-    def _on_ingredient_name_accepted(self, name: str) -> None:
-        """Handler for accepting the new ingredient name."""
-        # If there is no current ingredient yet
-        if self.ingredient is None:
-            # Insert a new ingredient into the database
-            with DatabaseService() as db_service:
-                self.ingredient = db_service.insert_new_ingredient(name)
-                db_service.commit()
-        # Update the name on the view
-        self.view.update_name(self.ingredient.name)
-        # Recache the ingredient names
-        self._cache_ingredient_names()
-        # Reset the search pane
-        self.search_column_ctrl.reset_search()
-        # Clear the new ingredient dialog
-        self.ingredient_name_editor_dialog.clear()
-        # Hide the new ingredient dialog
-        self.ingredient_name_editor_dialog.hide()
+    def _on_ingredient_name_changed(self, name: str) -> None:
+        """Handler for ingredient name being changed."""
+        self.ingredient.name = name
+        if self.ingredient.is_persisted:
+            self.db_service.update_ingredient(self.ingredient)
+            self.db_service.repository.commit()
+        else:
+            self.db_service.create_ingredient(self.ingredient)
+            self.db_service.repository.commit()
+        self._ingredient_name_ids = self.db_service.build_ingredient_name_id_map()
+        self.ingredient_search_column.reset_search()
+        self.name_editor.refresh()
 
     def _on_autopopulate_ingredient_clicked(self) -> None:
         """Handler for autopopulating the ingredient."""

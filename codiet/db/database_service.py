@@ -583,9 +583,7 @@ class DatabaseService:
         if ingredient.id is None:
             raise ValueError("Ingredient ID must be set.")
         # Update the name
-        if ingredient.name is None:
-            raise ValueError("Ingredient name must be set.")
-        self.repository.update_ingredient_name(ingredient.id, ingredient.name)
+        self.update_ingredient_name(ingredient.id, ingredient.name) # type: ignore
         # Update the description
         self.repository.update_ingredient_description(
             ingredient.id, ingredient.description
@@ -686,6 +684,16 @@ class DatabaseService:
                 self.repository.delete_ingredient_nutrient_quantity(
                     ingredient_id=ingredient.id, global_nutrient_id=nutrient_quantity_id
                 )
+
+    def update_ingredient_name(self, ingredient_id: int, new_name: str) -> None:
+        """Updates the name of the ingredient in the database.
+        Args:
+            ingredient_id (int): The id of the ingredient.
+            new_name (str): The new name of the ingredient.
+        """
+        if new_name is None:
+            raise ValueError("Ingredient name must be set.")
+        self.repository.update_ingredient_name(ingredient_id, new_name)
 
     def update_ingredient_unit_conversion(self, unit_conversion: EntityUnitConversion) -> None:
         """Updates the unit conversion in the database."""
