@@ -18,6 +18,7 @@ class Listbox(BaseController[QListWidget], Generic[T, V]):
         super().__init__(*args, **kwargs)
 
         # Init an internal pair of dictionaries to hold items and views
+        # TODO: Update to use Map
         self._items: dict[int, T] = {}
         self._views: dict[int, V] = {}
 

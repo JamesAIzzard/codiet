@@ -11,8 +11,10 @@ from codiet.db.database import Database
 from codiet.exceptions import ingredient_exceptions as ingredient_exceptions
 
 
-class Repository:
-    def __init__(self, database: Database):
+class Repository():
+
+    def __init__(self, database: Database, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.database = database
 
     @property

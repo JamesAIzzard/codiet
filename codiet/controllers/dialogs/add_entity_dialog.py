@@ -2,7 +2,7 @@ from typing import Callable
 
 from PyQt6.QtCore import pyqtSignal
 
-from codiet.utils.bidirectional_map import BidirectionalMap
+from codiet.utils.map import Map
 from codiet.views.dialogs.add_entity_dialog_view import AddEntityDialogView
 from codiet.controllers.base_controller import BaseController
 from codiet.controllers.search.search_column import SearchColumn
@@ -19,7 +19,7 @@ class AddEntityDialog(BaseController[AddEntityDialogView]):
 
     def __init__(
             self,
-            get_entity_list: Callable[[], BidirectionalMap[int, str]],
+            get_entity_list: Callable[[], Map[int, str]],
             can_add_entity: Callable[[int], bool],
             *args, **kwargs
         ):
@@ -27,7 +27,7 @@ class AddEntityDialog(BaseController[AddEntityDialogView]):
             Initialises an instance of the AddEntityDialog class.
 
             Args:
-                entity_list (BidirectionalMap[int, str]): A bidirectional map representing the entity list.
+                entity_list (Map[int, str]): A bidirectional map representing the entity list.
                 can_add_entity (Callable[[int], bool]): A callable function that determines if an entity can be added.
                 parent (QWidget|None, optional): The parent widget. Defaults to None.
                 view (AddEntityDialogView|None, optional): The view for the add entity dialog. Defaults to None.

@@ -296,7 +296,7 @@ class TestBuildIngredientNameIDMap(DatabaseTestCase):
             ingredient_name_2 = "Test Ingredient 2"
             ingredient_id_2 = self.repository.create_ingredient_name(ingredient_name_2)
             # Build the ingredient name to ID map
-            ingredient_name_to_id = self.database_service.build_ingredient_name_id_map()
+            ingredient_name_to_id = self.database_service.cache_ingredient_name_id_map()
             # Check the map is correct
             self.assertEqual(ingredient_name_to_id.get_key(ingredient_name), ingredient_id)
             self.assertEqual(ingredient_name_to_id.get_key(ingredient_name_2), ingredient_id_2)

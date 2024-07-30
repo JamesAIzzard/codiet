@@ -3,7 +3,7 @@ from typing import TypeVar, Generic, Hashable
 K = TypeVar('K', bound=Hashable)
 V = TypeVar('V', bound=Hashable)
 
-class BidirectionalMap(Generic[K, V]):
+class Map(Generic[K, V]):
     """A bidirectional map that stores mappings between two types of hashable objects."""
     
     def __init__(
@@ -121,5 +121,10 @@ class BidirectionalMap(Generic[K, V]):
             raise ValueError(f"No keys found for value '{value}'.")
         return keys[0]
 
+    def clear(self) -> None:
+        """Clear all mappings."""
+        self.forward.clear()
+        self.reverse.clear()
+
     def __str__(self) -> str:
-        return f"BidirectionalMap(one_to_one={self.one_to_one}, forward={self.forward}, reverse={self.reverse})"
+        return f"Map(one_to_one={self.one_to_one}, forward={self.forward}, reverse={self.reverse})"

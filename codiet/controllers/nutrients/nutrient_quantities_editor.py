@@ -4,7 +4,7 @@ from typing import Callable
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QWidget
 
-from codiet.utils.bidirectional_map import BidirectionalMap
+from codiet.utils.map import Map
 from codiet.models.nutrients.nutrient import Nutrient
 from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
 from codiet.models.units.unit import Unit
@@ -71,7 +71,7 @@ class NutrientQuantitiesEditor(QObject):
         # Cache some values that don't often change
         self._cached_leaf_nutrients = get_global_leaf_nutrients()
         self._cached_mass_units = get_global_mass_units()
-        self._cached_leaf_nutrient_name_id_map = BidirectionalMap[int, str]()
+        self._cached_leaf_nutrient_name_id_map = Map[int, str]()
         for nutrient_id, nutrient in self._cached_leaf_nutrients.items():
             self._cached_leaf_nutrient_name_id_map.add_mapping(nutrient_id, nutrient.nutrient_name)
 

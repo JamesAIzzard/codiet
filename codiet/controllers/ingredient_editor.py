@@ -11,10 +11,8 @@ from codiet.models.units.entity_units_system import EntityUnitsSystem
 from codiet.views.ingredient_editor_view import IngredientEditorView
 from codiet.controllers.base_controller import BaseController
 from codiet.controllers.dialogs import (
-    OKDialog,
     YesNoDialog,
     IconMessageDialog,
-    AddEntityDialog,
     EntityNameEditorDialog,
 )
 from codiet.controllers.search.search_column import SearchColumn
@@ -40,7 +38,6 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self._ingredient: Ingredient
 
         # Cache some things for search and general use
-        self._ingredient_name_ids = self.db_service.build_ingredient_name_id_map()
         self._global_unit_name_ids = self.db_service.build_unit_name_id_map()
         self._global_units = self.db_service.read_all_global_units()
         self._global_mass_units = self.db_service.read_all_global_mass_units()
@@ -71,28 +68,31 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self.add_ingredient_dialog = EntityNameEditorDialog(
             parent=self.view,
             entity_type_name="ingredient",
-            check_name_available=lambda name: name not in self._ingredient_name_ids.values,
+            check_name_available=lambda name: name not in self.db_service.ingredient_id_name_map.values,
         )
         self.add_ingredient_dialog.onNameAccepted.connect(self._on_ingredient_added)
 
         # Ingredient search column
         self.ingredient_search_column = SearchColumn[int, QLabel](
             view=self.view.ingredient_search_column,
-            get_searchable_strings=lambda: self._ingredient_name_ids.values,
+            get_searchable_strings=lambda: self.db_service.ingredient_id_name_map.values,
             get_item_and_view_for_string=lambda ingredient_name: (
-                self._ingredient_name_ids.get_key(ingredient_name),
+                self.db_service.ingredient_id_name_map.get_key(ingredient_name),
                 QLabel(ingredient_name),
             ),
         )
         self.ingredient_search_column.results_list.itemClicked.connect(
             self._on_ingredient_selected
         )
+        self.db_service.ingredientIDNameChanged.connect(
+            self.ingredient_search_column.reset_search
+        )
 
         # Ingredient name editor
         self.name_editor = EntityNameEditor(
             entity_type_name="ingredient",
             get_entity_name=lambda: self.ingredient.name,
-            check_name_available=lambda name: name not in self._ingredient_name_ids.values,
+            check_name_available=lambda name: name not in self.db_service.ingredient_id_name_map.values,
             view=self.view.name_editor_view,
         )
         self.name_editor.nameChanged.connect(self._on_ingredient_name_changed)
@@ -232,10 +232,12 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         ingredient = Ingredient(name=name)
         # Immediately add the default unit, because its required for various unit fields
         ingredient.standard_unit_id = self._ingredient_unit_system.gram_id
+        # Insert the ingredient into the database
         self.db_service.create_ingredient(ingredient)
         self.db_service.repository.commit()
-        self._ingredient_name_ids = self.db_service.build_ingredient_name_id_map()
-        self.ingredient_search_column.reset_search()
+        # Recache the ingredient names in the database.
+        self.db_service.cache_ingredient_name_id_map()
+        # Load the ingredient into the UI
         self.load_ingredient(ingredient)
 
     def _on_delete_ingredient_clicked(self) -> None:
@@ -286,8 +288,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         else:
             self.db_service.create_ingredient(self.ingredient)
             self.db_service.repository.commit()
-        self._ingredient_name_ids = self.db_service.build_ingredient_name_id_map()
-        self.ingredient_search_column.reset_search()
+        self.db_service.cache_ingredient_name_id_map()
         self.name_editor.refresh()
 
     def _on_autopopulate_ingredient_clicked(self) -> None:

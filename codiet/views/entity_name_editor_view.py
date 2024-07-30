@@ -30,4 +30,4 @@ class EntityNameEditorView(QWidget):
         self.btn_edit = IconButton(icon_filename="edit-icon.png")
         lyt_top_level.addWidget(self.btn_edit)
         # Reduce the vertical padding in this layout
-        lyt_top_level.setContentsMargins(0, 0, 0, 0)        
+        lyt_top_level.setContentsMargins(0, 0, 0, 0)

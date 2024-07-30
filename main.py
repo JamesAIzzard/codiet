@@ -23,12 +23,16 @@ def configure_logging():
 if __name__ == "__main__":
     # Create the application object
     app = QApplication(sys.argv)
+
     # Load the stylesheet
     app.setStyleSheet(load_stylesheet("main.qss"))
+
     # Create the database objects
     database = Database(DB_PATH)
     repository = Repository(database)
     db_service = DatabaseService(repository)
+
+    # Create the main window
     main_window = MainWindow(
         view=MainWindowView(),
         db_service=db_service

@@ -3,7 +3,7 @@ from typing import Callable
 from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtWidgets import QWidget
 
-from codiet.utils.bidirectional_map import BidirectionalMap
+from codiet.utils.map import Map
 from codiet.views.flags.flag_editor_view import FlagEditorView
 from codiet.controllers.dialogs.add_entity_dialog import AddEntityDialog
 
@@ -52,7 +52,7 @@ class FlagEditor(QObject):
 
         # Build the add flag dialog
         self.add_flag_dialog = AddEntityDialog(
-            get_entity_list=lambda: BidirectionalMap(self._get_global_flags.keys(), self._get_global_flags.values()),
+            get_entity_list=lambda: Map(self._get_global_flags.keys(), self._get_global_flags.values()),
             can_add_entity=lambda id: id not in self._get_entity_flags().keys(),
             parent=self.view
         )

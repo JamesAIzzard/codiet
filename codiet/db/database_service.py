@@ -1,6 +1,8 @@
 from typing import Any
 
-from codiet.utils.bidirectional_map import BidirectionalMap
+from PyQt6.QtCore import QObject, pyqtSignal
+
+from codiet.utils.map import Map
 from codiet.db.repository import Repository
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
@@ -15,15 +17,43 @@ from codiet.models.time import RecipeServeTimeWindow
 from codiet.models.recipes.recipe import Recipe
 
 
-class DatabaseService:
+class DatabaseService(QObject):
     """Service for interacting with the database."""
 
-    def __init__(self, repository: Repository):
+    ingredientIDNameChanged = pyqtSignal(object)
+
+    def __init__(self, repository: Repository, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
         self._repo = repository
+
+        # Configure ingredient id-name caching and signalling
+        self.ingredient_id_name_map: Map[int, str]
+        self.cache_ingredient_name_id_map()
 
     @property
     def repository(self) -> Repository:
         return self._repo
+
+    def cache_ingredient_name_id_map(self) -> Map[int, str]:
+        """Re(generates) the cached ingredient name to ID map.
+        Emits the ingredientIDNameChanged signal.
+        Returns:
+            Map: A bidirectional map of ingredient names to IDs.
+        """
+        # Init the map if doesn't exist
+        if not hasattr(self, "ingredient_name_id_map"):
+            self.ingredient_id_name_map = Map(one_to_one=True)
+        # Fetch all the ingredients
+        ingredients = self.repository.read_all_ingredient_names()
+        # Clear the map
+        self.ingredient_id_name_map.clear()
+        # Add each ingredient to the map
+        for ingredient_id, ingredient_name in ingredients.items():
+            self.ingredient_id_name_map.add_mapping(key=ingredient_id, value=ingredient_name)
+        # Emit the signal
+        self.ingredientIDNameChanged.emit(self.ingredient_id_name_map)
+        return self.ingredient_id_name_map
 
     def create_global_units(self, units: dict[str, Unit]) -> dict[int, Unit]:
         """Insert a dictionary of global units into the database.
@@ -282,75 +312,61 @@ class DatabaseService:
         )
         return ingredient_quantity
 
-    def build_unit_name_id_map(self) -> BidirectionalMap[int, str]:
+    def build_unit_name_id_map(self) -> Map[int, str]:
         """Fetches a bidirectional map of unit names to IDs.
         Returns:
-            BidirectionalMap: A bidirectional map of unit ID's to names.
+            Map: A bidirectional map of unit ID's to names.
         """
         # Fetch all the units
         units = self.repository.read_all_global_units()
         # Create a bidirectional map
-        unit_name_id_map: BidirectionalMap[int, str] = BidirectionalMap(one_to_one=True)
+        unit_name_id_map: Map[int, str] = Map(one_to_one=True)
         # Add each unit to the map
         for unit_id, unit_data in units.items():
             unit_name_id_map.add_mapping(key=unit_id, value=unit_data["unit_name"])
         return unit_name_id_map
 
-    def build_flag_name_id_map(self) -> BidirectionalMap[int, str]:
+    def build_flag_name_id_map(self) -> Map[int, str]:
         """Fetches a bidirectional map of flag names to IDs.
         Returns:
-            BidirectionalMap: A bidirectional map of flag names to IDs.
+            Map: A bidirectional map of flag names to IDs.
         """
         # Fetch all the flags
         flags = self.repository.read_all_global_flags()
         # Create a bidirectional map
-        flag_name_id_map: BidirectionalMap[int, str] = BidirectionalMap(one_to_one=True)
+        flag_name_id_map: Map[int, str] = Map(one_to_one=True)
         # Add each flag to the map
         for flag_id, flag_name in flags.items():
             flag_name_id_map.add_mapping(key=flag_id, value=flag_name)
         return flag_name_id_map
 
-    def build_nutrient_name_id_map(self) -> BidirectionalMap[int, str]:
+    def build_nutrient_name_id_map(self) -> Map[int, str]:
         """Fetches a bidirectional map of nutrient names to IDs.
         Returns:
-            BidirectionalMap: A bidirectional map of nutrient names to IDs.
+            Map: A bidirectional map of nutrient names to IDs.
         """
         # Fetch all the nutrients
         nutrients = self.repository.read_all_global_nutrients()
         # Create a bidirectional map
-        nutrient_name_id_map: BidirectionalMap[int, str] = BidirectionalMap(one_to_one=True)
+        nutrient_name_id_map: Map[int, str] = Map(one_to_one=True)
         # Add each nutrient to the map
         for nutrient_id, nutrient_data in nutrients.items():
             nutrient_name_id_map.add_mapping(key=nutrient_id, value=nutrient_data["nutrient_name"])
         return nutrient_name_id_map
 
-    def build_recipe_tag_name_id_map(self) -> BidirectionalMap[int, str]:
+    def build_recipe_tag_name_id_map(self) -> Map[int, str]:
         """Fetches a bidirectional map of recipe tag names to IDs.
         Returns:
-            BidirectionalMap: A bidirectional map of recipe tag names to IDs.
+            Map: A bidirectional map of recipe tag names to IDs.
         """
         # Fetch all the recipe tags
         recipe_tags = self.repository.read_all_global_recipe_tags()
         # Create a bidirectional map
-        recipe_tag_name_id_map: BidirectionalMap[int, str] = BidirectionalMap(one_to_one=True)
+        recipe_tag_name_id_map: Map[int, str] = Map(one_to_one=True)
         # Add each recipe tag to the map
         for tag_id, tag_name in recipe_tags.items():
             recipe_tag_name_id_map.add_mapping(key=tag_id, value=tag_name)
         return recipe_tag_name_id_map
-
-    def build_ingredient_name_id_map(self) -> BidirectionalMap[int, str]:
-        """Fetches a bidirectional map of ingredient names to IDs.
-        Returns:
-            BidirectionalMap: A bidirectional map of ingredient names to IDs.
-        """
-        # Fetch all the ingredients
-        ingredients = self.repository.read_all_ingredient_names()
-        # Create a bidirectional map
-        ingredient_name_id_map: BidirectionalMap[int, str] = BidirectionalMap(one_to_one=True)
-        # Add each ingredient to the map
-        for ingredient_id, ingredient_name in ingredients.items():
-            ingredient_name_id_map.add_mapping(key=ingredient_id, value=ingredient_name)
-        return ingredient_name_id_map
 
     def read_global_unit(self, unit_id: int) -> Unit:
         """Returns the unit with the given ID.

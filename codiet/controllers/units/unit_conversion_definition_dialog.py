@@ -3,7 +3,7 @@ from typing import Callable
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QWidget
 
-from codiet.utils.bidirectional_map import BidirectionalMap
+from codiet.utils.map import Map
 from codiet.models.units.unit import Unit
 from codiet.views.units.unit_conversion_definition_dialog_view import UnitConversionDefinitionDialogView
 from codiet.controllers.search.search_column import SearchColumn
@@ -33,7 +33,7 @@ class UnitConversionDefinitionDialog(QObject):
         self._get_global_units = get_global_units
 
         # Init a map to convert unit names and IDs
-        self._unit_name_id_map: BidirectionalMap[int, str] = BidirectionalMap(one_to_one=True)
+        self._unit_name_id_map: Map[int, str] = Map(one_to_one=True)
         for unit in self._get_global_units().values():
             self._unit_name_id_map.add_mapping(unit.id, unit.unit_name)
 
