@@ -491,20 +491,21 @@ class DatabaseService(QObject):
         """
         # Fetch the ingredient name corresponding to the id
         ingredient_name = self.repository.read_ingredient_name(ingredient_id)
-        # Fetch the ingredient standard id
-        standard_unit_id = self.repository.read_ingredient_standard_unit_id(
-            ingredient_id
-        )
+
         # Init a fresh ingredient instance
         ingredient = Ingredient(
             id=ingredient_id,
-            name=ingredient_name,
-            standard_unit_id=standard_unit_id,
+            name=ingredient_name
         )
         # Fetch the description
         ingredient.description = self.repository.read_ingredient_description(
             ingredient.id
         )
+        # Fetch the ingredient standard id
+        standard_unit_id = self.repository.read_ingredient_standard_unit_id(
+            ingredient_id
+        )
+        ingredient.standard_unit_id = standard_unit_id
         # Fetch the cost data
         cost_data = self.repository.read_ingredient_cost(ingredient.id)
         ingredient.cost_value = cost_data["cost_value"]

@@ -206,14 +206,14 @@ class IngredientEditor(BaseController[IngredientEditorView]):
     def _create_view(self, *args, **kwargs) -> IngredientEditorView:
         return IngredientEditorView(*args, **kwargs)
 
-    def _on_ingredient_selected(self, ing_name_and_id: Tuple[int, QLabel]) -> None:
+    def _on_ingredient_selected(self, ingredient_id:int, _) -> None:
         """Handles the user clicking on an ingredient in the search results.
         Args:
             ing_name_and_id (Tuple[str, int]): The name and ID of the selected ingredient.
         Returns:
             None
         """
-        ingredient_id = ing_name_and_id[0]
+        ingredient_id = ingredient_id
         # Read the ingredient from the database
         ingredient = self.db_service.read_ingredient(ingredient_id=ingredient_id)
         # Load the ingredient into the view
