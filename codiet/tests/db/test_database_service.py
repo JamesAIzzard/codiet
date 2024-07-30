@@ -172,7 +172,9 @@ class TestCreateRecipeIngredientQuantity(DatabaseTestCase):
         unit_name_to_id = self.database_service.build_unit_name_id_map()
         # Create an empty ingredient
         ingredient_name = "Test Ingredient"
-        ingredient = self.database_service.create_empty_ingredient(ingredient_name)
+        ingredient = Ingredient(name=ingredient_name)
+        ingredient = self.database_service.create_ingredient(ingredient)
+        assert ingredient.id is not None
         # Create the recipe ingredient quantity
         riq = self.database_service.create_recipe_ingredient_quantity(
             recipe_id=recipe.id,
@@ -627,38 +629,6 @@ class TestReadIngredient(DatabaseTestCase):
         self.assertEqual(len(fetched_ingredient.nutrient_quantities), 1)
         self.assertIn(alanine_id, fetched_ingredient.nutrient_quantities.keys())
 
-class TestReadRecipe(DatabaseTestCase):
-
-    def test_read_recipe_reads_recipe(self):
-        """Test reading a recipe."""
-        # Configure the units, flags and nutrients
-        self.database_service.create_global_units(read_global_units_from_json())
-        self.database_service.create_global_flags(get_global_flags())
-        self.database_service.create_global_nutrients(get_global_nutrients())
-        # Fetch id name maps
-        flag_name_to_id = self.database_service.build_flag_name_id_map()
-        unit_name_to_id = self.database_service.build_unit_name_id_map()
-        nutrient_name_to_id = self.database_service.build_nutrient_name_id_map()
-        # Fetch the unit id for grams
-        g_id = unit_name_to_id.get_key("gram")
-        # Create an empty recipe
-        recipe_name = "Test Recipe"
-        recipe = self.database_service.create_empty_recipe(recipe_name)
-        # Set the description
-        description = "Test description"
-        self.database_service.repository.update_recipe_description(recipe.id, description)
-        # Set the instructions
-        instructions = "Test instructions"
-        self.database_service.repository.update_recipe_instructions(recipe.id, instructions)
-        # Set a couple of ingredient quantities
-        # Create an empty ingredient
-        ingredient_name = "Test Ingredient"
-        ingredient = self.database_service.create_empty_ingredient(ingredient_name)
-        # Grab the id for slice
-        slice_id = unit_name_to_id.get_key("slice")
-        assert slice_id is not None
-        # TODO: Finish writing this test.
-
 class TestUpdateIngredientUnitConversion(DatabaseTestCase):
 
     def test_update_ingredient_unit_conversion_updates_ingredient_unit_conversion(self):
@@ -696,6 +666,7 @@ class TestUpdateIngredientUnitConversion(DatabaseTestCase):
         ingredient_name = "Test Ingredient"
         ingredient = Ingredient(ingredient_name)
         ingredient = self.database_service.create_ingredient(ingredient)
+        assert ingredient.id is not None
         # Set a couple of unit conversions
         # Create conversions between 1 and 2 and 1 and 3
         uc1id = self.repository.create_ingredient_unit_conversion(
