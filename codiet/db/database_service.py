@@ -21,6 +21,10 @@ class DatabaseService(QObject):
     """Service for interacting with the database."""
 
     ingredientIDNameChanged = pyqtSignal(object)
+    unitIDNameChanged = pyqtSignal(object)
+    flagIDNameChanged = pyqtSignal(object)
+    nutrientIDNameChanged = pyqtSignal(object)
+    recipeTagIDNameChanged = pyqtSignal(object)
 
     def __init__(self, repository: Repository, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,9 +34,12 @@ class DatabaseService(QObject):
         # Cache the gram id
         self._gram_id: int|None = None
 
-        # Configure ingredient id-name caching and signalling
-        self.ingredient_id_name_map: Map[int, str]
-        self.cache_ingredient_name_id_map()
+        # Create some cached maps
+        self.ingredient_id_name_map: Map[int, str] = self._cache_ingredient_name_id_map()
+        self.unit_id_name_map: Map[int, str]
+        self.flag_id_name_map: Map[int, str]
+        self.nutrient_id_name_map: Map[int, str]
+        self.recipe_tag_id_name_map: Map[int, str]
 
     @property
     def repository(self) -> Repository:
@@ -52,25 +59,77 @@ class DatabaseService(QObject):
         assert self._gram_id is not None
         return self._gram_id
 
-    def cache_ingredient_name_id_map(self) -> Map[int, str]:
-        """Re(generates) the cached ingredient name to ID map.
-        Emits the ingredientIDNameChanged signal.
+    def cache_unit_name_id_map(self) -> Map[int, str]:
+        """Re(generates) the cached unit ID to name map.
         Returns:
-            Map: A bidirectional map of ingredient names to IDs.
+            Map: A map associating unit ID's with names.
         """
         # Init the map if doesn't exist
-        if not hasattr(self, "ingredient_name_id_map"):
-            self.ingredient_id_name_map = Map(one_to_one=True)
-        # Fetch all the ingredients
-        ingredients = self.repository.read_all_ingredient_names()
+        if not hasattr(self, "unit_id_name_map"):
+            self.unit_id_name_map = Map(one_to_one=True)
+        # Fetch all the units
+        units = self.repository.read_all_global_units()
         # Clear the map
-        self.ingredient_id_name_map.clear()
-        # Add each ingredient to the map
-        for ingredient_id, ingredient_name in ingredients.items():
-            self.ingredient_id_name_map.add_mapping(key=ingredient_id, value=ingredient_name)
-        # Emit the signal
-        self.ingredientIDNameChanged.emit(self.ingredient_id_name_map)
-        return self.ingredient_id_name_map
+        self.unit_id_name_map.clear()
+        # Add each unit to the map
+        for unit_id, unit_data in units.items():
+            self.unit_id_name_map.add_mapping(key=unit_id, value=unit_data["unit_name"])
+
+        return self.unit_id_name_map
+    
+    def cache_flag_name_id_map(self) -> Map[int, str]:
+        """Re(generates) the cached flag ID to name map.
+        Returns:
+            Map: A map associating flag ID's with names.
+        """
+        # Init the map if doesn't exist
+        if not hasattr(self, "flag_id_name_map"):
+            self.flag_id_name_map = Map(one_to_one=True)
+        # Fetch all the flags
+        flags = self.repository.read_all_global_flags()
+        # Clear the map
+        self.flag_id_name_map.clear()
+        # Add each flag to the map
+        for flag_id, flag_name in flags.items():
+            self.flag_id_name_map.add_mapping(key=flag_id, value=flag_name)
+
+        return self.flag_id_name_map
+    
+    def cache_nutrient_name_id_map(self) -> Map[int, str]:
+        """Re(generates) the cached nutrient ID to name map.
+        Returns:
+            Map: A map associating nutrient ID's with names.
+        """
+        # Init the map if doesn't exist
+        if not hasattr(self, "nutrient_id_name_map"):
+            self.nutrient_id_name_map = Map(one_to_one=True)
+        # Fetch all the nutrients
+        nutrients = self.repository.read_all_global_nutrients()
+        # Clear the map
+        self.nutrient_id_name_map.clear()
+        # Add each nutrient to the map
+        for nutrient_id, nutrient_data in nutrients.items():
+            self.nutrient_id_name_map.add_mapping(key=nutrient_id, value=nutrient_data["nutrient_name"])
+
+        return self.nutrient_id_name_map
+    
+    def cache_recipe_tag_name_id_map(self) -> Map[int, str]:
+        """Re(generates) the cached recipe tag ID to name map.
+        Returns:
+            Map: A map associating recipe tag ID's with names.
+        """
+        # Init the map if doesn't exist
+        if not hasattr(self, "recipe_tag_id_name_map"):
+            self.recipe_tag_id_name_map = Map(one_to_one=True)
+        # Fetch all the recipe tags
+        recipe_tags = self.repository.read_all_global_recipe_tags()
+        # Clear the map
+        self.recipe_tag_id_name_map.clear()
+        # Add each recipe tag to the map
+        for tag_id, tag_name in recipe_tags.items():
+            self.recipe_tag_id_name_map.add_mapping(key=tag_id, value=tag_name)
+
+        return self.recipe_tag_id_name_map
 
     def create_global_units(self, units: dict[str, Unit]) -> dict[int, Unit]:
         """Insert a dictionary of global units into the database.
@@ -175,6 +234,9 @@ class DatabaseService(QObject):
         if ingredient.name is None:
             raise ValueError("Ingredient name must be set.")
         ingredient.id = self.repository.create_ingredient_name(ingredient.name)
+
+        # Recache the ingredient name id map and emit the signal
+        self._cache_ingredient_name_id_map()
 
         # Now we have an id, we can use the update method
         self.update_ingredient(ingredient)
@@ -328,63 +390,6 @@ class DatabaseService(QObject):
             qty_utol=qty_utol,
         )
         return ingredient_quantity
-
-    def build_unit_name_id_map(self) -> Map[int, str]:
-        """Fetches a bidirectional map of unit names to IDs.
-        Returns:
-            Map: A bidirectional map of unit ID's to names.
-        """
-        print("Deprecated: build_unit_name_id_map")
-        # Fetch all the units
-        units = self.repository.read_all_global_units()
-        # Create a bidirectional map
-        unit_name_id_map: Map[int, str] = Map(one_to_one=True)
-        # Add each unit to the map
-        for unit_id, unit_data in units.items():
-            unit_name_id_map.add_mapping(key=unit_id, value=unit_data["unit_name"])
-        return unit_name_id_map
-
-    def build_flag_name_id_map(self) -> Map[int, str]:
-        """Fetches a bidirectional map of flag names to IDs.
-        Returns:
-            Map: A bidirectional map of flag names to IDs.
-        """
-        # Fetch all the flags
-        flags = self.repository.read_all_global_flags()
-        # Create a bidirectional map
-        flag_name_id_map: Map[int, str] = Map(one_to_one=True)
-        # Add each flag to the map
-        for flag_id, flag_name in flags.items():
-            flag_name_id_map.add_mapping(key=flag_id, value=flag_name)
-        return flag_name_id_map
-
-    def build_nutrient_name_id_map(self) -> Map[int, str]:
-        """Fetches a bidirectional map of nutrient names to IDs.
-        Returns:
-            Map: A bidirectional map of nutrient names to IDs.
-        """
-        # Fetch all the nutrients
-        nutrients = self.repository.read_all_global_nutrients()
-        # Create a bidirectional map
-        nutrient_name_id_map: Map[int, str] = Map(one_to_one=True)
-        # Add each nutrient to the map
-        for nutrient_id, nutrient_data in nutrients.items():
-            nutrient_name_id_map.add_mapping(key=nutrient_id, value=nutrient_data["nutrient_name"])
-        return nutrient_name_id_map
-
-    def build_recipe_tag_name_id_map(self) -> Map[int, str]:
-        """Fetches a bidirectional map of recipe tag names to IDs.
-        Returns:
-            Map: A bidirectional map of recipe tag names to IDs.
-        """
-        # Fetch all the recipe tags
-        recipe_tags = self.repository.read_all_global_recipe_tags()
-        # Create a bidirectional map
-        recipe_tag_name_id_map: Map[int, str] = Map(one_to_one=True)
-        # Add each recipe tag to the map
-        for tag_id, tag_name in recipe_tags.items():
-            recipe_tag_name_id_map.add_mapping(key=tag_id, value=tag_name)
-        return recipe_tag_name_id_map
 
     def read_global_unit(self, unit_id: int) -> Unit:
         """Returns the unit with the given ID.
@@ -631,9 +636,15 @@ class DatabaseService(QObject):
         if ingredient.id is None:
             raise ValueError("Ingredient ID must be set.")
         
+        # Read the existing name
+        existing_name = self.repository.read_ingredient_name(ingredient.id)
         # Update the name
         self.update_ingredient_name(ingredient.id, ingredient.name) # type: ignore
         
+        # If the name has changed, recache the ingredient name id map
+        if existing_name != ingredient.name:
+            self._cache_ingredient_name_id_map()
+
         # Update the description
         self.repository.update_ingredient_description(
             ingredient.id, ingredient.description
@@ -784,6 +795,16 @@ class DatabaseService(QObject):
             ing_grams_qty=ing_nutr_qty.entity_grams_value,
         )
 
+    def delete_ingredient(self, ingredient_id: int) -> None:
+        """Deletes the ingredient with the given ID.
+        Args:
+            ingredient_id (int): The id of the ingredient.
+        """
+        self.repository.delete_ingredient(ingredient_id)
+
+        # Recache the ingredient name id map
+        self._cache_ingredient_name_id_map()
+
     def delete_ingredient_unit_conversions(self, ingredient_id: int) -> None:
         """Deletes all the unit conversions for the given ingredient.
         Args:
@@ -794,3 +815,24 @@ class DatabaseService(QObject):
         # Delete each unit conversion
         for id in unit_conversions.keys():
             self.repository.delete_ingredient_unit_conversion(id)
+
+    def _cache_ingredient_name_id_map(self) -> Map[int, str]:
+        """Re(generates) the cached ingredient ID to name map
+        Emits the signal for the ingredient ID to name map change.
+
+        Returns:
+            Map: A map associating ingredient ID's with names.
+        """
+        # Init the map if doesn't exist
+        if not hasattr(self, "ingredient_id_name_map"):
+            self.ingredient_id_name_map = Map(one_to_one=True)
+        # Fetch all the ingredients
+        ingredients = self.repository.read_all_ingredient_names()
+        # Clear the map
+        self.ingredient_id_name_map.clear()
+        # Add each ingredient to the map
+        for ingredient_id, ingredient_name in ingredients.items():
+            self.ingredient_id_name_map.add_mapping(key=ingredient_id, value=ingredient_name)
+        # Emit the signal
+        self.ingredientIDNameChanged.emit(self.ingredient_id_name_map)
+        return self.ingredient_id_name_map

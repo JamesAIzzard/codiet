@@ -126,5 +126,7 @@ class Map(Generic[K, V]):
         self.forward.clear()
         self.reverse.clear()
 
-    def __str__(self) -> str:
-        return f"Map(one_to_one={self.one_to_one}, forward={self.forward}, reverse={self.reverse})"
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Map):
+            return NotImplemented
+        return self.forward == other.forward

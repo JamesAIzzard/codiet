@@ -38,14 +38,12 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self._ingredient: Ingredient
 
         # Cache some things for search and general use
-        self._global_unit_name_ids = self.db_service.build_unit_name_id_map()
         self._global_units = self.db_service.read_all_global_units()
         self._global_mass_units = self.db_service.read_all_global_mass_units()
         self._global_unit_conversions = (
             self.db_service.read_all_global_unit_conversions()
         )
         self._global_flags = self.db_service.repository.read_all_global_flags()
-        self._flag_name_ids = self.db_service.build_flag_name_id_map()
         self._global_nutrients = self.db_service.read_all_global_nutrients()
         self._global_leaf_nutrients = filter_leaf_nutrients(self._global_nutrients)
         self._ingredient_unit_system = EntityUnitsSystem(
@@ -234,7 +232,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self.db_service.create_ingredient(ingredient)
         self.db_service.repository.commit()
         # Recache the ingredient names in the database.
-        self.db_service.cache_ingredient_name_id_map()
+        self.db_service._cache_ingredient_name_id_map()
         # Load the ingredient into the UI
         self.load_ingredient(ingredient)
 
@@ -286,7 +284,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         else:
             self.db_service.create_ingredient(self.ingredient)
             self.db_service.repository.commit()
-        self.db_service.cache_ingredient_name_id_map()
+        self.db_service._cache_ingredient_name_id_map()
         self.name_editor.refresh()
 
     def _on_autopopulate_ingredient_clicked(self) -> None:

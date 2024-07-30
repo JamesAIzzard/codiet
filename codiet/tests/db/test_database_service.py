@@ -32,21 +32,21 @@ def flatten_nutrients(nutrient_data, parent_id=None):
 class TestCreateGlobalUnits(DatabaseTestCase):
 
     def test_create_global_units_creates_global_units(self):
-        """Test creating global units in the database."""
+        """Test that create_global_units creates global units in the database."""
         # Grab the JSON config data for the global units
-        global_units = read_global_units_from_json()
+        json_global_units = read_global_units_from_json()
         # Insert the global units
-        self.database_service.create_global_units(global_units)
+        self.database_service.create_global_units(json_global_units)
         # Fetch all the global units
         fetched_global_units = self.database_service.repository.read_all_global_units()
         # Check the length of the fetched global units is the same as the global units
-        self.assertEqual(len(fetched_global_units), len(global_units))
+        self.assertEqual(len(fetched_global_units), len(json_global_units))
         # Fetch the map of unit names to unit IDs
-        unit_name_to_id = self.database_service.build_unit_name_id_map()        
+        unit_id_to_name = self.database_service.unit_id_name_map   
         # For each global unit,
-        for global_unit_name in global_units.keys():
+        for global_unit_name in json_global_units.keys():
             # Grab the ID of the unit and check its in the fetched units
-            unit_id = unit_name_to_id.get_keys(global_unit_name)[0]
+            unit_id = unit_id_to_name.get_keys(global_unit_name)[0]
             self.assertIn(unit_id, fetched_global_units)
 
 class TestCreateGlobalFlags(DatabaseTestCase):
@@ -299,7 +299,7 @@ class TestBuildIngredientNameIDMap(DatabaseTestCase):
             ingredient_name_2 = "Test Ingredient 2"
             ingredient_id_2 = self.repository.create_ingredient_name(ingredient_name_2)
             # Build the ingredient name to ID map
-            ingredient_name_to_id = self.database_service.cache_ingredient_name_id_map()
+            ingredient_name_to_id = self.database_service._cache_ingredient_name_id_map()
             # Check the map is correct
             self.assertEqual(ingredient_name_to_id.get_key(ingredient_name), ingredient_id)
             self.assertEqual(ingredient_name_to_id.get_key(ingredient_name_2), ingredient_id_2)
