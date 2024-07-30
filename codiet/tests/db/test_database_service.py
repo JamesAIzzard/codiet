@@ -88,9 +88,9 @@ class TestCreateGlobalNutrients(DatabaseTestCase):
                     break
             self.assertTrue(found, f"Nutrient {nutrient} not found in fetched nutrients")
 
-class TestCreateEmptyIngredient(DatabaseTestCase):
+class TestCreateIngredient(DatabaseTestCase):
 
-    def test_create_empty_ingredient_creates_empty_ingredient(self):
+    def test_create_ingredient_creates_empty_ingredient(self):
         """Test creating an empty ingredient."""
         # Configure the flags and nutrients
         self.database_service.create_global_flags(get_global_flags())
@@ -105,7 +105,8 @@ class TestCreateEmptyIngredient(DatabaseTestCase):
         self.assertEqual(len(ingredients), 0)
         # Create the empty ingredient
         ingredient_name = "Test Ingredient"        
-        ingredient = self.database_service.create_empty_ingredient(ingredient_name)
+        ingredient = Ingredient(name=ingredient_name)
+        ingredient = self.database_service.create_ingredient(ingredient)
         # Check the thing returned is an ingredient
         self.assertIsInstance(ingredient, Ingredient)
         # Check the name is set correctly
@@ -543,7 +544,9 @@ class TestReadIngredient(DatabaseTestCase):
         assert g_id is not None
         # Create an empty ingredient
         ingredient_name = "Test Ingredient"
-        ingredient = self.database_service.create_empty_ingredient(ingredient_name)
+        ingredient = Ingredient(name=ingredient_name)
+        ingredient = self.database_service.create_ingredient(ingredient)
+        assert ingredient.id is not None
         # Set the description
         description = "Test description"
         self.database_service.repository.update_ingredient_description(ingredient.id, description)
@@ -755,7 +758,8 @@ class TestUpdateIngredient(DatabaseTestCase):
         
         # Create an empty ingredient
         ingredient_name = "Test Ingredient"
-        ingredient = self.database_service.create_empty_ingredient(ingredient_name)
+        ingredient = Ingredient(name=ingredient_name)
+        ingredient = self.database_service.create_ingredient(ingredient)
         
         # Initial checks for default values
         self.assertEqual(ingredient.name, ingredient_name)
@@ -891,7 +895,8 @@ class TestDeleteIngredientUnitConversions(DatabaseTestCase):
         )
         # Create an empty ingredient
         ingredient_name = "Test Ingredient"
-        ingredient = self.database_service.create_empty_ingredient(ingredient_name)
+        ingredient = Ingredient(name=ingredient_name)
+        ingredient = self.database_service.create_ingredient(ingredient)
         # Set a couple of unit conversions
         # Create conversions between 1 and 2 and 1 and 3
         uc1id = self.repository.create_ingredient_unit_conversion(

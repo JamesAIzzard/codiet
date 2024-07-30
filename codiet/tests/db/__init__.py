@@ -29,6 +29,7 @@ class DatabaseTestCase(unittest.TestCase):
         self.db_path = self.temp_db_file.name
         # Init the database classes
         self.database = Database(db_path=self.db_path)
+        self.database.create_database_file()
         self.repository = Repository(self.database)
         self.database_service = DatabaseService(self.repository)
         # Create the database

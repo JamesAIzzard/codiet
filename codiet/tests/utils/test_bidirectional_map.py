@@ -1,6 +1,6 @@
 import unittest
 
-from codiet.utils.map.map import Map
+from codiet.utils.map import Map
 
 class TestMap(unittest.TestCase):
 

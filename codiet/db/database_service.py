@@ -27,6 +27,9 @@ class DatabaseService(QObject):
 
         self._repo = repository
 
+        # Cache the gram id
+        self._gram_id: int|None = None
+
         # Configure ingredient id-name caching and signalling
         self.ingredient_id_name_map: Map[int, str]
         self.cache_ingredient_name_id_map()
@@ -34,6 +37,20 @@ class DatabaseService(QObject):
     @property
     def repository(self) -> Repository:
         return self._repo
+
+    @property
+    def gram_id(self) -> int:
+        """Returns the ID of the gram unit."""
+        if self._gram_id is None:
+            # Read the global units
+            global_units = self.repository.read_all_global_units()
+            # Find the gram unit
+            for unit_id, unit_data in global_units.items():
+                if unit_data["unit_name"] == "gram":
+                    self._gram_id = unit_id
+                    break
+        assert self._gram_id is not None
+        return self._gram_id
 
     def cache_ingredient_name_id_map(self) -> Map[int, str]:
         """Re(generates) the cached ingredient name to ID map.
@@ -317,6 +334,7 @@ class DatabaseService(QObject):
         Returns:
             Map: A bidirectional map of unit ID's to names.
         """
+        print("Deprecated: build_unit_name_id_map")
         # Fetch all the units
         units = self.repository.read_all_global_units()
         # Create a bidirectional map
@@ -489,6 +507,8 @@ class DatabaseService(QObject):
         Returns:
             Ingredient: The ingredient with the given id.
         """
+
+
         # Fetch the ingredient name corresponding to the id
         ingredient_name = self.repository.read_ingredient_name(ingredient_id)
 
@@ -497,35 +517,46 @@ class DatabaseService(QObject):
             id=ingredient_id,
             name=ingredient_name
         )
+
         # Fetch the description
         ingredient.description = self.repository.read_ingredient_description(
-            ingredient.id
+            ingredient_id
         )
+
         # Fetch the ingredient standard id
         standard_unit_id = self.repository.read_ingredient_standard_unit_id(
             ingredient_id
         )
         ingredient.standard_unit_id = standard_unit_id
+
         # Fetch the cost data
-        cost_data = self.repository.read_ingredient_cost(ingredient.id)
+        cost_data = self.repository.read_ingredient_cost(ingredient_id)
+        # If the cost qty unit id is not set, set it to the standard unit id
+        if cost_data["cost_qty_unit_id"] is None:
+            cost_data["cost_qty_unit_id"] = standard_unit_id
+        # Populate the cost data
         ingredient.cost_value = cost_data["cost_value"]
         ingredient.cost_qty_unit_id = cost_data["cost_qty_unit_id"]
         ingredient.cost_qty_value = cost_data["cost_qty_value"]
+
         # Fetch the unit conversions
         unit_conversions = self.read_ingredient_unit_conversions(
-            ingredient_id=ingredient.id
+            ingredient_id=ingredient_id
         )
         for _, conversion in unit_conversions.items():
             ingredient.add_unit_conversion(conversion)
+
         # Fetch the flags
-        flags = self.repository.read_ingredient_flags(ingredient.id)
+        flags = self.repository.read_ingredient_flags(ingredient_id)
         for flag_id, flag_value in flags.items():
             ingredient.add_flag(flag_id, flag_value)
+
         # Fetch the GI
-        ingredient.gi = self.repository.read_ingredient_gi(ingredient.id)
+        ingredient.gi = self.repository.read_ingredient_gi(ingredient_id)
+
         # Fetch the nutrients
         nutrient_quantities = self.read_ingredient_nutrient_quantities(
-            ingredient_id=ingredient.id
+            ingredient_id=ingredient_id
         )
         for _, nutrient_quantity in nutrient_quantities.items():
             ingredient.add_nutrient_quantity(nutrient_quantity)
@@ -599,16 +630,23 @@ class DatabaseService(QObject):
         # To use update, id must be set
         if ingredient.id is None:
             raise ValueError("Ingredient ID must be set.")
+        
         # Update the name
         self.update_ingredient_name(ingredient.id, ingredient.name) # type: ignore
+        
         # Update the description
         self.repository.update_ingredient_description(
             ingredient.id, ingredient.description
         )
+        
         # Update the standard unit
+        # If the standard unit is not set, set it to the gram unit
+        if ingredient.standard_unit_id is None:
+            ingredient.standard_unit_id = self.gram_id
         self.repository.update_ingredient_standard_unit_id(
             ingredient.id, ingredient.standard_unit_id
         )
+       
         # Update the unit conversions
         # Read the existing saved unit conversions
         existing_unit_conversions = self.repository.read_ingredient_unit_conversions(
@@ -638,7 +676,12 @@ class DatabaseService(QObject):
         for unit_conversion_id in existing_unit_conversions.keys():
             if unit_conversion_id not in ingredient.unit_conversions:
                 self.repository.delete_ingredient_unit_conversion(unit_conversion_id)      
+        
         # Update the cost data
+        # If the cost_qty_unit_id is not set, set it to the standard unit
+        if ingredient.cost_qty_unit_id is None:
+            ingredient.cost_qty_unit_id = self.gram_id
+
         self.repository.update_ingredient_cost(
             ingredient_id=ingredient.id,
             cost_value=ingredient.cost_value,
@@ -668,8 +711,10 @@ class DatabaseService(QObject):
         for flag_id in existing_flags.keys():
             if flag_id not in ingredient.flags:
                 self.repository.delete_ingredient_flag(ingredient.id, flag_id)
+        
         # Update the GI
         self.repository.update_ingredient_gi(ingredient.id, ingredient.gi)
+        
         # Update the nutrient quantities
         # First, read the existing saved nutrient quantities
         existing_nutrient_quantities = self.repository.read_ingredient_nutrient_quantities(
