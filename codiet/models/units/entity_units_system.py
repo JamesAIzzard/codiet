@@ -22,12 +22,20 @@ class EntityUnitsSystem:
             entity_unit_conversions (dict[int, EntityUnitConversion]): A dictionary mapping conversion IDs to entity unit conversions.
         """
         self._global_units = global_units
-        self._gram_id:int
         self._global_unit_conversions = global_unit_conversions
         self._entity_unit_conversions = entity_unit_conversions
         self._graph: dict[int, dict[int, float]] = {}
         self._path_cache: dict[tuple[int, int], list[tuple[int, int]]] = {}
         self._build_graph()
+        # Find the gram unit, error if not found
+        self._gram_id:int
+        for unit_id, unit in self._global_units.items():
+            if unit.unit_name == "gram":
+                self._gram_id = unit_id
+                break
+        # If the gram unit is not found, raise an error
+        else:
+            raise ValueError("No gram unit found in the global units")
 
     @property
     def global_units(self) -> dict[int, Unit]:
@@ -38,23 +46,6 @@ class EntityUnitsSystem:
             Dict[int, Unit]: A dictionary mapping unit IDs to units.
         """
         return self._global_units
-    
-    @property
-    def gram_id(self) -> int:
-        """
-        Retrieves the ID of the gram unit.
-
-        Returns:
-            int: The ID of the gram unit.
-        """
-        if not hasattr(self, '_gram_id'):
-            for unit_id, unit in self._global_units.items():
-                if unit.unit_name.lower() == "gram":
-                    self._gram_id = unit_id
-                    break
-            else:
-                raise ValueError("No gram unit found in the global units")
-        return self._gram_id
     
     @property
     def global_unit_conversions(self) -> dict[int, UnitConversion]:
@@ -85,7 +76,7 @@ class EntityUnitsSystem:
         Returns:
             Dict[int, Unit]: A dictionary mapping unit IDs to units.
         """
-        return self.get_available_units_from_root(self.gram_id)
+        return self.get_available_units_from_root(self._gram_id)
 
     @property
     def entity_unit_conversions(self) -> dict[int, EntityUnitConversion]:
@@ -196,9 +187,9 @@ class EntityUnitsSystem:
             float: The rescaled quantity (e.g., 20g of protein).        
         """
         # First, ensure all quantities are in the same unit system
-        ref_from_quantity_base = self.convert_units(ref_from_quantity, ref_from_unit_id, self.gram_id)
-        ref_to_quantity_base = self.convert_units(ref_to_quantity, ref_to_unit_id, self.gram_id)
-        quantity_base = self.convert_units(quantity, ref_from_unit_id, self.gram_id)
+        ref_from_quantity_base = self.convert_units(ref_from_quantity, ref_from_unit_id, self._gram_id)
+        ref_to_quantity_base = self.convert_units(ref_to_quantity, ref_to_unit_id, self._gram_id)
+        quantity_base = self.convert_units(quantity, ref_from_unit_id, self._gram_id)
 
         # Calculate the scaling factor
         scaling_factor = quantity_base / ref_from_quantity_base
@@ -207,7 +198,7 @@ class EntityUnitsSystem:
         result_base = ref_to_quantity_base * scaling_factor
 
         # Convert the result back to the original 'to' unit
-        result = self.convert_units(result_base, self.gram_id, ref_to_unit_id)
+        result = self.convert_units(result_base, self._gram_id, ref_to_unit_id)
 
         return result
 
@@ -227,7 +218,7 @@ class EntityUnitsSystem:
             Dict[int, Unit]: A dictionary mapping unit IDs to units.
         """
         if root_unit_id is None:
-            root_unit_id = self.gram_id
+            root_unit_id = self._gram_id
 
         available_units = {}
         stack = [root_unit_id]

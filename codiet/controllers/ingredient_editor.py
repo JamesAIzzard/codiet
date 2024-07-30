@@ -230,8 +230,6 @@ class IngredientEditor(BaseController[IngredientEditorView]):
     def _on_ingredient_added(self, name: str) -> None:
         """Handler for adding a new ingredient."""
         ingredient = Ingredient(name=name)
-        # Immediately add the default unit, because its required for various unit fields
-        ingredient.standard_unit_id = self._ingredient_unit_system.gram_id
         # Insert the ingredient into the database
         self.db_service.create_ingredient(ingredient)
         self.db_service.repository.commit()

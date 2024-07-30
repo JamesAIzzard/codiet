@@ -10,12 +10,12 @@ class TestEntityUnitsSystem(unittest.TestCase):
     def setUp(self):
         # Set up test data
         self.global_units = {
-            1: Unit(1, "gram", "gram", "grams", "mass"),
-            2: Unit(2, "kilogram", "kilogram", "kilograms", "mass"),
-            3: Unit(3, "litre", "litre", "litres", "volume"),
-            4: Unit(4, "millilitre", "millilitre", "millilitres", "volume"),
-            5: Unit(5, "cup", "cup", "cups", "volume"),
-            6: Unit(6, "slice", "slice", "slices", "grouping")
+            1: Unit("gram", "gram", "grams", "mass"),
+            2: Unit("kilogram", "kilogram", "kilograms", "mass"),
+            3: Unit("litre", "litre", "litres", "volume"),
+            4: Unit("millilitre", "millilitre", "millilitres", "volume"),
+            5: Unit("cup", "cup", "cups", "volume"),
+            6: Unit("slice", "slice", "slices", "grouping")
         }
         
         self.global_unit_conversions = {
@@ -47,9 +47,6 @@ class TestEntityUnitsSystem(unittest.TestCase):
     def test_init(self):
         self.assertIsInstance(self.disconnected_system, EntityUnitsSystem)
         self.assertEqual(len(self.disconnected_system._graph), 6)  # All units should be in the graph
-
-    def test_gram_id_correct(self):
-        self.assertEqual(self.disconnected_system.gram_id, 1)
 
     def test_get_conversion_factor_same_unit(self):
         factor = self.disconnected_system.get_conversion_factor(1, 1)
@@ -134,8 +131,8 @@ class TestEntityUnitsSystem(unittest.TestCase):
     def test_entity_unit_conversion_update(self):
         # Set up a simple system with one entity unit conversion
         units = {
-            1: Unit(1, "gram", "gram", "grams", "mass"),
-            2: Unit(2, "piece", "piece", "pieces", "quantity")
+            1: Unit("gram", "gram", "grams", "mass"),
+            2: Unit("piece", "piece", "pieces", "quantity")
         }
         global_conversions = {}
         entity_conversions = {

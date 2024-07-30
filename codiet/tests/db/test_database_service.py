@@ -694,7 +694,8 @@ class TestUpdateIngredientUnitConversion(DatabaseTestCase):
         )
         # Create an empty ingredient
         ingredient_name = "Test Ingredient"
-        ingredient = self.database_service.create_empty_ingredient(ingredient_name)
+        ingredient = Ingredient(ingredient_name)
+        ingredient = self.database_service.create_ingredient(ingredient)
         # Set a couple of unit conversions
         # Create conversions between 1 and 2 and 1 and 3
         uc1id = self.repository.create_ingredient_unit_conversion(
