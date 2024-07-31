@@ -8,7 +8,7 @@ from codiet.models.nutrients import filter_leaf_nutrients
 from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
 from codiet.models.units.entity_unit_conversion import EntityUnitConversion
 from codiet.models.units.entity_units_system import EntityUnitsSystem
-from codiet.views.ingredient_editor_view import IngredientEditorView
+from codiet.views.ingredients.ingredient_editor_view import IngredientEditorView
 from codiet.controllers.base_controller import BaseController
 from codiet.controllers.dialogs import (
     YesNoDialog,
@@ -213,7 +213,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         """
         ingredient_id = ingredient_id
         # Read the ingredient from the database
-        ingredient = self.db_service.read_ingredient(ingredient_id=ingredient_id)
+        ingredient = self.db_service.ingredients.read_ingredient(ingredient_id=ingredient_id)
         # Load the ingredient into the view
         self.load_ingredient(ingredient)
 
@@ -229,7 +229,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         """Handler for adding a new ingredient."""
         ingredient = Ingredient(name=name)
         # Insert the ingredient into the database
-        self.db_service.create_ingredient(ingredient)
+        self.db_service.ingredients.create_ingredient(ingredient)
         self.db_service.repository.commit()
         # Recache the ingredient names in the database.
         self.db_service._cache_ingredient_name_id_map()
@@ -279,10 +279,10 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         """Handler for ingredient name being changed."""
         self.ingredient.name = name
         if self.ingredient.is_persisted:
-            self.db_service.update_ingredient(self.ingredient)
+            self.db_service.ingredients.update_ingredient(self.ingredient)
             self.db_service.repository.commit()
         else:
-            self.db_service.create_ingredient(self.ingredient)
+            self.db_service.ingredients.create_ingredient(self.ingredient)
             self.db_service.repository.commit()
         self.db_service._cache_ingredient_name_id_map()
         self.name_editor.refresh()

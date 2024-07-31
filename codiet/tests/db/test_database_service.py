@@ -42,7 +42,7 @@ class TestCreateGlobalUnits(DatabaseTestCase):
         # Check the length of the fetched global units is the same as the global units
         self.assertEqual(len(fetched_global_units), len(json_global_units))
         # Fetch the map of unit names to unit IDs
-        unit_id_to_name = self.database_service.unit_id_name_map   
+        unit_id_to_name = self.database_service.unit_id_name_map
         # For each global unit,
         for global_unit_name in json_global_units.keys():
             # Grab the ID of the unit and check its in the fetched units
@@ -95,11 +95,7 @@ class TestCreateIngredient(DatabaseTestCase):
         # Configure the flags and nutrients
         self.database_service.create_global_flags(get_global_flags())
         self.database_service.create_global_nutrients(get_global_nutrients())
-        self.database_service.create_global_units(read_global_units_from_json())
-        # Grab the unit name to id map
-        unit_name_to_id = self.database_service.build_unit_name_id_map()        
-        # Grab the id for grams
-        g_id = unit_name_to_id.get_keys("gram")[0]        
+        self.database_service.create_global_units(read_global_units_from_json())    
         # Check there are no ingredients in the database
         ingredients = self.database_service.repository.read_all_ingredient_names()
         self.assertEqual(len(ingredients), 0)
@@ -116,11 +112,11 @@ class TestCreateIngredient(DatabaseTestCase):
         # Check the description is None
         self.assertIsNone(ingredient.description)
         # Assert the standard unit is set to grams
-        self.assertEqual(ingredient.standard_unit_id, g_id)
+        self.assertEqual(ingredient.standard_unit_id, self.database_service.gram_id)
         # Check the cost value is None
         self.assertIsNone(ingredient.cost_value)
         # Check the cost quantity unit id is grams
-        self.assertEqual(ingredient.cost_qty_unit_id, g_id)
+        self.assertEqual(ingredient.cost_qty_unit_id, self.database_service.gram_id)
         # Check the cost quantity value is None
         self.assertIsNone(ingredient.cost_qty_value)
         # Check there are no units
@@ -168,8 +164,6 @@ class TestCreateRecipeIngredientQuantity(DatabaseTestCase):
         recipe = self.database_service.create_empty_recipe(recipe_name)
         # Init the units
         self.database_service.create_global_units(read_global_units_from_json())
-        # Init the unit id map
-        unit_name_to_id = self.database_service.build_unit_name_id_map()
         # Create an empty ingredient
         ingredient_name = "Test Ingredient"
         ingredient = Ingredient(name=ingredient_name)
@@ -179,7 +173,7 @@ class TestCreateRecipeIngredientQuantity(DatabaseTestCase):
         riq = self.database_service.create_recipe_ingredient_quantity(
             recipe_id=recipe.id,
             ingredient_id=ingredient.id,
-            qty_unit_id=unit_name_to_id.get_keys("gram")[0],
+            qty_unit_id=self.database_service.gram_id,
             qty_value=100.0,
             qty_ltol=0.2,
             qty_utol=0.3
@@ -193,7 +187,7 @@ class TestCreateRecipeIngredientQuantity(DatabaseTestCase):
         # Check the ingredient id is set correctly
         self.assertEqual(riq.ingredient_id, ingredient.id)
         # Check the quantity unit id is set correctly
-        self.assertEqual(riq.qty_unit_id, unit_name_to_id.get_keys("gram")[0])
+        self.assertEqual(riq.qty_unit_id, self.database_service.gram_id)
         # Check the quantity value is set correctly
         self.assertEqual(riq.qty_value, 100.0)
         # Check the lower tolerance is set correctly
@@ -223,89 +217,6 @@ class TestCreateRecipeServeTimeWindow(DatabaseTestCase):
             # Check the window string is set correctly
             self.assertEqual(serve_time_window.window_string, window_string)
 
-class TestBuildUnitNameIDMap(DatabaseTestCase):
-
-    def test_build_unit_name_id_map_builds_unit_name_id_map(self):
-        """Test building a unit name to ID map."""
-        # Create a couple of units
-        unit_name_1 = "Test Unit 1"
-        unit_id_1 = self.repository.create_global_unit(
-            unit_name=unit_name_1,
-            single_display_name="Test Unit 1",
-            plural_display_name="Test Units 1",
-            unit_type="mass"
-        )
-        unit_name_2 = "Test Unit 2"
-        unit_id_2 = self.repository.create_global_unit(
-            unit_name=unit_name_2,
-            single_display_name="Test Unit 2",
-            plural_display_name="Test Units 2",
-            unit_type="mass"
-        )
-        # Build the unit name to ID map
-        unit_name_to_id = self.database_service.build_unit_name_id_map()
-        # Check the map is correct
-        self.assertEqual(unit_name_to_id.get_keys(unit_name_1)[0], unit_id_1)
-        self.assertEqual(unit_name_to_id.get_keys(unit_name_2)[0], unit_id_2)
-        # Check the map is correct in reverse
-        self.assertEqual(unit_name_to_id.get_values(unit_id_1)[0], unit_name_1)
-        self.assertEqual(unit_name_to_id.get_values(unit_id_2)[0], unit_name_2)
-
-class TestBuildFlagNameIDMap(DatabaseTestCase):
-
-    def test_build_flag_name_id_map_builds_flag_name_id_map(self):
-        """Test building a flag name to ID map."""
-        # Create a couple of flags
-        flag_name_1 = "Test Flag 1"
-        flag_id_1 = self.repository.create_global_flag(flag_name_1)
-        flag_name_2 = "Test Flag 2"
-        flag_id_2 = self.repository.create_global_flag(flag_name_2)
-        # Build the flag name to ID map
-        flag_name_to_id = self.database_service.build_flag_name_id_map()
-        # Check the map is correct
-        self.assertEqual(flag_name_to_id.get_key(flag_name_1), flag_id_1)
-        self.assertEqual(flag_name_to_id.get_key(flag_name_2), flag_id_2)
-        # Check the map is correct in reverse
-        self.assertEqual(flag_name_to_id.get_value(flag_id_1), flag_name_1)
-        self.assertEqual(flag_name_to_id.get_value(flag_id_2), flag_name_2)
-
-class TestBuildNutrientNameIDMap(DatabaseTestCase):
-
-    def test_build_nutrient_name_id_map_builds_nutrient_name_id_map(self):
-        """Test building a nutrient name to ID map."""
-        # Create a couple of nutrients
-        nutrient_name_1 = "Test Nutrient 1"
-        nutrient_id_1 = self.repository.create_global_nutrient(nutrient_name_1)
-        nutrient_name_2 = "Test Nutrient 2"
-        nutrient_id_2 = self.repository.create_global_nutrient(nutrient_name_2)
-        # Build the nutrient name to ID map
-        nutrient_name_to_id = self.database_service.build_nutrient_name_id_map()
-        # Check the map is correct
-        self.assertEqual(nutrient_name_to_id.get_key(nutrient_name_1), nutrient_id_1)
-        self.assertEqual(nutrient_name_to_id.get_key(nutrient_name_2), nutrient_id_2)
-        # Check the map is correct in reverse
-        self.assertEqual(nutrient_name_to_id.get_value(nutrient_id_1), nutrient_name_1)
-        self.assertEqual(nutrient_name_to_id.get_value(nutrient_id_2), nutrient_name_2)
-
-class TestBuildIngredientNameIDMap(DatabaseTestCase):
-    
-        def test_build_ingredient_name_id_map_builds_ingredient_name_id_map(self):
-            """Test building an ingredient name to ID map."""
-            # Create an empty ingredient
-            ingredient_name = "Test Ingredient"
-            # Create ingredient and get id
-            ingredient_id = self.repository.create_ingredient_name(ingredient_name)
-            # Do the same for another ingredient
-            ingredient_name_2 = "Test Ingredient 2"
-            ingredient_id_2 = self.repository.create_ingredient_name(ingredient_name_2)
-            # Build the ingredient name to ID map
-            ingredient_name_to_id = self.database_service._cache_ingredient_name_id_map()
-            # Check the map is correct
-            self.assertEqual(ingredient_name_to_id.get_key(ingredient_name), ingredient_id)
-            self.assertEqual(ingredient_name_to_id.get_key(ingredient_name_2), ingredient_id_2)
-            # Check the map is correct in reverse
-            self.assertEqual(ingredient_name_to_id.get_value(ingredient_id), ingredient_name)
-            self.assertEqual(ingredient_name_to_id.get_value(ingredient_id_2), ingredient_name_2)
 
 class TestReadGlobalUnit(DatabaseTestCase):
 
@@ -537,13 +448,6 @@ class TestReadIngredient(DatabaseTestCase):
         self.database_service.create_global_units(read_global_units_from_json())
         self.database_service.create_global_flags(get_global_flags())
         self.database_service.create_global_nutrients(get_global_nutrients())
-        # Fetch id name maps
-        flag_name_to_id = self.database_service.build_flag_name_id_map()
-        unit_name_to_id = self.database_service.build_unit_name_id_map()
-        nutrient_name_to_id = self.database_service.build_nutrient_name_id_map()
-        # Fetch the unit id for grams
-        g_id = unit_name_to_id.get_key("gram")
-        assert g_id is not None
         # Create an empty ingredient
         ingredient_name = "Test Ingredient"
         ingredient = Ingredient(name=ingredient_name)
@@ -554,19 +458,18 @@ class TestReadIngredient(DatabaseTestCase):
         self.database_service.repository.update_ingredient_description(ingredient.id, description)
         # Set the cost data
         cost_value = 1.0
-        cost_qty_unit_id = g_id
+        cost_qty_unit_id = self.database_service.gram_id
         cost_qty_value = 100.0
         self.database_service.repository.update_ingredient_cost(ingredient.id, cost_value, cost_qty_unit_id, cost_qty_value)
         # Set the standard unit id
-        self.database_service.repository.update_ingredient_standard_unit_id(ingredient.id, g_id)
+        self.database_service.repository.update_ingredient_standard_unit_id(ingredient.id, self.database_service.gram_id)
         # Set a couple of unit conversions
         # Grab the id for slice
-        slice_id = unit_name_to_id.get_key("slice")
-        assert slice_id is not None
+        slice_id = self.database_service.unit_id_name_map.get_key("slice")
         # Create a unit conversion
         ing_slice_uc = self.database_service.repository.create_ingredient_unit_conversion(
             ingredient_id=ingredient.id,
-            from_unit_id=g_id,
+            from_unit_id=self.database_service.gram_id,
             to_unit_id=slice_id,
             from_unit_qty=150,
             to_unit_qty=1

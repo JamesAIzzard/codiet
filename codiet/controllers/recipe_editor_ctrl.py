@@ -17,7 +17,7 @@ from codiet.views.recipe_editor_view import RecipeEditorView
 from codiet.views.time_interval_popup_view import TimeIntervalPopupView
 from codiet.views.tags import RecipeTagSelectorPopup
 from codiet.controllers.search.search_column import SearchColumn
-from codiet.controllers.tags import RecipeTagEditorCtrl
+from codiet.controllers.recipe_tags.recipe_tags import RecipeTagEditorCtrl
 
 
 class RecipeEditor:
