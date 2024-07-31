@@ -5,6 +5,7 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from codiet.utils.map import Map
 from codiet.db.repository import Repository
 from codiet.db.ingredient_db_service import IngredientDBService
+from codiet.db.unit_db_service import UnitDBService
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
 from codiet.models.units.entity_unit_conversion import EntityUnitConversion
@@ -36,10 +37,6 @@ class DatabaseService(QObject):
         self._gram_id: int|None = None
 
         # Create some cached maps
-        self.ingredient_id_name_map: Map[int, str] = Map(one_to_one=True)
-        self._cache_ingredient_name_id_map()
-        self.unit_id_name_map: Map[int, str] = Map(one_to_one=True)
-        self._cache_unit_id_name_map()
         self.flag_id_name_map: Map[int, str] = Map(one_to_one=True)
         self._cache_flag_id_name_map()
         self.nutrient_id_name_map: Map[int, str] = Map(one_to_one=True)
@@ -49,54 +46,11 @@ class DatabaseService(QObject):
 
         # Initialise sub-services
         self.ingredients = IngredientDBService(db_service=self, repository=self._repo)
+        self.units = UnitDBService(db_service=self, repository=self._repo)
 
     @property
     def repository(self) -> Repository:
         return self._repo
-
-    @property
-    def gram_id(self) -> int:
-        """Returns the ID of the gram unit."""
-        if self._gram_id is None:
-            self._gram_id = self.unit_id_name_map.get_key("gram")
-        return self._gram_id
-
-    def create_global_units(self, units: list[Unit]) -> dict[int, Unit]:
-        """Insert a dictionary of global units into the database.
-
-        Args:
-            units (dict[str, Units]): A dictionary of unit data.
-        """
-        # Init return dict
-        persisted_units = {}
-
-        # For each unit
-        for unit in units:
-
-            # Insert the unit name into the database
-            unit_id = self.repository.create_global_unit(
-                unit_name=unit.unit_name,
-                unit_type=unit.type,
-                single_display_name=unit.single_display_name,
-                plural_display_name=unit.plural_display_name,
-            )
-
-            # Update thie id
-            unit.id = unit_id
-
-            # Insert the aliases for the unit
-            for alias in unit.aliases:
-                self.repository.create_global_unit_alias(
-                    alias=alias,
-                    unit_id=unit_id,
-                )    
-
-            persisted_units[unit.id] = unit
-
-        # Recache the unit id name map and emit the signal
-        self._cache_unit_id_name_map()
-
-        return persisted_units
 
     def create_global_flags(self, flags: list[str]) -> None:
         """Insert the global flags into the database.
@@ -163,59 +117,6 @@ class DatabaseService(QObject):
 
         # Start the recursive insertion with the root tags
         insert_tags(tag_data)
-
-    def create_ingredient_unit_conversion(
-        self,
-        ingredient_id: int,
-        from_unit_id: int,
-        to_unit_id: int,
-        to_unit_qty: float | None = None,
-        from_unit_qty: float | None = None,
-    ) -> EntityUnitConversion:
-        """Creates a unit conversion for the given ingredient.
-        Args:
-            ingredient_id (int): The id of the ingredient.
-            from_unit_id (int): The id of the unit to convert from.
-            from_unit_qty (float): The quantity of the from unit.
-            to_unit_id (int): The id of the unit to convert to.
-            to_unit_qty (float): The quantity of the to unit.
-        Returns:
-            IngredientUnitConversion: The created unit conversion.
-        """
-        # Raise an exception if there is an equivalent conversion already
-        # defined for this ingredient. Do this by checking for matching
-        # from and to units. Treat this bidirectionally.
-        existing_conversions = self.read_ingredient_unit_conversions(ingredient_id)
-        for conversion in existing_conversions.values():
-            if (
-                conversion.from_unit_id == from_unit_id
-                and conversion.to_unit_id == to_unit_id
-            ):
-                raise KeyError("Unit conversion already exists for this ingredient.")
-            if (
-                conversion.from_unit_id == to_unit_id
-                and conversion.to_unit_id == from_unit_id
-            ):
-                raise KeyError("Unit conversion already exists for this ingredient.")
-        # Insert the unit conversion into the database
-        conversion_id = self.repository.create_ingredient_unit_conversion(
-            ingredient_id=ingredient_id,
-            from_unit_id=from_unit_id,
-            from_unit_qty=from_unit_qty,
-            to_unit_id=to_unit_id,
-            to_unit_qty=to_unit_qty,
-        )
-        # Init the unit conversion
-        unit_conversion = EntityUnitConversion(
-            entity_id=ingredient_id,
-            id=conversion_id,
-            from_unit_id=from_unit_id,
-            from_unit_qty=from_unit_qty,
-            to_unit_id=to_unit_id,
-            to_unit_qty=to_unit_qty,
-        )
-        # Return the unit conversion
-        return unit_conversion
 
     def create_ingredient_nutrient_quantity(self, ing_nutr_qty: EntityNutrientQuantity) -> EntityNutrientQuantity:
         """Creates an entry for the ingredient nutrient quantity in the database.
@@ -312,87 +213,6 @@ class DatabaseService(QObject):
         )
         return ingredient_quantity
 
-    def read_global_unit(self, unit_id: int) -> Unit:
-        """Returns the unit with the given ID.
-        Args:
-            unit_id (int): The id of the unit.
-
-        Returns:
-            Unit: The unit with the given ID.
-        """
-        # Fetch the data for all the units
-        all_units_data = self.repository.read_all_global_units()
-        # Fetch the aliases for this specific unit
-        aliases = self.repository.read_global_unit_aliases(unit_id)
-        # Init a fresh unit instance
-        unit = Unit(
-            id=unit_id,
-            unit_name=all_units_data[unit_id]["unit_name"],
-            single_display_name=all_units_data[unit_id]["single_display_name"],
-            plural_display_name=all_units_data[unit_id]["plural_display_name"],
-            type=all_units_data[unit_id]["unit_type"],
-            aliases=aliases,
-        )
-        return unit
-
-    def read_all_global_units(self) -> dict[int, Unit]:
-        """Returns all the global units.
-        Returns:
-            dict[int, Unit]: A dictionary of global units, where the key is the
-            id of each specific unit.
-        """
-        # Fetch the data for all the units
-        all_units_data = self.repository.read_all_global_units()
-        # Init a dict to hold the units
-        units = {}
-        # Cycle through the raw data
-        for unit_id, unit_data in all_units_data.items():
-            # Create a new unit
-            units[unit_id] = Unit(
-                id=unit_id,
-                unit_name=unit_data["unit_name"],
-                single_display_name=unit_data["single_display_name"],
-                plural_display_name=unit_data["plural_display_name"],
-                type=unit_data["unit_type"],
-                aliases=unit_data["aliases"],
-            )
-        return units
-
-    def read_all_global_mass_units(self) -> dict[int, Unit]:
-        """Returns all the global mass units.
-        Returns:
-            dict[int, Unit]: A dictionary of global mass units, where the key is the
-            id of each specific mass unit.
-        """
-        # Read all the units
-        all_units = self.read_all_global_units()
-        # Filter out only the mass units
-        mass_units = {unit_id: unit for unit_id, unit in all_units.items() if unit.type == "mass"}
-        # Return
-        return mass_units
-
-    def read_all_global_unit_conversions(self) -> dict[int, UnitConversion]:
-        """Returns all the global unit conversions.
-        Returns:
-            dict[int, UnitConversion]: A dictionary of global unit conversions, where the key is the
-            id of each specific unit conversion.
-        """
-        # Fetch the raw data from the repo
-        raw_conversion_data = self.repository.read_all_global_unit_conversions()
-        # Init a dict to hold the unit conversions
-        conversions = {}
-        # Cycle through the raw data
-        for conversion_id, conversion_data in raw_conversion_data.items():
-            # Create a new unit conversion
-            conversions[conversion_id] = UnitConversion(
-                id=conversion_id,
-                from_unit_id=conversion_data["from_unit_id"], # type: ignore
-                to_unit_id=conversion_data["to_unit_id"], # type: ignore
-                from_unit_qty=conversion_data["from_unit_qty"],
-                to_unit_qty=conversion_data["to_unit_qty"],
-            )
-        return conversions
-
     def read_all_global_nutrients(self) -> dict[int, Nutrient]:
         """Returns all the global nutrients.
         Returns:
@@ -425,35 +245,6 @@ class DatabaseService(QObject):
             nutrient.child_ids = children.get(nutrient_id, [])
         
         return nutrients
-
-    def read_ingredient_unit_conversions(
-        self, ingredient_id: int
-    ) -> dict[int, EntityUnitConversion]:
-        """Returns a list of unit conversions for the given ingredient.
-        Args:
-            ingredient_id (int): The id of the ingredient.
-        Returns:
-            dict[int, EntityUnitConversion]: A dictionary of unit conversions, where the key is the
-            id of each specific unit conversion.
-        """
-        # Init a list to hold the custom units
-        conversions = {}
-        # Fetch the raw data from the repo
-        raw_conversion_data = self.repository.read_ingredient_unit_conversions(
-            ingredient_id
-        )
-        # Cycle through the raw data
-        for conversion_id, conversion_data in raw_conversion_data.items():
-            # Create a new custom unit
-            conversions[conversion_id] = EntityUnitConversion(
-                entity_id=ingredient_id,
-                id=conversion_id,
-                from_unit_id=conversion_data["from_unit_id"],
-                from_unit_qty=conversion_data["from_unit_qty"],
-                to_unit_id=conversion_data["to_unit_id"],
-                to_unit_qty=conversion_data["to_unit_qty"],
-            )
-        return conversions
 
     def read_ingredient_nutrient_quantities(
         self, ingredient_id: int
@@ -488,16 +279,6 @@ class DatabaseService(QObject):
         """Returns the name of the recipe with the given ID."""
         raise NotImplementedError
 
-    def update_ingredient_unit_conversion(self, unit_conversion: EntityUnitConversion) -> None:
-        """Updates the unit conversion in the database."""
-        self.repository.update_ingredient_unit_conversion(
-            ingredient_unit_id=unit_conversion.id,
-            from_unit_id=unit_conversion.from_unit_id,
-            from_unit_qty=unit_conversion.from_unit_qty,
-            to_unit_id=unit_conversion.to_unit_id,
-            to_unit_qty=unit_conversion.to_unit_qty,
-        )
-
     def update_ingredient_nutrient_quantity(self, ing_nutr_qty: EntityNutrientQuantity) -> None:
         """Updates the nutrient quantity in the database.
         Args:
@@ -514,51 +295,6 @@ class DatabaseService(QObject):
             ntr_mass_unit_id=ing_nutr_qty.nutrient_mass_unit_id,
             ing_grams_qty=ing_nutr_qty.entity_grams_value,
         )
-
-    def delete_ingredient_unit_conversions(self, ingredient_id: int) -> None:
-        """Deletes all the unit conversions for the given ingredient.
-        Args:
-            ingredient_id (int): The id of the ingredient.
-        """
-        # Read all of the unit conversions
-        unit_conversions = self.repository.read_ingredient_unit_conversions(ingredient_id)
-        # Delete each unit conversion
-        for id in unit_conversions.keys():
-            self.repository.delete_ingredient_unit_conversion(id)
-
-    def _cache_ingredient_name_id_map(self) -> None:
-        """Re(generates) the cached ingredient ID to name map
-        Emits the signal for the ingredient ID to name map change.
-
-        Returns:
-            Map: A map associating ingredient ID's with names.
-        """
-        # Fetch all the ingredients
-        ingredients = self.repository.read_all_ingredient_names()
-        # Clear the map
-        self.ingredient_id_name_map.clear()
-        # Add each ingredient to the map
-        for ingredient_id, ingredient_name in ingredients.items():
-            self.ingredient_id_name_map.add_mapping(key=ingredient_id, value=ingredient_name)
-        # Emit the signal
-        self.ingredientIDNameChanged.emit(self.ingredient_id_name_map)
-    
-    def _cache_unit_id_name_map(self) -> None:
-        """Re(generates) the cached unit ID to name map
-        Emits the signal for the unit ID to name map change.
-
-        Returns:
-            Map: A map associating unit ID's with names.
-        """
-        # Fetch all the units
-        units = self.repository.read_all_global_units()
-        # Clear the map
-        self.unit_id_name_map.clear()
-        # Add each unit to the map
-        for unit_id, unit_data in units.items():
-            self.unit_id_name_map.add_mapping(key=unit_id, value=unit_data["unit_name"])
-        # Emit the signal
-        self.unitIDNameChanged.emit(self.unit_id_name_map)
 
     def _cache_flag_id_name_map(self) -> None:
         """Re(generates) the cached flag ID to name map

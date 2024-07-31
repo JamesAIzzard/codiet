@@ -84,7 +84,7 @@ class IngredientDBService(QObject):
         ingredient.cost_qty_value = cost_data["cost_qty_value"]
 
         # Fetch the unit conversions
-        unit_conversions = self._db_service.read_ingredient_unit_conversions(
+        unit_conversions = self._db_service.units.read_ingredient_unit_conversions(
             ingredient_id=ingredient_id
         )
         for _, conversion in unit_conversions.items():
@@ -141,7 +141,7 @@ class IngredientDBService(QObject):
         # Update the standard unit
         # If the standard unit is not set, set it to the gram unit
         if ingredient.standard_unit_id is None:
-            ingredient.standard_unit_id = self._db_service.gram_id
+            ingredient.standard_unit_id = self._db_service.units.gram_id
         self._repository.update_ingredient_standard_unit_id(
             ingredient.id, ingredient.standard_unit_id
         )
@@ -179,7 +179,7 @@ class IngredientDBService(QObject):
         # Update the cost data
         # If the cost_qty_unit_id is not set, set it to the standard unit
         if ingredient.cost_qty_unit_id is None:
-            ingredient.cost_qty_unit_id = self._db_service.gram_id
+            ingredient.cost_qty_unit_id = self._db_service.units.gram_id
 
         self._repository.update_ingredient_cost(
             ingredient_id=ingredient.id,

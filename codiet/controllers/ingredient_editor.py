@@ -32,23 +32,17 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         super().__init__(*args, **kwargs)
 
         # Stash constructor arguments
-        self.db_service = db_service
+        self._db_service = db_service
 
         # Init the ingredient instance
         self._ingredient: Ingredient
 
-        # Cache some things for search and general use
-        self._global_units = self.db_service.read_all_global_units()
-        self._global_mass_units = self.db_service.read_all_global_mass_units()
-        self._global_unit_conversions = (
-            self.db_service.read_all_global_unit_conversions()
-        )
-        self._global_flags = self.db_service.repository.read_all_global_flags()
-        self._global_nutrients = self.db_service.read_all_global_nutrients()
+        self._global_flags = self._db_service.repository.read_all_global_flags()
+        self._global_nutrients = self._db_service.read_all_global_nutrients()
         self._global_leaf_nutrients = filter_leaf_nutrients(self._global_nutrients)
         self._ingredient_unit_system = EntityUnitsSystem(
-            global_units=self._global_units,
-            global_unit_conversions=self._global_unit_conversions,
+            global_units=self._db_service.units.global_units,
+            global_unit_conversions=self._db_service.units.global_unit_conversions,
             entity_unit_conversions={},  # Update when ingredient is loaded
         )
 
@@ -66,23 +60,23 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self.add_ingredient_dialog = EntityNameEditorDialog(
             parent=self.view,
             entity_type_name="ingredient",
-            check_name_available=lambda name: name not in self.db_service.ingredient_id_name_map.values,
+            check_name_available=lambda name: name not in self._db_service.ingredients.ingredient_id_name_map.values,
         )
         self.add_ingredient_dialog.onNameAccepted.connect(self._on_ingredient_added)
 
         # Ingredient search column
         self.ingredient_search_column = SearchColumn[int, QLabel](
             view=self.view.ingredient_search_column,
-            get_searchable_strings=lambda: self.db_service.ingredient_id_name_map.values,
+            get_searchable_strings=lambda: self._db_service.ingredients.ingredient_id_name_map.values,
             get_item_and_view_for_string=lambda ingredient_name: (
-                self.db_service.ingredient_id_name_map.get_key(ingredient_name),
+                self._db_service.ingredients.ingredient_id_name_map.get_key(ingredient_name),
                 QLabel(ingredient_name),
             ),
         )
         self.ingredient_search_column.results_list.itemClicked.connect(
             self._on_ingredient_selected
         )
-        self.db_service.ingredientIDNameChanged.connect(
+        self._db_service.ingredients.ingredientIDNameChanged.connect(
             self.ingredient_search_column.reset_search
         )
 
@@ -90,7 +84,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self.name_editor = EntityNameEditor(
             entity_type_name="ingredient",
             get_entity_name=lambda: self.ingredient.name,
-            check_name_available=lambda name: name not in self.db_service.ingredient_id_name_map.values,
+            check_name_available=lambda name: name not in self._db_service.ingredients.ingredient_id_name_map.values,
             view=self.view.name_editor_view,
         )
         self.name_editor.nameChanged.connect(self._on_ingredient_name_changed)
@@ -213,7 +207,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         """
         ingredient_id = ingredient_id
         # Read the ingredient from the database
-        ingredient = self.db_service.ingredients.read_ingredient(ingredient_id=ingredient_id)
+        ingredient = self._db_service.ingredients.read_ingredient(ingredient_id=ingredient_id)
         # Load the ingredient into the view
         self.load_ingredient(ingredient)
 
@@ -229,10 +223,8 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         """Handler for adding a new ingredient."""
         ingredient = Ingredient(name=name)
         # Insert the ingredient into the database
-        self.db_service.ingredients.create_ingredient(ingredient)
-        self.db_service.repository.commit()
-        # Recache the ingredient names in the database.
-        self.db_service._cache_ingredient_name_id_map()
+        self._db_service.ingredients.create_ingredient(ingredient)
+        self._db_service.repository.commit()
         # Load the ingredient into the UI
         self.load_ingredient(ingredient)
 
@@ -268,7 +260,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         # Grab the selected ingredient name from the search widget
         ingredient_name = self.view.ingredient_search_column.results_list_view.selected_item.text()  # type: ignore
         # Delete the ingredient from the database
-        self.db_service.repository.delete_ingredient(ingredient_id)
+        self._db_service.repository.delete_ingredient(ingredient_id)
         # Recache the ingredient names
         self._cache_ingredient_names()
         # Reset the search pane
@@ -279,12 +271,11 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         """Handler for ingredient name being changed."""
         self.ingredient.name = name
         if self.ingredient.is_persisted:
-            self.db_service.ingredients.update_ingredient(self.ingredient)
-            self.db_service.repository.commit()
+            self._db_service.ingredients.update_ingredient(self.ingredient)
+            self._db_service.repository.commit()
         else:
-            self.db_service.ingredients.create_ingredient(self.ingredient)
-            self.db_service.repository.commit()
-        self.db_service._cache_ingredient_name_id_map()
+            self._db_service.ingredients.create_ingredient(self.ingredient)
+            self._db_service.repository.commit()
         self.name_editor.refresh()
 
     def _on_autopopulate_ingredient_clicked(self) -> None:
@@ -314,10 +305,10 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         # Populate the unit conversion with the ingredient ID
         unit_conversion.entity_id = self.ingredient.id
         # Insert the new unit conversion into the database
-        unit_conversion = self.db_service.create_ingredient_unit_conversion(
+        unit_conversion = self._db_service.create_ingredient_unit_conversion(
             unit_conversion
         )
-        self.db_service.repository.commit()
+        self._db_service.repository.commit()
         # Add the new unit conversion to the ingredient
         self.ingredient.add_unit_conversion(unit_conversion)
 
@@ -331,8 +322,8 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         # Remove the unit conversion from the ingredient
         self.ingredient.remove_unit_conversion(unit_conversion_id)
         # Remove the unit conversion from the database
-        self.db_service.repository.delete_ingredient_unit_conversion(unit_conversion_id)
-        self.db_service.repository.commit()
+        self._db_service.repository.delete_ingredient_unit_conversion(unit_conversion_id)
+        self._db_service.repository.commit()
 
     def _on_unit_conversion_updated(
         self,
@@ -354,8 +345,8 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         unit_conversion.from_unit_qty = from_unit_qty
         unit_conversion.to_unit_qty = to_unit_qty
         # Update the unit conversion in the database
-        self.db_service.update_ingredient_unit_conversion(unit_conversion)
-        self.db_service.repository.commit()
+        self._db_service.update_ingredient_unit_conversion(unit_conversion)
+        self._db_service.repository.commit()
 
     def _on_ingredient_cost_changed(
         self,
@@ -377,20 +368,20 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self.ingredient.cost_qty_value = cost_qty_value
         self.ingredient.cost_qty_unit_id = cost_qty_unit_id
         # Update the ingredient cost in the database
-        self.db_service.repository.update_ingredient_cost(
+        self._db_service.repository.update_ingredient_cost(
             ingredient_id=self.ingredient.id,
             cost_value=cost_value,
             cost_qty_value=cost_qty_value,
             cost_qty_unit_id=cost_qty_unit_id,
         )
-        self.db_service.repository.commit()
+        self._db_service.repository.commit()
 
     def _on_flag_changed(self, flag_id: int, flag_value: bool | None) -> None:
         """Handler for changes to the ingredient flags."""
         # Update flag on the model
         self.ingredient.set_flag(flag_id, flag_value)
         # Update the flag in the database
-        self.db_service.repository.update_ingredient_flag(
+        self._db_service.repository.update_ingredient_flag(
             ingredient_id=self.ingredient.id,
             flag_id=flag_id,
             flag_value=flag_value,
@@ -401,11 +392,11 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         # Update the GI value on the model
         self.ingredient.gi = value
         # Update the GI value on the database
-        self.db_service.repository.update_ingredient_gi(
+        self._db_service.repository.update_ingredient_gi(
             ingredient_id=self.ingredient.id,
             gi=value,
         )
-        self.db_service.repository.commit()
+        self._db_service.repository.commit()
 
     def _on_nutrient_qty_added(self, nutrient_quantity: EntityNutrientQuantity) -> None:
         """Handler for adding a nutrient quantity to the ingredient."""
@@ -414,15 +405,15 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         # Add the nutrient quantity to the ingredient
         self.ingredient.add_nutrient_quantity(nutrient_quantity)
         # Add the nutrient quantity to the database
-        self.db_service.create_ingredient_nutrient_quantity(nutrient_quantity)
-        self.db_service.repository.commit()
+        self._db_service.create_ingredient_nutrient_quantity(nutrient_quantity)
+        self._db_service.repository.commit()
 
     def _on_nutrient_qty_changed(self, nutrient_quantity: EntityNutrientQuantity):
         """Handler for changes to the ingredient nutrient quantities."""
         # Update the nutrient quantity on the model
         self.ingredient.update_nutrient_quantity(nutrient_quantity)
         # Update the nutrient quantity in the database
-        self.db_service.update_ingredient_nutrient_quantity(nutrient_quantity)
+        self._db_service.update_ingredient_nutrient_quantity(nutrient_quantity)
 
     def _on_nutrient_qty_removed(self, nutrient_id: int):
         """Handler for removing a nutrient quantity from the ingredient."""
@@ -432,7 +423,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         # Remove the nutrient quantity from the ingredient
         self.ingredient.remove_nutrient_quantity(nutrient_id)
         # Remove the nutrient quantity from the database
-        self.db_service.repository.delete_ingredient_nutrient_quantity(
+        self._db_service.repository.delete_ingredient_nutrient_quantity(
             ingredient_id=self.ingredient.id, global_nutrient_id=nutrient_id
         )
-        self.db_service.repository.commit()
+        self._db_service.repository.commit()
