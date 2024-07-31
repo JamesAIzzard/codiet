@@ -31,6 +31,18 @@ class EntityNameEditorDialog(BaseDialog[EntityNameEditorDialogView]):
         self.view.txt_name.clear()
         self.view.txt_name.setEnabled(True)
 
+    @property
+    def text(self) -> str|None:
+        """Return the text in the dialog."""
+        return self.view.entity_name
+    
+    @text.setter
+    def text(self, text: str|None) -> None:
+        """Set the text in the dialog."""
+        self.view.entity_name = text
+        # Recheck the name availability
+        self._on_name_changed(text)
+
     def clear(self) -> None:
         """Clear the dialog."""
         self.view.txt_name.clear()
@@ -40,12 +52,12 @@ class EntityNameEditorDialog(BaseDialog[EntityNameEditorDialogView]):
     def _create_view(self, *args, **kwargs) -> EntityNameEditorDialogView:
         return EntityNameEditorDialogView(*args, **kwargs)
 
-    def _on_name_changed(self, name: str) -> None:
+    def _on_name_changed(self, name: str|None) -> None:
         """Handler for changes to the name."""
-        # If the name is not whitespace
+        # If the name is not whitespace or None
         if self.view.name_is_set:
             # Check if the name is in the cached list of ingredient names
-            if not self._check_name_available(name):
+            if not self._check_name_available(name): # type:ignore # Checked in the if statement
                 # Show the name unavailable message
                 self.view.show_name_unavailable()
                 # Disable the OK button

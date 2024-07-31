@@ -29,6 +29,7 @@ class EntityNameEditor(BaseController[EntityNameEditorView]):
             entity_type_name=entity_type_name,
             check_name_available=check_name_available
         )
+
         # Change the text to represent edit use case
         self.name_editor_dialog.view.title = f"Edit {entity_type_name.capitalize()} Name"
         self.name_editor_dialog.view.set_info_message(f"Enter new {entity_type_name} name.")
@@ -54,8 +55,8 @@ class EntityNameEditor(BaseController[EntityNameEditorView]):
         self.view.txt_ingredient_name.setText(self._get_entity_name())
 
     def _on_edit_name_clicked(self) -> None:
-        """Clears the name editor dialog and shows it."""
-        self.name_editor_dialog.clear()
+        """Updates the name editor dialog with the current name and then shows it."""
+        self.name_editor_dialog.text = self._get_entity_name()
         self.name_editor_dialog.show()
 
     def _create_view(self, *args, **kwargs) -> EntityNameEditorView:

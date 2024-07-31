@@ -66,7 +66,7 @@ class EntityNameEditorDialogView(BaseDialogView):
             return self.txt_name.text()
     
     @entity_name.setter
-    def entity_name(self, name: str):
+    def entity_name(self, name: str|None) -> None:
         """Set the name in the text box."""
         with block_signals(self.txt_name):
             self.txt_name.setText(name)
@@ -74,7 +74,7 @@ class EntityNameEditorDialogView(BaseDialogView):
     @property
     def name_is_set(self) -> bool:
         """Returns True/False to indicate if the name is set."""
-        return self.entity_name != None
+        return self.entity_name != None and self.entity_name.strip() != ""
     
     def set_info_message(self, message: str) -> None:
         """Set the info message."""
