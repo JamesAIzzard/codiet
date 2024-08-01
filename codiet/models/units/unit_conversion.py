@@ -1,13 +1,15 @@
-class UnitConversion:
+from codiet.db.database_object import DatabaseObject
+
+class UnitConversion(DatabaseObject):
     """Models the conversion between two units."""
 
     def __init__(
             self, 
-            id:int, 
             from_unit_id: int, 
             to_unit_id: int, 
             from_unit_qty: float|None = None,
             to_unit_qty: float|None = None,
+            *args, **kwargs
         ):
         """
         Initialise the UnitConversion object.
@@ -19,17 +21,11 @@ class UnitConversion:
             from_unit_qty (float, optional): The quantity of the from unit. Defaults to None.
             to_unit_qty (float, optional): The quantity of the to unit. Defaults to None.
         """
-        self.id = id
+        super().__init__(*args, **kwargs)  
         self.from_unit_id = from_unit_id
         self.from_unit_qty = from_unit_qty
         self.to_unit_id = to_unit_id
         self.to_unit_qty = to_unit_qty
-
-    def __eq__(self, other):
-        if not isinstance(other, UnitConversion):
-            return NotImplemented
-        return (self.from_unit_id, self.to_unit_id) == (other.from_unit_id, other.to_unit_id) or \
-               (self.from_unit_id, self.to_unit_id) == (other.to_unit_id, other.from_unit_id)
 
     @property
     def is_populated(self) -> bool:
@@ -57,3 +53,9 @@ class UnitConversion:
         if self.is_populated is False:
             raise ValueError("Both from_unit_qty and to_unit_qty must be set.")
         return qty / self.ratio
+    
+    def __eq__(self, other):
+        if not isinstance(other, UnitConversion):
+            return NotImplemented
+        return (self.from_unit_id, self.to_unit_id) == (other.from_unit_id, other.to_unit_id) or \
+               (self.from_unit_id, self.to_unit_id) == (other.to_unit_id, other.from_unit_id)    

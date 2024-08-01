@@ -23,6 +23,7 @@ class Database:
         """Create the database file."""
         connection = self.connection
         cursor = connection.cursor()
+
         # Create the tables
         # Global tables
         self.create_global_units_table(cursor)
@@ -32,16 +33,19 @@ class Database:
         self.create_global_nutrients_table(cursor)
         self.create_nutrient_alias_table(cursor)
         self.create_global_recipe_tags_table(cursor)
+
         # Ingredients tables   
         self.create_ingredients_table(cursor)
         self.create_ingredient_unit_conversions_table(cursor)
         self.create_ingredient_flags_table(cursor)
         self.create_ingredient_nutrient_quantities_table(cursor)
+
         # Recipes tables
         self.create_recipe_table(cursor)
         self.create_recipe_ingredients_table(cursor)
         self.create_recipe_serve_time_windows_table(cursor)
         self.create_recipe_tags_table(cursor)
+        
         # Commit the changes
         connection.commit()
 

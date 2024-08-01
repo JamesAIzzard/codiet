@@ -21,8 +21,14 @@ class IngredientDBService(QObject):
         self._repository = repository
 
         # Cache the ingredient id-name map
-        self.ingredient_id_name_map: Map[int, str] = Map(one_to_one=True)
-        self._cache_ingredient_name_id_map()
+        self._ingredient_id_name_map: Map[int, str]|None = None
+
+    @property
+    def ingredient_id_name_map(self) -> Map[int, str]:
+        """Get the global ingredient id-name map."""
+        if self._ingredient_id_name_map is None:
+            self._cache_ingredient_name_id_map()
+        return self._ingredient_id_name_map # type: ignore # checked in the property setter
 
     def create_ingredient(self, ingredient: Ingredient) -> Ingredient:
         """Creates an ingredient in the database.
@@ -264,15 +270,19 @@ class IngredientDBService(QObject):
         Returns:
             Map: A map associating ingredient ID's with names.
         """
+        # If the map is None, create a new one
+        if self._ingredient_id_name_map is None:
+            self._ingredient_id_name_map = Map[int, str](one_to_one=True)
+
         # Fetch all the ingredients
         ingredients = self._repository.read_all_ingredient_names()
 
         # Clear the map
-        self.ingredient_id_name_map.clear()
+        self._ingredient_id_name_map.clear()
 
         # Add each ingredient to the map
         for ingredient_id, ingredient_name in ingredients.items():
-            self.ingredient_id_name_map.add_mapping(key=ingredient_id, value=ingredient_name)
+            self._ingredient_id_name_map.add_mapping(key=ingredient_id, value=ingredient_name)
 
         # Emit the signal
-        self.ingredientIDNameChanged.emit(self.ingredient_id_name_map)            
+        self.ingredientIDNameChanged.emit(self._ingredient_id_name_map)           

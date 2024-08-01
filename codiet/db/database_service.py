@@ -37,8 +37,6 @@ class DatabaseService(QObject):
         self._gram_id: int|None = None
 
         # Create some cached maps
-        self.flag_id_name_map: Map[int, str] = Map(one_to_one=True)
-        self._cache_flag_id_name_map()
         self.nutrient_id_name_map: Map[int, str] = Map(one_to_one=True)
         self._cache_nutrient_id_name_map()
         self.recipe_tag_id_name_map: Map[int, str] = Map(one_to_one=True)
@@ -295,23 +293,6 @@ class DatabaseService(QObject):
             ntr_mass_unit_id=ing_nutr_qty.nutrient_mass_unit_id,
             ing_grams_qty=ing_nutr_qty.entity_grams_value,
         )
-
-    def _cache_flag_id_name_map(self) -> None:
-        """Re(generates) the cached flag ID to name map
-        Emits the signal for the flag ID to name map change.
-
-        Returns:
-            Map: A map associating flag ID's with names.
-        """
-        # Fetch all the flags
-        flags = self.repository.read_all_global_flags()
-        # Clear the map
-        self.flag_id_name_map.clear()
-        # Add each flag to the map
-        for flag_id, flag_name in flags.items():
-            self.flag_id_name_map.add_mapping(key=flag_id, value=flag_name)
-        # Emit the signal
-        self.flagIDNameChanged.emit(self.flag_id_name_map)
 
     def _cache_nutrient_id_name_map(self) -> None:
         """Re(generates) the cached nutrient ID to name map

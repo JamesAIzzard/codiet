@@ -211,10 +211,12 @@ class UnitDBService():
         """
         # Init a list to hold the custom units
         conversions = {}
+        
         # Fetch the raw data from the repo
         raw_conversion_data = self._repository.read_ingredient_unit_conversions(
             ingredient_id
         )
+
         # Cycle through the raw data
         for conversion_id, conversion_data in raw_conversion_data.items():
             # Create a new custom unit
@@ -230,6 +232,10 @@ class UnitDBService():
 
     def update_ingredient_unit_conversion(self, unit_conversion: EntityUnitConversion) -> None:
         """Updates the unit conversion in the database."""
+        # Raise an exception if the id is None
+        if unit_conversion.id is None:
+            raise ValueError("ID must be set.")
+
         self._repository.update_ingredient_unit_conversion(
             ingredient_unit_id=unit_conversion.id,
             from_unit_id=unit_conversion.from_unit_id,
@@ -245,6 +251,7 @@ class UnitDBService():
         """
         # Read all of the unit conversions
         unit_conversions = self._repository.read_ingredient_unit_conversions(ingredient_id)
+        
         # Delete each unit conversion
         for id in unit_conversions.keys():
             self._repository.delete_ingredient_unit_conversion(id)
