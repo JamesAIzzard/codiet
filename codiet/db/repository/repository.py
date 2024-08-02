@@ -15,16 +15,21 @@ class Repository():
 
     def __init__(self, database: Database, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.database = database
+        
+        self._database = database
+
+        self.units = UnitRepository(database=self._database)
+        self.flags = FlagRepository(database=self._database)
+        self.ingredients = IngredientRepository(database=self._database)
 
     @property
     def connection(self) -> sqlite3.Connection:
         """Return a connection to the database."""
-        return self.database.connection
+        return self._database.connection
 
     def close_connection(self) -> None:
         """Close the connection to the database."""
-        self.database.connection.close()
+        self._database.connection.close()
 
     @contextmanager
     def get_cursor(self) -> Generator[sqlite3.Cursor, None, None]:
@@ -164,14 +169,14 @@ class Repository():
         assert id is not None 
         return id
 
-    def create_ingredient_flag(self, ingredient_id: int, flag_id: int, flag_value: bool) -> None:
-        """Adds a flag to the ingredient associated with the given ID.
+    def create_ingredient_flag(self, ingredient_id: int, flag_id: int, flag_value: bool) -> int:
+        """Creates a flag on an ingredient
         Args:
             ingredient_id (int): The ID of the ingredient.
             flag_id (int): The ID of the flag.
             value (bool): The value of the flag.
         Returns:
-            None.
+            id (int): The ID of the ingredient flag.
         """
         with self.get_cursor() as cursor:
             cursor.execute(
@@ -180,6 +185,9 @@ class Repository():
             """,
                 (ingredient_id, flag_id, flag_value),
             )
+            id = cursor.lastrowid
+        assert id is not None
+        return id
 
     def create_ingredient_unit_conversion(self, 
             ingredient_id: int, 
@@ -848,13 +856,13 @@ class Repository():
             )
 
     def update_ingredient_flag(
-        self, ingredient_id: int, flag_id: int, flag_value: bool|None
+        self, ingredient_id: int, flag_id: int, flag_value: bool
     ) -> None:
         """Updates the flag associated with the given ID.
         Args:
             ingredient_id (int): The ID of the ingredient.
             flag_id (int): The ID of the flag.
-            value (bool|None): The value of the flag.
+            value (bool): The value of the flag.
         Returns:
             None.
         """
@@ -1046,19 +1054,16 @@ class Repository():
                 (unit_conversion_id,),
             )
 
-    def delete_ingredient_flag(self, ingredient_id: int, flag_id:int) -> None:
-        """Deletes the flag specified by the flag ID.
-        Note:
-            Flags are not represented by objects, so their UID is not used here.
-            Instead we use a combination of the ingredient ID and the flag ID.
+    def delete_ingredient_flag(self, ingredient_flag_id:int) -> None:
+        """Deletes the flag specified by the unique ID
         """
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
                 DELETE FROM ingredient_flags
-                WHERE ingredient_id = ? AND flag_id = ?;
+                WHERE id = ?;
             """,
-                (ingredient_id, flag_id),
+                (ingredient_flag_id,),
             )
 
     def delete_ingredient_flags(self, ingredient_id: int) -> None:

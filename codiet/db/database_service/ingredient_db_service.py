@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING
 from PyQt6.QtCore import QObject, pyqtSignal
 
 if TYPE_CHECKING:
-    from .database_service import DatabaseService
-from .repository import Repository
+    from . import DatabaseService
+from ..repository import Repository
 from codiet.utils.map import Map
 from codiet.models.ingredients.ingredient import Ingredient
 

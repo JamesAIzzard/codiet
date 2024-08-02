@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .database_service import DatabaseService
-from .repository import Repository
+    from . import DatabaseService
+from codiet.db import Repository
 from codiet.utils.map import Map
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion

@@ -1,6 +1,6 @@
-from codiet.db.database_object import DatabaseObject
+from codiet.db.stored_entity import StoredEntity
 
-class UnitConversion(DatabaseObject):
+class UnitConversion(StoredEntity):
     """Models the conversion between two units."""
 
     def __init__(

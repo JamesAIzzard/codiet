@@ -1,6 +1,4 @@
-from abc import ABC
-
-class DatabaseObject(ABC):
+class StoredEntity:
     def __init__(self, id: int | None = None):
         self._id = id
 

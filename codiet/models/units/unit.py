@@ -1,6 +1,6 @@
-from codiet.db.database_object import DatabaseObject
+from codiet.db.stored_entity import StoredEntity
 
-class Unit(DatabaseObject):
+class Unit(StoredEntity):
     """Models a measurement unit."""
 
     def __init__(

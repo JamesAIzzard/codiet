@@ -4,8 +4,8 @@ from PyQt6.QtCore import QObject, pyqtSignal
 
 from codiet.utils.map import Map
 from codiet.db.repository import Repository
-from codiet.db.ingredient_db_service import IngredientDBService
-from codiet.db.unit_db_service import UnitDBService
+from codiet.db.database_service.ingredient_db_service import IngredientDBService
+from codiet.db.database_service.unit_db_service import UnitDBService
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
 from codiet.models.units.entity_unit_conversion import EntityUnitConversion
@@ -24,7 +24,6 @@ class DatabaseService(QObject):
 
     ingredientIDNameChanged = pyqtSignal(object)
     unitIDNameChanged = pyqtSignal(object)
-    flagIDNameChanged = pyqtSignal(object)
     nutrientIDNameChanged = pyqtSignal(object)
     recipeTagIDNameChanged = pyqtSignal(object)
 
@@ -49,19 +48,6 @@ class DatabaseService(QObject):
     @property
     def repository(self) -> Repository:
         return self._repo
-
-    def create_global_flags(self, flags: list[str]) -> None:
-        """Insert the global flags into the database.
-        Designed to accept the list of strings defined in the
-        JSON config file.
-        Args:
-            flags (list[str]): A list of flag names.
-        """
-        for flag in flags:
-            self.repository.create_global_flag(flag)
-
-        # Recache the flag id name map and emit the signal
-        self._cache_flag_id_name_map()
 
     # FIXME: The issue with this block of code is it is trying to do more than one thing.
     # It is trying to convert the JSON data into nutrients, and save the nutrients,
