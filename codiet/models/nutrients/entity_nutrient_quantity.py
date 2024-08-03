@@ -1,27 +1,93 @@
-class EntityNutrientQuantity:
-    """Class to represent the nutrient quantity associated with an entity.
+from codiet.db.stored_ref_entity import StoredRefEntity
+from codiet.models.nutrients.nutrient import Nutrient
+from codiet.models.units.unit import Unit
 
-    Attributes:
-        nutrient_id (int): The unique identifier of the associated nutrient.
-        ntr_mass_unit_id (int): The unique identifier of the nutrient mass unit.
-        ntr_mass_value (float | None, optional): The value of the nutrient mass. Defaults to None.
-        entity_grams_value (float | None, optional): The value of the entity in grams. Defaults to None.
-        id (int | None): The unique identifier of the nutrient quantity. Defaults to None.
-        parent_entity_id (int|None): The unique identifier of the parent entity. Defaults to None.
-    """
+
+class EntityNutrientQuantity(StoredRefEntity):
+    """Class to represent the nutrient quantity associated with an entity."""
 
     def __init__(
         self,
-        nutrient_id: int,
-        ntr_mass_unit_id: int,
+        nutrient: Nutrient,
+        ntr_mass_unit: Unit | None = None,
         ntr_mass_value: float | None = None,
         entity_grams_qty: float | None = None,
-        id: int|None=None,
-        entity_id: int|None=None,        
+        *args, **kwargs
     ):
-        self.id = id
-        self.nutrient_id = nutrient_id
-        self.parent_entity_id = entity_id
-        self.nutrient_mass_value = ntr_mass_value
-        self.nutrient_mass_unit_id = ntr_mass_unit_id
-        self.entity_grams_value = entity_grams_qty
+        super().__init__(*args, **kwargs)
+        
+        self._nutrient = nutrient
+        self._ntr_mass_unit = ntr_mass_unit
+        self._ntr_mass_value = ntr_mass_value
+        self._entity_grams_qty = entity_grams_qty
+
+    @property
+    def nutrient(self) -> Nutrient:
+        """Return the nutrient."""
+        return self._nutrient
+
+    @property
+    def ntr_mass_unit(self) -> Unit | None:
+        """Return the nutrient mass unit."""
+        return self._ntr_mass_unit
+
+    @ntr_mass_unit.setter
+    def ntr_mass_unit(self, value: Unit):
+        """Set the nutrient mass unit."""
+        self._ntr_mass_unit = value
+
+    @property
+    def ntr_mass_value(self) -> float | None:
+        """Return the nutrient mass value."""
+        return self._ntr_mass_value
+
+    @ntr_mass_value.setter
+    def ntr_mass_value(self, value: float | None):
+        """Set the nutrient mass value."""
+        self._ntr_mass_value = value
+
+    @property
+    def entity_grams_qty(self) -> float | None:
+        """Return the entity grams quantity."""
+        return self._entity_grams_qty
+
+    @entity_grams_qty.setter
+    def entity_grams_qty(self, value: float | None):
+        """Set the entity grams quantity."""
+        self._entity_grams_qty = value
+
+    def __hash__(self):
+        return hash(
+            (
+                self.ref_entity_id,
+                self.primary_entity_id,
+                self.id,
+                self.nutrient.nutrient_name,
+            )
+        )
+
+    def __eq__(self, other):
+        if not isinstance(other, EntityNutrientQuantity):
+            return False
+
+        attributes_to_compare = [
+            ("ref_entity_id", self.ref_entity_id, other.ref_entity_id),
+            ("primary_entity_id", self.primary_entity_id, other.primary_entity_id),
+            ("id", self.id, other.id),
+            (
+                "nutrient_name",
+                self.nutrient.nutrient_name,
+                other.nutrient.nutrient_name,
+            ),
+        ]
+
+        for attr_name, self_value, other_value in attributes_to_compare:
+            if self_value != other_value:
+                raise ValueError(
+                    f"Mismatch in {attr_name}: {self_value} != {other_value}"
+                )
+
+        return True
+
+    def __str__(self):
+        return f"{self.nutrient.nutrient_name} quantity"

@@ -1,7 +1,6 @@
 from . import DatabaseTestCase
 from codiet.db_population.units import read_global_units_from_json
 from codiet.db_population.flags import get_global_flags
-from codiet.db_population.nutrients import get_global_nutrients
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
 from codiet.models.units.entity_unit_conversion import EntityUnitConversion
@@ -9,7 +8,7 @@ from codiet.models.nutrients import Nutrient
 from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
 from codiet.models.ingredients.ingredient import Ingredient
 from codiet.models.ingredients.ingredient_quantity import IngredientQuantity
-from codiet.models.time import RecipeServeTimeWindow
+from codiet.models.entity_serve_time_window import EntityServeTimeWindow
 
 def flatten_nutrients(nutrient_data, parent_id=None):
     """Flatten the nested nutrient structure into a list of nutrient dictionaries."""
@@ -209,7 +208,7 @@ class TestCreateRecipeServeTimeWindow(DatabaseTestCase):
             window_string = "08:00-09:00"
             serve_time_window = self.database_service.create_recipe_serve_time_window(recipe.id, window_string)
             # Check the thing returned is a RecipeServeTimeWindow
-            self.assertIsInstance(serve_time_window, RecipeServeTimeWindow)
+            self.assertIsInstance(serve_time_window, EntityServeTimeWindow)
             # Check the id is set correctly
             self.assertEqual(serve_time_window.id, 1)
             # Check the recipe id is set correctly

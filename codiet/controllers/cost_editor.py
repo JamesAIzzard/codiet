@@ -52,6 +52,6 @@ class CostEditor(QObject):
         self.view.cost_qty_unit_dropdown.clear()
         for unit in self._get_available_units().values():
             self.view.cost_qty_unit_dropdown.add_unit(
-                unit_display_name=unit.plural_display_name,
+                unit_display_name=unit._plural_display_name,
                 unit_global_id=unit.id
             )

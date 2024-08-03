@@ -104,7 +104,7 @@ class TestCreateNutrientAlias(DatabaseTestCase):
             parent_id=3,
         )
         # Insert the alias
-        self.repository.create_nutrient_alias(
+        self.repository.create_global_nutrient_alias(
             primary_nutrient_id=id,
             alias=alias,
         )
@@ -142,7 +142,7 @@ class TestCreateIngredientName(DatabaseTestCase):
         all_ingredients = self.repository.read_all_ingredient_names()
         self.assertEqual(len(all_ingredients), 0)
         # Insert the ingredient
-        ingredient_id = self.repository.create_ingredient_name(
+        ingredient_id = self.repository.create_ingredient_base(
             name=ingredient_name,
         )
         # Fetch all the ingredients again
@@ -160,7 +160,7 @@ class TestCreateIngredientFlag(DatabaseTestCase):
         ingredient_name = 'test_ingredient'
         flag_name = 'test_flag'
         # Insert the ingredient
-        ingredient_id = self.repository.create_ingredient_name(
+        ingredient_id = self.repository.create_ingredient_base(
             name=ingredient_name,
         )
         # Insert the flag
@@ -188,7 +188,7 @@ class TestCreateIngredientUnitConversion(DatabaseTestCase):
         """Test that the method inserts an ingredient unit into the database."""
         # Need to generate an ingredient ID, so create an ingredient
         ingredient_name = 'test_ingredient'
-        ingredient_id = self.repository.create_ingredient_name(
+        ingredient_id = self.repository.create_ingredient_base(
             name=ingredient_name,
         )
         # Now create two units to convert between
@@ -238,7 +238,7 @@ class TestCreateIngredientNutrientQuantity(DatabaseTestCase):
             unit_type='mass',
         )
         # Insert the ingredient
-        ingredient_id = self.repository.create_ingredient_name(
+        ingredient_id = self.repository.create_ingredient_base(
             name="Test Ingredient",
         )
         # Insert the nutrient
@@ -277,7 +277,7 @@ class TestCreateRecipeName(DatabaseTestCase):
         all_recipes = self.repository.read_all_recipe_names()
         self.assertEqual(len(all_recipes), 0)
         # Insert the recipe
-        recipe_id = self.repository.create_recipe_name(
+        recipe_id = self.repository.create_recipe_base(
             name=recipe_name,
         )
         # Fetch all the recipes again
@@ -300,11 +300,11 @@ class TestCreateRecipeIngredientQuantity(DatabaseTestCase):
             unit_type='mass',
         )
         # Insert the recipe
-        recipe_id = self.repository.create_recipe_name(
+        recipe_id = self.repository.create_recipe_base(
             name="Test Recipe",
         )
         # Insert the ingredient
-        ingredient_id = self.repository.create_ingredient_name(
+        ingredient_id = self.repository.create_ingredient_base(
             name="Test Ingredient",
         )
         # Check there are no ingredients in the recipe
@@ -340,7 +340,7 @@ class TestCreateRecipeServeTimeWindow(DatabaseTestCase):
         recipe_name = 'test_recipe'
         serve_time_window = "06:00 - 10:00"
         # Insert the recipe
-        recipe_id = self.repository.create_recipe_name(
+        recipe_id = self.repository.create_recipe_base(
             name=recipe_name,
         )
         # Check There are currently no serve times
@@ -493,7 +493,7 @@ class TestUpdateIngredientName(DatabaseTestCase):
         ingredient_name = 'test_ingredient'
         new_ingredient_name = 'new_test_ingredient'
         # Insert the ingredient
-        id = self.repository.create_ingredient_name(
+        id = self.repository.create_ingredient_base(
             name=ingredient_name,
         )
         # Check the name is in the database
@@ -524,7 +524,7 @@ class TestUpdateIngredientDescription(DatabaseTestCase):
         description_1 = 'test_description'
         description_2 = 'new_test_description'
         # Insert the ingredient
-        id = self.repository.create_ingredient_name(
+        id = self.repository.create_ingredient_base(
             name=ingredient_name,
         )
         # Check the description is none
@@ -556,7 +556,7 @@ class TestUpdateIngredientStandardUnitID(DatabaseTestCase):
         """Test that the method updates an ingredient standard unit in the database."""
         ingredient_name = 'test_ingredient'
         # Insert the ingredient
-        id = self.repository.create_ingredient_name(
+        id = self.repository.create_ingredient_base(
             name=ingredient_name,
         )
         # Check the standard unit is none
@@ -599,7 +599,7 @@ class TestUpdateIngredientUnitConversion(DatabaseTestCase):
             unit_type='collective',
         )
         # Insert the ingredient
-        ingredient_id = self.repository.create_ingredient_name(
+        ingredient_id = self.repository.create_ingredient_base(
             name="Test Ingredient",
         )
         # Insert the ingredient unit conversion
@@ -659,7 +659,7 @@ class TestUpdateIngredientCost(DatabaseTestCase):
             unit_type='mass',
         )
         # Insert the ingredient
-        ingredient_id = self.repository.create_ingredient_name(
+        ingredient_id = self.repository.create_ingredient_base(
             name=ingredient_name,
         )
         # Check the cost is none
@@ -689,7 +689,7 @@ class TestUpdateIngredientFlag(DatabaseTestCase):
         ingredient_name = 'test_ingredient'
         flag_name = 'test_flag'
         # Insert the ingredient
-        ingredient_id = self.repository.create_ingredient_name(
+        ingredient_id = self.repository.create_ingredient_base(
             name=ingredient_name,
         )
         # Insert the global flag
@@ -727,7 +727,7 @@ class TestUpdateIngredientGI(DatabaseTestCase):
         ingredient_name = 'test_ingredient'
         gi = 50
         # Insert the ingredient
-        ingredient_id = self.repository.create_ingredient_name(
+        ingredient_id = self.repository.create_ingredient_base(
             name=ingredient_name,
         )
         # Check the GI is none
@@ -756,7 +756,7 @@ class TestUpdateIngredientNutrientQuantity(DatabaseTestCase):
             unit_type='mass',
         )
         # Insert the ingredient
-        ingredient_id = self.repository.create_ingredient_name(
+        ingredient_id = self.repository.create_ingredient_base(
             name="Test Ingredient",
         )
         # Insert the nutrient
@@ -794,7 +794,7 @@ class TestUpdateRecipeName(DatabaseTestCase):
         recipe_name = 'test_recipe'
         new_recipe_name = 'new_test_recipe'
         # Insert the recipe
-        recipe_id = self.repository.create_recipe_name(
+        recipe_id = self.repository.create_recipe_base(
             name=recipe_name,
         )
         # Check the name is in the database
@@ -823,7 +823,7 @@ class TestUpdateUseRecipeAsIngredient(DatabaseTestCase):
         """Test that the method updates a recipe use_recipe_as_ingredient in the database."""
         recipe_name = 'test_recipe'
         # Insert the recipe
-        recipe_id = self.repository.create_recipe_name(
+        recipe_id = self.repository.create_recipe_base(
             name=recipe_name,
         )
         # Check the use_recipe_as_ingredient is none
@@ -857,7 +857,7 @@ class TestUpdateRecipeDescription(DatabaseTestCase):
         description_1 = 'test_description'
         description_2 = 'new_test_description'
         # Insert the recipe
-        recipe_id = self.repository.create_recipe_name(
+        recipe_id = self.repository.create_recipe_base(
             name=recipe_name,
         )
         # Check the description is none
@@ -891,7 +891,7 @@ class TestUpdateRecipeInstructions(DatabaseTestCase):
         instructions_1 = 'test_instructions'
         instructions_2 = 'new_test_instructions'
         # Insert the recipe
-        recipe_id = self.repository.create_recipe_name(
+        recipe_id = self.repository.create_recipe_base(
             name=recipe_name,
         )
         # Check the instructions are none
@@ -929,11 +929,11 @@ class TestUpdateRecipeIngredient(DatabaseTestCase):
             unit_type='mass',
         )
         # Insert the recipe
-        recipe_id = self.repository.create_recipe_name(
+        recipe_id = self.repository.create_recipe_base(
             name="Test Recipe",
         )
         # Insert the ingredient
-        ingredient_id = self.repository.create_ingredient_name(
+        ingredient_id = self.repository.create_ingredient_base(
             name="Test Ingredient",
         )
         # Check the ingredient is not in the recipe
@@ -991,7 +991,7 @@ class TestUpdateRecipeServeTimeWindow(DatabaseTestCase):
         serve_time_window_1 = "06:00 - 10:00"
         serve_time_window_2 = "12:00 - 16:00"
         # Insert the recipe
-        recipe_id = self.repository.create_recipe_name(
+        recipe_id = self.repository.create_recipe_base(
             name=recipe_name,
         )
         # Insert the serve time
@@ -1031,7 +1031,7 @@ class TestUpdateRecipeTags(DatabaseTestCase):
         tag_2 = 'test_tag_2'
         tag_3 = 'test_tag_3'
         # Insert the recipe
-        recipe_id = self.repository.create_recipe_name(
+        recipe_id = self.repository.create_recipe_base(
             name=recipe_name,
         )
         # Insert the global tags
@@ -1081,7 +1081,7 @@ class TestDeleteIngredientUnitConversion(DatabaseTestCase):
             unit_type='collective',
         )
         # Insert the ingredient
-        ingredient_id = self.repository.create_ingredient_name(
+        ingredient_id = self.repository.create_ingredient_base(
             name="Test Ingredient",
         )
         # Insert the ingredient unit conversion
@@ -1110,7 +1110,7 @@ class TestDeleteIngredient(DatabaseTestCase):
         """Test that the method deletes an ingredient in the database."""
         ingredient_name = 'test_ingredient'
         # Insert the ingredient
-        ingredient_id = self.repository.create_ingredient_name(
+        ingredient_id = self.repository.create_ingredient_base(
             name=ingredient_name,
         )
         # Check the ingredient is in the database
@@ -1130,7 +1130,7 @@ class TestDeleteRecipe(DatabaseTestCase):
         """Test that the method deletes a recipe in the database."""
         recipe_name = 'test_recipe'
         # Insert the recipe
-        recipe_id = self.repository.create_recipe_name(
+        recipe_id = self.repository.create_recipe_base(
             name=recipe_name,
         )
         # Check the recipe is in the database

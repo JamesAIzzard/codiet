@@ -35,17 +35,17 @@ class UnitConversionDefinitionDialog(QObject):
         # Init a map to convert unit names and IDs
         self._unit_name_id_map: Map[int, str] = Map(one_to_one=True)
         for unit in self._get_global_units().values():
-            self._unit_name_id_map.add_mapping(unit.id, unit.unit_name)
+            self._unit_name_id_map.add_mapping(unit.id, unit._unit_name)
 
         # Init the controllers for the to and from unit selectors
         self._from_unit_selector = SearchColumn(
             view=self.view.from_unit_selector,
-            get_searchable_strings=lambda: [unit.unit_name for unit in self._get_global_units().values()],
+            get_searchable_strings=lambda: [unit._unit_name for unit in self._get_global_units().values()],
             get_item_and_view_for_string=lambda unit_name: (unit_name, self._unit_name_id_map.get_keys(unit_name)[0]), # type: ignore
         )
         self._to_unit_selector = SearchColumn(
             view=self.view.to_unit_selector,
-            get_searchable_strings=lambda: [unit.unit_name for unit in self._get_global_units().values()],
+            get_searchable_strings=lambda: [unit._unit_name for unit in self._get_global_units().values()],
             get_item_and_view_for_string=lambda unit_name: (unit_name, self._unit_name_id_map.get_keys(unit_name)[0]), # type: ignore
         )
 

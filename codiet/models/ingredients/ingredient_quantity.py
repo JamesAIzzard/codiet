@@ -11,7 +11,7 @@ class IngredientQuantity:
         qty_utol: float | None = 0.0,
         qty_ltol: float | None = 0.0,
     ):
-        """Initializes the class.
+        """Initialises the class.
         Args:
             id (int): The ID of the ingredient quantity.
             ingredient_id (int): The ID of the ingredient.

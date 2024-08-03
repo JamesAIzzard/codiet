@@ -4,7 +4,6 @@ import unittest
 
 from codiet.db_population.units import read_global_units_from_json
 from codiet.db_population.flags import get_global_flags
-from codiet.db_population.nutrients import get_global_nutrients
 from codiet.db_population.recipes.recipe_tags import get_global_recipe_tags
 from codiet.db.database import Database
 from codiet.db.repository import Repository

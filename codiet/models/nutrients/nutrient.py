@@ -1,26 +1,88 @@
-class Nutrient:
-    """Class to represent a nutrient."""
+
+
+from codiet.db.stored_entity import StoredEntity
+
+class Nutrient(StoredEntity):
+    """Class to represent a nutrient.
+    Note:
+        Parent and child nutrients are only settable by private methods.
+        These operations should never be needed by consumers of the Nutrient class.
+        The nutrient tree is constructed at application startup.
+    """
 
     def __init__(
         self,
-        id: int,
         nutrient_name: str,
-        aliases: list[str] | None = None,
-        parent_id: int | None = None,
-        child_ids: list[int] | None = None,
+        aliases: set[str],
+        parent: 'Nutrient | None' = None,
+        children: set['Nutrient'] | None = None,
+        *args, **kwargs
     ):
-        self.id = id
-        self.nutrient_name = nutrient_name
-        self.aliases = aliases if aliases is not None else []
-        self.parent_id = parent_id
-        self.child_ids = child_ids if child_ids is not None else []
+        super().__init__(*args, **kwargs)
+        self._nutrient_name = nutrient_name
+        self._aliases = aliases
+        self._parent = parent
+        self._children = children if children is not None else set()
+
+    @property
+    def nutrient_name(self) -> str:
+        """Get the name of the nutrient."""
+        return self._nutrient_name
+
+    @property
+    def aliases(self) -> frozenset[str]:
+        """Get the aliases of the nutrient."""
+        return frozenset(self._aliases)
+
+    @property
+    def parent(self) -> 'Nutrient|None':
+        """Get the parent of the nutrient."""
+        return self._parent
+
+    @property
+    def children(self) -> frozenset['Nutrient']:
+        """Get the children of the nutrient."""
+        return frozenset(self._children)
 
     @property
     def is_parent(self) -> bool:
         """Returns True if the nutrient is a parent."""
-        return len(self.child_ids) > 0
+        return len(self.children) > 0
     
     @property
     def is_child(self) -> bool:
         """Returns True if the nutrient is a child."""
-        return self.parent_id is not None
+        return self.parent is not None
+
+    def is_parent_of(self, nutrient: 'Nutrient') -> bool:
+        """Returns True if the nutrient is a parent of the given nutrient, including children of children."""
+        if nutrient in self.children:
+            return True
+        for child in self.children:
+            if child.is_parent_of(nutrient):
+                return True
+        return False
+    
+    def is_child_of(self, nutrient: 'Nutrient') -> bool:
+        """Returns True if the nutrient is a child of the given nutrient, including parents of parents."""
+        if self.parent == nutrient:
+            return True
+        if self.parent is not None:
+            return self.parent.is_child_of(nutrient)
+        return False
+
+    def _set_parent(self, parent:'Nutrient') -> None:
+        """Sets the instance's parent nutrient."""
+        self._parent = parent
+
+    def _set_children(self, children: set['Nutrient']) -> None:
+        """Add children to the nutrient."""
+        self._children = children
+
+    def __eq__(self, other):
+        if isinstance(other, Nutrient):
+            return self.id == other.id and self.nutrient_name == other.nutrient_name
+        return False
+
+    def __hash__(self):
+        return hash((self.id, self.nutrient_name))

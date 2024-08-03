@@ -1,22 +1,17 @@
+from codiet.db.stored_ref_entity import StoredRefEntity
 from codiet.models.units.unit_conversion import UnitConversion
 
-class EntityUnitConversion(UnitConversion):
+class EntityUnitConversion(UnitConversion, StoredRefEntity):
     """Models the conversion between two units specifically associated with an entity."""
 
     def __init__(
-        self,
-        entity_id: int|None = None,
-        *args, **kwargs
+        self, *args, **kwargs
     ):
         """Initialises the EntityUnitConversion object.
         Extends the UnitConversion object with an entity_id.
-        Args:
-            id (int): The id of the conversion.
-            entity_id (int): The id of the entity.
-            from_unit_id (int): The id of the unit to convert from.
-            to_unit_id (int): The id of the unit to convert to.
-            from_unit_qty (float): The quantity of the from unit.
-            to_unit_qty (float): The quantity of the to unit.
         """
         super().__init__(*args, **kwargs)
-        self.entity_id = entity_id
+
+    def __str__(self) -> str:
+        """Return a string representation of the object."""
+        return f"EntityUnitConversion(from_unit={self.from_unit}, to_unit={self.to_unit}, ref_entity_id={self.ref_entity_id})"

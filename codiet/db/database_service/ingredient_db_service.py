@@ -40,7 +40,7 @@ class IngredientDBService(QObject):
         # Insert the ingredient name into the database
         if ingredient.name is None:
             raise ValueError("Ingredient name must be set.")
-        ingredient.id = self._repository.create_ingredient_name(ingredient.name)
+        ingredient.id = self._repository.create_ingredient_base(ingredient.name)
 
         # Recache the ingredient name id map and emit the signal
         self._cache_ingredient_name_id_map()

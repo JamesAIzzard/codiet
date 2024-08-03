@@ -9,7 +9,7 @@ OPENAI_MODEL = "gpt-4o"
 
 def get_openai_ingredient_description(ingredient_name: str) -> str:
     """Use the OpenAI API to generate a description for an ingredient."""
-    # Initialize the OpenAI client
+    # Initialise the OpenAI client
     client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
 
     # Print an update
@@ -36,7 +36,7 @@ def get_openai_ingredient_cost(
 
     print(f"Getting cost data for {ingredient_name}...")
 
-    # Initialize the OpenAI client
+    # Initialise the OpenAI client
     client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
 
     prompt = f'''Can you respond to the prompt by filling in and returning the following dictionary of {ingredient_name}:
@@ -96,7 +96,7 @@ def get_openai_ingredient_density(ingredient_name: str) -> dict[str, str | float
 
     print(f"Getting density data for {ingredient_name}...")
 
-    # Initialize the OpenAI client
+    # Initialise the OpenAI client
     client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
 
     prompt = f"""Can you respond to the prompt by filling in and returning the following dictionary of {ingredient_name}:
@@ -177,7 +177,7 @@ def get_openai_ingredient_flags(
     # Update the console
     print(f"Getting flags for {ingredient_name}...")
     print(f"Flags: {flag_list}")
-    # Initialize the OpenAI client
+    # Initialise the OpenAI client
     client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
     # Construct the flag dict with False values
     flags_dict = {flag: None for flag in flag_list}
@@ -239,7 +239,7 @@ def get_openai_ingredient_flags(
 def get_openai_ingredient_gi(ingredient_name: str) -> float:
     """Use the OpenAI API to generate a description for an ingredient."""
     print(f"Getting GI for {ingredient_name}...")
-    # Initialize the OpenAI client
+    # Initialise the OpenAI client
     client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
 
     # Set the prompt
@@ -300,7 +300,7 @@ def get_openai_ingredient_nutrients(
         nutrients_json_str += f'"{nutrient}": {nutrient_json_str},'
     nutrients_json_str += "}"
 
-    # Initialize the OpenAI client
+    # Initialise the OpenAI client
     client = OpenAI(api_key=os.environ.get("CODIET_OPENAI_API_KEY"))
 
     # Set the prompt

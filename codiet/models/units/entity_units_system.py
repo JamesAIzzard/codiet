@@ -1,6 +1,8 @@
+from codiet.utils.map import Map
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
 from codiet.models.units.entity_unit_conversion import EntityUnitConversion
+from collections import deque
 
 class EntityUnitsSystem:
     """
@@ -9,232 +11,136 @@ class EntityUnitsSystem:
 
     def __init__(
         self,
-        global_units: dict[int, Unit],
-        global_unit_conversions: dict[int, UnitConversion],
-        entity_unit_conversions: dict[int, EntityUnitConversion]
+        global_units: set[Unit]|None = None,
+        global_unit_conversions: set[UnitConversion]|None = None,
+        entity_unit_conversions: set[EntityUnitConversion]|None = None
     ):
-        """
-        Initialises the EntityUnitsSystem object.
+        """Initialises the EntityUnitsSystem object."""
 
-        Args:
-            global_units (dict[int, Unit]): A dictionary mapping unit IDs to global units.
-            global_unit_conversions (dict[int, UnitConversion]): A dictionary mapping conversion IDs to global unit conversions.
-            entity_unit_conversions (dict[int, EntityUnitConversion]): A dictionary mapping conversion IDs to entity unit conversions.
-        """
-        self._global_units = global_units
-        self._global_unit_conversions = global_unit_conversions
-        self._entity_unit_conversions = entity_unit_conversions
-        self._graph: dict[int, dict[int, float]] = {}
-        self._path_cache: dict[tuple[int, int], list[tuple[int, int]]] = {}
-        self._build_graph()
-        # Find the gram unit, error if not found
-        self._gram_id:int
-        for unit_id, unit in self._global_units.items():
-            if unit.unit_name == "gram":
-                self._gram_id = unit_id
-                break
-        # If the gram unit is not found, raise an error
-        else:
-            raise ValueError("No gram unit found in the global units")
+        self._global_units = global_units or set()
+        self._global_unit_conversions = global_unit_conversions or set()
+        self._entity_unit_conversions = entity_unit_conversions or set()
+
+        self._graph: dict[Unit, dict[Unit, float]] = {}
+        self._path_cache: dict[tuple[Unit, Unit], list[tuple[Unit, Unit]]] = {}
+        self._name_unit_map: Map[str, Unit]|None = None
+        self._gram: Unit|None = None
+        self._update()        
 
     @property
-    def global_units(self) -> dict[int, Unit]:
-        """
-        Retrieves all global units.
+    def gram(self) -> Unit:
+        """Retrieves the gram unit."""
+        return self.get_unit("gram")
 
-        Returns:
-            Dict[int, Unit]: A dictionary mapping unit IDs to units.
-        """
-        return self._global_units
+    @property
+    def global_units(self) -> frozenset[Unit]:
+        """Retrieves the global units."""
+        return frozenset(self._global_units)
     
     @property
-    def global_unit_conversions(self) -> dict[int, UnitConversion]:
-        """
-        Retrieves all global unit conversions.
+    def entity_unit_conversions(self) -> frozenset[EntityUnitConversion]:
+        """Retrieves the entity unit conversions."""
+        return frozenset(self._entity_unit_conversions)
 
-        Returns:
-            Dict[int, UnitConversion]: A dictionary mapping conversion IDs to global unit conversions.
-        """
-        return self._global_unit_conversions
-    
-    @global_unit_conversions.setter
-    def global_unit_conversions(self, global_unit_conversions: dict[int, UnitConversion]):
-        """
-        Sets the global unit conversions.
-
-        Args:
-            global_unit_conversions (dict[int, UnitConversion]): A dictionary mapping conversion IDs to global unit conversions.
-        """
-        self._global_unit_conversions = global_unit_conversions
-        self._build_graph()
-
-    @property
-    def available_units(self) -> dict[int, Unit]:
-        """
-        Retrieves all available units, based on a root unit of grams.
-
-        Returns:
-            Dict[int, Unit]: A dictionary mapping unit IDs to units.
-        """
-        return self.get_available_units_from_root(self._gram_id)
-
-    @property
-    def entity_unit_conversions(self) -> dict[int, EntityUnitConversion]:
-        """
-        Retrieves all entity unit conversions.
-
-        Returns:
-            Dict[int, EntityUnitConversion]: A dictionary mapping conversion IDs to entity unit conversions.
-        """
-        return self._entity_unit_conversions
-    
     @entity_unit_conversions.setter
-    def entity_unit_conversions(self, entity_unit_conversions: dict[int, EntityUnitConversion]):
-        """
-        Sets the entity unit conversions.
-        Replaces the previous dict of entity unit conversions with a new one and rebuilds the graph.
-
-        Args:
-            entity_unit_conversions (dict[int, EntityUnitConversion]): A dictionary mapping conversion IDs to entity unit conversions.
-        """
+    def entity_unit_conversions(self, entity_unit_conversions: set[EntityUnitConversion]):
+        """Replaces the existing entity unit conversions with a new list."""
         self._entity_unit_conversions = entity_unit_conversions
-        self._build_graph()
+        self._update()
 
-    def can_convert_units(self, from_unit_id: int, to_unit_id: int) -> bool:
-        """
-        Checks if two units can be converted between.
+    def get_unit(self, unit_name:str) -> Unit:
+        """Retrieves a unit by its name."""
+        if self._name_unit_map is None:
+            self._cache_name_unit_map()
+        unit = self._name_unit_map.get_value(unit_name) # type: ignore # cache guarantees map is not None
+        if unit is None:
+            raise ValueError(f"Unit {unit_name} not found.")
+        return unit
 
-        Args:
-            from_unit_id (int): The ID of the starting unit.
-            to_unit_id (int): The ID of the target unit.
+    def update_entity_unit_conversions(self, entity_unit_conversions: set[EntityUnitConversion]):
+        """Adds entity unit conversions to the existing list."""
+        for conversion in entity_unit_conversions:
+            if conversion in self._entity_unit_conversions:
+                # Replace with the new version
+                self._entity_unit_conversions.remove(conversion)
+                self._entity_unit_conversions.add(conversion)
+            else:
+                # Add the new one
+                self._entity_unit_conversions.add(conversion)
+        # Rebuild everything
+        self._update()
 
-        Returns:
-            bool: True if the units can be converted between, False otherwise.
-        """
+    def can_convert_units(self, from_unit: Unit, to_unit:Unit) -> bool:
+        """Checks if two units can be converted between."""
         try:
-            self._find_conversion_path(from_unit_id, to_unit_id)
+            self._find_conversion_path(from_unit, to_unit)
             return True
         except ValueError:
             return False
 
-    def get_conversion_factor(self, from_unit_id: int, to_unit_id: int) -> float:
+    def get_conversion_factor(self, from_unit: Unit, to_unit: Unit) -> float:
         """
         Calculates the conversion factor between two unit IDs.
-
-        Args:
-            from_unit_id (int): The ID of the starting unit.
-            to_unit_id (int): The ID of the target unit.
-
-        Returns:
-            float: The conversion factor between the two units.
+        To go from 'from_unit' to 'to_unit', we multiply the first unit qty by the factor.
 
         Raises:
-            ValueError: If no conversion path is found between the given unit IDs.
+            ValueError: If no conversion path is found between the given units.
         """
-        if from_unit_id == to_unit_id:
-            return 1.0
-
-        path = self._find_conversion_path(from_unit_id, to_unit_id)
+        path = self._find_conversion_path(from_unit, to_unit)
         factor = 1.0
-
-        for start, end in path:
-            factor *= self._graph[start][end]
-
+        for u1, u2 in path:
+            factor *= self._graph[u1][u2]
         return factor
 
-    def convert_units(self, quantity: float, from_unit_id: int, to_unit_id: int) -> float:
+    def convert_units(self, quantity: float, from_unit: Unit, to_unit: Unit) -> float:
         """
         Converts a quantity from one unit to another.
 
-        Args:
-            quantity (float): The quantity to be converted.
-            from_unit_id (int): The ID of the starting unit.
-            to_unit_id (int): The ID of the target unit.
-
-        Returns:
-            float: The converted quantity.
-
         Raises:
             ValueError: If no conversion path is found between the given unit IDs.
         """
-        conversion_factor = self.get_conversion_factor(from_unit_id, to_unit_id)
+        conversion_factor = self.get_conversion_factor(from_unit, to_unit)
         return quantity * conversion_factor
 
     def rescale_quantity(
             self,
-            ref_from_unit_id: int,
-            ref_to_unit_id: int,
+            ref_from_unit: Unit,
+            ref_to_unit: Unit,
             ref_from_quantity: float,
             ref_to_quantity: float,
             quantity: float,
     ) -> float:
         """
         Rescales a quantity based on a change in a reference quantity.
-
-        This method is useful in scenarios where we have two related quantities (e.g., protein and ingredient),
-        and we want to adjust one quantity proportionally when the other changes. For example, if we know that
-        10g of protein corresponds to 100g of an ingredient, and we change the ingredient quantity to 200g,
-        this method will calculate the new protein quantity (20g in this case).
-
-        Args:
-            ref_from_unit_id (int): The unit ID of the original reference quantity (e.g., grams of ingredient).
-            ref_to_unit_id (int): The unit ID of the quantity to be rescaled (e.g., grams of protein).
-            ref_from_quantity (float): The original reference quantity (e.g., 100g of ingredient).
-            ref_to_quantity (float): The original quantity to be rescaled (e.g., 10g of protein).
-            quantity (float): The new reference quantity (e.g., 200g of ingredient).
-
-        Returns:
-            float: The rescaled quantity (e.g., 20g of protein).        
         """
-        # First, ensure all quantities are in the same unit system
-        ref_from_quantity_base = self.convert_units(ref_from_quantity, ref_from_unit_id, self._gram_id)
-        ref_to_quantity_base = self.convert_units(ref_to_quantity, ref_to_unit_id, self._gram_id)
-        quantity_base = self.convert_units(quantity, ref_from_unit_id, self._gram_id)
+        ref_from_quantity_base = self.convert_units(ref_from_quantity, ref_from_unit, self.gram)
+        ref_to_quantity_base = self.convert_units(ref_to_quantity, ref_to_unit, self.gram)
+        quantity_base = self.convert_units(quantity, ref_from_unit, self.gram)
 
-        # Calculate the scaling factor
         scaling_factor = quantity_base / ref_from_quantity_base
-
-        # Apply the scaling factor to the original 'to' quantity
         result_base = ref_to_quantity_base * scaling_factor
-
-        # Convert the result back to the original 'to' unit
-        result = self.convert_units(result_base, self._gram_id, ref_to_unit_id)
+        result = self.convert_units(result_base, self.gram, ref_to_unit)
 
         return result
 
-    def get_available_units_from_root(self, root_unit_id: int|None=None) -> dict[int, Unit]:
+    def get_available_units(self, root_unit: Unit|None=None) -> list[Unit]:
         """
         Retrieves all available units starting from a root unit ID.
         If the root unit ID is None, the root unit is assumed to be grams.
-
-        Note:
-            This is not a property because it allows for a parameter to
-            specify the root unit ID from which to start the search.
-
-        Args:
-            root_unit_id (int): The ID of the root unit.
-
-        Returns:
-            Dict[int, Unit]: A dictionary mapping unit IDs to units.
         """
-        if root_unit_id is None:
-            root_unit_id = self._gram_id
+        if root_unit is None:
+            root_unit = self.gram
 
-        available_units = {}
-        stack = [root_unit_id]
         visited = set()
+        queue = deque([root_unit])
+        available_units = []
 
-        while stack:
-            current_unit_id = stack.pop()
-            if current_unit_id in visited:
-                continue
-
-            visited.add(current_unit_id)
-            available_units[current_unit_id] = self._global_units[current_unit_id]
-
-            for next_unit_id in self._graph.get(current_unit_id, {}):
-                if next_unit_id not in visited:
-                    stack.append(next_unit_id)
+        while queue:
+            unit = queue.popleft()
+            if unit not in visited:
+                visited.add(unit)
+                available_units.append(unit)
+                queue.extend(set(self._graph.get(unit, {}).keys()) - visited)
 
         return available_units
 
@@ -244,58 +150,56 @@ class EntityUnitsSystem:
         """
         self._path_cache.clear()
 
-    def _find_conversion_path(self, from_unit_id: int, to_unit_id: int) -> list[tuple[int, int]]:
+    def _find_conversion_path(self, from_unit: Unit, to_unit: Unit) -> list[tuple[Unit, Unit]]:
         """
-        Finds a conversion path between two unit IDs.
-
-        Args:
-            from_unit_id (int): The ID of the starting unit.
-            to_unit_id (int): The ID of the target unit.
-
-        Returns:
-            list[tuple[int, int]]: A list of unit ID pairs representing the conversion path.
-
-        Raises:
-            ValueError: If no conversion path is found between the given unit IDs.
+        Finds a conversion path between two units using BFS.
         """
-        cache_key = (from_unit_id, to_unit_id)
+        cache_key = (from_unit, to_unit)
         if cache_key in self._path_cache:
             return self._path_cache[cache_key]
 
-        queue = [(from_unit_id, [])]
+        queue = deque([(from_unit, [])])
         visited = set()
 
         while queue:
-            current_unit_id, path = queue.pop(0)
-            
-            if current_unit_id == to_unit_id:
+            current_unit, path = queue.popleft()
+            if current_unit == to_unit:
                 self._path_cache[cache_key] = path
                 return path
 
-            if current_unit_id in visited:
-                continue
+            if current_unit not in visited:
+                visited.add(current_unit)
+                for next_unit in self._graph.get(current_unit, {}):
+                    if next_unit not in visited:
+                        new_path = path + [(current_unit, next_unit)]
+                        queue.append((next_unit, new_path))
 
-            visited.add(current_unit_id)
+        raise ValueError(f"No conversion path found between {from_unit.unit_name} and {to_unit.unit_name}")
 
-            for next_unit_id in self._graph.get(current_unit_id, {}):
-                if next_unit_id not in visited:
-                    queue.append((next_unit_id, path + [(current_unit_id, next_unit_id)]))
+    def _update(self):
+        """Updates the object to reflect the latest units and conversions."""
+        self._cache_name_unit_map()
 
-        raise ValueError(f"No conversion path found from unit ID {from_unit_id} to unit ID {to_unit_id}")
-
-    def _build_graph(self):
-        """
-        Builds the graph representation of unit conversions.
-        """
         self._graph.clear()
         self._path_cache.clear()
-        all_conversions = list(self._global_unit_conversions.values()) + list(self._entity_unit_conversions.values())
+        all_conversions = self._global_unit_conversions.union(self._entity_unit_conversions)
 
         for conv in all_conversions:
-            if conv.from_unit_id not in self._graph:
-                self._graph[conv.from_unit_id] = {}
-            if conv.to_unit_id not in self._graph:
-                self._graph[conv.to_unit_id] = {}
+            if conv.from_unit not in self._graph:
+                self._graph[conv.from_unit] = {}
+            if conv.to_unit not in self._graph:
+                self._graph[conv.to_unit] = {}
             
-            self._graph[conv.from_unit_id][conv.to_unit_id] = conv.ratio
-            self._graph[conv.to_unit_id][conv.from_unit_id] = 1 / conv.ratio
+            self._graph[conv.from_unit][conv.to_unit] = conv.ratio
+            self._graph[conv.to_unit][conv.from_unit] = 1 / conv.ratio
+
+    def _cache_name_unit_map(self):
+        """Caches the name-unit map."""
+        # Create the map if was None
+        if self._name_unit_map is None:
+            self._name_unit_map = Map[str, Unit]()
+        # Recreate the map
+        self._name_unit_map.clear()
+        for unit in self._global_units:
+            self._name_unit_map.add_mapping(unit.unit_name, unit)
+        

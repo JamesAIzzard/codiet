@@ -81,17 +81,17 @@ class UnitDBService():
 
             # Insert the unit name into the database
             unit_id = self._repository.create_global_unit(
-                unit_name=unit.unit_name,
-                unit_type=unit.type,
-                single_display_name=unit.single_display_name,
-                plural_display_name=unit.plural_display_name,
+                unit_name=unit._unit_name,
+                unit_type=unit._type,
+                single_display_name=unit._single_display_name,
+                plural_display_name=unit._plural_display_name,
             )
 
             # Update thie id
             unit.id = unit_id
 
             # Insert the aliases for the unit
-            for alias in unit.aliases:
+            for alias in unit._aliases:
                 self._repository.create_global_unit_alias(
                     alias=alias,
                     unit_id=unit_id,
@@ -173,7 +173,7 @@ class UnitDBService():
             id of each specific mass unit.
         """
         # Filter out only the mass units
-        mass_units = {unit_id: unit for unit_id, unit in self.global_units.items() if unit.type == "mass"}
+        mass_units = {unit_id: unit for unit_id, unit in self.global_units.items() if unit._type == "mass"}
         # Return
         return mass_units
 

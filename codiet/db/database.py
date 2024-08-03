@@ -35,13 +35,13 @@ class Database:
         self.create_global_recipe_tags_table(cursor)
 
         # Ingredients tables   
-        self.create_ingredients_table(cursor)
+        self.create_ingredient_base_table(cursor)
         self.create_ingredient_unit_conversions_table(cursor)
         self.create_ingredient_flags_table(cursor)
         self.create_ingredient_nutrient_quantities_table(cursor)
 
         # Recipes tables
-        self.create_recipe_table(cursor)
+        self.create_recipe_base_table(cursor)
         self.create_recipe_ingredients_table(cursor)
         self.create_recipe_serve_time_windows_table(cursor)
         self.create_recipe_tags_table(cursor)
@@ -132,10 +132,10 @@ class Database:
             )
         """)
 
-    def create_ingredients_table(self, cursor:sqlite3.Cursor) -> None:
+    def create_ingredient_base_table(self, cursor:sqlite3.Cursor) -> None:
         """Create the ingredient base table in the database."""
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS ingredients (
+            CREATE TABLE IF NOT EXISTS ingredient_base (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 ingredient_name TEXT NOT NULL UNIQUE,
                 ingredient_description TEXT,
@@ -195,13 +195,13 @@ class Database:
             )
         """)
 
-    def create_recipe_table(self, cursor:sqlite3.Cursor) -> None:
+    def create_recipe_base_table(self, cursor:sqlite3.Cursor) -> None:
         """Create the recipe base table in the database."""
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS recipes (
+            CREATE TABLE IF NOT EXISTS recipe_base (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 recipe_name TEXT UNIQUE NOT NULL,
-                use_as_ingredient BOOLEAN,
+                use_as_ingredient BOOLEAN NOT NULL,
                 recipe_description TEXT,
                 recipe_instructions TEXT
             )

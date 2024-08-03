@@ -9,20 +9,48 @@ class Unit(StoredEntity):
         single_display_name: str,
         plural_display_name: str,
         type: str,
-        aliases: list[str]|None = None,
+        aliases: set[str]|None = None,
         *args, **kwargs
     ):
-        """Initialise the unit.
-        Args:
-            unit_name (str): The name of the unit.
-            single_display_name (str): The singular display name of the unit.
-            plural_display_name (str): The plural display name of the unit.
-            type (str): The type of the unit.
-            aliases (list[str]): The aliases of the unit.
-        """
+        """Initialise the unit."""
         super().__init__(*args, **kwargs)
-        self.unit_name = unit_name
-        self.single_display_name = single_display_name
-        self.plural_display_name = plural_display_name
-        self.type = type
-        self.aliases = aliases or [] # Default to an empty list if None
+        self._unit_name = unit_name
+        self._single_display_name = single_display_name
+        self._plural_display_name = plural_display_name
+        self._type = type
+        self._aliases = aliases or [] # Default to an empty list if None
+
+    @property
+    def unit_name(self) -> str:
+        """Return the unit name."""
+        return self._unit_name
+
+    @property
+    def single_display_name(self) -> str:
+        """Return the single display name of the unit."""
+        return self._single_display_name
+
+    @property
+    def plural_display_name(self) -> str:
+        """Return the plural display name of the unit."""
+        return self._plural_display_name
+    
+    @property
+    def type(self) -> str:
+        """Return the type of the unit."""
+        return self._type
+
+    @property
+    def aliases(self) -> frozenset[str]:
+        """Return the aliases of the unit."""
+        return frozenset(self._aliases)
+            
+    def __eq__(self, other):
+        """Check if two units are equal based on their unit name and type."""
+        if isinstance(other, Unit):
+            return self.unit_name == other.unit_name and self.type == other.type
+        return False
+
+    def __hash__(self):
+        """Return the hash based on the unit name and type."""
+        return hash((self.unit_name, self.type))            

@@ -18,8 +18,8 @@ class FlagDBService(QObject):
         """Initialise the flag database service."""
         super().__init__()
 
-        self.repository = repository
-        self.db_service = db_service
+        self._repository = repository
+        self._db_service = db_service
 
         # Cache the global flag id-name map
         self._global_flag_id_name_map:Map[int, str]|None = None
@@ -42,7 +42,7 @@ class FlagDBService(QObject):
         saved_flags = {}
 
         for flag in flags:
-            flag_id = self.repository.create_global_flag(
+            flag_id = self._repository.create_global_flag(
                 flag_name=flag.flag_name
             )
             flag.id = flag_id
@@ -73,7 +73,7 @@ class FlagDBService(QObject):
             if flag.id is None:
                 raise ValueError("The flag ID must be populated to create an ingredient flag.")
 
-            id = self.repository.create_ingredient_flag(
+            id = self._repository.create_ingredient_flag(
                 ingredient_id=flag.ref_entity_id, # UID of the ingredient
                 flag_id=flag.id, # UID of the ingredient flag
                 flag_value=flag.flag_value
@@ -93,7 +93,7 @@ class FlagDBService(QObject):
         Returns:
             dict[int, EntityFlag]: The flags for the ingredient, where the key is the flag ID.
         """
-        flag_data = self.repository.read_ingredient_flags(ingredient_id)
+        flag_data = self._repository.read_ingredient_flags(ingredient_id)
 
         flags = {}
 
@@ -119,7 +119,7 @@ class FlagDBService(QObject):
             if flag.ref_entity_id is None or flag.id is None:
                 raise ValueError("The ingredient ID and flag ID must be populated to update an ingredient flag.")
             
-            self.repository.update_ingredient_flag(
+            self._repository.update_ingredient_flag(
                 ingredient_id=flag.ref_entity_id,
                 flag_id=flag.id,
                 flag_value=flag.flag_value
@@ -136,7 +136,7 @@ class FlagDBService(QObject):
             if flag.id is None:
                 raise ValueError("The flag ID must be populated to delete an ingredient flag.")
             
-            self.repository.delete_ingredient_flag(
+            self._repository.delete_ingredient_flag(
                 ingredient_flag_id=flag.id
             )
 
@@ -147,7 +147,7 @@ class FlagDBService(QObject):
             Map: A map associating flag ID's with names.
         """
         # Fetch all the flags
-        flags = self.repository.read_all_global_flags()
+        flags = self._repository.read_all_global_flags()
 
         # Clear the map
         self.flag_id_name_map.clear()

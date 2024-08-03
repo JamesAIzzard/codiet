@@ -90,10 +90,10 @@ class UnitConversionsEditor(QObject):
             to_unit_id=unit_conversion.to_unit_id,
             from_unit_display_name=self._get_global_units()[
                 unit_conversion.from_unit_id
-            ].plural_display_name,
+            ]._plural_display_name,
             to_unit_display_name=self._get_global_units()[
                 unit_conversion.to_unit_id
-            ].plural_display_name,
+            ]._plural_display_name,
         )
         # Connect the signals
         view.conversionUpdated.connect(self._on_unit_conversion_updated)

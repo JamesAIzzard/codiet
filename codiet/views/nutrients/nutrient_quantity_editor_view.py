@@ -78,7 +78,7 @@ class NutrientQuantityEditorView(QWidget):
         return self.nutrient_mass_units.selected_unit_name
 
     def _build_ui(self):
-        """Initializes the UI elements."""
+        """Initialises the UI elements."""
         # Create a horizontal layout for the widget
         layout = QHBoxLayout()
         self.setLayout(layout)

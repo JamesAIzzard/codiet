@@ -22,7 +22,7 @@ class StoredRefEntity(StoredEntity):
         return self._ref_entity_id
 
     @ref_entity_id.setter
-    def ref_id(self, ref_id: int|None):
+    def ref_entity_id(self, ref_id: int|None):
         """Set the reference entity's ID."""
         self._ref_entity_id = ref_id
 
