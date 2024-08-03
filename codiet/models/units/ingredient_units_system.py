@@ -1,8 +1,13 @@
+from typing import TYPE_CHECKING
+from collections import deque
+
 from codiet.utils.map import Map
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
 from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
-from collections import deque
+
+if TYPE_CHECKING:
+    from codiet.models.ingredients.ingredient import Ingredient
 
 class IngredientUnitsSystem:
     """
@@ -11,20 +16,26 @@ class IngredientUnitsSystem:
 
     def __init__(
         self,
+        ingredient: 'Ingredient',
         global_units: set[Unit]|None = None,
         global_unit_conversions: set[UnitConversion]|None = None,
-        entity_unit_conversions: set[IngredientUnitConversion]|None = None
+        ingredient_unit_conversions: set[IngredientUnitConversion]|None = None
     ):
-
+        self._ingredient = ingredient
         self._global_units = global_units or set()
         self._global_unit_conversions = global_unit_conversions or set()
-        self._entity_unit_conversions = entity_unit_conversions or set()
+        self._entity_unit_conversions = ingredient_unit_conversions or set()
 
         self._graph: dict[Unit, dict[Unit, float]] = {}
         self._path_cache: dict[tuple[Unit, Unit], list[tuple[Unit, Unit]]] = {}
         self._name_unit_map: Map[str, Unit]|None = None
         self._gram: Unit|None = None
         self._update()        
+
+    @property
+    def ingredient(self) -> 'Ingredient':
+        """Retrieves the ingredient."""
+        return self._ingredient
 
     @property
     def gram(self) -> Unit:
@@ -66,6 +77,14 @@ class IngredientUnitsSystem:
             else:
                 # Add the new one
                 self._entity_unit_conversions.add(conversion)
+        # Rebuild everything
+        self._update()
+
+    def remove_entity_unit_conversions(self, entity_unit_conversions: set[IngredientUnitConversion]):
+        """Removes entity unit conversions from the existing list."""
+        for conversion in entity_unit_conversions:
+            if conversion in self._entity_unit_conversions:
+                self._entity_unit_conversions.remove(conversion)
         # Rebuild everything
         self._update()
 
@@ -122,7 +141,7 @@ class IngredientUnitsSystem:
 
         return result
 
-    def get_available_units(self, root_unit: Unit|None=None) -> list[Unit]:
+    def get_available_units(self, root_unit: Unit|None=None) -> frozenset[Unit]:
         """
         Retrieves all available units starting from a root unit ID.
         If the root unit ID is None, the root unit is assumed to be grams.
@@ -141,7 +160,7 @@ class IngredientUnitsSystem:
                 available_units.append(unit)
                 queue.extend(set(self._graph.get(unit, {}).keys()) - visited)
 
-        return available_units
+        return frozenset(available_units)
 
     def clear_path_cache(self):
         """

@@ -1,6 +1,8 @@
 from codiet.db.stored_entity import StoredEntity
 from codiet.models.units.unit import Unit
+from codiet.models.units.unit_conversion import UnitConversion
 from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
+from codiet.models.units.ingredient_units_system import IngredientUnitsSystem
 from codiet.models.flags.ingredient_flag import IngredientFlag
 from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
 
@@ -11,6 +13,8 @@ class Ingredient(StoredEntity):
     def __init__(
             self, 
             name:str,
+            global_units: set[Unit],
+            global_unit_conversions: set[UnitConversion],   
             description:str|None=None,
             standard_unit:Unit|None=None,
             unit_conversions:set[IngredientUnitConversion]|None=None,
@@ -27,10 +31,33 @@ class Ingredient(StoredEntity):
     
         self._name = name
         self._description = description
-        self._standard_unit = standard_unit
-        self._unit_conversions = unit_conversions if unit_conversions is not None else set()
+        self._unit_system = IngredientUnitsSystem(
+            ingredient=self,
+            global_units=global_units,
+            global_unit_conversions=global_unit_conversions,
+            ingredient_unit_conversions=unit_conversions
+        )
+
+        # If the standard unit is not set, just use grams
+        if standard_unit is None:
+            self._standard_unit = self._unit_system.gram
+        else:
+            # Check the standard unit is accessible
+            if standard_unit not in self._unit_system.get_available_units():
+                raise ValueError(f"{standard_unit.unit_name} is not accessible in the unit system.")
+            self._standard_unit = standard_unit
+        
         self._cost_value = cost_value
-        self._cost_qty_unit = cost_qty_unit if cost_qty_unit is not None else standard_unit
+
+        # If the cost quantity unit is not set, set it to the standard unit
+        if cost_qty_unit is None:
+            self._cost_qty_unit = self._standard_unit
+        else:
+            # Check the cost quantity unit is accessible
+            if cost_qty_unit not in self._unit_system.get_available_units():
+                raise ValueError(f"{cost_qty_unit.unit_name} is not accessible in the unit system.")
+            self._cost_qty_unit = cost_qty_unit
+
         self._cost_qty_value = cost_qty_value
         self._flags = flags if flags is not None else set()
         self._gi = gi
@@ -61,8 +88,6 @@ class Ingredient(StoredEntity):
     @property
     def standard_unit(self) -> Unit:
         """Returns the standard unit ID."""
-        if self._standard_unit is None:
-            raise ValueError("Standard unit cannot be empty.")
         return self._standard_unit
     
     @standard_unit.setter
@@ -70,20 +95,12 @@ class Ingredient(StoredEntity):
         """Sets the standard unit ID."""
         if value is None:
             raise ValueError("Standard unit cannot be empty.")
+        
+        # Check the standard unit is accessible
+        if value not in self._unit_system.get_available_units():
+            raise ValueError(f"{value.unit_name} is not accessible in the unit system.")
+
         self._standard_unit = value
-        # If cost unit ID is not set, set it to the standard unit ID
-        if self._cost_qty_unit is None:
-            self._cost_qty_unit = value
-
-    @property
-    def unit_conversions(self) -> frozenset[IngredientUnitConversion]:
-        """Returns the unit conversions."""
-        return frozenset(self._unit_conversions)
-
-    @unit_conversions.setter
-    def unit_conversions(self, value: set[IngredientUnitConversion]) -> None:
-        """Sets the unit conversions."""
-        self._unit_conversions = value
 
     @property
     def cost_value(self) -> float | None:
@@ -101,14 +118,16 @@ class Ingredient(StoredEntity):
     @property
     def cost_qty_unit(self) -> Unit:
         """Returns the cost quantity unit."""
-        if self._cost_qty_unit is None:
-            raise ValueError("Cost quantity unit cannot be empty.")
         return self._cost_qty_unit
     
     @cost_qty_unit.setter
     def cost_qty_unit(self, value: Unit) -> None:
         """Sets the cost quantity unit ID."""
-        self._cost_qty_unit_id = value
+        if value is None:
+            raise ValueError("Cost quantity unit cannot be empty.")
+        if value not in self._unit_system.get_available_units():
+            raise ValueError(f"{value.unit_name} is not accessible in the unit system.")
+        self._cost_qty_unit = value
 
     @property
     def cost_qty_value(self) -> float | None:
@@ -142,17 +161,6 @@ class Ingredient(StoredEntity):
     def nutrient_quantities(self, value: set[IngredientNutrientQuantity]) -> None:
         """Sets the nutrient quantities."""
         self._nutrient_quantities = value
-
-    def update_unit_conversions(self, unit_conversions: set[IngredientUnitConversion]) -> None:
-        """Updates unit conversions."""
-        self._unit_conversions.difference_update(unit_conversions)
-        self._unit_conversions.update(unit_conversions)
-
-    def remove_unit_conversions(self, unit_conversions: set[IngredientUnitConversion]) -> None:
-        """Delete unit conversions."""
-        if not unit_conversions.issubset(self._unit_conversions):
-            raise KeyError("One or more unit conversions not found in ingredient.")
-        self._unit_conversions.difference_update(unit_conversions)
 
     def update_flags(self, flags: set[IngredientFlag]) -> None:
         """Updates the flags passed in the set."""
