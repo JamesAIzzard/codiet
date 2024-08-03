@@ -49,6 +49,16 @@ class Ingredient(StoredEntity):
         self._name = value
 
     @property
+    def description(self) -> str | None:
+        """Returns the description."""
+        return self._description
+    
+    @description.setter
+    def description(self, value: str | None) -> None:
+        """Sets the description."""
+        self._description = value
+
+    @property
     def standard_unit(self) -> Unit:
         """Returns the standard unit ID."""
         if self._standard_unit is None:
