@@ -1,2 +1,2 @@
 from .flag import Flag
-from .entity_flag import EntityFlag
+from .ingredient_flag import IngredientFlag

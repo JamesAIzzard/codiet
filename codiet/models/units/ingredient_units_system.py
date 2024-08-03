@@ -1,21 +1,20 @@
 from codiet.utils.map import Map
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
-from codiet.models.units.entity_unit_conversion import EntityUnitConversion
+from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
 from collections import deque
 
-class EntityUnitsSystem:
+class IngredientUnitsSystem:
     """
-    Represents a system for managing entity units and conversions.
+    Represents a system for managing ingredient units and conversions.
     """
 
     def __init__(
         self,
         global_units: set[Unit]|None = None,
         global_unit_conversions: set[UnitConversion]|None = None,
-        entity_unit_conversions: set[EntityUnitConversion]|None = None
+        entity_unit_conversions: set[IngredientUnitConversion]|None = None
     ):
-        """Initialises the EntityUnitsSystem object."""
 
         self._global_units = global_units or set()
         self._global_unit_conversions = global_unit_conversions or set()
@@ -38,12 +37,12 @@ class EntityUnitsSystem:
         return frozenset(self._global_units)
     
     @property
-    def entity_unit_conversions(self) -> frozenset[EntityUnitConversion]:
+    def entity_unit_conversions(self) -> frozenset[IngredientUnitConversion]:
         """Retrieves the entity unit conversions."""
         return frozenset(self._entity_unit_conversions)
 
     @entity_unit_conversions.setter
-    def entity_unit_conversions(self, entity_unit_conversions: set[EntityUnitConversion]):
+    def entity_unit_conversions(self, entity_unit_conversions: set[IngredientUnitConversion]):
         """Replaces the existing entity unit conversions with a new list."""
         self._entity_unit_conversions = entity_unit_conversions
         self._update()
@@ -57,7 +56,7 @@ class EntityUnitsSystem:
             raise ValueError(f"Unit {unit_name} not found.")
         return unit
 
-    def update_entity_unit_conversions(self, entity_unit_conversions: set[EntityUnitConversion]):
+    def update_entity_unit_conversions(self, entity_unit_conversions: set[IngredientUnitConversion]):
         """Adds entity unit conversions to the existing list."""
         for conversion in entity_unit_conversions:
             if conversion in self._entity_unit_conversions:

@@ -6,7 +6,7 @@ from PyQt6.QtCore import QObject, pyqtSignal
 
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
-from codiet.models.units.entity_unit_conversion import EntityUnitConversion
+from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
 from codiet.views.units.unit_conversion_editor_view import UnitConversionEditorView
 from codiet.views.units.unit_conversions_editor_view import UnitConversionsEditorView
 from codiet.controllers.units.unit_conversion_definition_dialog import UnitConversionDefinitionDialog
@@ -32,7 +32,7 @@ class UnitConversionsEditor(QObject):
         self,
         get_global_units: Callable[[], dict[int, Unit]],
         get_global_unit_conversions: Callable[[], dict[int, UnitConversion]],
-        get_entity_unit_conversions: Callable[[], dict[int, EntityUnitConversion]],
+        get_entity_unit_conversions: Callable[[], dict[int, IngredientUnitConversion]],
         view: UnitConversionsEditorView | None = None,
         parent: QWidget | None = None,
     ):
@@ -76,7 +76,7 @@ class UnitConversionsEditor(QObject):
         for unit_conversion in self._get_entity_unit_conversions().values():
             self._add_unit_conversion(unit_conversion)
 
-    def _add_unit_conversion(self, unit_conversion: EntityUnitConversion) -> None:
+    def _add_unit_conversion(self, unit_conversion: IngredientUnitConversion) -> None:
         """Add a unit conversion.
         Args:
             unit_conversion (IngredientUnitConversion): The unit conversion to add.
@@ -147,7 +147,7 @@ class UnitConversionsEditor(QObject):
             None
         """
         # Create a unit conversion instance
-        conversion = EntityUnitConversion(
+        conversion = IngredientUnitConversion(
             from_unit_id=from_unit_id,
             to_unit_id=to_unit_id,
             from_unit_qty=None,

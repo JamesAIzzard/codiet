@@ -6,7 +6,8 @@ if TYPE_CHECKING:
     from . import DatabaseService
 from ..repository import Repository
 from codiet.utils.map import Map
-from codiet.models.flags import Flag, EntityFlag
+from codiet.models.flags.flag import Flag
+from codiet.models.flags.ingredient_flag import IngredientFlag
 
 class FlagDBService(QObject):
     """Database service module for flags."""
@@ -54,7 +55,7 @@ class FlagDBService(QObject):
         return saved_flags
 
 
-    def create_ingredient_flags(self, flags: list[EntityFlag]) -> dict[int, EntityFlag]:
+    def create_ingredient_flags(self, flags: list[IngredientFlag]) -> dict[int, IngredientFlag]:
         """Insert the ingredient flags into the database.
         Args:
             flags (list[EntityFlag]): The flags to be inserted.
@@ -86,7 +87,7 @@ class FlagDBService(QObject):
 
         return saved_flags
     
-    def read_ingredient_flags(self, ingredient_id: int) -> dict[int, EntityFlag]:
+    def read_ingredient_flags(self, ingredient_id: int) -> dict[int, IngredientFlag]:
         """Read the flags for the given ingredient.
         Args:
             ingredient_id (int): The ID of the ingredient to read the flags for.
@@ -106,7 +107,7 @@ class FlagDBService(QObject):
 
         return flags
     
-    def update_ingredient_flags(self, flags: list[EntityFlag]) -> None:
+    def update_ingredient_flags(self, flags: list[IngredientFlag]) -> None:
         """Update the flags for the given ingredient.
         Args:
             flags (dict[int, EntityFlag]): The flags to be updated, where the key is the flag ID.
@@ -125,7 +126,7 @@ class FlagDBService(QObject):
                 flag_value=flag.flag_value
             )
 
-    def delete_ingredient_flags(self, flags: list[EntityFlag]) -> None:
+    def delete_ingredient_flags(self, flags: list[IngredientFlag]) -> None:
         """Delete the flags supplied.
         Args:
             flags (list[EntityFlag]): The flags to be deleted.

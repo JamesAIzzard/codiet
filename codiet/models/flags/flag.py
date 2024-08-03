@@ -4,7 +4,8 @@ class Flag(StoredEntity):
     """Models a flag."""
 
     def __init__(
-            self, flag_name: str, 
+            self, 
+            flag_name: str, 
             flag_value:bool|None=None, 
             *args, **kwargs
         ):

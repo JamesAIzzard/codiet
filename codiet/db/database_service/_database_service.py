@@ -8,14 +8,14 @@ from codiet.db.database_service.ingredient_db_service import IngredientDBService
 from codiet.db.database_service.unit_db_service import UnitDBService
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
-from codiet.models.units.entity_unit_conversion import EntityUnitConversion
+from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
 from codiet.models.nutrients import Nutrient
 from codiet.models.ingredients.ingredient import Ingredient
 from codiet.models.ingredients.ingredient_quantity import IngredientQuantity
-from codiet.models.nutrients.entity_nutrient_quantity import (
-    EntityNutrientQuantity,
+from codiet.models.nutrients.ingredient_nutrient_quantity import (
+    IngredientNutrientQuantity,
 )
-from codiet.models.entity_serve_time_window import EntityServeTimeWindow
+from codiet.models.recipe_serve_time_window import RecipeServeTimeWindow
 from codiet.models.recipes.recipe import Recipe
 
 
@@ -76,7 +76,7 @@ class DatabaseService(QObject):
 
     def create_recipe_serve_time_window(
         self, recipe_id: int, window_string: str
-    ) -> EntityServeTimeWindow:
+    ) -> RecipeServeTimeWindow:
         """Creates a serve time window for the given recipe.
         Args:
             recipe_id (int): The id of the recipe.
@@ -87,7 +87,7 @@ class DatabaseService(QObject):
         # Insert the serve time window into the database
         id = self.repository.create_recipe_serve_time_window(recipe_id, window_string)
         # Init the serve time window
-        serve_time_window = EntityServeTimeWindow(
+        serve_time_window = RecipeServeTimeWindow(
             id=id, recipe_id=recipe_id, window_string=window_string
         )
         return serve_time_window

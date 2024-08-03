@@ -1,8 +1,8 @@
 from codiet.db.stored_entity import StoredEntity
 from codiet.models.units.unit import Unit
-from codiet.models.units.entity_unit_conversion import EntityUnitConversion
-from codiet.models.flags.entity_flag import EntityFlag
-from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
+from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
+from codiet.models.flags.ingredient_flag import IngredientFlag
+from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
 
 
 class Ingredient(StoredEntity):
@@ -10,16 +10,16 @@ class Ingredient(StoredEntity):
 
     def __init__(
             self, 
-            name:str|None=None,
+            name:str,
             description:str|None=None,
             standard_unit:Unit|None=None,
-            unit_conversions:set[EntityUnitConversion]|None=None,
+            unit_conversions:set[IngredientUnitConversion]|None=None,
             cost_value:float|None=None,
             cost_qty_unit:Unit|None=None,
             cost_qty_value:float|None=None,
-            flags:set[EntityFlag]|None=None,
+            flags:set[IngredientFlag]|None=None,
             gi:float|None=None,
-            nutrient_quantities:set[EntityNutrientQuantity]|None=None,
+            nutrient_quantities:set[IngredientNutrientQuantity]|None=None,
             *args, **kwargs
         ):
         """Initialises the class."""
@@ -39,8 +39,6 @@ class Ingredient(StoredEntity):
     @property
     def name(self) -> str:
         """Returns the name."""
-        if self._name is None:
-            raise ValueError("Name cannot be empty.")
         return self._name
     
     @name.setter
@@ -68,12 +66,12 @@ class Ingredient(StoredEntity):
             self._cost_qty_unit = value
 
     @property
-    def unit_conversions(self) -> frozenset[EntityUnitConversion]:
+    def unit_conversions(self) -> frozenset[IngredientUnitConversion]:
         """Returns the unit conversions."""
         return frozenset(self._unit_conversions)
 
     @unit_conversions.setter
-    def unit_conversions(self, value: set[EntityUnitConversion]) -> None:
+    def unit_conversions(self, value: set[IngredientUnitConversion]) -> None:
         """Sets the unit conversions."""
         self._unit_conversions = value
 
@@ -116,42 +114,42 @@ class Ingredient(StoredEntity):
         self._cost_qty_value = value
 
     @property
-    def flags(self) -> frozenset[EntityFlag]:
+    def flags(self) -> frozenset[IngredientFlag]:
         """Returns the flags."""
         return frozenset(self._flags)
 
     @flags.setter
-    def flags(self, value: set[EntityFlag]) -> None:
+    def flags(self, value: set[IngredientFlag]) -> None:
         """Sets the flags."""
         self._flags = value
 
     @property
-    def nutrient_quantities(self) -> frozenset[EntityNutrientQuantity]:
+    def nutrient_quantities(self) -> frozenset[IngredientNutrientQuantity]:
         """Returns the nutrient quantities."""
         return frozenset(self._nutrient_quantities)
 
     @nutrient_quantities.setter
-    def nutrient_quantities(self, value: set[EntityNutrientQuantity]) -> None:
+    def nutrient_quantities(self, value: set[IngredientNutrientQuantity]) -> None:
         """Sets the nutrient quantities."""
         self._nutrient_quantities = value
 
-    def update_unit_conversions(self, unit_conversions: set[EntityUnitConversion]) -> None:
+    def update_unit_conversions(self, unit_conversions: set[IngredientUnitConversion]) -> None:
         """Updates unit conversions."""
         self._unit_conversions.difference_update(unit_conversions)
         self._unit_conversions.update(unit_conversions)
 
-    def remove_unit_conversions(self, unit_conversions: set[EntityUnitConversion]) -> None:
+    def remove_unit_conversions(self, unit_conversions: set[IngredientUnitConversion]) -> None:
         """Delete unit conversions."""
         if not unit_conversions.issubset(self._unit_conversions):
             raise KeyError("One or more unit conversions not found in ingredient.")
         self._unit_conversions.difference_update(unit_conversions)
 
-    def update_flags(self, flags: set[EntityFlag]) -> None:
+    def update_flags(self, flags: set[IngredientFlag]) -> None:
         """Updates the flags passed in the set."""
         self._flags.difference_update(flags)
         self._flags.update(flags)
 
-    def remove_flags(self, flags: set[EntityFlag]) -> None:
+    def remove_flags(self, flags: set[IngredientFlag]) -> None:
         """Deletes flags."""
         if not flags.issubset(self._flags):
             raise KeyError("One or more flags not found in ingredient.")
@@ -167,12 +165,12 @@ class Ingredient(StoredEntity):
         for flag in self.flags:
             flag.flag_value = False
 
-    def update_nutrient_quantities(self, nutrient_quantities: set[EntityNutrientQuantity]) -> None:
+    def update_nutrient_quantities(self, nutrient_quantities: set[IngredientNutrientQuantity]) -> None:
         """Updates nutrient quantities."""
         self._nutrient_quantities.difference_update(nutrient_quantities)
         self._nutrient_quantities.update(nutrient_quantities)
 
-    def remove_nutrient_quantities(self, nutrient_quantities: set[EntityNutrientQuantity]) -> None:
+    def remove_nutrient_quantities(self, nutrient_quantities: set[IngredientNutrientQuantity]) -> None:
         """Deletes nutrient quantities."""
         if not nutrient_quantities.issubset(self._nutrient_quantities):
             raise KeyError("One or more nutrient quantities not found in ingredient.")

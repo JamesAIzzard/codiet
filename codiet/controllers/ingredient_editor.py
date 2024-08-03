@@ -5,9 +5,9 @@ from PyQt6.QtWidgets import QLabel
 from codiet.db.database_service import DatabaseService
 from codiet.models.ingredients.ingredient import Ingredient
 from codiet.models.nutrients import filter_leaf_nutrients
-from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
-from codiet.models.units.entity_unit_conversion import EntityUnitConversion
-from codiet.models.units.entity_units_system import EntityUnitsSystem
+from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
+from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
+from codiet.models.units.ingredient_units_system import IngredientUnitsSystem
 from codiet.views.ingredients.ingredient_editor_view import IngredientEditorView
 from codiet.controllers.base_controller import BaseController
 from codiet.controllers.dialogs import (
@@ -40,7 +40,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self._global_flags = self._db_service.repository.read_all_global_flags()
         self._global_nutrients = self._db_service.read_all_global_nutrients()
         self._global_leaf_nutrients = filter_leaf_nutrients(self._global_nutrients)
-        self._ingredient_unit_system = EntityUnitsSystem(
+        self._ingredient_unit_system = IngredientUnitsSystem(
             global_units=self._db_service.units.global_units,
             global_unit_conversions=self._db_service.units.global_unit_conversions,
             entity_unit_conversions={},  # Update when ingredient is loaded
@@ -294,7 +294,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
             )
             db_service.commit()
 
-    def _on_unit_conversion_added(self, unit_conversion: EntityUnitConversion) -> None:
+    def _on_unit_conversion_added(self, unit_conversion: IngredientUnitConversion) -> None:
         """Handler for a unit conversion being added to the ingredient.
         Args:
             unit_conversion (EntityUnitConversion): The unit conversion to add.
@@ -398,7 +398,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         )
         self._db_service.repository.commit()
 
-    def _on_nutrient_qty_added(self, nutrient_quantity: EntityNutrientQuantity) -> None:
+    def _on_nutrient_qty_added(self, nutrient_quantity: IngredientNutrientQuantity) -> None:
         """Handler for adding a nutrient quantity to the ingredient."""
         # Add the ingredient ID to the nutrient quantity
         nutrient_quantity.parent_entity_id = self.ingredient.id
@@ -408,7 +408,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self._db_service.create_ingredient_nutrient_quantity(nutrient_quantity)
         self._db_service.repository.commit()
 
-    def _on_nutrient_qty_changed(self, nutrient_quantity: EntityNutrientQuantity):
+    def _on_nutrient_qty_changed(self, nutrient_quantity: IngredientNutrientQuantity):
         """Handler for changes to the ingredient nutrient quantities."""
         # Update the nutrient quantity on the model
         self.ingredient.update_nutrient_quantity(nutrient_quantity)

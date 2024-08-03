@@ -4,12 +4,16 @@ from codiet.db_population.units import read_global_units_from_json
 from codiet.db_population.units import read_global_unit_conversions_from_json
 from codiet.utils.map import Map
 from codiet.models.units.unit import Unit
-from codiet.models.units.entity_unit_conversion import EntityUnitConversion
-from codiet.models.units.entity_units_system import EntityUnitsSystem
+from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
+from codiet.models.units.ingredient_units_system import IngredientUnitsSystem
+from codiet.models.ingredients.ingredient import Ingredient
 
 class TestEntityUnitsSystem(unittest.TestCase):
 
     def setUp(self):
+        # Create a test ingredient
+        self.ingredient = Ingredient(name="Test Ingredient")
+
         # Grab all the global units and conversions
         self.global_units = read_global_units_from_json()
         self.global_unit_conversions = read_global_unit_conversions_from_json()
@@ -21,7 +25,7 @@ class TestEntityUnitsSystem(unittest.TestCase):
 
         
         # Create a system with disconnected graph
-        self.disconnected_system = EntityUnitsSystem(
+        self.disconnected_system = IngredientUnitsSystem(
             global_units=self.global_units,
             global_unit_conversions=self.global_unit_conversions,
         )
@@ -30,22 +34,24 @@ class TestEntityUnitsSystem(unittest.TestCase):
         # Create a conversion between grams and millilitres
         gram = self.named_global_units.get_value("gram")
         millilitre = self.named_global_units.get_value("millilitre")
-        conversion = EntityUnitConversion(
+        conversion = IngredientUnitConversion(
+            ingredient=self.ingredient,
             from_unit=gram,
             to_unit=millilitre,
             from_unit_qty=1,
             to_unit_qty=1.2,
         )
-        self.connected_system = EntityUnitsSystem(
+        self.connected_system = IngredientUnitsSystem(
             global_units=self.global_units,
             global_unit_conversions=self.global_unit_conversions,
             entity_unit_conversions=set([conversion]),
         )
 
     def test_init(self):
-        """Test the initialization of EntityUnitsSystem."""
-        self.assertIsInstance(self.disconnected_system, EntityUnitsSystem)
-        self.assertIsInstance(self.connected_system, EntityUnitsSystem)
+        """Test the initialisation of EntityUnitsSystem."""
+        # Check both of the systems are the right type
+        self.assertIsInstance(self.disconnected_system, IngredientUnitsSystem)
+        self.assertIsInstance(self.connected_system, IngredientUnitsSystem)
 
     def test_gram(self):
         """Test the retrieval of the gram unit."""
@@ -104,7 +110,8 @@ class TestEntityUnitsSystem(unittest.TestCase):
         # Setup gram-slice conversion
         gram = self.named_global_units.get_value("gram")
         slice_unit = self.named_global_units.get_value("slice")
-        slice_conversion = EntityUnitConversion(
+        slice_conversion = IngredientUnitConversion(
+            ingredient=self.ingredient,
             from_unit=gram,
             to_unit=slice_unit,
             from_unit_qty=100,

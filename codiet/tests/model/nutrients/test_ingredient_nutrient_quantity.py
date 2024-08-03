@@ -5,9 +5,10 @@ from codiet.db_population.units import read_global_units_from_json
 from codiet.utils.map import Map
 from codiet.models.nutrients.nutrient import Nutrient
 from codiet.models.units.unit import Unit
-from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
+from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
+from codiet.models.ingredients.ingredient import Ingredient
 
-class TestEntityNutrientQuantity(TestCase):
+class TestIngredientNutrientQuantity(TestCase):
     def setUp(self):
         # Grab all the global nutrients and units
         self.global_nutrients = read_global_nutrients_from_json()
@@ -23,9 +24,15 @@ class TestEntityNutrientQuantity(TestCase):
         for global_unit in self.global_units:
             self.named_global_units.add_mapping(global_unit.unit_name, global_unit)
 
+        # Create a test ingredient
+        self.ingredient = Ingredient(
+            name="Test Ingredient",
+        )
+
     def test_init(self):
         """Check that we can initialise an instance."""
-        enq = EntityNutrientQuantity(
+        enq = IngredientNutrientQuantity(
+            ingredient=self.ingredient,
             nutrient=self.named_global_nutrients.get_value('protein'),
             ntr_mass_unit=self.named_global_units.get_value('gram'),
             ntr_mass_value=10.0,
@@ -33,6 +40,7 @@ class TestEntityNutrientQuantity(TestCase):
         )
         
         # Check the instance
+        self.assertEqual(enq.ingredient, self.ingredient)
         self.assertEqual(enq.nutrient, self.named_global_nutrients.get_value('protein'))
         self.assertEqual(enq.ntr_mass_unit, self.named_global_units.get_value('gram'))
         self.assertEqual(enq.ntr_mass_value, 10.0)

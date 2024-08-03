@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import QWidget
 
 from codiet.utils.map import Map
 from codiet.models.nutrients.nutrient import Nutrient
-from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
+from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
 from codiet.models.units.unit import Unit
 from codiet.views.nutrients.nutrient_quantity_editor_view import (
     NutrientQuantityEditorView,
@@ -37,7 +37,7 @@ class NutrientQuantitiesEditor(QObject):
         get_global_leaf_nutrients: Callable[[], dict[int, Nutrient]],
         get_global_mass_units: Callable[[], dict[int, Unit]],
         get_entity_available_units: Callable[[], dict[int, Unit]],
-        get_entity_nutrient_quantities: Callable[[], dict[int, EntityNutrientQuantity]],
+        get_entity_nutrient_quantities: Callable[[], dict[int, IngredientNutrientQuantity]],
         rescale_nutrient_mass: Callable[[int, int, float, float, float], float],
         default_mass_unit_id: int,
         view: NutrientQuantitiesEditorView | None = None,
@@ -115,7 +115,7 @@ class NutrientQuantitiesEditor(QObject):
             nutrient_id (int): The global nutrient ID.
         """
         # Create a new EntityNutrientQuantity object
-        entity_nutrient_quantity = EntityNutrientQuantity(
+        entity_nutrient_quantity = IngredientNutrientQuantity(
             nutrient_id=nutrient_id,
             ntr_mass_unit_id=self._default_mass_unit_id,
         )
@@ -137,7 +137,7 @@ class NutrientQuantitiesEditor(QObject):
         # Emit the nutrientQuantityAdded signal
         self.nutrientQuantityAdded.emit(entity_nutrient_quantity)
 
-    def _add_nutrient_quantity(self, nutrient_quantity: EntityNutrientQuantity) -> None:
+    def _add_nutrient_quantity(self, nutrient_quantity: IngredientNutrientQuantity) -> None:
         """Adds a nutrient quantity to the listbox.
 
         Args:
