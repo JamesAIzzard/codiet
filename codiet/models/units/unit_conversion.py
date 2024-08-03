@@ -89,7 +89,7 @@ class UnitConversion(StoredEntity):
 
     def __eq__(self, other):
         if not isinstance(other, UnitConversion):
-            return NotImplemented
+            return False
         return (
             (self.from_unit == other.from_unit and self.to_unit == other.to_unit) or
             (self.from_unit == other.to_unit and self.to_unit == other.from_unit)

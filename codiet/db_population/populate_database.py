@@ -14,7 +14,7 @@ from codiet.db_population import (
 )
 from codiet.db_population.units import read_global_units_from_json
 from codiet.utils.tags import flatten_tree
-from codiet.models.ingredients.ingredient import EntityNutrientQuantity
+from codiet.models.ingredients.ingredient import IngredientNutrientQuantity
 from codiet.db.database_service import DatabaseService
 
 def push_global_units_to_db(db_service:DatabaseService) -> None:
@@ -181,10 +181,10 @@ def push_recipes_to_db():
 
 def _load_ingredient_nutrient_qty_from_json(
     nutrient_name: str, nutrient_data: dict
-) -> EntityNutrientQuantity:
+) -> IngredientNutrientQuantity:
     """Load an ingredient nutrient quantity object from a json data dict."""
     # Create the ingredient nutrient quantity instance
-    nutrient_qty = EntityNutrientQuantity(
+    nutrient_qty = IngredientNutrientQuantity(
         nutrient_name=nutrient_name,
         ntr_mass_value=nutrient_data["ntr_mass_value"],
         ntr_mass_unit=nutrient_data["ntr_mass_unit"],

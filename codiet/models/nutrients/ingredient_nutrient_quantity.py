@@ -1,14 +1,19 @@
-from codiet.db.stored_ref_entity import StoredRefEntity
+from typing import TYPE_CHECKING
+
+from codiet.db.stored_entity import StoredEntity
 from codiet.models.nutrients.nutrient import Nutrient
 from codiet.models.units.unit import Unit
 
+if TYPE_CHECKING:
+    from codiet.models.ingredients.ingredient import Ingredient
 
-class EntityNutrientQuantity(StoredRefEntity):
+class IngredientNutrientQuantity(StoredEntity):
     """Class to represent the nutrient quantity associated with an entity."""
 
     def __init__(
         self,
         nutrient: Nutrient,
+        ingredient: 'Ingredient',
         ntr_mass_unit: Unit | None = None,
         ntr_mass_value: float | None = None,
         entity_grams_qty: float | None = None,
@@ -17,6 +22,7 @@ class EntityNutrientQuantity(StoredRefEntity):
         super().__init__(*args, **kwargs)
         
         self._nutrient = nutrient
+        self._ingredient = ingredient
         self._ntr_mass_unit = ntr_mass_unit
         self._ntr_mass_value = ntr_mass_value
         self._entity_grams_qty = entity_grams_qty
@@ -25,6 +31,11 @@ class EntityNutrientQuantity(StoredRefEntity):
     def nutrient(self) -> Nutrient:
         """Return the nutrient."""
         return self._nutrient
+
+    @property
+    def ingredient(self) -> 'Ingredient':
+        """Return the ingredient."""
+        return self._ingredient
 
     @property
     def ntr_mass_unit(self) -> Unit | None:
@@ -67,7 +78,7 @@ class EntityNutrientQuantity(StoredRefEntity):
         )
 
     def __eq__(self, other):
-        if not isinstance(other, EntityNutrientQuantity):
+        if not isinstance(other, IngredientNutrientQuantity):
             return False
 
         attributes_to_compare = [

@@ -6,7 +6,7 @@ from codiet.db import Repository
 from codiet.utils.map import Map
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
-from codiet.models.units.entity_unit_conversion import EntityUnitConversion
+from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
 
 class UnitDBService():
     """Service for interacting with the unit database."""
@@ -101,7 +101,7 @@ class UnitDBService():
 
         return persisted_units
 
-    def create_ingredient_unit_conversions(self, unit_conversions:list[EntityUnitConversion]) -> dict[int, EntityUnitConversion]:
+    def create_ingredient_unit_conversions(self, unit_conversions:list[IngredientUnitConversion]) -> dict[int, IngredientUnitConversion]:
         """Creates unit conversions for the given ingredient.
         Args:
             unit_conversions (list[EntityUnitConversion]): The unit conversions to create.
@@ -201,7 +201,7 @@ class UnitDBService():
 
     def read_ingredient_unit_conversions(
         self, ingredient_id: int
-    ) -> dict[int, EntityUnitConversion]:
+    ) -> dict[int, IngredientUnitConversion]:
         """Returns a list of unit conversions for the given ingredient.
         Args:
             ingredient_id (int): The id of the ingredient.
@@ -220,7 +220,7 @@ class UnitDBService():
         # Cycle through the raw data
         for conversion_id, conversion_data in raw_conversion_data.items():
             # Create a new custom unit
-            conversions[conversion_id] = EntityUnitConversion(
+            conversions[conversion_id] = IngredientUnitConversion(
                 entity_id=ingredient_id,
                 id=conversion_id,
                 from_unit_id=conversion_data["from_unit_id"],
@@ -230,7 +230,7 @@ class UnitDBService():
             )
         return conversions
 
-    def update_ingredient_unit_conversion(self, unit_conversion: EntityUnitConversion) -> None:
+    def update_ingredient_unit_conversion(self, unit_conversion: IngredientUnitConversion) -> None:
         """Updates the unit conversion in the database."""
         # Raise an exception if the id is None
         if unit_conversion.id is None:

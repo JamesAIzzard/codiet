@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 from codiet.db.repository import Repository
 from codiet.utils.map import Map
 from codiet.models.nutrients.nutrient import Nutrient
-from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
+from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
 
 class NutrientDBService(QObject):
     """Database service module for nutrients."""
@@ -59,7 +59,7 @@ class NutrientDBService(QObject):
 
         return added_nutrients
 
-    def create_ingredient_nutrient_quantity(self, ing_nutr_qty: EntityNutrientQuantity) -> EntityNutrientQuantity:
+    def create_ingredient_nutrient_quantity(self, ing_nutr_qty: IngredientNutrientQuantity) -> IngredientNutrientQuantity:
         """Creates an entry for the ingredient nutrient quantity in the database.
         Returns the object, with the id populated.
 
@@ -124,7 +124,7 @@ class NutrientDBService(QObject):
     
     def read_ingredient_nutrient_quantities(
         self, ingredient_id: int
-    ) -> dict[int, EntityNutrientQuantity]:
+    ) -> dict[int, IngredientNutrientQuantity]:
         """Returns the nutrient quantities for the given ingredient.
         Args:
             ingredient_id (int): The id of the ingredient.
@@ -133,7 +133,7 @@ class NutrientDBService(QObject):
             id of each specific nutrient quantity.
         """
         # Init a dict to hold the nutrient quantities
-        nutrient_quantities: dict[int, EntityNutrientQuantity] = {}
+        nutrient_quantities: dict[int, IngredientNutrientQuantity] = {}
         # Fetch the raw data from the repo
         raw_nutrient_quantities = self._repository.read_ingredient_nutrient_quantities(
             ingredient_id
@@ -141,7 +141,7 @@ class NutrientDBService(QObject):
         # Cycle through the raw data
         for nutrient_id, nutrient_qty_data in raw_nutrient_quantities.items():
             # And add the data to the dict
-            nutrient_quantities[nutrient_id] = EntityNutrientQuantity(
+            nutrient_quantities[nutrient_id] = IngredientNutrientQuantity(
                 id=nutrient_qty_data["id"],
                 nutrient_id=nutrient_id,
                 entity_id=ingredient_id,
@@ -151,7 +151,7 @@ class NutrientDBService(QObject):
             )
         return nutrient_quantities
     
-    def update_ingredient_nutrient_quantity(self, ing_nutr_qty: EntityNutrientQuantity) -> None:
+    def update_ingredient_nutrient_quantity(self, ing_nutr_qty: IngredientNutrientQuantity) -> None:
         """Updates the nutrient quantity in the database.
         Args:
             ing_nutr_qty (EntityNutrientQuantity): The nutrient quantity object.

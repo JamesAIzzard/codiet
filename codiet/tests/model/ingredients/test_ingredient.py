@@ -2,9 +2,9 @@ from unittest import TestCase
 from codiet.db_population.units import read_global_units_from_json, read_global_unit_conversions_from_json
 from codiet.models.units.unit import Unit
 from codiet.models.nutrients.nutrient import Nutrient
-from codiet.models.units.entity_unit_conversion import EntityUnitConversion
+from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
 from codiet.models.flags.flag import Flag
-from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
+from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
 from codiet.models.ingredients.ingredient import Ingredient
 
 

@@ -3,12 +3,12 @@ from codiet.db_population.units import read_global_units_from_json
 from codiet.db_population.flags import get_global_flags
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
-from codiet.models.units.entity_unit_conversion import EntityUnitConversion
+from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
 from codiet.models.nutrients import Nutrient
-from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
+from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
 from codiet.models.ingredients.ingredient import Ingredient
 from codiet.models.ingredients.ingredient_quantity import IngredientQuantity
-from codiet.models.entity_serve_time_window import EntityServeTimeWindow
+from codiet.models.recipe_serve_time_window import RecipeServeTimeWindow
 
 def flatten_nutrients(nutrient_data, parent_id=None):
     """Flatten the nested nutrient structure into a list of nutrient dictionaries."""
@@ -208,7 +208,7 @@ class TestCreateRecipeServeTimeWindow(DatabaseTestCase):
             window_string = "08:00-09:00"
             serve_time_window = self.database_service.create_recipe_serve_time_window(recipe.id, window_string)
             # Check the thing returned is a RecipeServeTimeWindow
-            self.assertIsInstance(serve_time_window, EntityServeTimeWindow)
+            self.assertIsInstance(serve_time_window, RecipeServeTimeWindow)
             # Check the id is set correctly
             self.assertEqual(serve_time_window.id, 1)
             # Check the recipe id is set correctly
@@ -665,7 +665,7 @@ class TestUpdateIngredient(DatabaseTestCase):
             from_unit_qty=150,
             to_unit_qty=1
         )
-        ing_slice_uc = EntityUnitConversion(
+        ing_slice_uc = IngredientUnitConversion(
             id=slice_uc_id,
             entity_id=ingredient.id,
             from_unit_id=g_id,
@@ -686,7 +686,7 @@ class TestUpdateIngredient(DatabaseTestCase):
         # Set nutrient quantities
         alanine_id = nutrient_name_to_id.get_key("alanine")
         assert alanine_id is not None
-        ing_alanine_qty = EntityNutrientQuantity(
+        ing_alanine_qty = IngredientNutrientQuantity(
             id=alanine_id,
             entity_id=ingredient.id,
             nutrient_id=alanine_id,

@@ -8,7 +8,7 @@ from codiet.db_population.recipes.recipe_tags import get_global_recipe_tags
 from codiet.db.database import Database
 from codiet.db.repository import Repository
 from codiet.db.database_service import DatabaseService
-from codiet.models.nutrients.entity_nutrient_quantity import EntityNutrientQuantity
+from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
 from codiet.models.ingredients.ingredient import Ingredient
 from codiet.models.recipes.recipe import Recipe
 
@@ -127,7 +127,7 @@ class DatabaseTestCase(unittest.TestCase):
             gi=test_ingredient.gi
         )
         # Create a couple of nutrient quantities
-        alanine_nq = EntityNutrientQuantity(
+        alanine_nq = IngredientNutrientQuantity(
             nutrient_id=self.nutrient_id_name_map.get_int("alanine"),
             ntr_mass_unit_id=self.unit_id_name_map.get_int("milligram"),
             ntr_mass_value=100,
@@ -136,7 +136,7 @@ class DatabaseTestCase(unittest.TestCase):
         )
         alanine_nq = self.database_service.create_ingredient_nutrient_quantity(alanine_nq)
         test_ingredient.add_nutrient_quantity(alanine_nq)
-        arginine_nq = EntityNutrientQuantity(
+        arginine_nq = IngredientNutrientQuantity(
             nutrient_id=self.nutrient_id_name_map.get_int("arginine"),
             ntr_mass_unit_id=self.unit_id_name_map.get_int("milligram"),
             ntr_mass_value=200,

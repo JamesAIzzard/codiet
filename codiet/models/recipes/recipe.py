@@ -1,6 +1,6 @@
 from codiet.models.ingredients.ingredient_quantity import IngredientQuantity
-from codiet.models.entity_serve_time_window import EntityServeTimeWindow
-from codiet.models.tags.entity_tag import EntityTag
+from codiet.models.recipe_serve_time_window import RecipeServeTimeWindow
+from codiet.models.tags.recipe_tag import RecipeTag
 from codiet.db.stored_entity import StoredEntity
 
 class Recipe(StoredEntity):
@@ -11,8 +11,8 @@ class Recipe(StoredEntity):
             instructions: str | None = None,
             use_as_ingredient: bool = False,
             ingredient_quantities: list[IngredientQuantity]|None = None,
-            serve_time_windows: list[EntityServeTimeWindow]|None = None,
-            tags: list[EntityTag]|None = None,
+            serve_time_windows: list[RecipeServeTimeWindow]|None = None,
+            tags: list[RecipeTag]|None = None,
             *args, **kwargs
         ):
         """Initialises the class."""
@@ -71,12 +71,12 @@ class Recipe(StoredEntity):
         return self._ingredient_quantities
 
     @property
-    def serve_time_windows(self) -> list[EntityServeTimeWindow]:
+    def serve_time_windows(self) -> list[RecipeServeTimeWindow]:
         """Get the serve times for the recipe."""
         return self._serve_time_windows
 
     @property
-    def tags(self) -> list[EntityTag]:
+    def tags(self) -> list[RecipeTag]:
         """Get the recipe tags for the recipe."""
         return self._tags
 
@@ -106,7 +106,7 @@ class Recipe(StoredEntity):
                 # Raise an exception if the ingredient quantity is not found
                 raise ValueError(f"Ingredient quantity with ID {ingredient_quantity_id} not found.")
 
-    def add_serve_time_windows(self, serve_time_windows:list[EntityServeTimeWindow]) -> None:
+    def add_serve_time_windows(self, serve_time_windows:list[RecipeServeTimeWindow]) -> None:
         """Add a list of serve time windows to the recipe"""
         for window in serve_time_windows:
             # Raise an exception if the window is either a subset or superset of an existing window in the recipe
@@ -135,7 +135,7 @@ class Recipe(StoredEntity):
                 # Raise an exception if the serve time window is not found
                 raise ValueError(f"Serve time window with ID {serve_time_window_id} not found.")
 
-    def add_tags(self, tags:list[EntityTag]) -> None:
+    def add_tags(self, tags:list[RecipeTag]) -> None:
         """Add recipe tags to the recipe."""
         for tag in tags:
             # Raise an exception if the tag is already in the recipe
