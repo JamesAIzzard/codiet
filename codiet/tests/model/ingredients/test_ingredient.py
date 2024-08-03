@@ -8,6 +8,7 @@ from codiet.models.units.unit import Unit
 from codiet.models.nutrients.nutrient import Nutrient
 from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
 from codiet.models.flags.flag import Flag
+from codiet.models.flags.ingredient_flag import IngredientFlag
 from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
 from codiet.models.ingredients.ingredient import Ingredient
 
@@ -119,4 +120,17 @@ class TestIngredient(TestCase):
         self.ingredient.cost_qty_value = 1.0
         self.assertEqual(self.ingredient.cost_qty_value, 1.0)
 
+    def test_flags(self):
+        """Test the flags property."""
+        # Check the flags are empty to start
+        self.assertEqual(self.ingredient.flags, set())
+
+        # Check we can add a flag
+        flag = self.named_global_flags.get_value("vegan")
+        vegan_flag = IngredientFlag(
+            ingredient=self.ingredient,
+            flag_name="vegan"
+        )
+        self.ingredient.flags = set([vegan_flag])
+        self.assertEqual(self.ingredient.flags, {vegan_flag})
     
