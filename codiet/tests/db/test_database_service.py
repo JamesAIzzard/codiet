@@ -1,6 +1,6 @@
 from . import DatabaseTestCase
 from codiet.db_population.units import read_global_units_from_json
-from codiet.db_population.flags import get_global_flags
+from codiet.db_population.flags import read_global_flags_from_json
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
 from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion

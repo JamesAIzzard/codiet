@@ -2,6 +2,8 @@ from unittest import TestCase
 
 from codiet.utils.map import Map
 from codiet.db_population.units import read_global_units_from_json, read_global_unit_conversions_from_json
+from codiet.db_population.flags import read_global_flags_from_json
+from codiet.db_population.nutrients import read_global_nutrients_from_json
 from codiet.models.units.unit import Unit
 from codiet.models.nutrients.nutrient import Nutrient
 from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
@@ -20,6 +22,20 @@ class TestIngredient(TestCase):
         self.named_global_units = Map[str, Unit]()
         for global_unit in self.global_units:
             self.named_global_units.add_mapping(global_unit.unit_name, global_unit)
+
+        # Cache the global flags
+        self.global_flags = read_global_flags_from_json()
+        # Map the flags to their names
+        self.named_global_flags = Map[str, Flag]()
+        for global_flag in self.global_flags:
+            self.named_global_flags.add_mapping(global_flag.flag_name, global_flag)
+
+        # Cache the global nutrients
+        self.global_nutrients = read_global_nutrients_from_json()
+        # Map the nutrients to their names
+        self.named_global_nutrients = Map[str, Nutrient]()
+        for global_nutrient in self.global_nutrients:
+            self.named_global_nutrients.add_mapping(global_nutrient.nutrient_name, global_nutrient)
 
         # Create a test ingredient
         self.ingredient = Ingredient(
@@ -102,3 +118,5 @@ class TestIngredient(TestCase):
         # Check we can set it
         self.ingredient.cost_qty_value = 1.0
         self.assertEqual(self.ingredient.cost_qty_value, 1.0)
+
+    
