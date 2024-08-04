@@ -187,15 +187,19 @@ class TestIngredient(TestCase):
         # Check the flags are empty to start
         self.assertEqual(self.ingredient.flags, set())
 
-        # Check we can add a flag
+        # Check we can add a couple of flags
         vegan_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegan")
-        self.ingredient.update_flags(set([vegan_flag]))
+        vegetarian_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegetarian")
+        self.ingredient.update_flags(set([vegan_flag, vegetarian_flag]))
 
         # Check the flag is there and false
-        self.assertEqual(self.ingredient.flags, {vegan_flag})
+        self.assertEqual(self.ingredient.flags, {vegan_flag, vegetarian_flag})
         self.assertFalse(self.ingredient.flag_value("vegan"))
+        self.assertFalse(self.ingredient.flag_value("vegetarian"))
 
         # Mutate the flag externally
         vegan_flag.flag_value = True
         # Check this is reflected in the ingredient
         self.assertTrue(self.ingredient.flag_value("vegan"))
+        # Check vegetarian is still false
+        self.assertFalse(self.ingredient.flag_value("vegetarian"))

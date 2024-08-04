@@ -17,12 +17,7 @@ class IngredientFlag(Flag):
         
         self._ingredient = ingredient
 
-    @property
-    def flag_value(self) -> bool:
-        """Get the value of the flag."""
-        return super().flag_value
-
-    @flag_value.setter
+    @Flag.flag_value.setter
     def flag_value(self, value: bool):
         """Set the value of the flag with additional checks on the ingredient."""
         # Perform any checks on the ingredient here
@@ -32,7 +27,7 @@ class IngredientFlag(Flag):
             # pass
 
         # Call the parent class's setter
-        super(IngredientFlag, self.__class__).flag_value.fset(self, value)
+        super(IngredientFlag, IngredientFlag).flag_value.fset(self, value) # type: ignore
 
     @property
     def ingredient(self) -> 'Ingredient':
