@@ -206,11 +206,14 @@ class Ingredient(StoredEntity):
     def __eq__(self, other):
         if not isinstance(other, Ingredient):
             return False
-        if self.id == other.id and self.name == other.name:
-            return True
-        if self.id == other.id or self.name == other.name:
-            raise ValueError("Either IDs match but names don't, or names match but IDs don't.")
-        return False
+        # If on either instance, the name and ID is None, raise exception
+        if self.id is None and self.name is None:
+            raise ValueError("Ingredient must have an ID or a name for comparison.")
+        # If either ID is None, match on  names
+        if self.id is None or other.id is None:
+            return self.name == other.name
+        # If both IDs are set, match on IDs
+        return self.id == other.id
 
     def __hash__(self):
         return hash((self.id, self.name))

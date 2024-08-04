@@ -52,3 +52,47 @@ class TestIngredientUnitConversion(TestCase):
         )
         self.assertIsNone(ingredient_unit_conversion.from_unit_qty)
         self.assertIsNone(ingredient_unit_conversion.to_unit_qty)
+
+    def test_from_unit_qty_setter(self):
+        """Check the from_unit_qty can be set."""
+        # Set the from_unit_qty
+        self.ingredient_unit_conversion.from_unit_qty = 2.0
+        # Check it was set correctly
+        self.assertEqual(self.ingredient_unit_conversion.from_unit_qty, 2.0)
+
+    def test_to_unit_qty_setter(self):
+        """Check the to_unit_qty can be set."""
+        # Set the to_unit_qty
+        self.ingredient_unit_conversion.to_unit_qty = 2.4
+        # Check it was set correctly
+        self.assertEqual(self.ingredient_unit_conversion.to_unit_qty, 2.4)
+
+    def test_equality(self):
+        """Check two ingredient unit conversions are equal if they have the same attributes."""
+        # Check if two ingredient unit conversions are equal
+        # Create another like the one from setup
+        ingredient_unit_conversion = IngredientUnitConversion(
+            ingredient=self.ingredient,
+            from_unit=self.named_global_units.get_value('gram'),
+            to_unit=self.named_global_units.get_value('millilitre'),
+            from_unit_qty=1.0,
+            to_unit_qty=1.2
+        )
+        # Check both are considered equal
+        self.assertEqual(self.ingredient_unit_conversion, ingredient_unit_conversion)
+
+        # Check they are different if they have different ingredients
+        # Create a new different ingredient
+        ingredient2 = Ingredient(
+            name='test2',
+            global_units=self.global_units,
+            global_unit_conversions=self.global_unit_conversions,
+        )
+        ingredient_unit_conversion = IngredientUnitConversion(
+            ingredient=ingredient2,
+            from_unit=self.named_global_units.get_value('gram'),
+            to_unit=self.named_global_units.get_value('millilitre'),
+            from_unit_qty=1.0,
+            to_unit_qty=1.2
+        )
+        self.assertNotEqual(self.ingredient_unit_conversion, ingredient_unit_conversion)
