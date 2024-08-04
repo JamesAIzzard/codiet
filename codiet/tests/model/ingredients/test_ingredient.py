@@ -157,3 +157,21 @@ class TestIngredient(TestCase):
         )
         self.ingredient.nutrient_quantities = set([nutrient_quantity])
         self.assertEqual(self.ingredient.nutrient_quantities, {nutrient_quantity})
+
+    def test_update_flags(self):
+        """Test the update_flags method."""
+        # Check the flags are empty to start
+        self.assertEqual(self.ingredient.flags, set())
+
+        # Check we can add a flag
+        vegan_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegan")
+        self.ingredient.update_flags(set([vegan_flag]))
+        self.assertEqual(self.ingredient.flags, {vegan_flag})
+
+        # Check we can add another flag
+        vegetarian_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegetarian", flag_value=True)
+        self.ingredient.update_flags(set([vegetarian_flag]))
+        self.assertEqual(self.ingredient.flags, {vegan_flag, vegetarian_flag})
+
+        # Check we can add another and change one of the first
+        vegan_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegan", flag_value=True)
