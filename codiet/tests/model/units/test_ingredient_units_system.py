@@ -11,9 +11,6 @@ from codiet.models.ingredients.ingredient import Ingredient
 class TestEntityUnitsSystem(unittest.TestCase):
 
     def setUp(self):
-        # Create a test ingredient
-        self.ingredient = Ingredient(name="Test Ingredient")
-
         # Grab all the global units and conversions
         self.global_units = read_global_units_from_json()
         self.global_unit_conversions = read_global_unit_conversions_from_json()
@@ -23,9 +20,16 @@ class TestEntityUnitsSystem(unittest.TestCase):
         for global_unit in self.global_units:
             self.named_global_units.add_mapping(global_unit.unit_name, global_unit)
 
-        
+        # Create a test ingredient
+        self.ingredient = Ingredient(
+            name="Test Ingredient",
+            global_units=self.global_units,
+            global_unit_conversions=self.global_unit_conversions,              
+        )        
+
         # Create a system with disconnected graph
         self.disconnected_system = IngredientUnitsSystem(
+            ingredient=self.ingredient,
             global_units=self.global_units,
             global_unit_conversions=self.global_unit_conversions,
         )
@@ -42,9 +46,10 @@ class TestEntityUnitsSystem(unittest.TestCase):
             to_unit_qty=1.2,
         )
         self.connected_system = IngredientUnitsSystem(
+            ingredient=self.ingredient,
             global_units=self.global_units,
             global_unit_conversions=self.global_unit_conversions,
-            entity_unit_conversions=set([conversion]),
+            ingredient_unit_conversions=set([conversion]),
         )
 
     def test_init(self):
@@ -52,6 +57,10 @@ class TestEntityUnitsSystem(unittest.TestCase):
         # Check both of the systems are the right type
         self.assertIsInstance(self.disconnected_system, IngredientUnitsSystem)
         self.assertIsInstance(self.connected_system, IngredientUnitsSystem)
+
+    def test_ingredient(self):
+        """Test the retrieval of the ingredient."""
+        self.assertEqual(self.disconnected_system.ingredient, self.ingredient)
 
     def test_gram(self):
         """Test the retrieval of the gram unit."""

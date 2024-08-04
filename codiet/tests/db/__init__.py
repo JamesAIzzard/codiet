@@ -3,7 +3,7 @@ import tempfile
 import unittest
 
 from codiet.db_population.units import read_global_units_from_json
-from codiet.db_population.flags import get_global_flags
+from codiet.db_population.flags import read_global_flags_from_json
 from codiet.db_population.recipes.recipe_tags import get_global_recipe_tags
 from codiet.db.database import Database
 from codiet.db.repository import Repository
@@ -131,7 +131,7 @@ class DatabaseTestCase(unittest.TestCase):
             nutrient_id=self.nutrient_id_name_map.get_int("alanine"),
             ntr_mass_unit_id=self.unit_id_name_map.get_int("milligram"),
             ntr_mass_value=100,
-            entity_grams_qty=100,
+            ingredient_grams_qty=100,
             entity_id=test_ingredient.id
         )
         alanine_nq = self.database_service.create_ingredient_nutrient_quantity(alanine_nq)
@@ -140,7 +140,7 @@ class DatabaseTestCase(unittest.TestCase):
             nutrient_id=self.nutrient_id_name_map.get_int("arginine"),
             ntr_mass_unit_id=self.unit_id_name_map.get_int("milligram"),
             ntr_mass_value=200,
-            entity_grams_qty=100,
+            ingredient_grams_qty=100,
             entity_id=test_ingredient.id
         )
         arginine_nq = self.database_service.create_ingredient_nutrient_quantity(arginine_nq)

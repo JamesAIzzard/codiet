@@ -1,6 +1,6 @@
 from . import DatabaseTestCase
 from codiet.db_population.units import read_global_units_from_json
-from codiet.db_population.flags import get_global_flags
+from codiet.db_population.flags import read_global_flags_from_json
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
 from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
@@ -691,7 +691,7 @@ class TestUpdateIngredient(DatabaseTestCase):
             entity_id=ingredient.id,
             nutrient_id=alanine_id,
             ntr_mass_unit_id=g_id,
-            entity_grams_qty=100.0
+            ingredient_grams_qty=100.0
         )
         ingredient.add_nutrient_quantity(ing_alanine_qty)
         

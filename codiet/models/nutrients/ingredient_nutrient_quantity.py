@@ -16,7 +16,7 @@ class IngredientNutrientQuantity(StoredEntity):
         ingredient: 'Ingredient',
         ntr_mass_unit: Unit | None = None,
         ntr_mass_value: float | None = None,
-        entity_grams_qty: float | None = None,
+        ingredient_grams_qty: float | None = None,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
@@ -25,7 +25,7 @@ class IngredientNutrientQuantity(StoredEntity):
         self._ingredient = ingredient
         self._ntr_mass_unit = ntr_mass_unit
         self._ntr_mass_value = ntr_mass_value
-        self._entity_grams_qty = entity_grams_qty
+        self._entity_grams_qty = ingredient_grams_qty
 
     @property
     def nutrient(self) -> Nutrient:
@@ -70,10 +70,10 @@ class IngredientNutrientQuantity(StoredEntity):
     def __hash__(self):
         return hash(
             (
-                self.ref_entity_id,
-                self.primary_entity_id,
-                self.id,
+                self.ingredient.name,
+                self.ingredient.id,
                 self.nutrient.nutrient_name,
+                self.nutrient.id,
             )
         )
 
@@ -81,22 +81,14 @@ class IngredientNutrientQuantity(StoredEntity):
         if not isinstance(other, IngredientNutrientQuantity):
             return False
 
-        attributes_to_compare = [
-            ("ref_entity_id", self.ref_entity_id, other.ref_entity_id),
-            ("primary_entity_id", self.primary_entity_id, other.primary_entity_id),
-            ("id", self.id, other.id),
-            (
-                "nutrient_name",
-                self.nutrient.nutrient_name,
-                other.nutrient.nutrient_name,
-            ),
-        ]
-
-        for attr_name, self_value, other_value in attributes_to_compare:
-            if self_value != other_value:
-                raise ValueError(
-                    f"Mismatch in {attr_name}: {self_value} != {other_value}"
-                )
+        if self.ingredient.id != other.ingredient.id:
+            return False
+        if self.nutrient.id != other.nutrient.id:
+            return False
+        if self.nutrient.nutrient_name != other.nutrient.nutrient_name:
+            return False
+        if self.ingredient.name != other.ingredient.name:
+            return False
 
         return True
 
