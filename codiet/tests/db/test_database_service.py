@@ -691,7 +691,7 @@ class TestUpdateIngredient(DatabaseTestCase):
             entity_id=ingredient.id,
             nutrient_id=alanine_id,
             ntr_mass_unit_id=g_id,
-            entity_grams_qty=100.0
+            ingredient_grams_qty=100.0
         )
         ingredient.add_nutrient_quantity(ing_alanine_qty)
         

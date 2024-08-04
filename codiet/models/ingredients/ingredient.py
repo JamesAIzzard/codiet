@@ -153,6 +153,18 @@ class Ingredient(StoredEntity):
         self._flags = value
 
     @property
+    def gi(self) -> float | None:
+        """Returns the GI."""
+        return self._gi
+    
+    @gi.setter
+    def gi(self, value: float | None) -> None:
+        """Sets the GI."""
+        if value is not None and (value < 0 or value > 100):
+            raise ValueError("GI must be between 0 and 100.")
+        self._gi = value
+
+    @property
     def nutrient_quantities(self) -> frozenset[IngredientNutrientQuantity]:
         """Returns the nutrient quantities."""
         return frozenset(self._nutrient_quantities)

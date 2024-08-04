@@ -133,4 +133,27 @@ class TestIngredient(TestCase):
         )
         self.ingredient.flags = set([vegan_flag])
         self.assertEqual(self.ingredient.flags, {vegan_flag})
+
+    def test_gi(self):
+        """Test the gi property."""
+        # Check the gi is None to start
+        self.assertIsNone(self.ingredient.gi)
+        # Check we can set it
+        self.ingredient.gi = 1
+        self.assertEqual(self.ingredient.gi, 1)
     
+    def test_nutrient_quantities(self):
+        """Test the nutrient quantities property."""
+        # Check the nutrient quantities are empty to start
+        self.assertEqual(self.ingredient.nutrient_quantities, set())
+
+        # Check we can add a nutrient quantity
+        nutrient_quantity = IngredientNutrientQuantity(
+            ingredient=self.ingredient,
+            nutrient=self.named_global_nutrients.get_value("protein"),
+            ntr_mass_unit=self.named_global_units.get_value("gram"),
+            ntr_mass_value=1,
+            ingredient_grams_qty=100
+        )
+        self.ingredient.nutrient_quantities = set([nutrient_quantity])
+        self.assertEqual(self.ingredient.nutrient_quantities, {nutrient_quantity})

@@ -39,7 +39,7 @@ class TestIngredientNutrientQuantity(TestCase):
             nutrient=self.named_global_nutrients.get_value('protein'),
             ntr_mass_unit=self.named_global_units.get_value('gram'),
             ntr_mass_value=10.0,
-            entity_grams_qty=100.0
+            ingredient_grams_qty=100.0
         )
         
         # Check the instance

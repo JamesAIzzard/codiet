@@ -147,7 +147,7 @@ class NutrientDBService(QObject):
                 entity_id=ingredient_id,
                 ntr_mass_value=nutrient_qty_data["ntr_mass_value"],
                 ntr_mass_unit_id=nutrient_qty_data["ntr_mass_unit_id"],
-                entity_grams_qty=nutrient_qty_data["ing_grams_value"],
+                ingredient_grams_qty=nutrient_qty_data["ing_grams_value"],
             )
         return nutrient_quantities
     
