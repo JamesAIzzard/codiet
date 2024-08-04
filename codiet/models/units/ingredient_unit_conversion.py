@@ -1,10 +1,13 @@
 from typing import TYPE_CHECKING
 
-from codiet.models.units.unit_conversion import UnitConversion
+from .base_unit_conversion import BaseUnitConversion
+from .unit import Unit
+from .unit_conversion import UnitConversion
+
 if TYPE_CHECKING:
     from codiet.models.ingredients.ingredient import Ingredient
 
-class IngredientUnitConversion(UnitConversion):
+class IngredientUnitConversion(BaseUnitConversion):
     """Models the conversion between two units assoicated with an ingredient."""
 
     def __init__(
@@ -13,8 +16,10 @@ class IngredientUnitConversion(UnitConversion):
         *args, **kwargs
     ):
         """Initialises the EntityUnitConversion object.
-        Extends the UnitConversion object with an entity_id.
+        Extends the UnitConversion object with an entity_id, and adds setters
+        for the from_unit_qty and to_unit_qty.
         """
+
         super().__init__(*args, **kwargs)
 
         self._ingredient = ingredient
@@ -23,6 +28,16 @@ class IngredientUnitConversion(UnitConversion):
     def ingredient(self) -> 'Ingredient':
         """Retrieves the ingredient associated with the conversion."""
         return self._ingredient
+    
+    @BaseUnitConversion.from_unit_qty.setter
+    def from_unit_qty(self, value: float|None):
+        """Sets the from unit."""
+        self._from_unit_qty = value
+    
+    @BaseUnitConversion.to_unit_qty.setter
+    def to_unit_qty(self, value: float|None):
+        """Sets the to unit."""
+        self._to_unit_qty = value
 
     def __eq__(self, other: object) -> bool:
         """Return True if the object is equal to another object."""

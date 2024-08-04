@@ -17,8 +17,8 @@ class IngredientUnitsSystem:
     def __init__(
         self,
         ingredient: 'Ingredient',
-        global_units: set[Unit]|None = None,
-        global_unit_conversions: set[UnitConversion]|None = None,
+        global_units: set[Unit],
+        global_unit_conversions: set[UnitConversion],
         ingredient_unit_conversions: set[IngredientUnitConversion]|None = None
     ):
         self._ingredient = ingredient
