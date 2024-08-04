@@ -192,16 +192,6 @@ class Ingredient(StoredEntity):
             raise KeyError("One or more flags not found in ingredient.")
         self._flags.difference_update(flags)
 
-    def set_all_flags_true(self) -> None:
-        """Sets all flags to True."""
-        for flag in self.flags:
-            flag.flag_value = True
-
-    def set_all_flags_false(self) -> None:
-        """Sets all flags to False."""
-        for flag in self.flags:
-            flag.flag_value = False
-
     def update_nutrient_quantities(self, nutrient_quantities: set[IngredientNutrientQuantity]) -> None:
         """Updates nutrient quantities."""
         self._nutrient_quantities.difference_update(nutrient_quantities)

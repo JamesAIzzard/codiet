@@ -203,3 +203,23 @@ class TestIngredient(TestCase):
         self.assertTrue(self.ingredient.flag_value("vegan"))
         # Check vegetarian is still false
         self.assertFalse(self.ingredient.flag_value("vegetarian"))
+
+    def test_remove_flags(self):
+        """Test the remove_flag method."""
+        # Check the flags are empty to start
+        self.assertEqual(self.ingredient.flags, set())
+
+        # Check we can add a couple of flags
+        vegan_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegan")
+        vegetarian_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegetarian")
+        halal_flag = IngredientFlag(ingredient=self.ingredient, flag_name="halal")
+        self.ingredient.update_flags(set([vegan_flag, vegetarian_flag, halal_flag]))
+
+        # Check the flags are there
+        self.assertEqual(self.ingredient.flags, {vegan_flag, vegetarian_flag, halal_flag})
+
+        # Check we can remove a flag
+        self.ingredient.remove_flags(set([vegan_flag, halal_flag]))
+
+        # Check the flag is removed
+        self.assertEqual(self.ingredient.flags, {vegetarian_flag})
