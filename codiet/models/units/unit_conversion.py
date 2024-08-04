@@ -8,8 +8,8 @@ class UnitConversion(StoredEntity):
             self, 
             from_unit: Unit, 
             to_unit: Unit, 
-            from_unit_qty: float|None = None,
-            to_unit_qty: float|None = None,
+            from_unit_qty: float,
+            to_unit_qty: float,
             *args, **kwargs
         ):
         """Initialise the UnitConversion object."""
@@ -35,56 +35,26 @@ class UnitConversion(StoredEntity):
         return self._to_unit
 
     @property
-    def from_unit_qty(self) -> float|None:
+    def from_unit_qty(self) -> float:
         """Returns the quantity of the from unit."""
         return self._from_unit_qty
-    
-    @from_unit_qty.setter
-    def from_unit_qty(self, value: float|None):
-        """Sets the quantity of the from unit."""
-        # Check the value is None or a positive number
-        if value is not None and value <= 0:
-            raise ValueError("from_unit_qty must be a positive number.")
-        self._from_unit_qty = value
 
     @property
-    def to_unit_qty(self) -> float|None:
+    def to_unit_qty(self) -> float:
         """Returns the quantity of the to unit."""
         return self._to_unit_qty
-    
-    @to_unit_qty.setter
-    def to_unit_qty(self, value: float|None):
-        """Sets the quantity of the to unit."""
-        # Check the value is None or a positive number
-        if value is not None and value <= 0:
-            raise ValueError("to_unit_qty must be a positive number.")
-        self._to_unit_qty = value
-
-    @property
-    def is_defined(self) -> bool:
-        """Returns True if the conversion is populated."""
-        return self.from_unit_qty is not None and self.to_unit_qty is not None
 
     @property
     def ratio(self) -> float:
         """Returns the ratio between the two units."""
-        # Raise an exception if either id or qty is None
-        if self.is_defined is False:
-            raise ValueError("Both from_unit_qty and to_unit_qty must be set.")
-        return self.to_unit_qty / self.from_unit_qty # type: ignore
+        return self.to_unit_qty / self.from_unit_qty
     
     def convert_quantity(self, qty: float) -> float:
         """Converts a quantity from the from unit to the to unit."""
-        # Raise an exception if either id or qty is None
-        if self.is_defined is False:
-            raise ValueError("Both from_unit_qty and to_unit_qty must be set.")
         return qty * self.ratio
     
     def reverse_convert_quantity(self, qty: float) -> float:
         """Converts a quantity from the to unit to the from unit."""
-        # Raise an exception if either id or qty is None
-        if self.is_defined is False:
-            raise ValueError("Both from_unit_qty and to_unit_qty must be set.")
         return qty / self.ratio
 
     def __eq__(self, other):
