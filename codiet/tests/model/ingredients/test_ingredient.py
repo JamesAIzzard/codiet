@@ -167,11 +167,35 @@ class TestIngredient(TestCase):
         vegan_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegan")
         self.ingredient.update_flags(set([vegan_flag]))
         self.assertEqual(self.ingredient.flags, {vegan_flag})
+        self.assertFalse(vegan_flag.flag_value)
 
         # Check we can add another flag
         vegetarian_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegetarian", flag_value=True)
         self.ingredient.update_flags(set([vegetarian_flag]))
         self.assertEqual(self.ingredient.flags, {vegan_flag, vegetarian_flag})
 
-        # Check we can add another and change one of the first
+        # Check we can add another two flags, and one of them is already in the set, but has a different value
+        halal_flag = IngredientFlag(ingredient=self.ingredient, flag_name="halal")
         vegan_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegan", flag_value=True)
+        self.ingredient.update_flags(set([halal_flag, vegan_flag]))
+        self.assertEqual(self.ingredient.flags, {halal_flag, vegan_flag, vegetarian_flag})
+        # Check vegan is now true
+        self.assertTrue(self.ingredient.flag_value("vegan"))
+
+    def test_mutate_flag_externally(self):
+        """Test that we can mutate a flag externally."""
+        # Check the flags are empty to start
+        self.assertEqual(self.ingredient.flags, set())
+
+        # Check we can add a flag
+        vegan_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegan")
+        self.ingredient.update_flags(set([vegan_flag]))
+
+        # Check the flag is there and false
+        self.assertEqual(self.ingredient.flags, {vegan_flag})
+        self.assertFalse(self.ingredient.flag_value("vegan"))
+
+        # Mutate the flag externally
+        vegan_flag.flag_value = True
+        # Check this is reflected in the ingredient
+        self.assertTrue(self.ingredient.flag_value("vegan"))

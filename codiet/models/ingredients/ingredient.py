@@ -174,6 +174,13 @@ class Ingredient(StoredEntity):
         """Sets the nutrient quantities."""
         self._nutrient_quantities = value
 
+    def flag_value(self, flag_name: str) -> bool:
+        """Returns the value of a flag."""
+        for flag in self.flags:
+            if flag.flag_name == flag_name:
+                return flag.flag_value
+        raise KeyError(f"Flag {flag_name} not found in ingredient.")
+
     def update_flags(self, flags: set[IngredientFlag]) -> None:
         """Updates the flags passed in the set."""
         self._flags.difference_update(flags)
