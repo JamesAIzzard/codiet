@@ -1,20 +1,8 @@
 from codiet.db.database import Database
-from codiet.db.repository.repository_base import RepositoryBase
 from codiet.db.repository.unit_repository import UnitRepository
 
 
-class Repository(RepositoryBase):
 
-    def __init__(self, database: Database, *args, **kwargs):
-        super().__init__(database, *args, **kwargs)
-
-        # Create a submodule for each main section of the model
-        self.units = UnitRepository(database=self._database)
-        # self.flags = FlagRepository(database=self._database)
-        # self.nutrients = NutrientRepository(database=self._database)
-        # self.time = TimeRepository(database=self._database)
-        # self.ingredients = IngredientRepository(database=self._database)        
-        # self.recipes = RecipeRepository(database=self._database)        
 
     def create_global_flag(self, flag_name: str) -> int:
         """Adds a flag to the global flag table and returns the ID."""
@@ -274,22 +262,6 @@ class Repository(RepositoryBase):
             for row in rows
         }
 
-    def read_global_unit_aliases(self, unit_id: int) -> list[str]:
-        """Returns a list of aliases for the given global unit ID.
-        Args:
-            unit_id (int): The ID of the global unit.
-        Returns:
-            list: A list of aliases for the given global unit ID.
-        """
-        with self.get_cursor() as cursor:
-            rows = cursor.execute(
-                """
-                SELECT alias FROM global_unit_aliases WHERE primary_unit_id = ?;
-            """,
-                (unit_id,),
-            ).fetchall()
-        return [row[0] for row in rows]
-
     def read_all_global_unit_conversions(self) -> dict[int, dict[str, int | float]]:
         """Returns a dictionary of conversions for the given global unit ID.
         Args:
@@ -320,21 +292,6 @@ class Repository(RepositoryBase):
             }
             for row in rows
         }
-
-    def read_all_global_unit_names(self) -> dict[int, str]:
-        """Returns a list of all global units in the database.
-        Data structure returned is a dictionary:
-        {
-            unit_id: unit_name
-        }
-        """
-        with self.get_cursor() as cursor:
-            rows = cursor.execute(
-                """
-                SELECT id, unit_name FROM global_units;
-            """
-            ).fetchall()
-        return {row[0]: row[1] for row in rows}
 
     def read_all_global_flags(self) -> dict[int, str]:
         """Returns a list of all global flags in the database.
