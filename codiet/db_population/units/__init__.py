@@ -65,7 +65,7 @@ def read_global_unit_conversions_from_json(global_units_filepath: str=GLOBAL_UNI
     _cached_global_unit_conversions = conversions
     return conversions
 
-def global_name_unit_map():
+def global_name_unit_map() -> Map[str, Unit]:
     """Returns a map of unit names to units."""
     units = read_global_units_from_json()
     
@@ -73,4 +73,6 @@ def global_name_unit_map():
     name_unit_map = Map[str, Unit]()
     for unit in units:
         name_unit_map.add_mapping(unit.unit_name, unit)
+
+    return name_unit_map
         

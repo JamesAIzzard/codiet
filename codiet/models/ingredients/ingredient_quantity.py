@@ -1,29 +1,93 @@
-class IngredientQuantity:
+from typing import TYPE_CHECKING
+
+from codiet.db.stored_entity import StoredEntity
+
+if TYPE_CHECKING:
+    from codiet.models.ingredients.ingredient import Ingredient
+    from codiet.models.recipes.recipe import Recipe
+    from codiet.models.units.unit import Unit
+
+class IngredientQuantity(StoredEntity):
     """Class to represent an ingredient quantity."""
 
     def __init__(
         self,
-        id: int,
-        ingredient_id: int,
-        recipe_id: int,
-        qty_value: float | None = 0.0,
-        qty_unit_id: int|None = None,
-        qty_utol: float | None = 0.0,
-        qty_ltol: float | None = 0.0,
+        ingredient: 'Ingredient',
+        recipe: 'Recipe',
+        qty_value: float | None = None,
+        qty_unit: 'Unit|None' = None,
+        qty_utol: float | None = None,
+        qty_ltol: float | None = None,
+        *args, **kwargs
     ):
-        """Initialises the class.
-        Args:
-            id (int): The ID of the ingredient quantity.
-            ingredient_id (int): The ID of the ingredient.
-            qty_value (float, optional): The quantity value. Defaults to 0.0.
-            qty_unit_id (int, optional): The quantity unit ID. Defaults to None.
-            qty_utol (float, optional): The upper tolerance. Defaults to 0.0.
-            qty_ltol (float, optional): The lower tolerance. Defaults to 0.0.
-        """
-        self.id = id
-        self.recipe_id = recipe_id
-        self.ingredient_id = ingredient_id
-        self.qty_value = qty_value
-        self.qty_unit_id = qty_unit_id
-        self.upper_tol = qty_utol
-        self.lower_tol = qty_ltol
+        """Initialises the class."""
+        super().__init__(*args, **kwargs)
+
+        self._recipe = recipe
+        self._ingredient = ingredient
+        self._qty_value = qty_value
+
+        # If the quantity unit is not set, use the ingredient's standard unit
+        if qty_unit is None:
+            self._qty_unit = self._ingredient.standard_unit
+        else:
+            # Check the quantity unit is accessible
+            if qty_unit not in self._ingredient.available_units:
+                raise ValueError(f"{qty_unit.unit_name} is not accessible in the unit system.")
+            self._qty_unit = qty_unit
+
+        self._upper_tol = qty_utol
+        self._lower_tol = qty_ltol
+
+    @property
+    def ingredient(self) -> 'Ingredient':
+        """Get the ingredient."""
+        return self._ingredient
+    
+    @property
+    def recipe(self) -> 'Recipe':
+        """Get the recipe."""
+        return self._recipe
+    
+    @property
+    def qty_value(self) -> float|None:
+        """Get the quantity value."""
+        return self._qty_value
+    
+    @qty_value.setter
+    def qty_value(self, qty_value: float|None):
+        """Set the quantity value."""
+        self._qty_value = qty_value
+
+    @property
+    def qty_unit(self) -> 'Unit':
+        """Get the quantity unit."""
+        return self._qty_unit # type: ignore # checked in __init__
+    
+    @qty_unit.setter
+    def qty_unit(self, qty_unit: 'Unit'):
+        """Set the quantity unit."""
+        # Check the quantity unit is accessible
+        if qty_unit not in self._ingredient.available_units:
+            raise ValueError(f"{qty_unit.unit_name} is not accessible in the unit system.")
+        self._qty_unit = qty_unit
+
+    @property
+    def qty_utol(self) -> float|None:
+        """Get the upper tolerance."""
+        return self._upper_tol
+    
+    @qty_utol.setter
+    def qty_utol(self, qty_utol: float|None):
+        """Set the upper tolerance."""
+        self._upper_tol = qty_utol
+
+    @property
+    def qty_ltol(self) -> float|None:
+        """Get the lower tolerance."""
+        return self._lower_tol
+    
+    @qty_ltol.setter
+    def qty_ltol(self, qty_ltol: float|None):
+        """Set the lower tolerance."""
+        self._lower_tol = qty_ltol

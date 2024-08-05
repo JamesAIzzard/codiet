@@ -1,4 +1,4 @@
-from codiet.db import Repository
+from codiet.db.repository import Repository
 from .unit_db_service import UnitDBService
 from .flag_db_service import FlagDBService
 from .nutrient_db_service import NutrientDBService
