@@ -2,7 +2,7 @@ import unittest
 from datetime import time
 
 from codiet.db_population.flags import read_global_flags_from_json, global_name_flag_map
-from codiet.db_population.units import read_global_units_from_json, read_global_unit_conversions_from_json, global_name_unit_map
+from codiet.db_population.units import read_units_from_json, read_global_unit_conversions_from_json, name_unit_map
 from codiet.db_population.nutrients import read_global_nutrients_from_json, global_name_nutrient_map
 from codiet.db_population.tags import read_global_tags_from_json
 from codiet.models.ingredients.ingredient import Ingredient
@@ -13,9 +13,9 @@ from codiet.models.time.recipe_serve_time_window import RecipeServeTimeWindow
 class TestRecipe(unittest.TestCase):
     def setUp(self) -> None:
         # Bring in the global units
-        self.global_units = read_global_units_from_json()
+        self.global_units = read_units_from_json()
         self.global_unit_conversions = read_global_unit_conversions_from_json()
-        self.global_name_unit_map = global_name_unit_map()
+        self.global_name_unit_map = name_unit_map()
 
         # Bring in the nutrients
         self.global_nutrients = read_global_nutrients_from_json()

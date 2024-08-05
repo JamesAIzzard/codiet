@@ -1,5 +1,5 @@
 from . import DatabaseTestCase
-from codiet.db_population.units import read_global_units_from_json
+from codiet.db_population.units import read_units_from_json
 from codiet.db_population.flags import read_global_flags_from_json
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
@@ -33,7 +33,7 @@ class TestCreateGlobalUnits(DatabaseTestCase):
     def test_create_global_units_creates_global_units(self):
         """Test that create_global_units creates global units in the database."""
         # Grab the JSON config data for the global units
-        json_global_units = read_global_units_from_json()
+        json_global_units = read_units_from_json()
         # Insert the global units
         self.database_service.create_global_units(json_global_units)
         # Fetch all the global units
@@ -94,7 +94,7 @@ class TestCreateIngredient(DatabaseTestCase):
         # Configure the flags and nutrients
         self.database_service.create_global_flags(get_global_flags())
         self.database_service.create_global_nutrients(get_global_nutrients())
-        self.database_service.create_global_units(read_global_units_from_json())    
+        self.database_service.create_global_units(read_units_from_json())    
         # Check there are no ingredients in the database
         ingredients = self.database_service.repository.read_all_ingredient_names()
         self.assertEqual(len(ingredients), 0)
@@ -162,7 +162,7 @@ class TestCreateRecipeIngredientQuantity(DatabaseTestCase):
         recipe_name = "Test Recipe"
         recipe = self.database_service.create_empty_recipe(recipe_name)
         # Init the units
-        self.database_service.create_global_units(read_global_units_from_json())
+        self.database_service.create_global_units(read_units_from_json())
         # Create an empty ingredient
         ingredient_name = "Test Ingredient"
         ingredient = Ingredient(name=ingredient_name)
@@ -444,7 +444,7 @@ class TestReadIngredient(DatabaseTestCase):
     def test_read_ingredient_reads_ingredient(self):
         """Test reading an ingredient."""
         # Configure the units, flags and nutrients
-        self.database_service.create_global_units(read_global_units_from_json())
+        self.database_service.create_global_units(read_units_from_json())
         self.database_service.create_global_flags(get_global_flags())
         self.database_service.create_global_nutrients(get_global_nutrients())
         # Create an empty ingredient
@@ -617,7 +617,7 @@ class TestUpdateIngredient(DatabaseTestCase):
     def test_update_ingredient_updates_ingredient(self):
         """Test updating an ingredient."""
         # Configure the units, flags, and nutrients
-        self.database_service.create_global_units(read_global_units_from_json())
+        self.database_service.create_global_units(read_units_from_json())
         self.database_service.create_global_flags(get_global_flags())
         self.database_service.create_global_nutrients(get_global_nutrients())
         

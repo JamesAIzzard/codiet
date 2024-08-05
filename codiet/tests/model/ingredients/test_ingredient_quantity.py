@@ -1,9 +1,9 @@
 import unittest
 
 from codiet.db_population.units import (
-    read_global_units_from_json,
+    read_units_from_json,
     read_global_unit_conversions_from_json,
-    global_name_unit_map,
+    name_unit_map,
 )
 from codiet.models.ingredients.ingredient import Ingredient
 from codiet.models.ingredients.ingredient_quantity import IngredientQuantity
@@ -13,18 +13,18 @@ from codiet.models.recipes.recipe import Recipe
 class TestIngredientQuantity(unittest.TestCase):
     def setUp(self) -> None:
         # Bring in the global units
-        self.global_units = read_global_units_from_json()
-        self.global_name_unit_map = global_name_unit_map()
+        self.global_units = read_units_from_json()
+        self.global_name_unit_map = name_unit_map()
 
         # Create a couple of test ingredients
         self.ingredient_1 = Ingredient(
             name="Test Ingredient 1",
-            global_units=read_global_units_from_json(),
+            global_units=read_units_from_json(),
             global_unit_conversions=read_global_unit_conversions_from_json(),
         )
         self.ingredient_2 = Ingredient(
             name="Test Ingredient 2",
-            global_units=read_global_units_from_json(),
+            global_units=read_units_from_json(),
             global_unit_conversions=read_global_unit_conversions_from_json(),
         )
 

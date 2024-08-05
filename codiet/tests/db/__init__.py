@@ -4,6 +4,7 @@ import unittest
 
 from codiet.db.database import Database
 from codiet.db.repository import Repository
+from codiet.db.database_service import DatabaseService
 
 class DatabaseTestCase(unittest.TestCase):
     """Base class for Repository test cases."""
@@ -16,8 +17,8 @@ class DatabaseTestCase(unittest.TestCase):
 
         # Init the database classes
         self.database = Database(db_path=self.db_path)
-        self.database.create_database_file()
         self.repository = Repository(self.database)
+        self.db_service = DatabaseService(self.repository)
         
         # Create the database
         self.database.create_database_file()

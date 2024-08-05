@@ -1,13 +1,13 @@
 from unittest import TestCase
 
-from codiet.db_population.units import read_global_units_from_json, read_global_unit_conversions_from_json
+from codiet.db_population.units import read_units_from_json, read_global_unit_conversions_from_json
 from codiet.models.flags.ingredient_flag import IngredientFlag
 from codiet.models.ingredients.ingredient import Ingredient
 
 class TestIngredientFlag(TestCase):
     def setUp(self) -> None:
         # Cache the global units and unit conversions
-        self.global_units = read_global_units_from_json()
+        self.global_units = read_units_from_json()
         self.global_unit_conversions = read_global_unit_conversions_from_json()
 
         self.ingredient = Ingredient(

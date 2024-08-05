@@ -12,7 +12,7 @@ from codiet.db_population import (
     GLOBAL_NUTRIENT_DATA_FILEPATH,
     GLOBAL_RECIPE_TAG_DATA_FILEPATH,
 )
-from codiet.db_population.units import read_global_units_from_json
+from codiet.db_population.units import read_units_from_json
 from codiet.utils.tags import flatten_tree
 from codiet.models.ingredients.ingredient import IngredientNutrientQuantity
 from codiet.db.database_service import DatabaseService
@@ -21,7 +21,7 @@ def push_global_units_to_db(db_service:DatabaseService) -> None:
     """Populate the custom units table in the database using the
     .json custom unit list file."""
     # Get the list of global units
-    global_units = read_global_units_from_json
+    global_units = read_units_from_json
     # Push the custom units to the database
     for unit_name, unit_data in global_units.items():
         db_service.repository.create_global_unit(

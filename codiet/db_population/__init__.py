@@ -1,6 +1,6 @@
 from codiet.db.database_service import DatabaseService
 
-from codiet.db_population.units import read_global_units_from_json
+from codiet.db_population.units import read_units_from_json
 # from codiet.db_population.flags import read_global_flags_from_json
 # from codiet.db_population.nutrients import read_global_nutrients_from_json
 # from codiet.db_population.ingredients import read_ingredients_from_json
@@ -9,7 +9,7 @@ from codiet.db_population.units import read_global_units_from_json
 def populate_db_from_json(db_service:DatabaseService) -> None:
     """Uses the data from the .json file modules to populate the database."""
     print("Pushing units to the database...")
-    global_units = read_global_units_from_json()
+    global_units = read_units_from_json()
     db_service.create_global_units(global_units)
     # # Push flags to database
     # global_flags = read_global_flags_from_json()

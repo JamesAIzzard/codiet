@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from codiet.db_population.units import read_global_units_from_json, read_global_unit_conversions_from_json
+from codiet.db_population.units import read_units_from_json, read_global_unit_conversions_from_json
 from codiet.utils.map import Map
 from codiet.models.units.unit import Unit
 from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
@@ -10,7 +10,7 @@ class TestIngredientUnitConversion(TestCase):
 
     def setUp(self) -> None:
         # Import the global units
-        self.global_units = read_global_units_from_json()
+        self.global_units = read_units_from_json()
         self.global_unit_conversions = read_global_unit_conversions_from_json()
         # Map them to their names
         self.named_global_units = Map[str, Unit]()
