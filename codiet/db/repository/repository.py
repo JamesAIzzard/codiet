@@ -1,116 +1,20 @@
-"""
-This module contains the Repository class, which is responsible for interacting with the database.
-Since the methods are tightly coupled to the database, the API should be kept as narrow as possible.
-"""
-
-import sqlite3
-from typing import Generator
-from contextlib import contextmanager
-
 from codiet.db.database import Database
-from codiet.exceptions import ingredient_exceptions as ingredient_exceptions
+from codiet.db.repository.repository_base import RepositoryBase
+from codiet.db.repository.unit_repository import UnitRepository
 
 
-class Repository:
+class Repository(RepositoryBase):
 
     def __init__(self, database: Database, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(database, *args, **kwargs)
 
-        self._database = database
-
+        # Create a submodule for each main section of the model
         self.units = UnitRepository(database=self._database)
-        self.flags = FlagRepository(database=self._database)
-        self.ingredients = IngredientRepository(database=self._database)
-        self.nutrients = NutrientRepository(database=self._database)
-        self.recipes = RecipeRepository(database=self._database)
-
-    @property
-    def connection(self) -> sqlite3.Connection:
-        """Return a connection to the database."""
-        return self._database.connection
-
-    def close_connection(self) -> None:
-        """Close the connection to the database."""
-        self._database.connection.close()
-
-    @contextmanager
-    def get_cursor(self) -> Generator[sqlite3.Cursor, None, None]:
-        """Return a cursor for the database connection."""
-        cursor = self.connection.cursor()
-        try:
-            yield cursor
-        finally:
-            cursor.close()
-
-    def commit(self) -> None:
-        """Commit changes to the database."""
-        self.connection.commit()
-
-    def create_global_unit(
-        self,
-        unit_name: str,
-        single_display_name: str,
-        plural_display_name: str,
-        unit_type: str,
-        aliases: list[str] | None = None,
-    ) -> int:
-        """Adds a unit to the global unit table and returns the ID."""
-        # Add the global unit to the base table
-        with self.get_cursor() as cursor:
-            cursor.execute(
-                """
-                INSERT INTO global_units (unit_name, single_display_name, plural_display_name, unit_type) VALUES (?, ?, ?, ?);
-            """,
-                (unit_name, single_display_name, plural_display_name, unit_type),
-            )
-            # Get the ID of the unit
-            id = cursor.lastrowid
-        assert id is not None
-        # Add any aliases
-        if aliases:
-            for alias in aliases:
-                self.create_global_unit_alias(alias=alias, unit_id=id)
-        return id
-
-    def create_global_unit_alias(self, alias: str, unit_id: int) -> int:
-        """Adds an alias to the global unit alias table and returns the ID."""
-        with self.get_cursor() as cursor:
-            cursor.execute(
-                """
-                INSERT INTO global_unit_aliases (alias, primary_unit_id) VALUES (?, ?);
-            """,
-                (alias, unit_id),
-            )
-            id = cursor.lastrowid
-        assert id is not None
-        return id
-
-    def create_global_unit_conversion(
-        self,
-        from_unit_id: int,
-        to_unit_id: int,
-        from_unit_qty: float | None,
-        to_unit_qty: float | None,
-    ) -> int:
-        """Adds a conversion to the global unit conversion table and returns the ID.
-        Args:
-            from_unit_id (int): The ID of the unit to convert from.
-            to_unit_id (int): The ID of the unit to convert to.
-            from_unit_qty (float|None): The quantity associated with the from unit.
-            to_unit_qty (float|None): The quantity associated with the to unit.
-        Returns:
-            int: The ID of the unit conversion.
-        """
-        with self.get_cursor() as cursor:
-            cursor.execute(
-                """
-                INSERT INTO global_unit_conversions (from_unit_id, to_unit_id, from_unit_qty, to_unit_qty) VALUES (?, ?, ?, ?);
-            """,
-                (from_unit_id, to_unit_id, from_unit_qty, to_unit_qty),
-            )
-            id = cursor.lastrowid
-        assert id is not None
-        return id
+        # self.flags = FlagRepository(database=self._database)
+        # self.nutrients = NutrientRepository(database=self._database)
+        # self.time = TimeRepository(database=self._database)
+        # self.ingredients = IngredientRepository(database=self._database)        
+        # self.recipes = RecipeRepository(database=self._database)        
 
     def create_global_flag(self, flag_name: str) -> int:
         """Adds a flag to the global flag table and returns the ID."""

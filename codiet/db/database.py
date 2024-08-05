@@ -26,9 +26,9 @@ class Database:
 
         # Create the tables
         # Global tables
-        self.create_global_units_table(cursor)
+        self.create_unit_base_table(cursor)
         self.create_global_unit_conversion_table(cursor)
-        self.create_global_unit_alias_table(cursor)
+        self.create_unit_alias_table(cursor)
         self.create_global_flags_table(cursor)
         self.create_global_nutrients_table(cursor)
         self.create_nutrient_alias_table(cursor)
@@ -54,10 +54,10 @@ class Database:
         self.close_connection()
         os.remove(self._db_path)
 
-    def create_global_units_table(self, cursor:sqlite3.Cursor) -> None:
+    def create_unit_base_table(self, cursor:sqlite3.Cursor) -> None:
         """Create the global unit table in the database."""
         cursor.execute(""" 
-            CREATE TABLE IF NOT EXISTS global_units (
+            CREATE TABLE IF NOT EXISTS unit_base (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 unit_name TEXT NOT NULL UNIQUE,
                 single_display_name TEXT NOT NULL,
@@ -80,10 +80,10 @@ class Database:
             )
         """)
 
-    def create_global_unit_alias_table(self, cursor:sqlite3.Cursor) -> None:
+    def create_unit_alias_table(self, cursor:sqlite3.Cursor) -> None:
         """Create the global unit alias table in the database."""
         cursor.execute(""" 
-            CREATE TABLE IF NOT EXISTS global_unit_aliases (
+            CREATE TABLE IF NOT EXISTS unit_aliases (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 alias TEXT NOT NULL UNIQUE,
                 primary_unit_id INTEGER NOT NULL,
