@@ -84,16 +84,16 @@ class UnitRepository(RepositoryBase):
             for row in rows
         ]
     
-    def read_unit_aliases(self, unit_id: int) -> list[str]:
+    def read_unit_aliases(self, unit_id: int) -> dict[int, str]:
         """Return all aliases for a unit."""
         with self.get_cursor() as cursor:
             rows = cursor.execute(
                 """
-                SELECT alias FROM unit_aliases WHERE primary_unit_id = ?;
+                SELECT id, alias FROM unit_aliases WHERE primary_unit_id = ?;
             """,
                 (unit_id,),
             ).fetchall()
-        return [row[0] for row in rows]
+        return {row[0]: row[1] for row in rows}
     
     def update_unit_base(
         self,
@@ -112,6 +112,16 @@ class UnitRepository(RepositoryBase):
                 (unit_name, single_display_name, plural_display_name, unit_type, unit_id),
             )
 
+    def update_unit_alias(self, alias_id: int, alias: str) -> None:
+        """Update a unit alias."""
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE unit_aliases SET alias = ? WHERE id = ?;
+            """,
+                (alias, alias_id),
+            )
+
     def delete_unit_base(self, unit_id: int) -> None:
         """Delete a unit base."""
         with self.get_cursor() as cursor:
@@ -120,4 +130,14 @@ class UnitRepository(RepositoryBase):
                 DELETE FROM unit_base WHERE id = ?;
             """,
                 (unit_id,),
+            )
+
+    def delete_unit_alias(self, alias_id: int) -> None:
+        """Delete a unit alias."""
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                DELETE FROM unit_aliases WHERE id = ?;
+            """,
+                (alias_id,),
             )
