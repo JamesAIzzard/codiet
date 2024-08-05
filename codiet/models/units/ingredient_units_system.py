@@ -48,12 +48,12 @@ class IngredientUnitsSystem:
         return frozenset(self._global_units)
     
     @property
-    def entity_unit_conversions(self) -> frozenset[IngredientUnitConversion]:
+    def ingredient_unit_conversions(self) -> frozenset[IngredientUnitConversion]:
         """Retrieves the entity unit conversions."""
         return frozenset(self._entity_unit_conversions)
 
-    @entity_unit_conversions.setter
-    def entity_unit_conversions(self, entity_unit_conversions: set[IngredientUnitConversion]):
+    @ingredient_unit_conversions.setter
+    def ingredient_unit_conversions(self, entity_unit_conversions: set[IngredientUnitConversion]):
         """Replaces the existing entity unit conversions with a new list."""
         self._entity_unit_conversions = entity_unit_conversions
         self._update()

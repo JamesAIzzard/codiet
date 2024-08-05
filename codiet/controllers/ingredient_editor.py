@@ -181,7 +181,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self._ingredient = ingredient
 
         # Update the ingredient unit system
-        self._ingredient_unit_system.entity_unit_conversions = (
+        self._ingredient_unit_system.ingredient_unit_conversions = (
             ingredient.unit_conversions
         )
 

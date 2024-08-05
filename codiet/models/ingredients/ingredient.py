@@ -16,8 +16,8 @@ class Ingredient(StoredEntity):
             global_units: set[Unit],
             global_unit_conversions: set[UnitConversion],   
             description:str|None=None,
-            standard_unit:Unit|None=None,
             unit_conversions:set[IngredientUnitConversion]|None=None,
+            standard_unit:Unit|None=None,
             cost_value:float|None=None,
             cost_qty_unit:Unit|None=None,
             cost_qty_value:float|None=None,
@@ -86,6 +86,11 @@ class Ingredient(StoredEntity):
         self._description = value
 
     @property
+    def unit_conversions(self) -> frozenset[IngredientUnitConversion]:
+        """Returns the unit conversions."""
+        return self._unit_system.ingredient_unit_conversions
+
+    @property
     def standard_unit(self) -> Unit:
         """Returns the standard unit ID."""
         return self._standard_unit
@@ -101,6 +106,11 @@ class Ingredient(StoredEntity):
             raise ValueError(f"{value.unit_name} is not accessible in the unit system.")
 
         self._standard_unit = value
+
+    @property
+    def available_units(self) -> frozenset[Unit]:
+        """Returns the available units."""
+        return self._unit_system.get_available_units()
 
     @property
     def cost_value(self) -> float | None:
@@ -147,11 +157,6 @@ class Ingredient(StoredEntity):
         """Returns the flags."""
         return frozenset(self._flags)
 
-    @flags.setter
-    def flags(self, value: set[IngredientFlag]) -> None:
-        """Sets the flags."""
-        self._flags = value
-
     @property
     def gi(self) -> float | None:
         """Returns the GI."""
@@ -169,16 +174,15 @@ class Ingredient(StoredEntity):
         """Returns the nutrient quantities."""
         return frozenset(self._nutrient_quantities)
 
-    @nutrient_quantities.setter
-    def nutrient_quantities(self, value: set[IngredientNutrientQuantity]) -> None:
-        """Sets the nutrient quantities."""
-        self._nutrient_quantities = value
+    def update_unit_conversions(self, unit_conversions: set[IngredientUnitConversion]) -> None:
+        """Updates the unit conversions."""
+        self._unit_system.update_entity_unit_conversions(unit_conversions)
 
-    def flag_value(self, flag_name: str) -> bool:
-        """Returns the value of a flag."""
-        for flag in self.flags:
+    def get_flag(self, flag_name: str) -> IngredientFlag:
+        """Returns a flag by name."""
+        for flag in self._flags:
             if flag.flag_name == flag_name:
-                return flag.flag_value
+                return flag
         raise KeyError(f"Flag {flag_name} not found in ingredient.")
 
     def update_flags(self, flags: set[IngredientFlag]) -> None:
@@ -191,6 +195,13 @@ class Ingredient(StoredEntity):
         if not flags.issubset(self._flags):
             raise KeyError("One or more flags not found in ingredient.")
         self._flags.difference_update(flags)
+
+    def get_nutrient_quantity(self, nutrient_name: str) -> IngredientNutrientQuantity:
+        """Returns a nutrient quantity by name."""
+        for nutrient_quantity in self._nutrient_quantities:
+            if nutrient_quantity.nutrient.nutrient_name == nutrient_name:
+                return nutrient_quantity
+        raise KeyError(f"Nutrient {nutrient_name} not found in ingredient.")
 
     def update_nutrient_quantities(self, nutrient_quantities: set[IngredientNutrientQuantity]) -> None:
         """Updates nutrient quantities."""
