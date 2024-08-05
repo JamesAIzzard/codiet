@@ -1,6 +1,7 @@
 import json
 import os
 
+from codiet.utils import Map
 from codiet.models.flags.flag import Flag
 
 GLOBAL_FLAGS_FILENAME = 'global_flags.json'
@@ -25,3 +26,13 @@ def read_global_flags_from_json(global_flags_filepath: str=GLOBAL_FLAGS_FILEPATH
 
     _cached_global_flags = flags
     return flags
+
+def global_name_flag_map() -> Map[str, Flag]:
+    """Creates a map of flag names to flag objects."""
+    flags = read_global_flags_from_json()
+
+    name_flag_map = Map()
+    for flag in flags:
+        name_flag_map[flag.flag_name] = flag
+
+    return name_flag_map

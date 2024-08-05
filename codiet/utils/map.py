@@ -126,6 +126,59 @@ class Map(Generic[K, V]):
         self.forward.clear()
         self.reverse.clear()
 
+    def __getitem__(self, key: K) -> V | tuple[V, ...]:
+        """
+        Implement the [] operator for getting values.
+        Returns a single value if the key is found.
+        Returns a tuple of values if the key has multiple values.
+        Raises KeyError if the key is not found.
+        """
+        values = self.get_values(key)
+        if not values:
+            raise KeyError(key)
+        if len(values) == 1:
+            return values[0]
+        else:
+            return tuple(values)
+
+    def __setitem__(self, key: K, value: V | tuple[V, ...]) -> None:
+        """
+        Implement the [] operator for setting values.
+        Accepts either a single value or a tuple of values.
+        """
+        if key in self.forward:
+            self.remove_key(key)
+        
+        if isinstance(value, tuple):
+            for v in value:
+                self.add_mapping(key, v)
+        else:
+            self.add_mapping(key, value)
+
+    def __delitem__(self, key: K) -> None:
+        """
+        Implement the del operator for removing mappings.
+        Removes both the key and its associated value(s) from forward and reverse mappings.
+        """
+        if key not in self.forward:
+            raise KeyError(key)
+        
+        values = self.forward[key]
+        del self.forward[key]
+        
+        for value in values:
+            self.reverse[value].remove(key)
+            if not self.reverse[value]:
+                del self.reverse[value]
+
+    def __contains__(self, key: K) -> bool:
+        """Implement the 'in' operator for checking if a key exists."""
+        return key in self.forward
+
+    def __len__(self) -> int:
+        """Return the number of mappings in the forward direction."""
+        return len(self.forward)
+
     def __eq__(self, other) -> bool:
         if not isinstance(other, Map):
             return NotImplemented

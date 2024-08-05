@@ -4,7 +4,7 @@ import unittest
 
 from codiet.db_population.units import read_global_units_from_json
 from codiet.db_population.flags import read_global_flags_from_json
-from codiet.db_population.recipes.recipe_tags import get_global_recipe_tags
+from codiet.db_population.tags import read_global_tags_from_json
 from codiet.db.database import Database
 from codiet.db.repository import Repository
 from codiet.db.database_service import DatabaseService

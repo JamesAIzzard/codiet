@@ -87,17 +87,12 @@ class TestMap(unittest.TestCase):
             Map(from_list=from_list, to_list=to_list)
 
     def test_add_mapping_one_to_one(self):
-        """
-        Test adding mappings in one-to-one mode.
-
-        This test verifies that:
-        1. Adding a new mapping works correctly.
-        2. The mapping is accessible in both directions.
-        3. Adding a duplicate key or value raises a ValueError.
-        """
+        """Test adding mappings in one-to-one mode."""
         bm = Map()
+
+        # Add a single mapping
         bm.add_mapping(1, "one")
-        
+        # Check it worked OK
         self.assertEqual(bm.get_values(1), ["one"])
         self.assertEqual(bm.get_keys("one"), [1])
         
@@ -107,14 +102,18 @@ class TestMap(unittest.TestCase):
         with self.assertRaises(ValueError):
             bm.add_mapping(2, "one")
 
-    def test_add_mapping_many_to_many(self):
-        """
-        Test adding mappings in many-to-many mode.
+    def test_set_and_get_item_one_to_one(self):
+        """Test setting items in one-to-one mode."""
+        bm = Map[int, str]()
+        # Use the setitem method
+        bm[1] = "one"
+        
+        # Fetch with the getitem method
+        self.assertEqual(bm[1], "one")
+        self.assertEqual(bm.get_key("one"), 1)
 
-        This test verifies that:
-        1. Multiple mappings can be added for the same key or value.
-        2. The mappings are correctly stored and accessible in both directions.
-        """
+    def test_add_mapping_many_to_many(self):
+        """Test adding mappings in many-to-many mode."""
         bm = Map(one_to_one=False)
         bm.add_mapping(1, "one")
         bm.add_mapping(1, "uno")

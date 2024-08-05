@@ -10,9 +10,9 @@ class Recipe(StoredEntity):
             description: str | None = None,
             instructions: str | None = None,
             use_as_ingredient: bool = False,
-            ingredient_quantities: list[IngredientQuantity]|None = None,
-            serve_time_windows: list[RecipeServeTimeWindow]|None = None,
-            tags: list[RecipeTag]|None = None,
+            ingredient_quantities: set[IngredientQuantity]|None = None,
+            serve_time_windows: set[RecipeServeTimeWindow]|None = None,
+            tags: set[RecipeTag]|None = None,
             *args, **kwargs
         ):
         """Initialises the class."""
@@ -33,6 +33,9 @@ class Recipe(StoredEntity):
     @name.setter
     def name(self, name: str) -> None:
         """Set the name of the recipe."""
+        # Raise an exception if the name is None or just whitespace
+        if name is None or name.strip() == "":
+            raise ValueError("Name cannot be None or empty.")
         self._name = name
 
     @property
@@ -66,19 +69,19 @@ class Recipe(StoredEntity):
         self._instructions = instructions
 
     @property
-    def ingredient_quantities(self) -> list[IngredientQuantity]:
+    def ingredient_quantities(self) -> frozenset[IngredientQuantity]:
         """Get the ingredients for the recipe."""
-        return self._ingredient_quantities
+        return frozenset(self._ingredient_quantities)
 
     @property
-    def serve_time_windows(self) -> list[RecipeServeTimeWindow]:
+    def serve_time_windows(self) -> frozenset[RecipeServeTimeWindow]:
         """Get the serve times for the recipe."""
-        return self._serve_time_windows
+        return frozenset(self._serve_time_windows)
 
     @property
-    def tags(self) -> list[RecipeTag]:
+    def tags(self) -> frozenset[RecipeTag]:
         """Get the recipe tags for the recipe."""
-        return self._tags
+        return frozenset(self._tags)
 
     def add_ingredient_quantities(self, ingredient_quantities: list[IngredientQuantity]) -> None:
         """Add a list of ingredients to the recipe."""

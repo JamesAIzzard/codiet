@@ -2,6 +2,7 @@ import os
 import json
 from typing import Dict, Any
 
+from codiet.utils.map import Map
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
 
@@ -63,3 +64,13 @@ def read_global_unit_conversions_from_json(global_units_filepath: str=GLOBAL_UNI
 
     _cached_global_unit_conversions = conversions
     return conversions
+
+def global_name_unit_map():
+    """Returns a map of unit names to units."""
+    units = read_global_units_from_json()
+    
+    # Init and populate the map
+    name_unit_map = Map[str, Unit]()
+    for unit in units:
+        name_unit_map.add_mapping(unit.unit_name, unit)
+        

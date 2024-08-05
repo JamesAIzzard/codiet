@@ -1,7 +1,8 @@
 import json
 import os
-from typing import Dict, Any
+from typing import Any
 
+from codiet.utils.map import Map
 from codiet.models.nutrients.nutrient import Nutrient
 
 GLOBAL_NUTRIENTS_FILENAME = 'global_nutrients.json'
@@ -19,7 +20,7 @@ def read_global_nutrients_from_json(global_nutrients_filepath: str = GLOBAL_NUTR
     with open(global_nutrients_filepath, 'r') as f:
         nutrients_data = json.load(f)
 
-    def create_nutrient_tree(name: str, data: Dict[str, Any], parent: Nutrient|None = None) -> tuple[Nutrient, set[Nutrient]]:
+    def create_nutrient_tree(name: str, data: dict[str, Any], parent: Nutrient|None = None) -> tuple[Nutrient, set[Nutrient]]:
         aliases = set(data.get('aliases', []))
         nutrient = Nutrient(nutrient_name=name, aliases=aliases, parent=parent)
         all_nutrients = {nutrient}
@@ -39,4 +40,12 @@ def read_global_nutrients_from_json(global_nutrients_filepath: str = GLOBAL_NUTR
 
     return _cached_global_nutrients
 
+def global_name_nutrient_map() -> Map[str, Nutrient]:
+    """Creates a map of nutrient names to nutrient objects."""
+    nutrients = read_global_nutrients_from_json()
+    
+    name_nutrient_map = Map()
+    for nutrient in nutrients:
+        name_nutrient_map[nutrient.nutrient_name] = nutrient
 
+    return name_nutrient_map
