@@ -91,3 +91,11 @@ class IngredientQuantity(StoredEntity):
     def qty_ltol(self, qty_ltol: float|None):
         """Set the lower tolerance."""
         self._lower_tol = qty_ltol
+
+    def __eq__(self, other):
+        if not isinstance(other, IngredientQuantity):
+            return False
+        return (self.recipe, self.ingredient) == (other.recipe, other.ingredient)
+
+    def __hash__(self):
+        return hash((self.recipe, self.ingredient))        

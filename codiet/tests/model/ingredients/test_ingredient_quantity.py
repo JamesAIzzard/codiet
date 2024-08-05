@@ -91,3 +91,25 @@ class TestIngredientQuantity(unittest.TestCase):
         # Check the lower tolerance is set correctly
         self.assertEqual(self.ingredient_quantity.qty_ltol, 10)
 
+    def test_equality(self):
+        # Create a couple of equal ingredient quantities
+        ingredient_quantity_1 = IngredientQuantity(
+            ingredient=self.ingredient_1,
+            recipe=self.recipe
+        )
+        ingredient_quantity_2 = IngredientQuantity(
+            ingredient=self.ingredient_1,
+            recipe=self.recipe
+        )
+
+        # Check they are equal
+        self.assertEqual(ingredient_quantity_1, ingredient_quantity_2)
+
+        # Create a different ingredient quantity
+        ingredient_quantity_3 = IngredientQuantity(
+            ingredient=self.ingredient_2,
+            recipe=self.recipe
+        )
+
+        # Check they are not equal
+        self.assertNotEqual(ingredient_quantity_1, ingredient_quantity_3)

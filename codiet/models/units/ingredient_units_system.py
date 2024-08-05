@@ -70,13 +70,13 @@ class IngredientUnitsSystem:
     def update_entity_unit_conversions(self, entity_unit_conversions: set[IngredientUnitConversion]):
         """Adds entity unit conversions to the existing list."""
         for conversion in entity_unit_conversions:
+            
             if conversion in self._entity_unit_conversions:
                 # Replace with the new version
                 self._entity_unit_conversions.remove(conversion)
-                self._entity_unit_conversions.add(conversion)
-            else:
-                # Add the new one
-                self._entity_unit_conversions.add(conversion)
+
+            self._entity_unit_conversions.add(conversion)
+
         # Rebuild everything
         self._update()
 

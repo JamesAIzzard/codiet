@@ -21,9 +21,9 @@ class Recipe(StoredEntity):
         self._use_as_ingredient = use_as_ingredient
         self._description = description
         self._instructions = instructions
-        self._ingredient_quantities = ingredient_quantities if ingredient_quantities is not None else []
-        self._serve_time_windows = serve_time_windows if serve_time_windows is not None else []
-        self._tags = tags if tags is not None else []
+        self._ingredient_quantities = ingredient_quantities if ingredient_quantities is not None else set()
+        self._serve_time_windows = serve_time_windows if serve_time_windows is not None else set()
+        self._tags = tags if tags is not None else set()
 
     @property
     def name(self) -> str:
@@ -83,60 +83,47 @@ class Recipe(StoredEntity):
         """Get the recipe tags for the recipe."""
         return frozenset(self._tags)
 
-    def add_ingredient_quantities(self, ingredient_quantities: list[IngredientQuantity]) -> None:
-        """Add a list of ingredients to the recipe."""
-        for ingredient_quantity in ingredient_quantities:
-            # Raise an exception if this ingredient is already in the recipe
-            # or if there is an ingredient quantity with the same id in the recipe
-            for ingredient_qty in self._ingredient_quantities:
-                if ingredient_qty.ingredient_id == ingredient_quantity.ingredient_id:
-                    raise KeyError("Ingredient already in recipe")
-                if ingredient_qty.id == ingredient_quantity.id:
-                    raise KeyError("Ingredient quantity ID already in recipe")
-    
-            # Go ahead and add it
-            self._ingredient_quantities.append(ingredient_quantity)
+    def get_ingredient_quantity(self, ingredient_name:str) -> IngredientQuantity:
+        """Get an ingredient quantity by its name."""
+        for ingredient_quantity in self._ingredient_quantities:
+            if ingredient_quantity.ingredient.name == ingredient_name:
+                return ingredient_quantity
+        raise ValueError(f"Ingredient quantity with name {ingredient_name} not found.")
 
-    def remove_ingredient_quantities(self, ingredient_quantity_ids: list[int]) -> None:
+    def update_ingredient_quantities(self, ingredient_quantities: set[IngredientQuantity]) -> None:
+        """Update the ingredients in the recipe."""
+        for iq in ingredient_quantities:
+            if iq in self._ingredient_quantities:
+                self._ingredient_quantities.remove(iq)
+            self._ingredient_quantities.add(iq)
+
+    def remove_ingredient_quantities(self, ingredient_quantities:set[IngredientQuantity]) -> None:
         """Remove a list of ingredients from the recipe."""
-        for ingredient_quantity_id in ingredient_quantity_ids:
+        for iq in ingredient_quantities:
+
             # Work through the ingredients and remove the one with the given ID
             for ingredient_qty in self._ingredient_quantities:
-                if ingredient_qty.id == ingredient_quantity_id:
+
+                if ingredient_qty == iq:
                     self._ingredient_quantities.remove(ingredient_qty)
                     break
-            else:
-                # Raise an exception if the ingredient quantity is not found
-                raise ValueError(f"Ingredient quantity with ID {ingredient_quantity_id} not found.")
 
-    def add_serve_time_windows(self, serve_time_windows:list[RecipeServeTimeWindow]) -> None:
-        """Add a list of serve time windows to the recipe"""
-        for window in serve_time_windows:
-            # Raise an exception if the window is either a subset or superset of an existing window in the recipe
-            for existing_window in self._serve_time_windows:
-                if existing_window.is_superset_of(window):
-                    raise ValueError("Window is a subset of an existing window in the recipe")
-                if existing_window.is_subset_of(window):
-                    raise ValueError("Window is a superset of an existing window in the recipe")
-            # Raise an exception if the window's ID is not None and is already in the recipe
-            if window.id is not None:
-                for existing_window in self._serve_time_windows:
-                    if existing_window.id == window.id:
-                        raise KeyError("Window ID already in recipe")
-            # Add the serve time to the recipe
-            self._serve_time_windows.append(window)
+    def update_serve_time_windows(self, serve_time_windows: set[RecipeServeTimeWindow]) -> None:
+        """Update the serve times for the recipe."""
+        for stw in serve_time_windows:
+            if stw in self._serve_time_windows:
+                self._serve_time_windows.remove(stw)
+            self._serve_time_windows.add(stw)
 
-    def remove_serve_time_windows(self, serve_time_window_ids: list[int]) -> None:
-        """Remove a serve time from the recipe."""
-        # Remove the serve time from the recipe
-        for serve_time_window_id in serve_time_window_ids:
+    def remove_serve_time_windows(self, serve_time_windows:set[RecipeServeTimeWindow]) -> None:
+        """Remove a list of serve times from the recipe."""
+        for stw in serve_time_windows:
+
+            # Work through the serve times and remove the one with the given ID
             for serve_time_window in self._serve_time_windows:
-                if serve_time_window.id == serve_time_window_id:
-                    self._serve_time_windows.remove(serve_time_window)
-                    break
-            else:
-                # Raise an exception if the serve time window is not found
-                raise ValueError(f"Serve time window with ID {serve_time_window_id} not found.")
+
+                if serve_time_window == stw:
+                    self._serve_time_windows.remove(serve_time_window)           
 
     def add_tags(self, tags:list[RecipeTag]) -> None:
         """Add recipe tags to the recipe."""
@@ -159,3 +146,17 @@ class Recipe(StoredEntity):
             else:
                 # Raise an exception if the tag is not found
                 raise ValueError(f"Tag with ID {tag_id} not found.")
+            
+    def __eq__(self, other):
+        """Check if two recipes are equal."""
+        if not isinstance(other, Recipe):
+            return False
+        if self.id is None and self.name is None:
+            raise ValueError("Recipe must have an ID or a name for comparison.")
+        if self.id is None or other.id is None:
+            return self.name == other.name
+        return self.id == other.id
+    
+    def __hash__(self):
+        """Hash the recipe."""
+        return hash((self.id, self.name))

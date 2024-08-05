@@ -1,4 +1,5 @@
 import unittest
+from datetime import time
 
 from codiet.db_population.flags import read_global_flags_from_json, global_name_flag_map
 from codiet.db_population.units import read_global_units_from_json, read_global_unit_conversions_from_json, global_name_unit_map
@@ -7,6 +8,7 @@ from codiet.db_population.tags import read_global_tags_from_json
 from codiet.models.ingredients.ingredient import Ingredient
 from codiet.models.ingredients.ingredient_quantity import IngredientQuantity
 from codiet.models.recipes.recipe import Recipe
+from codiet.models.recipe_serve_time_window import RecipeServeTimeWindow
 
 class TestRecipe(unittest.TestCase):
     def setUp(self) -> None:
@@ -45,6 +47,30 @@ class TestRecipe(unittest.TestCase):
 
         # Create a recipe
         self.recipe = Recipe(name="Test Recipe")
+
+        # Create some ingredient quantities
+        self.ingredient_quantity_1 = IngredientQuantity(
+            ingredient=self.ingredient_1,
+            recipe=self.recipe
+        )
+        self.ingredient_quantity_2 = IngredientQuantity(
+            ingredient=self.ingredient_2,
+            recipe=self.recipe
+        )
+        self.ingredient_quantity_3 = IngredientQuantity(
+            ingredient=self.ingredient_3,
+            recipe=self.recipe
+        )
+
+        # Create some serve time windows
+        self.serve_time_window_1 = RecipeServeTimeWindow(
+            recipe=self.recipe,
+            window=(time(8, 0), time(10, 0))
+        )
+        self.serve_time_window_2 = RecipeServeTimeWindow(
+            recipe=self.recipe,
+            window=(time(12, 0), time(14, 0))
+        )
 
     def test_init(self):
         recipe = Recipe(name="Test Recipe")
@@ -92,9 +118,45 @@ class TestRecipe(unittest.TestCase):
         self.recipe.instructions = "Test Instructions"
         self.assertEqual(self.recipe.instructions, "Test Instructions")
 
-    @unittest.skip("Skipping test_ingredient_quantities")
     def test_ingredient_quantities(self):
         # Check the default is an empty list
         self.assertEqual(self.recipe.ingredient_quantities, frozenset())
 
-        raise NotImplementedError("IngredientQuantity not implemented yet.")
+        # Add a couple
+        self.recipe.update_ingredient_quantities({self.ingredient_quantity_1, self.ingredient_quantity_2})
+
+        # Check they are there
+        self.assertEqual(self.recipe.ingredient_quantities, frozenset({self.ingredient_quantity_1, self.ingredient_quantity_2}))
+
+    def test_serve_time_windows(self):
+        # Check the default is an empty list
+        self.assertEqual(self.recipe.serve_time_windows, frozenset())
+
+        # Add a couple
+        self.recipe.update_serve_time_windows({self.serve_time_window_1, self.serve_time_window_2})
+
+        # Check they are there
+        self.assertEqual(self.recipe.serve_time_windows, frozenset({self.serve_time_window_1, self.serve_time_window_2}))
+
+    def test_get_ingredient_quantity(self):
+        # Add a couple
+        self.recipe.update_ingredient_quantities({self.ingredient_quantity_1, self.ingredient_quantity_2})
+
+        # Check we can get them
+        self.assertEqual(self.recipe.get_ingredient_quantity("Test Ingredient 1"), self.ingredient_quantity_1)
+        self.assertEqual(self.recipe.get_ingredient_quantity("Test Ingredient 2"), self.ingredient_quantity_2)
+
+        # Check we can't get one that doesn't exist
+        with self.assertRaises(ValueError):
+            self.recipe.get_ingredient_quantity("Test Ingredient 3")
+
+    def test_remove_ingredient_quantities(self):
+        # Add three
+        self.recipe.update_ingredient_quantities({self.ingredient_quantity_1, self.ingredient_quantity_2, self.ingredient_quantity_3})
+
+        # Remove two
+        self.recipe.remove_ingredient_quantities({self.ingredient_quantity_1, self.ingredient_quantity_2})
+
+        # Check they are gone
+        self.assertEqual(self.recipe.ingredient_quantities, frozenset({self.ingredient_quantity_3}))
+
