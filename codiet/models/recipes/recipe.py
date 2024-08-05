@@ -125,27 +125,22 @@ class Recipe(StoredEntity):
                 if serve_time_window == stw:
                     self._serve_time_windows.remove(serve_time_window)           
 
-    def add_tags(self, tags:list[RecipeTag]) -> None:
-        """Add recipe tags to the recipe."""
+    def update_tags(self, tags: set[RecipeTag]) -> None:
+        """Update the tags for the recipe."""
         for tag in tags:
-            # Raise an exception if the tag is already in the recipe
-            for existing_tag in self._tags:
-                if existing_tag.id == tag.id:
-                    raise KeyError("Tag already in recipe")
-            # Add the tag to the recipe
-            self._tags.append(tag)
+            if tag in self._tags:
+                self._tags.remove(tag)
+            self._tags.add(tag)
 
-    def remove_tags(self, tag_ids:list[int]) -> None:
-        """Remove a recipe tags from the recipe."""
-        for tag_id in tag_ids:
-            # Remove the tag from the recipe
-            for tag in self._tags:
-                if tag.id == tag_id:
-                    self._tags.remove(tag)
-                    break
-            else:
-                # Raise an exception if the tag is not found
-                raise ValueError(f"Tag with ID {tag_id} not found.")
+    def remove_tags(self, tags: set[RecipeTag]) -> None:
+        """Remove a list of tags from the recipe."""
+        for tag in tags:
+
+            # Work through the tags and remove the one with the given ID
+            for recipe_tag in self._tags:
+
+                if recipe_tag == tag:
+                    self._tags.remove(recipe_tag)
             
     def __eq__(self, other):
         """Check if two recipes are equal."""
