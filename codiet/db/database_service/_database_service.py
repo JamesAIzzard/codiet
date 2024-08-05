@@ -15,7 +15,7 @@ from codiet.models.ingredients.ingredient_quantity import IngredientQuantity
 from codiet.models.nutrients.ingredient_nutrient_quantity import (
     IngredientNutrientQuantity,
 )
-from codiet.models.recipe_serve_time_window import RecipeServeTimeWindow
+from codiet.models.time.recipe_serve_time_window import RecipeServeTimeWindow
 from codiet.models.recipes.recipe import Recipe
 
 

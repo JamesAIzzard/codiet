@@ -21,6 +21,8 @@ class Repository:
         self.units = UnitRepository(database=self._database)
         self.flags = FlagRepository(database=self._database)
         self.ingredients = IngredientRepository(database=self._database)
+        self.nutrients = NutrientRepository(database=self._database)
+        self.recipes = RecipeRepository(database=self._database)
 
     @property
     def connection(self) -> sqlite3.Connection:

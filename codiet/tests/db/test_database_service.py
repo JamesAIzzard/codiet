@@ -8,7 +8,7 @@ from codiet.models.nutrients import Nutrient
 from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
 from codiet.models.ingredients.ingredient import Ingredient
 from codiet.models.ingredients.ingredient_quantity import IngredientQuantity
-from codiet.models.recipe_serve_time_window import RecipeServeTimeWindow
+from codiet.models.time.recipe_serve_time_window import RecipeServeTimeWindow
 
 def flatten_nutrients(nutrient_data, parent_id=None):
     """Flatten the nested nutrient structure into a list of nutrient dictionaries."""

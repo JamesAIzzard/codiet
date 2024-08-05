@@ -8,7 +8,7 @@ from codiet.db_population.tags import read_global_tags_from_json
 from codiet.models.ingredients.ingredient import Ingredient
 from codiet.models.ingredients.ingredient_quantity import IngredientQuantity
 from codiet.models.recipes.recipe import Recipe
-from codiet.models.recipe_serve_time_window import RecipeServeTimeWindow
+from codiet.models.time.recipe_serve_time_window import RecipeServeTimeWindow
 
 class TestRecipe(unittest.TestCase):
     def setUp(self) -> None:

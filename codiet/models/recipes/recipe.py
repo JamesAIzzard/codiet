@@ -1,5 +1,5 @@
 from codiet.models.ingredients.ingredient_quantity import IngredientQuantity
-from codiet.models.recipe_serve_time_window import RecipeServeTimeWindow
+from codiet.models.time.recipe_serve_time_window import RecipeServeTimeWindow
 from codiet.models.tags.recipe_tag import RecipeTag
 from codiet.db.stored_entity import StoredEntity
 
