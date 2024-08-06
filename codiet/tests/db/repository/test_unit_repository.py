@@ -5,6 +5,7 @@ class TestUnitRepository(DatabaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
+        # Create some unit test data
         self.unit_1_data = {
             "unit_name": "unit_1",
             "single_display_name": "unit_1",
@@ -16,6 +17,20 @@ class TestUnitRepository(DatabaseTestCase):
             "single_display_name": "unit_2",
             "plural_display_name": "unit_2s",
             "unit_type": "unit",
+        }
+
+        # Create some global unit conversion data
+        self.unit_conversion_1_data = {
+            "from_unit_id": 1,
+            "to_unit_id": 2,
+            "from_unit_qty": 1,
+            "to_unit_qty": 2,
+        }
+        self.unit_conversion_2_data = {
+            "from_unit_id": 2,
+            "to_unit_id": 1,
+            "from_unit_qty": 2,
+            "to_unit_qty": 1,
         }
 
     def _create_test_units(self):
@@ -47,6 +62,23 @@ class TestUnitRepository(DatabaseTestCase):
         )
         self.repository.units.create_unit_alias(
             alias="unit_2_alias_2", primary_unit_id=self.unit_2_id
+        )
+
+    def _create_test_unit_conversions(self):
+        """Create some test unit conversions."""
+        # Create the conversions
+        self.repository.units.create_global_unit_conversion(
+            from_unit_id=self.unit_conversion_1_data["from_unit_id"],
+            to_unit_id=self.unit_conversion_1_data["to_unit_id"],
+            from_unit_qty=self.unit_conversion_1_data["from_unit_qty"],
+            to_unit_qty=self.unit_conversion_1_data["to_unit_qty"],
+        )
+
+        self.repository.units.create_global_unit_conversion(
+            from_unit_id=self.unit_conversion_2_data["from_unit_id"],
+            to_unit_id=self.unit_conversion_2_data["to_unit_id"],
+            from_unit_qty=self.unit_conversion_2_data["from_unit_qty"],
+            to_unit_qty=self.unit_conversion_2_data["to_unit_qty"],
         )
 
     def test_create_and_read_unit_base(self):
@@ -105,6 +137,31 @@ class TestUnitRepository(DatabaseTestCase):
         self.assertEqual(aliases[1], "unit_1_alias_1")
         self.assertEqual(aliases[2], "unit_1_alias_2")
 
+    def test_create_and_read_unit_conversions(self):
+        """Test creating and reading global unit conversions."""
+        # Create the units
+        self._create_test_units()
+
+        # Create the conversions
+        self._create_test_unit_conversions()
+
+        # Check the conversions are in the database
+        conversions = self.repository.units.read_all_global_unit_conversions()
+
+        # Check we got the right number back
+        self.assertEqual(len(conversions), 2)
+
+        # Check the first conversion
+        self.assertEqual(conversions[0]["from_unit_id"], self.unit_conversion_1_data["from_unit_id"])
+        self.assertEqual(conversions[0]["to_unit_id"], self.unit_conversion_1_data["to_unit_id"])
+        self.assertEqual(conversions[0]["from_unit_qty"], self.unit_conversion_1_data["from_unit_qty"])
+        self.assertEqual(conversions[0]["to_unit_qty"], self.unit_conversion_1_data["to_unit_qty"])
+
+        # Check the second conversion
+        self.assertEqual(conversions[1]["from_unit_id"], self.unit_conversion_2_data["from_unit_id"])
+        self.assertEqual(conversions[1]["to_unit_id"], self.unit_conversion_2_data["to_unit_id"])
+        self.assertEqual(conversions[1]["from_unit_qty"], self.unit_conversion_2_data["from_unit_qty"])
+        self.assertEqual(conversions[1]["to_unit_qty"], self.unit_conversion_2_data["to_unit_qty"])
 
     def test_update_unit_base(self):
         """Test updating a global unit."""
@@ -133,6 +190,37 @@ class TestUnitRepository(DatabaseTestCase):
         self.assertEqual(unit_1["single_display_name"], "new_single_display_name")
         self.assertEqual(unit_1["plural_display_name"], "new_plural_display_name")
         self.assertEqual(unit_1["unit_type"], "new_unit_type")
+
+    def test_update_global_unit_conversion(self):
+        """Test updating a global unit conversion."""
+        # Create the test units
+        self._create_test_units()
+
+        # Create the test conversions
+        self._create_test_unit_conversions()
+
+        # Check the values of the first conversion
+        conversion_1 = self.repository.units.read_all_global_unit_conversions()[0]
+        self.assertEqual(conversion_1["from_unit_id"], self.unit_conversion_1_data["from_unit_id"])
+        self.assertEqual(conversion_1["to_unit_id"], self.unit_conversion_1_data["to_unit_id"])
+        self.assertEqual(conversion_1["from_unit_qty"], self.unit_conversion_1_data["from_unit_qty"])
+        self.assertEqual(conversion_1["to_unit_qty"], self.unit_conversion_1_data["to_unit_qty"])
+
+        # Update the first conversion
+        self.repository.units.update_global_unit_conversion(
+            unit_conversion_id=1,
+            from_unit_id=2,
+            to_unit_id=1,
+            from_unit_qty=2,
+            to_unit_qty=1,
+        )
+
+        # Check the values of the first conversion again
+        conversion_1 = self.repository.units.read_all_global_unit_conversions()[0]
+        self.assertEqual(conversion_1["from_unit_id"], 2)
+        self.assertEqual(conversion_1["to_unit_id"], 1)
+        self.assertEqual(conversion_1["from_unit_qty"], 2)
+        self.assertEqual(conversion_1["to_unit_qty"], 1)
 
     def test_delete_unit_base(self):
         """Test deleting a global unit."""
@@ -168,3 +256,23 @@ class TestUnitRepository(DatabaseTestCase):
         aliases = self.repository.units.read_unit_aliases(unit_id=self.unit_1_id)
         self.assertEqual(len(aliases), 1)
         
+    def test_delete_global_unit_conversion(self):
+        """Test deleting a global unit conversion."""
+        # Create the test units
+        self._create_test_units()
+
+        # Create the test conversions
+        self._create_test_unit_conversions()
+
+        # Check the conversions are in the database
+        conversions = self.repository.units.read_all_global_unit_conversions()
+
+        # Check we got the right number back
+        self.assertEqual(len(conversions), 2)
+
+        # Delete the first conversion
+        self.repository.units.delete_global_unit_conversion(unit_conversion_id=1)
+
+        # Check that only the second conversion is in the database
+        conversions = self.repository.units.read_all_global_unit_conversions()
+        self.assertEqual(len(conversions), 1)
