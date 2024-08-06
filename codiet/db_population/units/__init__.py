@@ -9,10 +9,10 @@ from codiet.models.units.unit_conversion import UnitConversion
 UNITS_FILENAME = "global_units.json"
 UNITS_FILEPATH = os.path.join(os.path.dirname(__file__), UNITS_FILENAME)
 
-_cached_units: frozenset[Unit] | None = None
-_cached_global_unit_conversions: frozenset[UnitConversion] | None = None
+_cached_units: set[Unit] | None = None
+_cached_global_unit_conversions: set[UnitConversion] | None = None
 
-def read_units_from_json(global_units_filepath: str=UNITS_FILEPATH) -> frozenset[Unit]:
+def read_units_from_json(global_units_filepath: str=UNITS_FILEPATH) -> set[Unit]:
     """Reads the units JSON datafile and returns the data as a set of units."""
     global _cached_units
 
@@ -31,11 +31,11 @@ def read_units_from_json(global_units_filepath: str=UNITS_FILEPATH) -> frozenset
             )
             units.add(unit)
 
-        _cached_units = frozenset(units)
+        _cached_units = units
 
     return _cached_units # type: ignore # cached at this point
 
-def read_global_unit_conversions_from_json(global_units_filepath: str=UNITS_FILEPATH) -> frozenset[UnitConversion]:
+def read_global_unit_conversions_from_json(global_units_filepath: str=UNITS_FILEPATH) -> set[UnitConversion]:
     """Reads the unit conversions JSON datafile and returns the data as a set of unit conversions."""
     global _cached_global_unit_conversions
     
@@ -59,7 +59,7 @@ def read_global_unit_conversions_from_json(global_units_filepath: str=UNITS_FILE
                 )
                 conversions.add(conversion)
 
-        _cached_global_unit_conversions = frozenset(conversions)
+        _cached_global_unit_conversions = conversions
     
     return _cached_global_unit_conversions # type: ignore # cached at this point
 

@@ -112,16 +112,6 @@ class UnitRepository(RepositoryBase):
                 (unit_name, single_display_name, plural_display_name, unit_type, unit_id),
             )
 
-    def update_unit_alias(self, alias_id: int, alias: str) -> None:
-        """Update a unit alias."""
-        with self.get_cursor() as cursor:
-            cursor.execute(
-                """
-                UPDATE unit_aliases SET alias = ? WHERE id = ?;
-            """,
-                (alias, alias_id),
-            )
-
     def delete_unit_base(self, unit_id: int) -> None:
         """Delete a unit base."""
         with self.get_cursor() as cursor:

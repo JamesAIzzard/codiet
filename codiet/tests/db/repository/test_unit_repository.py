@@ -134,28 +134,6 @@ class TestUnitRepository(DatabaseTestCase):
         self.assertEqual(unit_1["plural_display_name"], "new_plural_display_name")
         self.assertEqual(unit_1["unit_type"], "new_unit_type")
 
-    def test_update_unit_alias(self):
-        """Test updating a global unit alias."""
-        # Create the test units
-        self._create_test_units()
-
-        # Check the aliases are in the database
-        aliases = self.repository.units.read_unit_aliases(unit_id=self.unit_1_id)
-
-        # Check we got the right number back
-        self.assertEqual(len(aliases), 2)
-
-        # Check the first alias
-        self.assertEqual(aliases[1], "unit_1_alias_1")
-        self.assertEqual(aliases[2], "unit_1_alias_2")
-
-        # Update the first alias
-        self.repository.units.update_unit_alias(alias_id=1, alias="new_unit_1_alias_1")
-
-        # Check the first alias again
-        aliases = self.repository.units.read_unit_aliases(unit_id=self.unit_1_id)
-        self.assertEqual(aliases[1], "new_unit_1_alias_1")
-
     def test_delete_unit_base(self):
         """Test deleting a global unit."""
         # Create the test units

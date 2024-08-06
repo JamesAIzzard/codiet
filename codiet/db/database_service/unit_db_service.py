@@ -31,6 +31,51 @@ class UnitDBService(DatabaseServiceBase):
         # Cache the gram id. This the base unit, and used all over.
         self._gram: Unit|None = None
 
+    @property
+    def unit_id_name_map(self) -> Map[int, str]:
+        """Return the unit ID to name map."""
+        if self._unit_id_name_map is None:
+            self._unit_id_name_map = Map[int, str]()
+            for unit in self.units:
+                assert unit.id is not None
+                self._unit_id_name_map[unit.id] = unit._unit_name
+        return self._unit_id_name_map
+
+    @property
+    def units(self) -> frozenset[Unit]:
+        """Returns all the units."""
+        if self._units is None:
+            self._units = self.read_all_units()
+        return self._units
+    
+    @property
+    def mass_units(self) -> frozenset[Unit]:
+        """Returns all the mass units."""
+        if self._mass_units is None:
+            self._mass_units = frozenset([unit for unit in self.units if unit._type == "mass"])
+        return self._mass_units
+    
+    @property
+    def volume_units(self) -> frozenset[Unit]:
+        """Returns all the volume units."""
+        if self._volume_units is None:
+            self._volume_units = frozenset([unit for unit in self.units if unit._type == "volume"])
+        return self._volume_units
+    
+    @property
+    def grouping_units(self) -> frozenset[Unit]:
+        """Returns all the grouping units."""
+        if self._grouping_units is None:
+            self._grouping_units = frozenset([unit for unit in self.units if unit._type == "grouping"])
+        return self._grouping_units
+    
+    def get_unit_by_name(self, unit_name:str) -> Unit:
+        """Retrieves a unit by its name."""
+        for unit in self.units:
+            if unit._unit_name == unit_name:
+                return unit
+        raise KeyError(f"Unit with name {unit_name} not found.")
+
     def create_units(self, units: set[Unit]) -> frozenset[Unit]:
         """Insert a set of units into the database."""
         # Init return dict
@@ -60,7 +105,10 @@ class UnitDBService(DatabaseServiceBase):
             persisted_units.append(unit)
 
             # Recache the units
-            # TODO: Recache the units
+            self._reset_units_cache()
+
+            # Emit the signal
+            self.unitsUpdated.emit()
 
         return frozenset(persisted_units)
 
@@ -90,34 +138,77 @@ class UnitDBService(DatabaseServiceBase):
         # Return the set as a frozenset
         return frozenset(units)
 
-    # @property
-    # def unit_id_name_map(self) -> Map[int, str]:
-    #     """Return the unit ID to name map."""
-    #     if self._unit_id_name_map is None:
-    #         self._cache_unit_id_name_map()
-    #     return self._unit_id_name_map # type: ignore # Checked in the if statement
+    def update_units(self, units: set[Unit]) -> None:
+        """Update a set of units in the database."""
+        # For each unit
+        for unit in units:
 
-    # @property
-    # def gram_id(self) -> int:
-    #     """Returns the ID of the gram unit."""
-    #     if self._gram_id is None:
-    #         self._gram_id = self.unit_id_name_map.get_key("gram")
-    #     return self._gram_id    
+            # Check the unit id is set
+            if unit.id is None:
+                raise ValueError("ID must be set for update.")
 
-    # @property
-    # def global_units(self) -> dict[int, Unit]:
-    #     """Returns all the global units."""
-    #     if self._global_units is None:
-    #         self._global_units = self.read_all_global_units()
-    #     return self._global_units
-    
-    # @property
-    # def global_mass_units(self) -> dict[int, Unit]:
-    #     """Returns all the global mass units."""
-    #     if self._global_mass_units is None:
-    #         self._global_mass_units = self.read_all_global_mass_units()
-    #     return self._global_mass_units
-    
+            # Update the unit base
+            self._repository.units.update_unit_base(
+                unit_id=unit.id,
+                unit_name=unit._unit_name,
+                single_display_name=unit._single_display_name,
+                plural_display_name=unit._plural_display_name,
+                unit_type=unit._type,
+            )
+
+            # Update the aliases for the unit
+            existing_aliases = self._repository.units.read_unit_aliases(unit.id)
+            for alias in unit._aliases:
+                if alias not in existing_aliases.values():
+                    self._repository.units.create_unit_alias(
+                        alias=alias,
+                        primary_unit_id=unit.id,
+                    )
+            for alias_id, alias in existing_aliases.items():
+                if alias not in unit._aliases:
+                    self._repository.units.delete_unit_alias(alias_id)
+
+            # Recache the units
+            self._reset_units_cache()
+
+            # Emit the signal
+            self.unitsUpdated.emit()
+
+    def delete_units(self, units: set[Unit]) -> None:
+        """Delete a set of units from the database."""
+        # For each unit
+        for unit in units:
+
+            # Check the unit id is set
+            if unit.id is None:
+                raise ValueError("ID must be set for deletion.")
+
+            # Delete the unit base
+            self._repository.units.delete_unit_base(unit.id)
+
+            # Delete the aliases for the unit
+            existing_aliases = self._repository.units.read_unit_aliases(unit.id)
+            for alias_id in existing_aliases.keys():
+                self._repository.units.delete_unit_alias(alias_id)
+
+            # Recache the units
+            self._reset_units_cache()
+
+            # Emit the signal
+            self.unitsUpdated.emit()
+
+    def _reset_units_cache(self) -> None:
+        """Rebuilds the cached units."""
+        # Reset them all to None
+        self._unit_id_name_map = None
+        self._units = None
+        self._mass_units = None
+        self._volume_units = None
+        self._grouping_units = None
+
+        self._units = self.read_all_units()
+
+
     # @property
     # def global_unit_conversions(self) -> dict[int, UnitConversion]:
     #     """Returns all the global unit conversions."""
@@ -166,17 +257,6 @@ class UnitDBService(DatabaseServiceBase):
     #             persisted_unit_conversions[unit_conversion.id] = unit_conversion
 
     #     return persisted_unit_conversions
-
-    # def read_all_global_mass_units(self) -> dict[int, Unit]:
-    #     """Returns all the global mass units.
-    #     Returns:
-    #         dict[int, Unit]: A dictionary of global mass units, where the key is the
-    #         id of each specific mass unit.
-    #     """
-    #     # Filter out only the mass units
-    #     mass_units = {unit_id: unit for unit_id, unit in self.global_units.items() if unit._type == "mass"}
-    #     # Return
-    #     return mass_units
 
     # def read_all_global_unit_conversions(self) -> dict[int, UnitConversion]:
     #     """Returns all the global unit conversions.
@@ -256,21 +336,3 @@ class UnitDBService(DatabaseServiceBase):
     #     # Delete each unit conversion
     #     for id in unit_conversions.keys():
     #         self._repository.delete_ingredient_unit_conversion(id)
-
-    # def _cache_unit_id_name_map(self) -> None:
-    #     """Re(generates) the cached unit ID to name map
-    #     Emits the signal for the unit ID to name map change.
-
-    #     Returns:
-    #         Map: A map associating unit ID's with names.
-    #     """
-    #     # If the map is None, create it
-    #     if self._unit_id_name_map is None:
-    #         self._unit_id_name_map = Map[int, str](one_to_one=True)
-    #     # Fetch all the units
-    #     units = self._repository.read_all_global_units()
-    #     # Clear the map
-    #     self._unit_id_name_map.clear()
-    #     # Add each unit to the map
-    #     for unit_id, unit_data in units.items():
-    #         self._unit_id_name_map.add_mapping(key=unit_id, value=unit_data["unit_name"])
