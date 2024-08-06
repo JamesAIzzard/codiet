@@ -19,13 +19,11 @@ class UnitDBService(DatabaseServiceBase):
         # Cache the unit id-name map
         self._unit_id_name_map: Map[int, str]|None = None
 
-        # Cache a full list of global units, and global mass units
+        # Create the caches
         self._units: frozenset[Unit]|None = None
         self._mass_units: frozenset[Unit]|None = None
         self._volume_units: frozenset[Unit]|None = None
         self._grouping_units: frozenset[Unit]|None = None
-
-        # Cache a full list of global unit conversions
         self._global_unit_conversions: frozenset[UnitConversion]|None = None
 
         # Cache the gram id. This the base unit, and used all over.
@@ -49,6 +47,13 @@ class UnitDBService(DatabaseServiceBase):
         return self._units
     
     @property
+    def gram(self) -> Unit:
+        """Returns the gram unit."""
+        if self._gram is None:
+            self._gram = self.get_unit_by_name("gram")
+        return self._gram
+
+    @property
     def mass_units(self) -> frozenset[Unit]:
         """Returns all the mass units."""
         if self._mass_units is None:
@@ -69,12 +74,26 @@ class UnitDBService(DatabaseServiceBase):
             self._grouping_units = frozenset([unit for unit in self.units if unit._type == "grouping"])
         return self._grouping_units
     
+    @property
+    def global_unit_conversions(self) -> frozenset[UnitConversion]:
+        """Returns all the global unit conversions."""
+        if self._global_unit_conversions is None:
+            self._global_unit_conversions = self.read_all_global_unit_conversions()
+        return self._global_unit_conversions
+
     def get_unit_by_name(self, unit_name:str) -> Unit:
         """Retrieves a unit by its name."""
         for unit in self.units:
             if unit._unit_name == unit_name:
                 return unit
         raise KeyError(f"Unit with name {unit_name} not found.")
+
+    def get_unit_by_id(self, unit_id:int) -> Unit:
+        """Retrieves a unit by its id."""
+        for unit in self.units:
+            if unit.id == unit_id:
+                return unit
+        raise KeyError(f"Unit with id {unit_id} not found.")
 
     def create_units(self, units: set[Unit]) -> frozenset[Unit]:
         """Insert a set of units into the database."""
@@ -112,6 +131,39 @@ class UnitDBService(DatabaseServiceBase):
 
         return frozenset(persisted_units)
 
+    def create_global_unit_conversions(self, unit_conversions: set[UnitConversion]) -> frozenset[UnitConversion]:
+        """Insert a set of global unit conversions into the database."""
+        # Init return dict
+        persisted_unit_conversions = []
+
+        # For each unit conversion
+        for unit_conversion in unit_conversions:
+
+            # Confirm that both from and to units are persisted
+            assert unit_conversion.from_unit.id is not None
+            assert unit_conversion.to_unit.id is not None
+
+            # Insert the unit conversion into the database
+            unit_conversion_id = self._repository.units.create_global_unit_conversion(
+                from_unit_id=unit_conversion.from_unit.id,
+                to_unit_id=unit_conversion.to_unit.id,
+                from_unit_qty=unit_conversion.from_unit_qty,
+                to_unit_qty=unit_conversion.to_unit_qty,
+            )
+
+            # Update the id
+            unit_conversion.id = unit_conversion_id
+
+            persisted_unit_conversions.append(unit_conversion)
+
+            # Recache the global unit conversions
+            self._reset_global_unit_conversions_cache()
+
+            # Emit the signal
+            self.unitConversionsUpdated.emit()
+
+        return frozenset(persisted_unit_conversions)
+
     def read_all_units(self) -> frozenset[Unit]:
         """Returns all the units."""
         units = set()
@@ -137,6 +189,28 @@ class UnitDBService(DatabaseServiceBase):
         
         # Return the set as a frozenset
         return frozenset(units)
+
+    def read_all_global_unit_conversions(self) -> frozenset[UnitConversion]:
+        """Returns all the global unit conversions."""
+        unit_conversions = set()
+        
+        # Read the global unit conversions
+        global_unit_conversions = self._repository.units.read_all_global_unit_conversions()
+        
+        for global_unit_conversion in global_unit_conversions:
+            # Construct the UnitConversion object
+            unit_conversion = UnitConversion(
+                from_unit=self.get_unit_by_id(global_unit_conversion['from_unit_id']),
+                to_unit=self.get_unit_by_id(global_unit_conversion['to_unit_id']),
+                from_unit_qty=global_unit_conversion['from_unit_qty'],
+                to_unit_qty=global_unit_conversion['to_unit_qty'],
+                id=global_unit_conversion['id']
+            )
+            
+            unit_conversions.add(unit_conversion)
+        
+        # Return the set as a frozenset
+        return frozenset(unit_conversions)
 
     def update_units(self, units: set[Unit]) -> None:
         """Update a set of units in the database."""
@@ -174,6 +248,34 @@ class UnitDBService(DatabaseServiceBase):
             # Emit the signal
             self.unitsUpdated.emit()
 
+    def update_global_unit_conversions(self, unit_conversions: set[UnitConversion]) -> None:
+        """Update a set of global unit conversions in the database."""
+        # For each unit conversion
+        for unit_conversion in unit_conversions:
+
+            # Check the unit conversion id is set
+            if unit_conversion.id is None:
+                raise ValueError("ID must be set for update.")
+            
+            # Confirm that both from and to units are persisted
+            assert unit_conversion.from_unit.id is not None
+            assert unit_conversion.to_unit.id is not None
+
+            # Update the unit conversion
+            self._repository.units.update_global_unit_conversion(
+                unit_conversion_id=unit_conversion.id,
+                from_unit_id=unit_conversion.from_unit.id,
+                to_unit_id=unit_conversion.to_unit.id,
+                from_unit_qty=unit_conversion.from_unit_qty,
+                to_unit_qty=unit_conversion.to_unit_qty,
+            )
+
+            # Recache the global unit conversions
+            self._reset_global_unit_conversions_cache()
+
+            # Emit the signal
+            self.unitConversionsUpdated.emit()
+
     def delete_units(self, units: set[Unit]) -> None:
         """Delete a set of units from the database."""
         # For each unit
@@ -197,6 +299,24 @@ class UnitDBService(DatabaseServiceBase):
             # Emit the signal
             self.unitsUpdated.emit()
 
+    def delete_global_unit_conversions(self, unit_conversions: set[UnitConversion]) -> None:
+        """Delete a set of global unit conversions from the database."""
+        # For each unit conversion
+        for unit_conversion in unit_conversions:
+
+            # Check the unit conversion id is set
+            if unit_conversion.id is None:
+                raise ValueError("ID must be set for deletion.")
+            
+            # Delete the unit conversion
+            self._repository.units.delete_global_unit_conversion(unit_conversion.id)
+
+            # Recache the global unit conversions
+            self._reset_global_unit_conversions_cache()
+
+            # Emit the signal
+            self.unitConversionsUpdated.emit()
+
     def _reset_units_cache(self) -> None:
         """Rebuilds the cached units."""
         # Reset them all to None
@@ -206,4 +326,6 @@ class UnitDBService(DatabaseServiceBase):
         self._volume_units = None
         self._grouping_units = None
 
-        self._units = self.read_all_units()
+    def _reset_global_unit_conversions_cache(self) -> None:
+        """Rebuilds the cached global unit conversions."""
+        self._global_unit_conversions = None
