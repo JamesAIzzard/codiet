@@ -87,24 +87,24 @@ class UnitDBService(DatabaseServiceBase):
     def get_units_by_name(self, unit_names: str) -> Unit:
         ...
     @overload
-    def get_units_by_name(self, unit_names: set[str]) -> frozenset[Unit]:
+    def get_units_by_name(self, unit_names: tuple[str, ...]) -> tuple[Unit, ...]:
         ...
-    def get_units_by_name(self, unit_names: str|set[str]) -> Unit|frozenset[Unit]:
+    def get_units_by_name(self, unit_names: str|tuple[str, ...]) -> Unit|tuple[Unit, ...]:
         """Retrieves a unit by its name."""
         # Single use case
         if isinstance(unit_names, str):
             return self._get_unit_by_name(unit_names)
         # Multiple use case
         else:
-            return frozenset([self._get_unit_by_name(unit_name) for unit_name in unit_names])
+            return tuple(self._get_unit_by_name(unit_name) for unit_name in unit_names)
 
     @overload
     def get_units_by_id(self, unit_id:int) -> Unit:
         ...
     @overload
-    def get_units_by_id(self, unit_id:set[int]) -> frozenset[Unit]:
+    def get_units_by_id(self, unit_id:tuple[int, ...]) -> tuple[Unit, ...]:
         ...
-    def get_units_by_id(self, unit_id:int|set[int]) -> Unit|frozenset[Unit]:
+    def get_units_by_id(self, unit_id:int|tuple[int, ...]) -> Unit|tuple[Unit, ...]:
         """Retrieves units by their id."""
         # Single use case
         if isinstance(unit_id, int):
@@ -114,7 +114,7 @@ class UnitDBService(DatabaseServiceBase):
             raise KeyError(f"Unit with id {unit_id} not found.")
         # Multiple use case
         else:
-            return frozenset([unit for unit in self.units if unit.id in unit_id])
+            return tuple([unit for unit_id in unit_id for unit in self.units if unit.id == unit_id])
 
     def get_unit_conversions_by_units(self, units: set[tuple[Unit, Unit]]) -> frozenset[UnitConversion]:
         """Retrieves a unit conversions by the names of the from and to units.

@@ -119,10 +119,8 @@ class TestUnitDBService(DatabaseTestCase):
 
         # Check the multiple use case
         # Check we can get the kg and g units
-        kg_and_g_units = self.db_service.units.get_units_by_name({"kilogram", "gram"})
-        # Identify the units
-        kg_unit = [unit for unit in kg_and_g_units if unit.unit_name == "kilogram"][0]
-        g_unit = [unit for unit in kg_and_g_units if unit.unit_name == "gram"][0]
+        kg_unit, g_unit = self.db_service.units.get_units_by_name(("kilogram", "gram"))
+
         # Check the names are correct
         self.assertEqual(kg_unit.unit_name, "kilogram")
         self.assertEqual(g_unit.unit_name, "gram")
@@ -144,16 +142,14 @@ class TestUnitDBService(DatabaseTestCase):
 
         # Check the multiple use case
         # Get the kg and g units
-        kg_and_g_units = self.db_service.units.get_units_by_name({"kilogram", "gram"})
-        # Identify the units
-        kg_unit_by_id = [unit for unit in kg_and_g_units if unit.unit_name == "kilogram"][0]
-        g_unit_by_id = [unit for unit in kg_and_g_units if unit.unit_name == "gram"][0]
-        # Check the names are correct
-        self.assertEqual(kg_unit_by_id.unit_name, "kilogram")
-        self.assertEqual(g_unit_by_id.unit_name, "gram")
+        kg_unit, g_unit = self.db_service.units.get_units_by_name(("kilogram", "gram"))
+
+        # Check we can get the units by their IDs
+        kg_unit_by_id, g_unit_by_id = self.db_service.units.get_units_by_id((kg_unit.id, g_unit.id)) # type: ignore
+
         # Check the IDs are correct
         self.assertEqual(kg_unit.id, kg_unit_by_id.id)
-        self.assertEqual(g_unit_by_id.id, self.db_service.units.get_units_by_name("gram").id)
+        self.assertEqual(g_unit_by_id.id, g_unit.id)
 
     def test_create_and_read_units(self):
         """Check we can read and write units to the database."""
