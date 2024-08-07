@@ -7,6 +7,18 @@ class TestUnitDBService(DatabaseTestCase):
     def setUp(self):
         super().setUp()
 
+    def _populate_unit_conversions(self):
+        """Populates the database with unit conversions."""
+        # Create the units
+        units_from_json = read_units_from_json()
+        self.db_service.units.create_units(units_from_json)
+
+        # Create the unit conversions
+        unit_conversions_from_json = read_global_unit_conversions_from_json(
+            global_units=set(self.db_service.units.units)
+        )
+        self.db_service.units.create_global_unit_conversions(unit_conversions_from_json)
+
     def test_unit_id_name_map(self):
         """Checks that the unit ID to name map is correct."""
         # Put the set of units into the database
@@ -94,24 +106,31 @@ class TestUnitDBService(DatabaseTestCase):
         for unit in group_units_from_json:
             self.assertIn(unit, self.db_service.units.grouping_units)
 
-    def test_get_unit_by_name(self):
+    def test_get_units_by_name(self):
         """Checks that we can get a unit by its name."""
         units_from_json = read_units_from_json()
         self.db_service.units.create_units(units_from_json)
 
+        # Check the single use case
         # Check we can get the kg unit
-        kg_unit = self.db_service.units.get_unit_by_name("kilogram")
-
+        kg_unit = self.db_service.units.get_units_by_name("kilogram")
         # Check the name is correct
         self.assertEqual(kg_unit.unit_name, "kilogram")
+
+        # Check the multiple use case
+        # Check we can get the kg and g units
+        kg_and_g_units = self.db_service.units.get_units_by_name({"kilogram", "gram"})
+        # Check the names are correct
+        self.assertEqual(list(kg_and_g_units)[0].unit_name, "kilogram")
+        self.assertEqual(list(kg_and_g_units)[1].unit_name, "gram")
 
     def test_get_unit_by_id(self):
         """Checks that we can get a unit by its ID."""
         units_from_json = read_units_from_json()
         self.db_service.units.create_units(units_from_json)
 
-        # Check we can get the kg unit
-        kg_unit = self.db_service.units.get_unit_by_name("kilogram")
+        # Get the kg unit
+        kg_unit = self.db_service.units.get_units_by_name("kilogram")
 
         # Check we can get the unit by its ID
         kg_unit_by_id = self.db_service.units.get_unit_by_id(kg_unit.id) # type: ignore
@@ -136,16 +155,13 @@ class TestUnitDBService(DatabaseTestCase):
 
     def test_create_and_read_global_unit_conversions(self):
         """Check we can read and write unit conversions to the database."""
-        units_from_json = read_units_from_json()
-        self.db_service.units.create_units(units_from_json)
-        unit_conversions_from_json = read_global_unit_conversions_from_json()
-        self.db_service.units.create_global_unit_conversions(unit_conversions_from_json)
+        self._populate_unit_conversions()
 
         # Read the unit conversions from the database
         unit_conversions = self.db_service.units.read_all_global_unit_conversions()
 
         # Check that the unit conversions are the same
-        self.assertEqual(unit_conversions, unit_conversions_from_json)
+        self.assertEqual(unit_conversions, read_global_unit_conversions_from_json())
 
         # Check that all unit conversions are persisted
         for unit_conversion in unit_conversions:
@@ -162,7 +178,7 @@ class TestUnitDBService(DatabaseTestCase):
         units = self.db_service.units.read_all_units()
 
         # Grab the kilogram unit and update
-        kg_unit = self.db_service.units.get_unit_by_name("kilogram")
+        kg_unit = self.db_service.units.get_units_by_name("kilogram")
         # Modify it (modify private variables because we don't provide setters right now)
         kg_unit._single_display_name = "modifiedkg"
         kg_unit._plural_display_name = "modifiedkgs"
@@ -173,7 +189,7 @@ class TestUnitDBService(DatabaseTestCase):
         self.db_service.units.update_units(set([kg_unit]))
 
         # Read the units from the database
-        updated_kg = self.db_service.units.get_unit_by_name("kilogram")
+        updated_kg = self.db_service.units.get_units_by_name("kilogram")
 
         # Check that the unit is updated
         self.assertEqual(updated_kg, kg_unit)
@@ -181,6 +197,12 @@ class TestUnitDBService(DatabaseTestCase):
         self.assertEqual(updated_kg.plural_display_name, "modifiedkgs")
         self.assertEqual(updated_kg.type, "modifiedtype")
         self.assertEqual(updated_kg.aliases, set(["modifiedkgalias"]))
+
+    def test_update_global_unit_conversions(self):
+        """Checks that we can update a unit conversion in the database.
+        Also confirms the caching updates correctly.
+        """
+        pass # Currently, unit conversions are immutable
 
     def test_delete_units(self):
         """Checks that we can delete a unit from the database.
@@ -190,14 +212,13 @@ class TestUnitDBService(DatabaseTestCase):
         self.db_service.units.create_units(units_from_json)
 
         # Grab the kilogram unit
-        kg_unit = self.db_service.units.get_unit_by_name("kilogram")
+        kg_unit = self.db_service.units.get_units_by_name("kilogram")
 
         # Delete the unit
-        self.db_service.units.delete_units(set([kg_unit]))
+        self.db_service.units.delete_units(kg_unit)
 
         # Assert we get a key error when trying to get the unit
         with self.assertRaises(KeyError):
-            self.db_service.units.get_unit_by_name("kilogram")
+            self.db_service.units.get_units_by_name("kilogram")
 
         self.assertNotIn(kg_unit, self.db_service.units.units)
-

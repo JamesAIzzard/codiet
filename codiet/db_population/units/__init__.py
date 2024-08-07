@@ -35,13 +35,21 @@ def read_units_from_json(global_units_filepath: str=UNITS_FILEPATH) -> set[Unit]
 
     return _cached_units # type: ignore # cached at this point
 
-def read_global_unit_conversions_from_json(global_units_filepath: str=UNITS_FILEPATH) -> set[UnitConversion]:
+def read_global_unit_conversions_from_json(
+        global_units_filepath: str=UNITS_FILEPATH,
+        global_units: set[Unit]|None=None
+    ) -> set[UnitConversion]:
     """Reads the unit conversions JSON datafile and returns the data as a set of unit conversions."""
     global _cached_global_unit_conversions
     
-    if _cached_global_unit_conversions is None:
+    # Configure the global unit dictionary
+    if global_units is not None:
+        unit_dict = {unit.unit_name: unit for unit in global_units}
+    else:
         units = read_units_from_json(global_units_filepath)
         unit_dict = {unit.unit_name: unit for unit in units}
+    
+    if _cached_global_unit_conversions is None:
 
         conversions = set()
         with open(global_units_filepath, 'r') as f:

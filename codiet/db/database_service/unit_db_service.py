@@ -1,3 +1,5 @@
+from typing import overload
+
 from PyQt6.QtCore import pyqtSignal
 
 from codiet.db.database_service.database_service_base import DatabaseServiceBase
@@ -50,7 +52,7 @@ class UnitDBService(DatabaseServiceBase):
     def gram(self) -> Unit:
         """Returns the gram unit."""
         if self._gram is None:
-            self._gram = self.get_unit_by_name("gram")
+            self._gram = self.get_units_by_name("gram")
         return self._gram
 
     @property
@@ -81,12 +83,20 @@ class UnitDBService(DatabaseServiceBase):
             self._global_unit_conversions = self.read_all_global_unit_conversions()
         return self._global_unit_conversions
 
-    def get_unit_by_name(self, unit_name:str) -> Unit:
+    @overload
+    def get_units_by_name(self, unit_names: str) -> Unit:
+        ...
+    @overload
+    def get_units_by_name(self, unit_names: set[str]) -> frozenset[Unit]:
+        ...
+    def get_units_by_name(self, unit_names: str|set[str]) -> Unit|frozenset[Unit]:
         """Retrieves a unit by its name."""
-        for unit in self.units:
-            if unit._unit_name == unit_name:
-                return unit
-        raise KeyError(f"Unit with name {unit_name} not found.")
+        # Single use case
+        if isinstance(unit_names, str):
+            return self._get_unit_by_name(unit_names)
+        # Multiple use case
+        else:
+            return frozenset([self._get_unit_by_name(unit_name) for unit_name in unit_names])
 
     def get_unit_by_id(self, unit_id:int) -> Unit:
         """Retrieves a unit by its id."""
@@ -94,6 +104,25 @@ class UnitDBService(DatabaseServiceBase):
             if unit.id == unit_id:
                 return unit
         raise KeyError(f"Unit with id {unit_id} not found.")
+
+    def get_unit_conversions_by_units(self, units: set[tuple[Unit, Unit]]) -> frozenset[UnitConversion]:
+        """Retrieves a unit conversions by the names of the from and to units.
+        If the units match in reverse, the conversion is reversed.
+        """
+        unit_conversions = set()
+        for from_unit, to_unit in units:
+            for unit_conversion in self.global_unit_conversions:
+                if unit_conversion.from_unit == from_unit and unit_conversion.to_unit == to_unit:
+                    unit_conversions.add(unit_conversion)
+                elif unit_conversion.from_unit == to_unit and unit_conversion.to_unit == from_unit:
+                    unit_conversion.reverse()
+                    unit_conversions.add(unit_conversion)
+
+        return frozenset(unit_conversions)
+
+    def get_unit_conversions_by_id(self, id:set[int]) -> frozenset[UnitConversion]:
+        """Retrieves unit conversions by their id's."""
+        return frozenset([unit_conversion for unit_conversion in self.global_unit_conversions if unit_conversion.id in id])
 
     def create_units(self, units: set[Unit]) -> frozenset[Unit]:
         """Insert a set of units into the database."""
@@ -276,8 +305,12 @@ class UnitDBService(DatabaseServiceBase):
             # Emit the signal
             self.unitConversionsUpdated.emit()
 
-    def delete_units(self, units: set[Unit]) -> None:
+    def delete_units(self, units: Unit|set[Unit]) -> None:
         """Delete a set of units from the database."""
+        # Convert to set if provided as a single Unit
+        if not isinstance(units, set):
+            units = set([units])
+
         # For each unit
         for unit in units:
 
@@ -316,6 +349,13 @@ class UnitDBService(DatabaseServiceBase):
 
             # Emit the signal
             self.unitConversionsUpdated.emit()
+
+    def _get_unit_by_name(self, unit_name:str) -> Unit:
+        """Retrieves a unit by its name."""    
+        for unit in self.units:
+            if unit._unit_name == unit_name:
+                return unit
+        raise KeyError(f"Unit with name {unit_name} not found.")
 
     def _reset_units_cache(self) -> None:
         """Rebuilds the cached units."""
