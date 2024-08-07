@@ -98,12 +98,23 @@ class UnitDBService(DatabaseServiceBase):
         else:
             return frozenset([self._get_unit_by_name(unit_name) for unit_name in unit_names])
 
-    def get_unit_by_id(self, unit_id:int) -> Unit:
-        """Retrieves a unit by its id."""
-        for unit in self.units:
-            if unit.id == unit_id:
-                return unit
-        raise KeyError(f"Unit with id {unit_id} not found.")
+    @overload
+    def get_units_by_id(self, unit_id:int) -> Unit:
+        ...
+    @overload
+    def get_units_by_id(self, unit_id:set[int]) -> frozenset[Unit]:
+        ...
+    def get_units_by_id(self, unit_id:int|set[int]) -> Unit|frozenset[Unit]:
+        """Retrieves units by their id."""
+        # Single use case
+        if isinstance(unit_id, int):
+            for unit in self.units:
+                if unit.id == unit_id:
+                    return unit
+            raise KeyError(f"Unit with id {unit_id} not found.")
+        # Multiple use case
+        else:
+            return frozenset([unit for unit in self.units if unit.id in unit_id])
 
     def get_unit_conversions_by_units(self, units: set[tuple[Unit, Unit]]) -> frozenset[UnitConversion]:
         """Retrieves a unit conversions by the names of the from and to units.
@@ -229,8 +240,8 @@ class UnitDBService(DatabaseServiceBase):
         for global_unit_conversion in global_unit_conversions:
             # Construct the UnitConversion object
             unit_conversion = UnitConversion(
-                from_unit=self.get_unit_by_id(global_unit_conversion['from_unit_id']),
-                to_unit=self.get_unit_by_id(global_unit_conversion['to_unit_id']),
+                from_unit=self.get_units_by_id(global_unit_conversion['from_unit_id']),
+                to_unit=self.get_units_by_id(global_unit_conversion['to_unit_id']),
                 from_unit_qty=global_unit_conversion['from_unit_qty'],
                 to_unit_qty=global_unit_conversion['to_unit_qty'],
                 id=global_unit_conversion['id']
