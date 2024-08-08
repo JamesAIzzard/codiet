@@ -116,20 +116,23 @@ class UnitDBService(DatabaseServiceBase):
         else:
             return tuple([unit for unit_id in unit_id for unit in self.units if unit.id == unit_id])
 
-    def get_unit_conversions_by_units(self, units: set[tuple[Unit, Unit]]) -> frozenset[UnitConversion]:
-        """Retrieves a unit conversions by the names of the from and to units.
-        If the units match in reverse, the conversion is reversed.
-        """
-        unit_conversions = set()
-        for from_unit, to_unit in units:
+    @overload
+    def get_unit_conversions_by_units(self, units: tuple[Unit, Unit]) -> UnitConversion:
+        ...
+    @overload
+    def get_unit_conversions_by_units(self, units: tuple[tuple[Unit, Unit], ...]) -> tuple[UnitConversion, ...]:
+        ...
+    def get_unit_conversions_by_units(self, units: tuple[Unit, Unit]|tuple[tuple[Unit, Unit], ...]) -> UnitConversion|tuple[UnitConversion, ...]:
+        """Retrieves unit conversions by their units."""
+        # Single use case
+        if isinstance(units[0], Unit):
             for unit_conversion in self.global_unit_conversions:
-                if unit_conversion.from_unit == from_unit and unit_conversion.to_unit == to_unit:
-                    unit_conversions.add(unit_conversion)
-                elif unit_conversion.from_unit == to_unit and unit_conversion.to_unit == from_unit:
-                    unit_conversion.reverse()
-                    unit_conversions.add(unit_conversion)
-
-        return frozenset(unit_conversions)
+                if unit_conversion.from_unit == units[0] and unit_conversion.to_unit == units[1]:
+                    return unit_conversion
+            raise KeyError(f"Unit conversion with units {units} not found.")
+        # Multiple use case
+        else:
+            return tuple(unit_conversion for unit in units for unit_conversion in self.global_unit_conversions if (unit_conversion.from_unit, unit_conversion.to_unit) == unit)
 
     def get_unit_conversions_by_id(self, id:set[int]) -> frozenset[UnitConversion]:
         """Retrieves unit conversions by their id's."""

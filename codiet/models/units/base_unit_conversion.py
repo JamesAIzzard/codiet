@@ -36,6 +36,11 @@ class BaseUnitConversion(StoredEntity):
         return self._to_unit
 
     @property
+    def units(self) -> tuple[Unit, Unit]:
+        """Returns the from and to units."""
+        return self.from_unit, self.to_unit
+
+    @property
     def from_unit_qty(self) -> float|None:
         """Returns the quantity of the from unit."""
         return self._from_unit_qty

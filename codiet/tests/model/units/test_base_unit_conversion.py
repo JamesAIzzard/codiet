@@ -53,6 +53,12 @@ class TestBaseUnitConversion(TestCase):
                     to_unit=unit,
                 )
 
+        def test_units(self):
+            """Test the units property of UnitConversion class."""
+            # Check if the units are returned correctly
+            self.assertIn(self.defined_unit_conversion.from_unit, self.defined_unit_conversion.units)
+            self.assertIn(self.defined_unit_conversion.to_unit, self.defined_unit_conversion.units)
+
         def test_ratio(self):
             """Test the ratio property of UnitConversion class."""
             # Check if the ratio is calculated correctly
