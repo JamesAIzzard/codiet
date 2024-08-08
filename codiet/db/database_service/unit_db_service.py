@@ -321,15 +321,15 @@ class UnitDBService(DatabaseServiceBase):
         # Read the ingredient unit conversions
         ingredient_unit_conversions_data = self._repository.units.read_ingredient_unit_conversions(ingredient.id)
         
-        for row in ingredient_unit_conversions_data:
+        for uc_id, uc_data in ingredient_unit_conversions_data.items():
             # Construct the IngredientUnitConversion object
             unit_conversion = IngredientUnitConversion(
-                from_unit=self.get_units_by_id(row['from_unit_id']),
-                to_unit=self.get_units_by_id(row['to_unit_id']),
-                from_unit_qty=row['from_unit_qty'],
-                to_unit_qty=row['to_unit_qty'],
+                from_unit=self.get_units_by_id(uc_data['from_unit_id']),
+                to_unit=self.get_units_by_id(uc_data['to_unit_id']),
+                from_unit_qty=uc_data['from_unit_qty'],
+                to_unit_qty=uc_data['to_unit_qty'],
                 ingredient=ingredient,
-                id=row['id']
+                id=uc_id
             )
             
             ingredient_unit_conversions.append(unit_conversion)
@@ -471,17 +471,20 @@ class UnitDBService(DatabaseServiceBase):
             # Emit the signal
             self.unitConversionsUpdated.emit()
 
-    def delete_ingredient_unit_conversions(self, ingredient_unit_conversions: set[IngredientUnitConversion]) -> None:
+    def delete_ingredient_unit_conversion(self, ingredient_unit_conversion: IngredientUnitConversion) -> None:
+        """Delete an ingredient unit conversion from the database."""
+        # Check the unit conversion id is set
+        if ingredient_unit_conversion.id is None:
+            raise ValueError("ID must be set for deletion.")
+        
+        # Delete the unit conversion
+        self._repository.units.delete_ingredient_unit_conversion(ingredient_unit_conversion.id)
+
+    def delete_ingredient_unit_conversions(self, ingredient_unit_conversions: tuple[IngredientUnitConversion, ...]) -> None:
         """Delete a set of ingredient unit conversions from the database."""
         # For each unit conversion
         for ingredient_unit_conversion in ingredient_unit_conversions:
-
-            # Check the unit conversion id is set
-            if ingredient_unit_conversion.id is None:
-                raise ValueError("ID must be set for deletion.")
-            
-            # Delete the unit conversion
-            self._repository.units.delete_ingredient_unit_conversion(ingredient_unit_conversion.id)
+            self.delete_ingredient_unit_conversion(ingredient_unit_conversion)
 
     def _get_unit_by_name(self, unit_name:str) -> Unit:
         """Retrieves a unit by its name."""    

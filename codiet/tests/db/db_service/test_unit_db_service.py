@@ -1,11 +1,17 @@
+from unittest.mock import Mock
 from codiet.tests.db import DatabaseTestCase
 from codiet.db_population.units import read_units_from_json, read_global_unit_conversions_from_json
 from codiet.models.units.unit import Unit
+from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
 
 class TestUnitDBService(DatabaseTestCase):
 
     def setUp(self):
         super().setUp()
+
+        # Create a mock test ingredient with an ID
+        self.mock_ingredient = Mock()
+        self.mock_ingredient.id = 1
 
     def _populate_unit_conversions(self):
         """Populates the database with unit conversions."""
@@ -251,6 +257,35 @@ class TestUnitDBService(DatabaseTestCase):
         for unit_conversion in unit_conversions:
             self.assertTrue(unit_conversion.is_persisted)
 
+    def test_create_and_read_ingredient_unit_conversions(self):
+        """Check we can read and write ingredient unit conversions to the database."""
+        # Populate the global units
+        units_from_json = read_units_from_json()
+        self.db_service.units.create_units(units_from_json)
+
+        # Grab a couple of units
+        kg, g = self.db_service.units.get_units_by_name(("kilogram", "gram"))
+
+        # Create an ingredient unit conversion instance
+        ingredient_unit_conversion = IngredientUnitConversion(
+            ingredient=self.mock_ingredient,
+            from_unit=kg,
+            to_unit=g,
+            from_unit_qty=1,
+            to_unit_qty=1000
+        )
+
+        # Create the ingredient unit conversion
+        iuc = self.db_service.units.create_ingredient_unit_conversion(ingredient_unit_conversion)
+
+        # Read the ingredient unit conversions from the database
+        ingredient_unit_conversions = self.db_service.units.read_ingredient_unit_conversions(
+            self.mock_ingredient
+        )
+
+        # Check that the ingredient unit conversions are the same
+        self.assertEqual(ingredient_unit_conversions, tuple([ingredient_unit_conversion]))
+
     def test_update_units(self):
         """Checks that we can update a unit in the database.
         Also confirms the caching updates correctly.
@@ -287,6 +322,85 @@ class TestUnitDBService(DatabaseTestCase):
         Also confirms the caching updates correctly.
         """
         pass # Currently, unit conversions are immutable
+
+    def test_update_ingredient_unit_conversion(self):
+        """Checks that we can update an ingredient unit conversion in the database."""
+        # Populate the global units
+        units_from_json = read_units_from_json()
+        self.db_service.units.create_units(units_from_json)
+
+        # Grab a couple of units
+        kg, g = self.db_service.units.get_units_by_name(("kilogram", "gram"))
+
+        # Create an ingredient unit conversion instance
+        ingredient_unit_conversion = IngredientUnitConversion(
+            ingredient=self.mock_ingredient,
+            from_unit=kg,
+            to_unit=g,
+            from_unit_qty=1,
+            to_unit_qty=1000
+        )
+
+        # Create the ingredient unit conversion
+        iuc = self.db_service.units.create_ingredient_unit_conversion(ingredient_unit_conversion)
+
+        # Check the properties were set correctly
+        self.assertEqual(iuc.from_unit_qty, 1)
+        self.assertEqual(iuc.to_unit_qty, 1000)
+
+        # Update the ingredient unit conversion
+        iuc.from_unit_qty = 2
+        iuc.to_unit_qty = 2000
+
+        # Update the ingredient unit conversion
+        self.db_service.units.update_ingredient_unit_conversion(iuc)
+
+        # Read the ingredient unit conversions from the database
+        ingredient_unit_conversions = self.db_service.units.read_ingredient_unit_conversions(
+            self.mock_ingredient
+        )
+
+        # Check that the ingredient unit conversions are the same
+        self.assertEqual(ingredient_unit_conversions, tuple([iuc]))
+
+    def test_delete_ingredient_unit_conversion(self):
+        """Checks that we can delete an ingredient unit conversion from the database."""
+        # Populate the global units
+        units_from_json = read_units_from_json()
+        self.db_service.units.create_units(units_from_json)
+
+        # Grab a couple of units
+        kg, g = self.db_service.units.get_units_by_name(("kilogram", "gram"))
+
+        # Create an ingredient unit conversion instance
+        ingredient_unit_conversion = IngredientUnitConversion(
+            ingredient=self.mock_ingredient,
+            from_unit=kg,
+            to_unit=g,
+            from_unit_qty=1,
+            to_unit_qty=1000
+        )
+
+        # Create the ingredient unit conversion
+        iuc = self.db_service.units.create_ingredient_unit_conversion(ingredient_unit_conversion)
+
+        # Read it to check it is there
+        ingredient_unit_conversions = self.db_service.units.read_ingredient_unit_conversions(
+            self.mock_ingredient
+        )
+        # Check that the ingredient unit conversions are the same
+        self.assertEqual(ingredient_unit_conversions, tuple([iuc]))
+
+        # Delete the ingredient unit conversion
+        self.db_service.units.delete_ingredient_unit_conversion(iuc)
+
+        # Read the ingredient unit conversions from the database
+        ingredient_unit_conversions = self.db_service.units.read_ingredient_unit_conversions(
+            self.mock_ingredient
+        )
+
+        # Check that the ingredient unit conversions are empty
+        self.assertEqual(ingredient_unit_conversions, tuple())
 
     def test_delete_units(self):
         """Checks that we can delete a unit from the database.

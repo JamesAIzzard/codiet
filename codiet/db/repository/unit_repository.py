@@ -163,20 +163,23 @@ class UnitRepository(RepositoryBase):
             for row in rows
         ]
 
-    def read_ingredient_unit_conversions(self, ingredint_id: int) -> dict:
+    def read_ingredient_unit_conversions(self, ingredient_id: int) -> dict:
         """Return all unit conversions for an ingredient."""
         with self.get_cursor() as cursor:
-            row = cursor.execute(
+            rows = cursor.execute(
                 """
-                SELECT from_unit_id, to_unit_id, from_unit_qty, to_unit_qty FROM global_unit_conversions WHERE id = ?;
+                SELECT id, from_unit_id, to_unit_id, from_unit_qty, to_unit_qty FROM ingredient_unit_conversions WHERE ingredient_id = ?;
             """,
-                (ingredint_id,),
-            ).fetchone()
+                (ingredient_id,),
+            ).fetchall()
         return {
-            "from_unit_id": row[0],
-            "to_unit_id": row[1],
-            "from_unit_qty": row[2],
-            "to_unit_qty": row[3],
+            row[0]: {
+                "from_unit_id": row[1],
+                "to_unit_id": row[2],
+                "from_unit_qty": row[3],
+                "to_unit_qty": row[4],
+            }
+            for row in rows
         }
 
     def update_unit_base(
