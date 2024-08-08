@@ -117,12 +117,12 @@ class UnitDBService(DatabaseServiceBase):
             return tuple([unit for unit_id in unit_id for unit in self.units if unit.id == unit_id])
 
     @overload
-    def get_unit_conversions_by_units(self, units: tuple[Unit, Unit]) -> UnitConversion:
+    def get_global_unit_conversions_by_units(self, units: tuple[Unit, Unit]) -> UnitConversion:
         ...
     @overload
-    def get_unit_conversions_by_units(self, units: tuple[tuple[Unit, Unit], ...]) -> tuple[UnitConversion, ...]:
+    def get_global_unit_conversions_by_units(self, units: tuple[tuple[Unit, Unit], ...]) -> tuple[UnitConversion, ...]:
         ...
-    def get_unit_conversions_by_units(self, units: tuple[Unit, Unit]|tuple[tuple[Unit, Unit], ...]) -> UnitConversion|tuple[UnitConversion, ...]:
+    def get_global_unit_conversions_by_units(self, units: tuple[Unit, Unit]|tuple[tuple[Unit, Unit], ...]) -> UnitConversion|tuple[UnitConversion, ...]:
         """Retrieves unit conversions by their units."""
         # Single use case
         if isinstance(units[0], Unit):
@@ -134,9 +134,27 @@ class UnitDBService(DatabaseServiceBase):
         else:
             return tuple(unit_conversion for unit in units for unit_conversion in self.global_unit_conversions if (unit_conversion.from_unit, unit_conversion.to_unit) == unit)
 
-    def get_unit_conversions_by_id(self, id:set[int]) -> frozenset[UnitConversion]:
-        """Retrieves unit conversions by their id's."""
-        return frozenset([unit_conversion for unit_conversion in self.global_unit_conversions if unit_conversion.id in id])
+    @overload
+    def get_global_unit_conversions_by_id(self, id:int) -> UnitConversion:
+        ...
+    @overload
+    def get_global_unit_conversions_by_id(self, id:tuple[int, ...]) -> tuple[UnitConversion, ...]:
+        ...
+    def get_global_unit_conversions_by_id(self, id:int|tuple[int, ...]) -> UnitConversion|tuple[UnitConversion, ...]:
+        """Retrieves unit conversions by their id."""
+        # Single use case
+        if isinstance(id, int):
+            for unit_conversion in self.global_unit_conversions:
+                if unit_conversion.id == id:
+                    return unit_conversion
+            raise KeyError(f"Unit conversion with id {id} not found.")
+        # Multiple use case
+        else:
+            unit_conversions = []
+            for unit_conversion in self.global_unit_conversions:
+                if unit_conversion.id in id:
+                    unit_conversions.append(unit_conversion)
+            return tuple(unit_conversions)
 
     def create_units(self, units: set[Unit]) -> frozenset[Unit]:
         """Insert a set of units into the database."""
