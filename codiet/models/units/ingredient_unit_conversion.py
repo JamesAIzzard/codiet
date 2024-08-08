@@ -32,18 +32,12 @@ class IngredientUnitConversion(BaseUnitConversion):
     @BaseUnitConversion.from_unit_qty.setter
     def from_unit_qty(self, value: float|None):
         """Sets the from unit."""
-        if self._backwards:
-            self._to_unit_qty = value
-        else:
-            self._from_unit_qty = value
+        self._from_unit_qty = value
     
     @BaseUnitConversion.to_unit_qty.setter
     def to_unit_qty(self, value: float|None):
         """Sets the to unit."""
-        if self._backwards:
-            self._from_unit_qty = value
-        else:
-            self._to_unit_qty = value
+        self._to_unit_qty = value
 
     def __eq__(self, other: object) -> bool:
         """Return True if the object is equal to another object."""

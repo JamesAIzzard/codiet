@@ -7,6 +7,7 @@ from codiet.utils.map import Map
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
 from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
+from codiet.models.ingredients.ingredient import Ingredient
 
 class UnitDBService(DatabaseServiceBase):
     """Service for interacting with the unit database."""
@@ -225,6 +226,43 @@ class UnitDBService(DatabaseServiceBase):
 
         return frozenset(persisted_unit_conversions)
 
+    def create_ingredient_unit_conversion(self, ingredient_unit_conversion: IngredientUnitConversion) -> IngredientUnitConversion:
+        """Insert a set of ingredient unit conversions into the database."""
+
+        # Confirm that both from and to units are persisted
+        assert ingredient_unit_conversion.from_unit.id is not None
+        assert ingredient_unit_conversion.to_unit.id is not None
+        # Confirm the unit is peristed
+        assert ingredient_unit_conversion.ingredient.id is not None
+
+        # Insert the ingredient unit conversion into the database
+        ingredient_unit_conversion_id = self._repository.units.create_ingredient_unit_conversion(
+            from_unit_id=ingredient_unit_conversion.from_unit.id,
+            to_unit_id=ingredient_unit_conversion.to_unit.id,
+            from_unit_qty=ingredient_unit_conversion.from_unit_qty,
+            to_unit_qty=ingredient_unit_conversion.to_unit_qty,
+            ingredient_id=ingredient_unit_conversion.ingredient.id,
+        )
+
+        # Update the id
+        ingredient_unit_conversion.id = ingredient_unit_conversion_id
+
+        return ingredient_unit_conversion
+
+    def create_ingredient_unit_conversions(self, ingredient_unit_conversions: tuple[IngredientUnitConversion]) -> tuple[IngredientUnitConversion]:
+        """Insert a set of ingredient unit conversions into the database."""
+        # Init return dict
+        persisted_ingredient_unit_conversions = []
+
+        # For each unit conversion
+        for ingredient_unit_conversion in ingredient_unit_conversions:
+
+            conversion = self.create_ingredient_unit_conversion(ingredient_unit_conversion)
+
+            persisted_ingredient_unit_conversions.append(conversion)
+
+        return tuple(persisted_ingredient_unit_conversions)
+
     def read_all_units(self) -> frozenset[Unit]:
         """Returns all the units."""
         units = set()
@@ -272,6 +310,31 @@ class UnitDBService(DatabaseServiceBase):
         
         # Return the set as a frozenset
         return frozenset(unit_conversions)
+
+    def read_ingredient_unit_conversions(self, ingredient: Ingredient) -> tuple[IngredientUnitConversion]:
+        """Returns all the ingredient unit conversions for an ingredient."""
+        ingredient_unit_conversions = []
+
+        # Assert the ingredient id is set
+        assert ingredient.id is not None
+        
+        # Read the ingredient unit conversions
+        ingredient_unit_conversions_data = self._repository.units.read_ingredient_unit_conversions(ingredient.id)
+        
+        for row in ingredient_unit_conversions_data:
+            # Construct the IngredientUnitConversion object
+            unit_conversion = IngredientUnitConversion(
+                from_unit=self.get_units_by_id(row['from_unit_id']),
+                to_unit=self.get_units_by_id(row['to_unit_id']),
+                from_unit_qty=row['from_unit_qty'],
+                to_unit_qty=row['to_unit_qty'],
+                ingredient=ingredient,
+                id=row['id']
+            )
+            
+            ingredient_unit_conversions.append(unit_conversion)
+        
+        return tuple(ingredient_unit_conversions)
 
     def update_units(self, units: set[Unit]) -> None:
         """Update a set of units in the database."""
@@ -337,6 +400,32 @@ class UnitDBService(DatabaseServiceBase):
             # Emit the signal
             self.unitConversionsUpdated.emit()
 
+    def update_ingredient_unit_conversion(self, ingredient_unit_conversion: IngredientUnitConversion) -> None:
+        """Update an ingredient unit conversion in the database."""
+        # Check the unit conversion id is set
+        if ingredient_unit_conversion.id is None:
+            raise ValueError("ID must be set for update.")
+        
+        # Confirm that both from and to units are persisted
+        assert ingredient_unit_conversion.from_unit.id is not None
+        assert ingredient_unit_conversion.to_unit.id is not None
+        # Confirm the unit is peristed
+        assert ingredient_unit_conversion.ingredient.id is not None
+
+        # Update the unit conversion
+        self._repository.units.update_ingredient_unit_conversion(
+            unit_conversion_id=ingredient_unit_conversion.id,
+            from_unit_id=ingredient_unit_conversion.from_unit.id,
+            to_unit_id=ingredient_unit_conversion.to_unit.id,
+            from_unit_qty=ingredient_unit_conversion.from_unit_qty,
+            to_unit_qty=ingredient_unit_conversion.to_unit_qty,
+        )
+
+    def update_ingredient_unit_conversions(self, ingredient_unit_conversions: list[IngredientUnitConversion]) -> None:
+        """Update a set of ingredient unit conversions in the database."""
+        for ingredient_unit_conversion in ingredient_unit_conversions:
+            self.update_ingredient_unit_conversion(ingredient_unit_conversion)
+
     def delete_units(self, units: Unit|set[Unit]) -> None:
         """Delete a set of units from the database."""
         # Convert to set if provided as a single Unit
@@ -381,6 +470,18 @@ class UnitDBService(DatabaseServiceBase):
 
             # Emit the signal
             self.unitConversionsUpdated.emit()
+
+    def delete_ingredient_unit_conversions(self, ingredient_unit_conversions: set[IngredientUnitConversion]) -> None:
+        """Delete a set of ingredient unit conversions from the database."""
+        # For each unit conversion
+        for ingredient_unit_conversion in ingredient_unit_conversions:
+
+            # Check the unit conversion id is set
+            if ingredient_unit_conversion.id is None:
+                raise ValueError("ID must be set for deletion.")
+            
+            # Delete the unit conversion
+            self._repository.units.delete_ingredient_unit_conversion(ingredient_unit_conversion.id)
 
     def _get_unit_by_name(self, unit_name:str) -> Unit:
         """Retrieves a unit by its name."""    

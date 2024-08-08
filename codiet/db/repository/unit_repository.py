@@ -30,7 +30,25 @@ class UnitRepository(RepositoryBase):
         assert id is not None
 
         return id 
-    
+
+    def create_unit_alias(self, alias: str, primary_unit_id:int) -> int:
+        """Adds an alias to the unit alias table."""
+        with self.get_cursor() as cursor:
+
+            cursor.execute(
+                """
+                INSERT INTO unit_aliases (alias, primary_unit_id) VALUES (?, ?);
+            """,
+                (alias, primary_unit_id),
+            )
+
+            # Get the ID of the unit
+            id = cursor.lastrowid
+
+        assert id is not None
+
+        return id
+
     def create_global_unit_conversion(
         self,
         from_unit_id: int,
@@ -54,19 +72,26 @@ class UnitRepository(RepositoryBase):
         assert id is not None
 
         return id
-
-    def create_unit_alias(self, alias: str, primary_unit_id:int) -> int:
-        """Adds an alias to the unit alias table."""
+    
+    def create_ingredient_unit_conversion(
+        self,
+        ingredient_id: int,
+        from_unit_id: int,
+        to_unit_id: int,
+        from_unit_qty: float|None,
+        to_unit_qty: float|None,
+    ) -> int:
+        """Adds an ingredient unit conversion to the ingredient unit conversion table and returns the ID."""
         with self.get_cursor() as cursor:
 
             cursor.execute(
                 """
-                INSERT INTO unit_aliases (alias, primary_unit_id) VALUES (?, ?);
+                INSERT INTO ingredient_unit_conversions (ingredient_id, from_unit_id, to_unit_id, from_unit_qty, to_unit_qty) VALUES (?, ?, ?, ?, ?);
             """,
-                (alias, primary_unit_id),
+                (ingredient_id, from_unit_id, to_unit_id, from_unit_qty, to_unit_qty),
             )
 
-            # Get the ID of the unit
+            # Get the ID of the unit conversion
             id = cursor.lastrowid
 
         assert id is not None
@@ -138,6 +163,22 @@ class UnitRepository(RepositoryBase):
             for row in rows
         ]
 
+    def read_ingredient_unit_conversions(self, ingredint_id: int) -> dict:
+        """Return all unit conversions for an ingredient."""
+        with self.get_cursor() as cursor:
+            row = cursor.execute(
+                """
+                SELECT from_unit_id, to_unit_id, from_unit_qty, to_unit_qty FROM global_unit_conversions WHERE id = ?;
+            """,
+                (ingredint_id,),
+            ).fetchone()
+        return {
+            "from_unit_id": row[0],
+            "to_unit_id": row[1],
+            "from_unit_qty": row[2],
+            "to_unit_qty": row[3],
+        }
+
     def update_unit_base(
         self,
         unit_id: int,
@@ -172,6 +213,23 @@ class UnitRepository(RepositoryBase):
                 (from_unit_id, to_unit_id, from_unit_qty, to_unit_qty, unit_conversion_id),
             )
 
+    def update_ingredient_unit_conversion(
+        self,
+        unit_conversion_id: int,
+        from_unit_id: int,
+        to_unit_id: int,
+        from_unit_qty: float|None,
+        to_unit_qty: float|None,
+    ) -> None:
+        """Update an ingredient unit conversion."""
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE ingredient_unit_conversions SET from_unit_id = ?, to_unit_id = ?, from_unit_qty = ?, to_unit_qty = ? WHERE id = ?;
+            """,
+                (from_unit_id, to_unit_id, from_unit_qty, to_unit_qty, unit_conversion_id),
+            )
+
     def delete_unit_base(self, unit_id: int) -> None:
         """Delete a unit base."""
         with self.get_cursor() as cursor:
@@ -198,6 +256,16 @@ class UnitRepository(RepositoryBase):
             cursor.execute(
                 """
                 DELETE FROM global_unit_conversions WHERE id = ?;
+            """,
+                (unit_conversion_id,),
+            )
+
+    def delete_ingredient_unit_conversion(self, unit_conversion_id: int) -> None:
+        """Delete an ingredient unit conversion."""
+        with self.get_cursor() as cursor:
+            cursor.execute(
+                """
+                DELETE FROM ingredient_unit_conversions WHERE id = ?;
             """,
                 (unit_conversion_id,),
             )

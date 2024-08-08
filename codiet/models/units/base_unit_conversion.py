@@ -23,7 +23,6 @@ class BaseUnitConversion(StoredEntity):
         self._to_unit = to_unit
         self._from_unit_qty = from_unit_qty
         self._to_unit_qty = to_unit_qty
-        self._backwards = False
 
     @property
     def from_unit(self) -> Unit:
@@ -59,15 +58,8 @@ class BaseUnitConversion(StoredEntity):
     def ratio(self) -> float:
         """Returns the ratio between the two units."""
         if self.is_defined:
-            if self._backwards:
-                return self.from_unit_qty / self.to_unit_qty # type: ignore # Checked by is_defined
-            else:
-                return self.to_unit_qty / self.from_unit_qty # type: ignore # Checked by is_defined
+            return self.to_unit_qty / self.from_unit_qty # type: ignore # Checked by is_defined
         raise ValueError("The conversion is not fully defined.")
-
-    def reverse(self) -> None:
-        """Reverses the conversion."""
-        self._backwards = not self._backwards
 
     def convert_quantity(self, qty: float) -> float:
         """Converts a quantity from the from unit to the to unit."""
