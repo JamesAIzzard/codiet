@@ -59,9 +59,9 @@ class Ingredient(StoredEntity):
             self._cost_qty_unit = cost_qty_unit
 
         self._cost_qty_value = cost_qty_value
-        self._flags = flags if flags is not None else set()
+        self._flags = list(flags) if flags is not None else []
         self._gi = gi
-        self._nutrient_quantities = nutrient_quantities if nutrient_quantities is not None else set()
+        self._nutrient_quantities = list(nutrient_quantities) if nutrient_quantities is not None else []
 
     @property
     def name(self) -> str:
@@ -86,7 +86,12 @@ class Ingredient(StoredEntity):
         self._description = value
 
     @property
-    def unit_conversions(self) -> frozenset[IngredientUnitConversion]:
+    def unit_system(self) -> IngredientUnitsSystem:
+        """Returns the unit system."""
+        return self._unit_system
+
+    @property
+    def unit_conversions(self) -> tuple[IngredientUnitConversion, ...]:
         """Returns the unit conversions."""
         return self._unit_system.ingredient_unit_conversions
 
@@ -108,7 +113,7 @@ class Ingredient(StoredEntity):
         self._standard_unit = value
 
     @property
-    def available_units(self) -> frozenset[Unit]:
+    def available_units(self) -> tuple[Unit, ...]:
         """Returns the available units."""
         return self._unit_system.get_available_units()
 
@@ -153,9 +158,9 @@ class Ingredient(StoredEntity):
         self._cost_qty_value = value
 
     @property
-    def flags(self) -> frozenset[IngredientFlag]:
+    def flags(self) -> tuple[IngredientFlag, ...]:
         """Returns the flags."""
-        return frozenset(self._flags)
+        return tuple(self._flags)
 
     @property
     def gi(self) -> float | None:
@@ -170,13 +175,9 @@ class Ingredient(StoredEntity):
         self._gi = value
 
     @property
-    def nutrient_quantities(self) -> frozenset[IngredientNutrientQuantity]:
+    def nutrient_quantities(self) -> tuple[IngredientNutrientQuantity, ...]:
         """Returns the nutrient quantities."""
-        return frozenset(self._nutrient_quantities)
-
-    def update_unit_conversions(self, unit_conversions: set[IngredientUnitConversion]) -> None:
-        """Updates the unit conversions."""
-        self._unit_system.update_entity_unit_conversions(unit_conversions)
+        return tuple(self._nutrient_quantities)
 
     def get_flag(self, flag_name: str) -> IngredientFlag:
         """Returns a flag by name."""
@@ -185,7 +186,18 @@ class Ingredient(StoredEntity):
                 return flag
         raise KeyError(f"Flag {flag_name} not found in ingredient.")
 
-    def update_flags(self, flags: set[IngredientFlag]) -> None:
+    def add_flag(self, flag: IngredientFlag) -> None:
+        """Adds a flag."""
+        if flag in self._flags:
+            raise KeyError("Flag already exists in ingredient.")
+        self._flags.append(flag)
+
+    def add_flags(self, flags: tuple[IngredientFlag, ...]) -> None:
+        """Adds flags."""
+        for flag in flags:
+            self.add_flag(flag)
+
+    def update_flags(self, flags: tuple[IngredientFlag, ...]) -> None:
         """Updates the flags passed in the set."""
         self._flags.difference_update(flags)
         self._flags.update(flags)

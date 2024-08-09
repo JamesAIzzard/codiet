@@ -49,7 +49,7 @@ class TestEntityUnitsSystem(unittest.TestCase):
             ingredient=self.ingredient,
             global_units=self.global_units,
             global_unit_conversions=self.global_unit_conversions,
-            ingredient_unit_conversions=set([conversion]),
+            ingredient_unit_conversions=tuple([conversion])
         )
 
     def test_init(self):

@@ -24,7 +24,7 @@ class IngredientUnitsSystem:
         self._ingredient = ingredient
         self._global_units = global_units or ()
         self._global_unit_conversions = global_unit_conversions or ()
-        self._ingredient_unit_conversions = ingredient_unit_conversions or ()
+        self._ingredient_unit_conversions = list(ingredient_unit_conversions) if ingredient_unit_conversions else []
 
         self._graph: dict[Unit, dict[Unit, float]] = {}
         self._path_cache: dict[tuple[Unit, Unit], list[tuple[Unit, Unit]]] = {}
@@ -40,7 +40,7 @@ class IngredientUnitsSystem:
     @property
     def gram(self) -> Unit:
         """Retrieves the gram unit."""
-        return self.get_unit("gram")
+        return self._get_unit_by_name("gram")
 
     @property
     def global_units(self) -> tuple[Unit, ...]:
@@ -50,42 +50,53 @@ class IngredientUnitsSystem:
     @property
     def ingredient_unit_conversions(self) -> tuple[IngredientUnitConversion, ...]:
         """Retrieves the entity unit conversions."""
-        return self._ingredient_unit_conversions
+        return tuple(self._ingredient_unit_conversions)
 
     @ingredient_unit_conversions.setter
-    def ingredient_unit_conversions(self, entity_unit_conversions: tuple[IngredientUnitConversion, ...]):
+    def ingredient_unit_conversions(self, ingredient_unit_conversions: tuple[IngredientUnitConversion, ...]):
         """Replaces the existing entity unit conversions with a new list."""
-        self._ingredient_unit_conversions = entity_unit_conversions
+        self._ingredient_unit_conversions = list(ingredient_unit_conversions)
         self._update()
 
-    def get_unit(self, unit_name:str) -> Unit:
-        """Retrieves a unit by its name."""
-        if self._name_unit_map is None:
-            self._cache_name_unit_map()
-        unit = self._name_unit_map.get_value(unit_name) # type: ignore # cache guarantees map is not None
-        if unit is None:
-            raise ValueError(f"Unit {unit_name} not found.")
-        return unit
+    def add_ingredient_unit_conversion(self, ingredient_unit_conversion: IngredientUnitConversion):
+        """Adds an entity unit conversion to the existing list."""
+        self._ingredient_unit_conversions.append(ingredient_unit_conversion)
+        self._update()
+
+    def add_ingredient_unit_conversions(self, entity_unit_conversions: tuple[IngredientUnitConversion, ...]):
+        """Adds entity unit conversions to the existing list."""
+        for conversion in entity_unit_conversions:
+            self.add_ingredient_unit_conversion(conversion)
+        # Rebuild everything
+        self._update()
+
+    def update_ingredient_unit_conversion(self, ingredient_unit_conversion: IngredientUnitConversion):
+        """Updates an entity unit conversion in the existing list."""
+        for i, conv in enumerate(self._ingredient_unit_conversions):
+            if conv == ingredient_unit_conversion:
+                self._ingredient_unit_conversions[i] = ingredient_unit_conversion
+                break
+        self._update()
 
     def update_entity_unit_conversions(self, entity_unit_conversions: tuple[IngredientUnitConversion, ...]):
         """Adds entity unit conversions to the existing list."""
         for conversion in entity_unit_conversions:
-            
-            if conversion in self._ingredient_unit_conversions:
-                # Replace with the new version
-                self._ingredient_unit_conversions.remove(conversion)
 
-            self._ingredient_unit_conversions.add(conversion)
+            self.update_ingredient_unit_conversion(conversion)
 
         # Rebuild everything
         self._update()
 
+    def remove_ingredient_unit_conversion(self, ingredient_unit_conversion: IngredientUnitConversion):
+        """Removes an entity unit conversion from the existing list."""
+        if ingredient_unit_conversion in self._ingredient_unit_conversions:
+            self._ingredient_unit_conversions.remove(ingredient_unit_conversion)
+            self._update()
+
     def remove_entity_unit_conversions(self, entity_unit_conversions: set[IngredientUnitConversion]):
         """Removes entity unit conversions from the existing list."""
         for conversion in entity_unit_conversions:
-            if conversion in self._ingredient_unit_conversions:
-                self._ingredient_unit_conversions.remove(conversion)
-        # Rebuild everything
+            self.remove_ingredient_unit_conversion(conversion)
         self._update()
 
     def can_convert_units(self, from_unit: Unit, to_unit:Unit) -> bool:
@@ -141,7 +152,7 @@ class IngredientUnitsSystem:
 
         return result
 
-    def get_available_units(self, root_unit: Unit|None=None) -> frozenset[Unit]:
+    def get_available_units(self, root_unit: Unit|None=None) -> tuple[Unit, ...]:
         """
         Retrieves all available units starting from a root unit ID.
         If the root unit ID is None, the root unit is assumed to be grams.
@@ -160,13 +171,22 @@ class IngredientUnitsSystem:
                 available_units.append(unit)
                 queue.extend(set(self._graph.get(unit, {}).keys()) - visited)
 
-        return frozenset(available_units)
+        return tuple(available_units)
 
     def clear_path_cache(self):
         """
         Clears the conversion path cache.
         """
         self._path_cache.clear()
+
+    def _get_unit_by_name(self, unit_name:str) -> Unit:
+        """Retrieves a unit by its name."""
+        if self._name_unit_map is None:
+            self._cache_name_unit_map()
+        unit = self._name_unit_map.get_value(unit_name) # type: ignore # cache guarantees map is not None
+        if unit is None:
+            raise ValueError(f"Unit {unit_name} not found.")
+        return unit
 
     def _find_conversion_path(self, from_unit: Unit, to_unit: Unit) -> list[tuple[Unit, Unit]]:
         """
@@ -200,7 +220,7 @@ class IngredientUnitsSystem:
 
         self._graph.clear()
         self._path_cache.clear()
-        all_conversions = self._global_unit_conversions.union(self._ingredient_unit_conversions)
+        all_conversions = self._global_unit_conversions + tuple(self._ingredient_unit_conversions)
 
         for conv in all_conversions:
             if conv.from_unit not in self._graph:
