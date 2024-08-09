@@ -13,17 +13,17 @@ class Ingredient(StoredEntity):
     def __init__(
             self, 
             name:str,
-            global_units: set[Unit],
-            global_unit_conversions: set[UnitConversion],   
+            global_units: tuple[Unit, ...],
+            global_unit_conversions: tuple[UnitConversion, ...],   
             description:str|None=None,
-            unit_conversions:set[IngredientUnitConversion]|None=None,
+            unit_conversions:tuple[IngredientUnitConversion, ...]|None=None,
             standard_unit:Unit|None=None,
             cost_value:float|None=None,
             cost_qty_unit:Unit|None=None,
             cost_qty_value:float|None=None,
-            flags:set[IngredientFlag]|None=None,
+            flags:tuple[IngredientFlag, ...]|None=None,
             gi:float|None=None,
-            nutrient_quantities:set[IngredientNutrientQuantity]|None=None,
+            nutrient_quantities:tuple[IngredientNutrientQuantity, ...]|None=None,
             *args, **kwargs
         ):
         """Initialises the class."""

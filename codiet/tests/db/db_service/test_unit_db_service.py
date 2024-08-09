@@ -21,7 +21,7 @@ class TestUnitDBService(DatabaseTestCase):
 
         # Create the unit conversions
         unit_conversions_from_json = read_global_unit_conversions_from_json(
-            global_units=set(self.db_service.units.units)
+            global_units=self.db_service.units.units
         )
         self.db_service.units.create_global_unit_conversions(unit_conversions_from_json)
 
@@ -47,7 +47,7 @@ class TestUnitDBService(DatabaseTestCase):
             type="newtype",
             aliases=set(["newalias"])
         )
-        self.db_service.units.create_units(set([new_unit]))
+        self.db_service.units.create_unit(new_unit)
 
         # Check that the map is updated
         self.assertIn(new_unit.id, self.db_service.units.unit_id_name_map.keys)
@@ -124,110 +124,88 @@ class TestUnitDBService(DatabaseTestCase):
         for unit_conversion in unit_conversions_from_json:
             self.assertIn(unit_conversion, self.db_service.units.global_unit_conversions)
 
-    def test_get_units_by_name(self):
-        """Checks that we can get a unit by its name."""
+    def test_get_unit_by_name(self):
+        """Checks that we can get a single unit by its name."""
         units_from_json = read_units_from_json()
         self.db_service.units.create_units(units_from_json)
 
-        # Check the single use case
-        # Check we can get the kg unit
-        kg_unit = self.db_service.units.get_units_by_name("kilogram")
-        # Check the name is correct
+        kg_unit = self.db_service.units.get_unit_by_name("kilogram")
         self.assertEqual(kg_unit.unit_name, "kilogram")
 
-        # Check the multiple use case
-        # Check we can get the kg and g units
-        kg_unit, g_unit = self.db_service.units.get_units_by_name(("kilogram", "gram"))
+    def test_get_units_by_name(self):
+        """Checks that we can get multiple units by their names."""
+        units_from_json = read_units_from_json()
+        self.db_service.units.create_units(units_from_json)
 
-        # Check the names are correct
+        kg_unit, g_unit = self.db_service.units.get_units_by_name(("kilogram", "gram"))
         self.assertEqual(kg_unit.unit_name, "kilogram")
         self.assertEqual(g_unit.unit_name, "gram")
 
-    def test_get_units_by_id(self):
-        """Checks that we can get a unit by its ID."""
+    def test_get_unit_by_id(self):
+        """Checks that we can get a single unit by its ID."""
         units_from_json = read_units_from_json()
         self.db_service.units.create_units(units_from_json)
 
-        # Check the single use case
-        # Get the kg unit
-        kg_unit = self.db_service.units.get_units_by_name("kilogram")
-
-        # Check we can get the unit by its ID
-        kg_unit_by_id = self.db_service.units.get_units_by_id(kg_unit.id) # type: ignore
-
-        # Check the name is correct
+        kg_unit = self.db_service.units.get_unit_by_name("kilogram")
+        kg_unit_by_id = self.db_service.units.get_unit_by_id(kg_unit.id)  # type: ignore
         self.assertEqual(kg_unit_by_id.unit_name, "kilogram")
 
-        # Check the multiple use case
-        # Get the kg and g units
+    def test_get_units_by_id(self):
+        """Checks that we can get multiple units by their IDs."""
+        units_from_json = read_units_from_json()
+        self.db_service.units.create_units(units_from_json)
+
         kg_unit, g_unit = self.db_service.units.get_units_by_name(("kilogram", "gram"))
-
-        # Check we can get the units by their IDs
-        kg_unit_by_id, g_unit_by_id = self.db_service.units.get_units_by_id((kg_unit.id, g_unit.id)) # type: ignore
-
-        # Check the IDs are correct
+        kg_unit_by_id, g_unit_by_id = self.db_service.units.get_units_by_id([kg_unit.id, g_unit.id])  # type: ignore
         self.assertEqual(kg_unit.id, kg_unit_by_id.id)
-        self.assertEqual(g_unit_by_id.id, g_unit.id)
+        self.assertEqual(g_unit.id, g_unit_by_id.id)
 
-    def test_get_global_unit_conversions_by_units(self):
-        """Checks that we can get unit conversions by units."""
+    def test_get_global_unit_conversion_by_units(self):
+        """Checks that we can get a single unit conversion by units."""
         self._populate_unit_conversions()
 
-        # Test single use case
-        # Get the kg and g units
         kg_unit, g_unit = self.db_service.units.get_units_by_name(("kilogram", "gram"))
-
-        # Get the unit conversion between kg and g
-        g_kg_conversion = self.db_service.units.get_global_unit_conversions_by_units((kg_unit, g_unit))
-
-        # Check the conversion is correct
+        g_kg_conversion = self.db_service.units.get_global_unit_conversion_by_units(kg_unit, g_unit)
         self.assertIn(g_unit, g_kg_conversion.units)
         self.assertIn(kg_unit, g_kg_conversion.units)
 
-        # Test multiple use case
-        # Get the L and ml units
+    def test_get_global_unit_conversions_by_units(self):
+        """Checks that we can get multiple unit conversions by units."""
+        self._populate_unit_conversions()
+
+        kg_unit, g_unit = self.db_service.units.get_units_by_name(("kilogram", "gram"))
         L_unit, ml_unit = self.db_service.units.get_units_by_name(("litre", "millilitre"))
+        conversions = self.db_service.units.get_global_unit_conversions_by_units(((kg_unit, g_unit), (L_unit, ml_unit)))
+        g_kg_conversion, ml_L_conversion = conversions
 
-        # Get kg to g and L to ml conversions
-        g_kg_conversion, ml_L_conversion = self.db_service.units.get_global_unit_conversions_by_units(((kg_unit, g_unit), (L_unit, ml_unit)))
-
-        # Check the conversions are correct
         self.assertIn(g_unit, g_kg_conversion.units)
         self.assertIn(kg_unit, g_kg_conversion.units)
         self.assertIn(L_unit, ml_L_conversion.units)
         self.assertIn(ml_unit, ml_L_conversion.units)
 
-    def test_get_global_unit_conversions_by_id(self):
-        """Checks that we can get unit conversions by their IDs."""
+    def test_get_global_unit_conversion_by_id(self):
+        """Checks that we can get a single unit conversion by its ID."""
         self._populate_unit_conversions()
 
-        # Test single use case
-        # Get the kg and g units
         kg_unit, g_unit = self.db_service.units.get_units_by_name(("kilogram", "gram"))
-
-        # Get the unit conversion between kg and g
-        g_kg_conversion = self.db_service.units.get_global_unit_conversions_by_units((kg_unit, g_unit))
-
-        # Get the unit conversion by its ID
-        g_kg_conversion_by_id = self.db_service.units.get_global_unit_conversions_by_id(g_kg_conversion.id) # type: ignore
-
-        # Check the conversion is correct
+        g_kg_conversion = self.db_service.units.get_global_unit_conversion_by_units(kg_unit, g_unit)
+        g_kg_conversion_by_id = self.db_service.units.get_global_unit_conversion_by_id(g_kg_conversion.id)  # type: ignore
         self.assertEqual(g_kg_conversion_by_id, g_kg_conversion)
 
-        # Test multiple use case
-        # Get the L and ml units
+    def test_get_global_unit_conversions_by_id(self):
+        """Checks that we can get multiple unit conversions by their IDs."""
+        self._populate_unit_conversions()
+
+        kg_unit, g_unit = self.db_service.units.get_units_by_name(("kilogram", "gram"))
         L_unit, ml_unit = self.db_service.units.get_units_by_name(("litre", "millilitre"))
-
-        # Get kg to g and L to ml conversions
-        g_kg_conversion, ml_L_conversion = self.db_service.units.get_global_unit_conversions_by_units(((kg_unit, g_unit), (L_unit, ml_unit)))
+        conversions = self.db_service.units.get_global_unit_conversions_by_units(((kg_unit, g_unit), (L_unit, ml_unit)))
+        g_kg_conversion, ml_L_conversion = conversions
         
-        # Get the conversions by their IDs
-        g_kg_conversion_by_id, ml_L_conversion_by_id = self.db_service.units.get_global_unit_conversions_by_id((g_kg_conversion.id, ml_L_conversion.id)) # type: ignore
+        conversions_by_id = self.db_service.units.get_global_unit_conversions_by_id([g_kg_conversion.id, ml_L_conversion.id])  # type: ignore
+        g_kg_conversion_by_id, ml_L_conversion_by_id = conversions_by_id
 
-        # Check the conversions are correct
         self.assertEqual(g_kg_conversion_by_id, g_kg_conversion)
         self.assertEqual(ml_L_conversion_by_id, ml_L_conversion)
-
     def test_create_and_read_units(self):
         """Check we can read and write units to the database."""
         units_from_json = read_units_from_json()
@@ -297,7 +275,7 @@ class TestUnitDBService(DatabaseTestCase):
         units = self.db_service.units.read_all_units()
 
         # Grab the kilogram unit and update
-        kg_unit = self.db_service.units.get_units_by_name("kilogram")
+        kg_unit = self.db_service.units.get_unit_by_name("kilogram")
         # Modify it (modify private variables because we don't provide setters right now)
         kg_unit._single_display_name = "modifiedkg"
         kg_unit._plural_display_name = "modifiedkgs"
@@ -305,10 +283,10 @@ class TestUnitDBService(DatabaseTestCase):
         kg_unit._aliases = set(["modifiedkgalias"])
 
         # Update the unit
-        self.db_service.units.update_units(set([kg_unit]))
+        self.db_service.units.update_unit(kg_unit)
 
         # Read the units from the database
-        updated_kg = self.db_service.units.get_units_by_name("kilogram")
+        updated_kg = self.db_service.units.get_unit_by_name("kilogram")
 
         # Check that the unit is updated
         self.assertEqual(updated_kg, kg_unit)
@@ -410,13 +388,13 @@ class TestUnitDBService(DatabaseTestCase):
         self.db_service.units.create_units(units_from_json)
 
         # Grab the kilogram unit
-        kg_unit = self.db_service.units.get_units_by_name("kilogram")
+        kg_unit = self.db_service.units.get_unit_by_name("kilogram")
 
         # Delete the unit
-        self.db_service.units.delete_units(kg_unit)
+        self.db_service.units.delete_unit(kg_unit)
 
         # Assert we get a key error when trying to get the unit
         with self.assertRaises(KeyError):
-            self.db_service.units.get_units_by_name("kilogram")
+            self.db_service.units.get_unit_by_name("kilogram")
 
         self.assertNotIn(kg_unit, self.db_service.units.units)

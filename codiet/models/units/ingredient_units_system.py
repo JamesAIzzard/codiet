@@ -17,14 +17,14 @@ class IngredientUnitsSystem:
     def __init__(
         self,
         ingredient: 'Ingredient',
-        global_units: set[Unit],
-        global_unit_conversions: set[UnitConversion],
-        ingredient_unit_conversions: set[IngredientUnitConversion]|None = None
+        global_units: tuple[Unit, ...],
+        global_unit_conversions: tuple[UnitConversion, ...],
+        ingredient_unit_conversions: tuple[IngredientUnitConversion, ...]|None = None
     ):
         self._ingredient = ingredient
-        self._global_units = global_units or set()
-        self._global_unit_conversions = global_unit_conversions or set()
-        self._entity_unit_conversions = ingredient_unit_conversions or set()
+        self._global_units = global_units or ()
+        self._global_unit_conversions = global_unit_conversions or ()
+        self._ingredient_unit_conversions = ingredient_unit_conversions or ()
 
         self._graph: dict[Unit, dict[Unit, float]] = {}
         self._path_cache: dict[tuple[Unit, Unit], list[tuple[Unit, Unit]]] = {}
@@ -43,19 +43,19 @@ class IngredientUnitsSystem:
         return self.get_unit("gram")
 
     @property
-    def global_units(self) -> frozenset[Unit]:
+    def global_units(self) -> tuple[Unit, ...]:
         """Retrieves the global units."""
-        return frozenset(self._global_units)
+        return self._global_units
     
     @property
-    def ingredient_unit_conversions(self) -> frozenset[IngredientUnitConversion]:
+    def ingredient_unit_conversions(self) -> tuple[IngredientUnitConversion, ...]:
         """Retrieves the entity unit conversions."""
-        return frozenset(self._entity_unit_conversions)
+        return self._ingredient_unit_conversions
 
     @ingredient_unit_conversions.setter
-    def ingredient_unit_conversions(self, entity_unit_conversions: set[IngredientUnitConversion]):
+    def ingredient_unit_conversions(self, entity_unit_conversions: tuple[IngredientUnitConversion, ...]):
         """Replaces the existing entity unit conversions with a new list."""
-        self._entity_unit_conversions = entity_unit_conversions
+        self._ingredient_unit_conversions = entity_unit_conversions
         self._update()
 
     def get_unit(self, unit_name:str) -> Unit:
@@ -67,15 +67,15 @@ class IngredientUnitsSystem:
             raise ValueError(f"Unit {unit_name} not found.")
         return unit
 
-    def update_entity_unit_conversions(self, entity_unit_conversions: set[IngredientUnitConversion]):
+    def update_entity_unit_conversions(self, entity_unit_conversions: tuple[IngredientUnitConversion, ...]):
         """Adds entity unit conversions to the existing list."""
         for conversion in entity_unit_conversions:
             
-            if conversion in self._entity_unit_conversions:
+            if conversion in self._ingredient_unit_conversions:
                 # Replace with the new version
-                self._entity_unit_conversions.remove(conversion)
+                self._ingredient_unit_conversions.remove(conversion)
 
-            self._entity_unit_conversions.add(conversion)
+            self._ingredient_unit_conversions.add(conversion)
 
         # Rebuild everything
         self._update()
@@ -83,8 +83,8 @@ class IngredientUnitsSystem:
     def remove_entity_unit_conversions(self, entity_unit_conversions: set[IngredientUnitConversion]):
         """Removes entity unit conversions from the existing list."""
         for conversion in entity_unit_conversions:
-            if conversion in self._entity_unit_conversions:
-                self._entity_unit_conversions.remove(conversion)
+            if conversion in self._ingredient_unit_conversions:
+                self._ingredient_unit_conversions.remove(conversion)
         # Rebuild everything
         self._update()
 
@@ -200,7 +200,7 @@ class IngredientUnitsSystem:
 
         self._graph.clear()
         self._path_cache.clear()
-        all_conversions = self._global_unit_conversions.union(self._entity_unit_conversions)
+        all_conversions = self._global_unit_conversions.union(self._ingredient_unit_conversions)
 
         for conv in all_conversions:
             if conv.from_unit not in self._graph:
