@@ -45,6 +45,29 @@ class TestIngredient(TestCase):
             global_unit_conversions=self.global_unit_conversions
         )
 
+        # Create some test ingredient nutrient quantities
+        self.protein_quantity = IngredientNutrientQuantity(
+            ingredient=self.ingredient,
+            nutrient=self.named_global_nutrients.get_value("protein"),
+            ntr_mass_unit=self.named_global_units.get_value("gram"),
+            ntr_mass_value=1,
+            ingredient_grams_qty=100
+        )
+        self.fat_quantity = IngredientNutrientQuantity(
+            ingredient=self.ingredient,
+            nutrient=self.named_global_nutrients.get_value("fat"),
+            ntr_mass_unit=self.named_global_units.get_value("gram"),
+            ntr_mass_value=4,
+            ingredient_grams_qty=100
+        )
+        self.carb_quantity = IngredientNutrientQuantity(
+            ingredient=self.ingredient,
+            nutrient=self.named_global_nutrients.get_value("carbohydrate"),
+            ntr_mass_unit=self.named_global_units.get_value("gram"),
+            ntr_mass_value=3,
+            ingredient_grams_qty=100
+        )
+
     def test_name(self):
         """Test the name property."""
         # Check the ingredient instance has the correct name
@@ -122,16 +145,16 @@ class TestIngredient(TestCase):
 
     def test_flags(self):
         """Test the flags property."""
-        # Check the flags are empty to start
-        self.assertEqual(self.ingredient.flags, set())
+        # Check length of flags is 0 to start
+        self.assertEqual(len(self.ingredient.flags), 0)
 
         # Check we can add a flag
         vegan_flag = IngredientFlag(
             ingredient=self.ingredient,
             flag_name="vegan"
         )
-        self.ingredient.update_flags(set([vegan_flag]))
-        self.assertEqual(self.ingredient.flags, {vegan_flag})
+        self.ingredient.add_flags(vegan_flag)
+        self.assertIn(vegan_flag, self.ingredient.flags)
 
     def test_gi(self):
         """Test the gi property."""
@@ -144,7 +167,7 @@ class TestIngredient(TestCase):
     def test_nutrient_quantities(self):
         """Test the nutrient quantities property."""
         # Check the nutrient quantities are empty to start
-        self.assertEqual(self.ingredient.nutrient_quantities, set())
+        self.assertEqual(len(self.ingredient.nutrient_quantities), 0)
 
         # Check we can add a nutrient quantity and read it back with the property
         nutrient_quantity = IngredientNutrientQuantity(
@@ -154,81 +177,72 @@ class TestIngredient(TestCase):
             ntr_mass_value=1,
             ingredient_grams_qty=100
         )
-        self.ingredient.update_nutrient_quantities(set([nutrient_quantity]))
-        self.assertEqual(self.ingredient.nutrient_quantities, {nutrient_quantity})
+        self.ingredient.add_nutrient_quantities(nutrient_quantity)
+        self.assertIn(nutrient_quantity, self.ingredient.nutrient_quantities)
 
     def test_update_flags(self):
         """Test the update_flags method."""
-        # Check the flags are empty to start
-        self.assertEqual(self.ingredient.flags, set())
-
-        # Check we can add a flag
-        vegan_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegan")
-        self.ingredient.update_flags(set([vegan_flag]))
-        self.assertEqual(self.ingredient.flags, {vegan_flag})
-        self.assertFalse(vegan_flag.flag_value)
-
-        # Check we can add another flag
-        vegetarian_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegetarian", flag_value=True)
-        self.ingredient.update_flags(set([vegetarian_flag]))
-        self.assertEqual(self.ingredient.flags, {vegan_flag, vegetarian_flag})
-
-        # Check we can add another two flags, and one of them is already in the set, but has a different value
-        halal_flag = IngredientFlag(ingredient=self.ingredient, flag_name="halal")
-        vegan_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegan", flag_value=True)
-        self.ingredient.update_flags(set([halal_flag, vegan_flag]))
-        self.assertEqual(self.ingredient.flags, {halal_flag, vegan_flag, vegetarian_flag})
-        # Check vegan is now true
-        self.assertTrue(self.ingredient.get_flag("vegan").flag_value)
-
-    def test_mutate_flag_externally(self):
-        """Test that we can mutate a flag externally."""
-        # Check the flags are empty to start
-        self.assertEqual(self.ingredient.flags, set())
-
-        # Check we can add a couple of flags
+        # Add a couple of ingredient flags
         vegan_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegan")
         vegetarian_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegetarian")
-        self.ingredient.update_flags(set([vegan_flag, vegetarian_flag]))
+        self.ingredient.add_flags([vegan_flag, vegetarian_flag])
 
-        # Check the flag is there and false
-        self.assertEqual(self.ingredient.flags, {vegan_flag, vegetarian_flag})
+        # Check the flags are there
+        self.assertIn(vegan_flag, self.ingredient.flags)
+        self.assertIn(vegetarian_flag, self.ingredient.flags)
+        # Check the values are correct
         self.assertFalse(self.ingredient.get_flag("vegan").flag_value)
         self.assertFalse(self.ingredient.get_flag("vegetarian").flag_value)
 
-        # Mutate the flag externally
-        vegan_flag.flag_value = True
-        # Check this is reflected in the ingredient
-        self.assertTrue(self.ingredient.get_flag("vegan").flag_value)
-        # Check vegetarian is still false
+        # Create a duplicate, but with a different value
+        vegan_flag_duplicate = IngredientFlag(ingredient=self.ingredient, flag_name="vegan", flag_value=True)
+
+        # Check we can update the flags
+        self.ingredient.update_flags(vegan_flag_duplicate)
+
+        # Check the flag is updated
+        self.assertIn(vegan_flag_duplicate, self.ingredient.flags)
+
+    def test_mutate_flag_externally(self):
+        """Test that we can mutate a flag externally."""
+        # Add a flag
+        vegetarian_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegetarian")
+        self.ingredient.add_flags(vegetarian_flag)
+
+        # Check the flag is False
         self.assertFalse(self.ingredient.get_flag("vegetarian").flag_value)
+
+        # Mutate the flag externally
+        vegetarian_flag.flag_value = True
+
+        # Check the flag is updated
+        self.assertTrue(self.ingredient.get_flag("vegetarian").flag_value)
 
     def test_remove_flags(self):
         """Test the remove_flag method."""
-        # Check the flags are empty to start
-        self.assertEqual(self.ingredient.flags, set())
-
-        # Check we can add a couple of flags
+        # Add some flags
         vegan_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegan")
         vegetarian_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegetarian")
         halal_flag = IngredientFlag(ingredient=self.ingredient, flag_name="halal")
-        self.ingredient.update_flags(set([vegan_flag, vegetarian_flag, halal_flag]))
+        self.ingredient.add_flags([vegan_flag, vegetarian_flag, halal_flag])
 
         # Check the flags are there
-        self.assertEqual(self.ingredient.flags, {vegan_flag, vegetarian_flag, halal_flag})
+        self.assertIn(vegan_flag, self.ingredient.flags)
+        self.assertIn(vegetarian_flag, self.ingredient.flags)
+        self.assertIn(halal_flag, self.ingredient.flags)
 
-        # Check we can remove a flag
-        self.ingredient.remove_flags(set([vegan_flag, halal_flag]))
+        # Check we can remove two of them
+        self.ingredient.remove_flags([vegan_flag, halal_flag])
 
         # Check the flag is removed
-        self.assertEqual(self.ingredient.flags, {vegetarian_flag})
+        self.assertNotIn(vegan_flag, self.ingredient.flags)
+        self.assertNotIn(halal_flag, self.ingredient.flags)
+        self.assertIn(vegetarian_flag, self.ingredient.flags)
+        self.assertEqual(len(self.ingredient.flags), 1)
 
     def test_update_nutrient_quantities(self):
         """Test the update_nutrient_quantities method."""
-        # Check the nutrient quantities are empty to start
-        self.assertEqual(self.ingredient.nutrient_quantities, set())
-
-        # Check we can add a nutrient quantity
+        # Create a couple of nutrient quantities
         protein_quantity = IngredientNutrientQuantity(
             ingredient=self.ingredient,
             nutrient=self.named_global_nutrients.get_value("protein"),
@@ -236,11 +250,18 @@ class TestIngredient(TestCase):
             ntr_mass_value=1,
             ingredient_grams_qty=100
         )
-        self.ingredient.update_nutrient_quantities(set([protein_quantity]))
-        self.assertEqual(self.ingredient.nutrient_quantities, {protein_quantity})
+        fat_quantity = IngredientNutrientQuantity(
+            ingredient=self.ingredient,
+            nutrient=self.named_global_nutrients.get_value("fat"),
+            ntr_mass_unit=self.named_global_units.get_value("gram"),
+            ntr_mass_value=4,
+            ingredient_grams_qty=100
+        )        
+        self.ingredient.add_nutrient_quantities([protein_quantity, fat_quantity])
+        self.assertIn(protein_quantity, self.ingredient.nutrient_quantities)
+        self.assertIn(fat_quantity, self.ingredient.nutrient_quantities)
 
-        # Now create a new nutrient quantity, and recreate the existing one,
-        # with a different value, and check we can update it.
+        # Recreate one with an existing value to check we can update
         updated_protein_quantity = IngredientNutrientQuantity(
             ingredient=self.ingredient,
             nutrient=self.named_global_nutrients.get_value("protein"),
@@ -248,76 +269,39 @@ class TestIngredient(TestCase):
             ntr_mass_value=2,
             ingredient_grams_qty=100
         )
-        fat_quantity = IngredientNutrientQuantity(
-            ingredient=self.ingredient,
-            nutrient=self.named_global_nutrients.get_value("fat"),
-            ntr_mass_unit=self.named_global_units.get_value("gram"),
-            ntr_mass_value=4,
-            ingredient_grams_qty=100
-        )
-        self.ingredient.update_nutrient_quantities(set([updated_protein_quantity, fat_quantity]))
+
+        self.ingredient.update_nutrient_quantities(updated_protein_quantity)
+
         # Check the protein quantity is updated
-        self.assertEqual(self.ingredient.nutrient_quantities, {updated_protein_quantity, fat_quantity})
         self.assertEqual(self.ingredient.get_nutrient_quantity("protein").ntr_mass_value, 2)
         self.assertEqual(self.ingredient.get_nutrient_quantity("fat").ntr_mass_value, 4)
 
     def test_remove_nutrient_quantities(self):
         """Test the remove_nutrient_quantities method."""
-        # Check the nutrient quantities are empty to start
-        self.assertEqual(self.ingredient.nutrient_quantities, set())
-
-        # Check we can add a couple of nutrient quantities
-        protein_quantity = IngredientNutrientQuantity(
-            ingredient=self.ingredient,
-            nutrient=self.named_global_nutrients.get_value("protein"),
-            ntr_mass_unit=self.named_global_units.get_value("gram"),
-            ntr_mass_value=1,
-            ingredient_grams_qty=100
-        )
-        fat_quantity = IngredientNutrientQuantity(
-            ingredient=self.ingredient,
-            nutrient=self.named_global_nutrients.get_value("fat"),
-            ntr_mass_unit=self.named_global_units.get_value("gram"),
-            ntr_mass_value=4,
-            ingredient_grams_qty=100
-        )
-        carb_quantity = IngredientNutrientQuantity(
-            ingredient=self.ingredient,
-            nutrient=self.named_global_nutrients.get_value("carbohydrate"),
-            ntr_mass_unit=self.named_global_units.get_value("gram"),
-            ntr_mass_value=3,
-            ingredient_grams_qty=100
-        )
-
-        self.ingredient.update_nutrient_quantities(set([protein_quantity, fat_quantity, carb_quantity]))
+        # Add the nutrient quantities
+        self.ingredient.add_nutrient_quantities([self.protein_quantity, self.fat_quantity, self.carb_quantity])
 
         # Check the nutrient quantities are there
-        self.assertEqual(self.ingredient.nutrient_quantities, {protein_quantity, fat_quantity, carb_quantity})
+        self.assertEqual(len(self.ingredient.nutrient_quantities), 3)
 
-        # Check we can remove nutrient quantities
-        self.ingredient.remove_nutrient_quantities(set([protein_quantity, carb_quantity]))
+        # Remove two of them
+        self.ingredient.remove_nutrient_quantities([self.protein_quantity, self.carb_quantity])
 
-        # Check the nutrient quantity is removed
-        self.assertEqual(self.ingredient.nutrient_quantities, {fat_quantity})
+        # Check they were removed
+        self.assertEqual(len(self.ingredient.nutrient_quantities), 1)
+        self.assertIn(self.fat_quantity, self.ingredient.nutrient_quantities)
 
     def test_mutate_nutrient_quantity_externally(self):
         """Test that we can mutate a nutrient quantity externally."""
         # Add a nutrient quantity
-        protein_quantity = IngredientNutrientQuantity(
-            ingredient=self.ingredient,
-            nutrient=self.named_global_nutrients.get_value("protein"),
-            ntr_mass_unit=self.named_global_units.get_value("gram"),
-            ntr_mass_value=1,
-            ingredient_grams_qty=100
-        )
-        self.ingredient.update_nutrient_quantities(set([protein_quantity]))
+        self.ingredient.add_nutrient_quantities(self.protein_quantity)
 
         # Check the nutrient quantity is there
-        self.assertEqual(self.ingredient.nutrient_quantities, {protein_quantity})
+        self.assertIn(self.protein_quantity, self.ingredient.nutrient_quantities)
         self.assertEqual(self.ingredient.get_nutrient_quantity("protein").ntr_mass_value, 1)
 
         # Mutate the nutrient quantity externally
-        protein_quantity.ntr_mass_value = 2
+        self.protein_quantity.ntr_mass_value = 2
 
         # Check this is reflected in the ingredient
         self.assertEqual(self.ingredient.get_nutrient_quantity("protein").ntr_mass_value, 2)
@@ -325,21 +309,11 @@ class TestIngredient(TestCase):
     def test_adding_conversion_makes_nutrient_quantity_unit_available(self):
         """Test that adding a conversion makes the nutrient quantity unit available."""
         # Add a nutrient quantity
-        protein_quantity = IngredientNutrientQuantity(
-            ingredient=self.ingredient,
-            nutrient=self.named_global_nutrients.get_value("protein"),
-            ntr_mass_unit=self.named_global_units.get_value("gram"),
-            ntr_mass_value=1,
-            ingredient_grams_qty=100
-        )
-        self.ingredient.update_nutrient_quantities(set([protein_quantity]))
-
-        # Check the nutrient quantity is there
-        self.assertEqual(self.ingredient.nutrient_quantities, {protein_quantity})
+        self.ingredient.add_nutrient_quantities(self.protein_quantity)
 
         # Check we can't change the unit to an unavailable unit
         with self.assertRaises(ValueError):
-            protein_quantity.ntr_mass_unit = self.named_global_units.get_value("millilitre")
+            self.protein_quantity.ntr_mass_unit = self.named_global_units.get_value("millilitre")
 
         # Add a conversion
         conversion = IngredientUnitConversion(
@@ -349,8 +323,8 @@ class TestIngredient(TestCase):
             from_unit_qty=1,
             to_unit_qty=1.2
         )
-        self.ingredient.update_unit_conversions(set([conversion]))
+        self.ingredient.unit_system.add_ingredient_unit_conversions(conversion)
 
         # Check we can now change the unit to the available unit
-        protein_quantity.ntr_mass_unit = self.named_global_units.get_value("kilogram")
-        self.assertEqual(protein_quantity.ntr_mass_unit, self.named_global_units.get_value("kilogram"))
+        self.protein_quantity.ntr_mass_unit = self.named_global_units.get_value("kilogram")
+        self.assertEqual(self.protein_quantity.ntr_mass_unit, self.named_global_units.get_value("kilogram"))

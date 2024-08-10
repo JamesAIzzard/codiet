@@ -1,46 +1,59 @@
-from typing import Generic, TypeVar, Iterable, Iterator, List, Tuple, overload
+from typing import Generic, TypeVar, Collection, Iterator, List, Tuple, overload
 from collections import OrderedDict
+from collections.abc import Collection as CollectionABC
 
 T = TypeVar('T')
 
-class UniqueList(Generic[T]):
-    def __init__(self, items: T | Iterable[T] | None = None):
+class UniqueCollection(Generic[T], CollectionABC):
+    def __init__(self, items: T | Collection[T] | None = None):
         self._items: OrderedDict[T, None] = OrderedDict()
         if items is not None:
             self.add(items)
 
-    def add(self, items: T|Iterable[T]) -> None:
+    def add(self, items: T | Collection[T]) -> None:
         """Add an item or items to the list.
         Raises:
             ValueError: If the item is already in the list.
         """
-        if isinstance(items, Iterable) and not isinstance(items, str):
+        if isinstance(items, Collection) and not isinstance(items, str):
             for item in items:
                 self._add_single(item)
         else:
             self._add_single(items) # type: ignore
 
-    def remove(self, items: T|Iterable[T]) -> None:
-        if isinstance(items, Iterable) and not isinstance(items, str):
+    def remove(self, items: T | Collection[T]) -> None:
+        if isinstance(items, Collection) and not isinstance(items, str):
             for item in items:
                 self._remove_single(item)
         else:
             self._remove_single(items) # type: ignore
 
-    def update(self, items: T|Iterable[T]) -> None:
-        if isinstance(items, Iterable) and not isinstance(items, str):
+    def update(self, items: T | Collection[T]) -> None:
+        if isinstance(items, Collection) and not isinstance(items, str):
             for item in items:
                 self._update_single(item)
         else:
             self._update_single(items) # type: ignore
 
-    def freeze(self) -> Tuple[T, ...]:
-        return tuple(self._items.keys())
-
-    def _update_single(self, item:T) -> None:
-        if item not in self._items:
+    def _update_single(self, item: T) -> None:
+        # Stash the original keys
+        keys = list(self._items.keys())
+        
+        # Find the index of the item
+        try:
+            index = keys.index(item)
+        except ValueError:
             raise ValueError(f"{item} not in list")
-        self._items[item] = None
+        
+        # Create a new OrderedDict with the updated item
+        new_items = OrderedDict()
+        for i, key in enumerate(keys):
+            if i == index:
+                new_items[item] = None
+            else:
+                new_items[key] = None
+        
+        self._items = new_items
 
     def _add_single(self, item: T) -> None:
         if item in self._items:
@@ -75,7 +88,9 @@ class UniqueList(Generic[T]):
         return iter(self._items.keys())
 
     def __contains__(self, item: T) -> bool:
-        return item in self._items
+        return item in self._items.keys()
 
     def __repr__(self) -> str:
         return f"UniqueList({list(self._items.keys())})"
+    
+    

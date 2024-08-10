@@ -117,20 +117,20 @@ class TestEntityUnitsSystem(unittest.TestCase):
     def test_add_conversion_and_convert(self):
         """Test adding a conversion and converting."""
         # Setup gram-slice conversion
-        gram = self.named_global_units.get_value("gram")
+        gram_unit = self.named_global_units.get_value("gram")
         slice_unit = self.named_global_units.get_value("slice")
         slice_conversion = IngredientUnitConversion(
             ingredient=self.ingredient,
-            from_unit=gram,
+            from_unit=gram_unit,
             to_unit=slice_unit,
             from_unit_qty=100,
             to_unit_qty=1,
         )
-        self.disconnected_system.update_entity_unit_conversions(set([slice_conversion]))
+        self.disconnected_system.add_ingredient_unit_conversions(slice_conversion)
 
         # Convert 200 grams to slices
         self.assertEqual(self.disconnected_system.convert_units(
-            from_unit=gram,
+            from_unit=gram_unit,
             to_unit=slice_unit,
             quantity=200,
         ), 2)
@@ -138,7 +138,7 @@ class TestEntityUnitsSystem(unittest.TestCase):
         # Convert 2 slices to grams
         self.assertEqual(self.disconnected_system.convert_units(
             from_unit=slice_unit,
-            to_unit=gram,
+            to_unit=gram_unit,
             quantity=2,
         ), 200)
 

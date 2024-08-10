@@ -1,7 +1,8 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Collection
 from collections import deque
 
 from codiet.utils.map import Map
+from codiet.utils.unique_collection import UniqueCollection as uc
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
 from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
@@ -17,14 +18,14 @@ class IngredientUnitsSystem:
     def __init__(
         self,
         ingredient: 'Ingredient',
-        global_units: tuple[Unit, ...],
-        global_unit_conversions: tuple[UnitConversion, ...],
-        ingredient_unit_conversions: tuple[IngredientUnitConversion, ...]|None = None
+        global_units: Collection[Unit],
+        global_unit_conversions: Collection[UnitConversion],
+        ingredient_unit_conversions: Collection[IngredientUnitConversion]|None = None
     ):
         self._ingredient = ingredient
-        self._global_units = global_units or ()
-        self._global_unit_conversions = global_unit_conversions or ()
-        self._ingredient_unit_conversions = list(ingredient_unit_conversions) if ingredient_unit_conversions else []
+        self._global_units = uc(global_units)
+        self._global_unit_conversions = uc(global_unit_conversions)
+        self._ingredient_unit_conversions = uc(ingredient_unit_conversions) or uc()
 
         self._graph: dict[Unit, dict[Unit, float]] = {}
         self._path_cache: dict[tuple[Unit, Unit], list[tuple[Unit, Unit]]] = {}
@@ -45,7 +46,7 @@ class IngredientUnitsSystem:
     @property
     def global_units(self) -> tuple[Unit, ...]:
         """Retrieves the global units."""
-        return self._global_units
+        return tuple(self._global_units)
     
     @property
     def ingredient_unit_conversions(self) -> tuple[IngredientUnitConversion, ...]:
@@ -53,50 +54,24 @@ class IngredientUnitsSystem:
         return tuple(self._ingredient_unit_conversions)
 
     @ingredient_unit_conversions.setter
-    def ingredient_unit_conversions(self, ingredient_unit_conversions: tuple[IngredientUnitConversion, ...]):
+    def ingredient_unit_conversions(self, ingredient_unit_conversions: Collection[IngredientUnitConversion]):
         """Replaces the existing entity unit conversions with a new list."""
-        self._ingredient_unit_conversions = list(ingredient_unit_conversions)
+        self._ingredient_unit_conversions = uc(ingredient_unit_conversions)
         self._update()
 
-    def add_ingredient_unit_conversion(self, ingredient_unit_conversion: IngredientUnitConversion):
-        """Adds an entity unit conversion to the existing list."""
-        self._ingredient_unit_conversions.append(ingredient_unit_conversion)
-        self._update()
-
-    def add_ingredient_unit_conversions(self, entity_unit_conversions: tuple[IngredientUnitConversion, ...]):
+    def add_ingredient_unit_conversions(self, ingredient_unit_conversions: IngredientUnitConversion | Collection[IngredientUnitConversion]):
         """Adds entity unit conversions to the existing list."""
-        for conversion in entity_unit_conversions:
-            self.add_ingredient_unit_conversion(conversion)
-        # Rebuild everything
+        self._ingredient_unit_conversions.add(ingredient_unit_conversions)
         self._update()
 
-    def update_ingredient_unit_conversion(self, ingredient_unit_conversion: IngredientUnitConversion):
-        """Updates an entity unit conversion in the existing list."""
-        for i, conv in enumerate(self._ingredient_unit_conversions):
-            if conv == ingredient_unit_conversion:
-                self._ingredient_unit_conversions[i] = ingredient_unit_conversion
-                break
-        self._update()
-
-    def update_entity_unit_conversions(self, entity_unit_conversions: tuple[IngredientUnitConversion, ...]):
+    def update_ingredient_unit_conversions(self, ingredient_unit_conversions: IngredientUnitConversion | Collection[IngredientUnitConversion]):
         """Adds entity unit conversions to the existing list."""
-        for conversion in entity_unit_conversions:
-
-            self.update_ingredient_unit_conversion(conversion)
-
-        # Rebuild everything
+        self._ingredient_unit_conversions.update(ingredient_unit_conversions)
         self._update()
 
-    def remove_ingredient_unit_conversion(self, ingredient_unit_conversion: IngredientUnitConversion):
-        """Removes an entity unit conversion from the existing list."""
-        if ingredient_unit_conversion in self._ingredient_unit_conversions:
-            self._ingredient_unit_conversions.remove(ingredient_unit_conversion)
-            self._update()
-
-    def remove_entity_unit_conversions(self, entity_unit_conversions: set[IngredientUnitConversion]):
+    def remove_ingredient_unit_conversions(self, entity_unit_conversions: IngredientUnitConversion | Collection[IngredientUnitConversion]):
         """Removes entity unit conversions from the existing list."""
-        for conversion in entity_unit_conversions:
-            self.remove_ingredient_unit_conversion(conversion)
+        self._ingredient_unit_conversions.remove(entity_unit_conversions)
         self._update()
 
     def can_convert_units(self, from_unit: Unit, to_unit:Unit) -> bool:
@@ -220,7 +195,7 @@ class IngredientUnitsSystem:
 
         self._graph.clear()
         self._path_cache.clear()
-        all_conversions = self._global_unit_conversions + tuple(self._ingredient_unit_conversions)
+        all_conversions = list(self._global_unit_conversions) + list(self._ingredient_unit_conversions)
 
         for conv in all_conversions:
             if conv.from_unit not in self._graph:

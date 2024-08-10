@@ -1,3 +1,6 @@
+from typing import Collection
+
+from codiet.utils.unique_collection import UniqueCollection as uc
 from codiet.db.stored_entity import StoredEntity
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
@@ -13,17 +16,17 @@ class Ingredient(StoredEntity):
     def __init__(
             self, 
             name:str,
-            global_units: tuple[Unit, ...],
-            global_unit_conversions: tuple[UnitConversion, ...],   
+            global_units: Collection[Unit],
+            global_unit_conversions: Collection[UnitConversion],   
             description:str|None=None,
-            unit_conversions:tuple[IngredientUnitConversion, ...]|None=None,
+            unit_conversions:Collection[IngredientUnitConversion]|None=None,
             standard_unit:Unit|None=None,
             cost_value:float|None=None,
             cost_qty_unit:Unit|None=None,
             cost_qty_value:float|None=None,
-            flags:tuple[IngredientFlag, ...]|None=None,
+            flags:Collection[IngredientFlag]|None=None,
             gi:float|None=None,
-            nutrient_quantities:tuple[IngredientNutrientQuantity, ...]|None=None,
+            nutrient_quantities:Collection[IngredientNutrientQuantity]|None=None,
             *args, **kwargs
         ):
         """Initialises the class."""
@@ -59,9 +62,9 @@ class Ingredient(StoredEntity):
             self._cost_qty_unit = cost_qty_unit
 
         self._cost_qty_value = cost_qty_value
-        self._flags = list(flags) if flags is not None else []
+        self._flags = uc(flags) or uc()
         self._gi = gi
-        self._nutrient_quantities = list(nutrient_quantities) if nutrient_quantities is not None else []
+        self._nutrient_quantities = uc(nutrient_quantities) or uc()
 
     @property
     def name(self) -> str:
@@ -186,27 +189,17 @@ class Ingredient(StoredEntity):
                 return flag
         raise KeyError(f"Flag {flag_name} not found in ingredient.")
 
-    def add_flag(self, flag: IngredientFlag) -> None:
-        """Adds a flag."""
-        if flag in self._flags:
-            raise KeyError("Flag already exists in ingredient.")
-        self._flags.append(flag)
-
-    def add_flags(self, flags: tuple[IngredientFlag, ...]) -> None:
+    def add_flags(self, flags: IngredientFlag|Collection[IngredientFlag]) -> None:
         """Adds flags."""
-        for flag in flags:
-            self.add_flag(flag)
+        self._flags.add(flags)
 
-    def update_flags(self, flags: tuple[IngredientFlag, ...]) -> None:
+    def update_flags(self, flags: IngredientFlag|Collection[IngredientFlag]) -> None:
         """Updates the flags passed in the set."""
-        self._flags.difference_update(flags)
         self._flags.update(flags)
 
-    def remove_flags(self, flags: set[IngredientFlag]) -> None:
+    def remove_flags(self, flags: IngredientFlag|Collection[IngredientFlag]) -> None:
         """Deletes flags."""
-        if not flags.issubset(self._flags):
-            raise KeyError("One or more flags not found in ingredient.")
-        self._flags.difference_update(flags)
+        self._flags.remove(flags)
 
     def get_nutrient_quantity(self, nutrient_name: str) -> IngredientNutrientQuantity:
         """Returns a nutrient quantity by name."""
@@ -215,16 +208,17 @@ class Ingredient(StoredEntity):
                 return nutrient_quantity
         raise KeyError(f"Nutrient {nutrient_name} not found in ingredient.")
 
-    def update_nutrient_quantities(self, nutrient_quantities: set[IngredientNutrientQuantity]) -> None:
+    def add_nutrient_quantities(self, nutrient_quantities: IngredientNutrientQuantity|Collection[IngredientNutrientQuantity]) -> None:
+        """Adds nutrient quantities."""
+        self._nutrient_quantities.add(nutrient_quantities)
+
+    def update_nutrient_quantities(self, nutrient_quantities: IngredientNutrientQuantity|Collection[IngredientNutrientQuantity]) -> None:
         """Updates nutrient quantities."""
-        self._nutrient_quantities.difference_update(nutrient_quantities)
         self._nutrient_quantities.update(nutrient_quantities)
 
-    def remove_nutrient_quantities(self, nutrient_quantities: set[IngredientNutrientQuantity]) -> None:
+    def remove_nutrient_quantities(self, nutrient_quantities: IngredientNutrientQuantity|Collection[IngredientNutrientQuantity]) -> None:
         """Deletes nutrient quantities."""
-        if not nutrient_quantities.issubset(self._nutrient_quantities):
-            raise KeyError("One or more nutrient quantities not found in ingredient.")
-        self._nutrient_quantities.difference_update(nutrient_quantities)
+        self._nutrient_quantities.remove(nutrient_quantities)
 
     def __eq__(self, other):
         if not isinstance(other, Ingredient):
