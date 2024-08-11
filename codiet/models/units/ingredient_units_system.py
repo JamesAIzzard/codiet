@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Collection
 from collections import deque
 
 from codiet.utils.map import Map
-from codiet.utils.unique_collection import UniqueCollection as uc
+from codiet.utils.unique_collection import MutableUniqueCollection as MUC
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
 from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
@@ -23,9 +23,9 @@ class IngredientUnitsSystem:
         ingredient_unit_conversions: Collection[IngredientUnitConversion]|None = None
     ):
         self._ingredient = ingredient
-        self._global_units = uc(global_units)
-        self._global_unit_conversions = uc(global_unit_conversions)
-        self._ingredient_unit_conversions = uc(ingredient_unit_conversions) or uc()
+        self._global_units = MUC(global_units)
+        self._global_unit_conversions = MUC(global_unit_conversions)
+        self._ingredient_unit_conversions = MUC(ingredient_unit_conversions) or MUC()
 
         self._graph: dict[Unit, dict[Unit, float]] = {}
         self._path_cache: dict[tuple[Unit, Unit], list[tuple[Unit, Unit]]] = {}
@@ -56,7 +56,7 @@ class IngredientUnitsSystem:
     @ingredient_unit_conversions.setter
     def ingredient_unit_conversions(self, ingredient_unit_conversions: Collection[IngredientUnitConversion]):
         """Replaces the existing entity unit conversions with a new list."""
-        self._ingredient_unit_conversions = uc(ingredient_unit_conversions)
+        self._ingredient_unit_conversions = MUC(ingredient_unit_conversions)
         self._update()
 
     def add_ingredient_unit_conversions(self, ingredient_unit_conversions: IngredientUnitConversion | Collection[IngredientUnitConversion]):

@@ -1,6 +1,6 @@
 from typing import Collection
 
-from codiet.utils.unique_collection import UniqueCollection as uc
+from codiet.utils.unique_collection import MutableUniqueCollection as MUC
 from codiet.db.stored_entity import StoredEntity
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
@@ -62,9 +62,9 @@ class Ingredient(StoredEntity):
             self._cost_qty_unit = cost_qty_unit
 
         self._cost_qty_value = cost_qty_value
-        self._flags = uc(flags) or uc()
+        self._flags = MUC(flags) or MUC()
         self._gi = gi
-        self._nutrient_quantities = uc(nutrient_quantities) or uc()
+        self._nutrient_quantities = MUC(nutrient_quantities) or MUC()
 
     @property
     def name(self) -> str:
