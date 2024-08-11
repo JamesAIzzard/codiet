@@ -68,7 +68,7 @@ class IngredientQuantity(StoredEntity):
     def qty_unit(self, qty_unit: 'Unit'):
         """Set the quantity unit."""
         # Check the quantity unit is accessible
-        if qty_unit not in self._ingredient.available_units:
+        if qty_unit not in self._ingredient.unit_system.available_units:
             raise ValueError(f"{qty_unit.unit_name} is not accessible in the unit system.")
         self._qty_unit = qty_unit
 

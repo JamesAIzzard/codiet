@@ -1,6 +1,7 @@
 from typing import Collection
 
 from codiet.utils.unique_collection import MutableUniqueCollection as MUC
+from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 from codiet.db.stored_entity import StoredEntity
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
@@ -94,11 +95,6 @@ class Ingredient(StoredEntity):
         return self._unit_system
 
     @property
-    def unit_conversions(self) -> tuple[IngredientUnitConversion, ...]:
-        """Returns the unit conversions."""
-        return self._unit_system.ingredient_unit_conversions
-
-    @property
     def standard_unit(self) -> Unit:
         """Returns the standard unit ID."""
         return self._standard_unit
@@ -114,11 +110,6 @@ class Ingredient(StoredEntity):
             raise ValueError(f"{value.unit_name} is not accessible in the unit system.")
 
         self._standard_unit = value
-
-    @property
-    def available_units(self) -> tuple[Unit, ...]:
-        """Returns the available units."""
-        return self._unit_system.get_available_units()
 
     @property
     def cost_value(self) -> float | None:
@@ -161,9 +152,9 @@ class Ingredient(StoredEntity):
         self._cost_qty_value = value
 
     @property
-    def flags(self) -> tuple[IngredientFlag, ...]:
+    def flags(self) -> IUC[IngredientFlag]:
         """Returns the flags."""
-        return tuple(self._flags)
+        return self._flags.immutable
 
     @property
     def gi(self) -> float | None:
@@ -178,9 +169,9 @@ class Ingredient(StoredEntity):
         self._gi = value
 
     @property
-    def nutrient_quantities(self) -> tuple[IngredientNutrientQuantity, ...]:
+    def nutrient_quantities(self) -> IUC[IngredientNutrientQuantity]:
         """Returns the nutrient quantities."""
-        return tuple(self._nutrient_quantities)
+        return self._nutrient_quantities.immutable
 
     def get_flag(self, flag_name: str) -> IngredientFlag:
         """Returns a flag by name."""

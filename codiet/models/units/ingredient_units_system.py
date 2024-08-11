@@ -3,6 +3,7 @@ from collections import deque
 
 from codiet.utils.map import Map
 from codiet.utils.unique_collection import MutableUniqueCollection as MUC
+from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 from codiet.models.units.unit import Unit
 from codiet.models.units.unit_conversion import UnitConversion
 from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
@@ -44,14 +45,19 @@ class IngredientUnitsSystem:
         return self._get_unit_by_name("gram")
 
     @property
-    def global_units(self) -> tuple[Unit, ...]:
+    def global_units(self) -> IUC[Unit]:
         """Retrieves the global units."""
-        return tuple(self._global_units)
+        return self._global_units.immutable
     
     @property
-    def ingredient_unit_conversions(self) -> tuple[IngredientUnitConversion, ...]:
+    def available_units(self) -> IUC[Unit]:
+        """Retrieves all available units."""
+        return IUC(self.get_available_units())
+
+    @property
+    def ingredient_unit_conversions(self) -> IUC[IngredientUnitConversion]:
         """Retrieves the entity unit conversions."""
-        return tuple(self._ingredient_unit_conversions)
+        return self._ingredient_unit_conversions.immutable
 
     @ingredient_unit_conversions.setter
     def ingredient_unit_conversions(self, ingredient_unit_conversions: Collection[IngredientUnitConversion]):
@@ -127,7 +133,7 @@ class IngredientUnitsSystem:
 
         return result
 
-    def get_available_units(self, root_unit: Unit|None=None) -> tuple[Unit, ...]:
+    def get_available_units(self, root_unit: Unit|None=None) -> IUC[Unit]:
         """
         Retrieves all available units starting from a root unit ID.
         If the root unit ID is None, the root unit is assumed to be grams.
@@ -146,7 +152,7 @@ class IngredientUnitsSystem:
                 available_units.append(unit)
                 queue.extend(set(self._graph.get(unit, {}).keys()) - visited)
 
-        return tuple(available_units)
+        return IUC(available_units)
 
     def clear_path_cache(self):
         """

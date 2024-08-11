@@ -1,7 +1,7 @@
 import unittest
 
 from codiet.tests.utils.unique_collection import Simple
-from codiet.utils.unique_collection import MutableUniqueCollection
+from codiet.utils.unique_collection import MutableUniqueCollection, ImmutableUniqueCollection
 
 class TestMutableUniqueCollection(unittest.TestCase):
     def setUp(self):
@@ -13,6 +13,29 @@ class TestMutableUniqueCollection(unittest.TestCase):
         self.simple_2 = Simple(2, "two")
         self.simple_3 = Simple(3, "three")
         self.simples = [self.simple_1, self.simple_2, self.simple_3]      
+
+    def test_immutable_property(self):
+        self.uc = MutableUniqueCollection()
+
+        # Check we can get an immutable version of the collection
+        self.assertIsInstance(self.uc.immutable, ImmutableUniqueCollection)
+        self.assertEqual(len(self.uc.immutable), 0)
+
+        # Check that the immutable version is a copy
+        self.uc.add(1)
+        self.assertEqual(len(self.uc.immutable), 1)
+
+        # Check we can't add to the immutable version
+        with self.assertRaises(AttributeError):
+            self.uc.immutable.add(2) # type: ignore
+
+        # Check we can't remove from the immutable version
+        with self.assertRaises(AttributeError):
+            self.uc.immutable.remove(1) # type: ignore
+
+        # Check we can't update the immutable version
+        with self.assertRaises(AttributeError):
+            self.uc.immutable.update(1) # type: ignore
 
     def test_add(self):
         self.uc = MutableUniqueCollection()
