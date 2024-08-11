@@ -46,7 +46,7 @@ class IngredientNutrientQuantity(StoredEntity):
     def ntr_mass_unit(self, value: Unit):
         """Set the nutrient mass unit."""
         # Check the mass unit is accessible
-        if value not in self.ingredient.available_units:
+        if value not in self.ingredient.unit_system.available_units:
             raise ValueError(f"{value.unit_name} is not accessible in the unit system.")
         self._ntr_mass_unit = value
 

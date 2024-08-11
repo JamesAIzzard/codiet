@@ -1,20 +1,9 @@
 import unittest
 
-from codiet.utils.unique_collection import UniqueCollection
+from codiet.tests.utils.unique_collection import Simple
+from codiet.utils.unique_collection import MutableUniqueCollection, ImmutableUniqueCollection
 
-# Create a simple which is equal on one property and not equal on another
-class Simple:
-    def __init__(self, id, some_value):
-        self.id = id
-        self.some_value = some_value
-
-    def __eq__(self, other):
-        return self.id == other.id
-
-    def __hash__(self):
-        return hash(self.id)
-
-class TestUniqueCollection(unittest.TestCase):
+class TestMutableUniqueCollection(unittest.TestCase):
     def setUp(self):
         self.sample_list = [1, 2, 3, 4, 5]
         self.sample_tuple = (1, 2, 3, 4, 5)
@@ -23,41 +12,33 @@ class TestUniqueCollection(unittest.TestCase):
         self.simple_1 = Simple(1, "one")
         self.simple_2 = Simple(2, "two")
         self.simple_3 = Simple(3, "three")
-        self.simples = [self.simple_1, self.simple_2, self.simple_3]
+        self.simples = [self.simple_1, self.simple_2, self.simple_3]      
 
-    def test_init(self):
-        self.empty_list = UniqueCollection()
-        self.assertEqual(len(self.empty_list), 0)
+    def test_immutable_property(self):
+        self.uc = MutableUniqueCollection()
 
-        self.uc = UniqueCollection(self.sample_list)
-        self.assertEqual(len(self.uc), 5)
-        self.assertEqual(list(self.uc), self.sample_list)
+        # Check we can get an immutable version of the collection
+        self.assertIsInstance(self.uc.immutable, ImmutableUniqueCollection)
+        self.assertEqual(len(self.uc.immutable), 0)
 
-        self.list_tuple = UniqueCollection(self.sample_tuple)
-        self.assertEqual(len(self.list_tuple), 5)
-        self.assertEqual(list(self.list_tuple), self.sample_list)
+        # Check that the immutable version is a copy
+        self.uc.add(1)
+        self.assertEqual(len(self.uc.immutable), 1)
 
-        self.list_set = UniqueCollection(self.sample_set)
-        self.assertEqual(len(self.list_set), 5)
-        self.assertEqual(list(self.list_set), self.sample_list)
+        # Check we can't add to the immutable version
+        with self.assertRaises(AttributeError):
+            self.uc.immutable.add(2) # type: ignore
 
-    def test_value_error_if_non_unique_init(self):
-        with self.assertRaises(ValueError):
-            UniqueCollection([1, 1, 2, 3, 4, 5])
+        # Check we can't remove from the immutable version
+        with self.assertRaises(AttributeError):
+            self.uc.immutable.remove(1) # type: ignore
 
-    def test_in(self):
-        self.uc = UniqueCollection(self.sample_list)
-
-        # Check that in works
-        self.assertTrue(1 in self.uc)
-        self.assertFalse(6 in self.uc)
-
-        # Check that not in works
-        self.assertFalse(1 not in self.uc)
-        self.assertTrue(6 not in self.uc)
+        # Check we can't update the immutable version
+        with self.assertRaises(AttributeError):
+            self.uc.immutable.update(1) # type: ignore
 
     def test_add(self):
-        self.uc = UniqueCollection()
+        self.uc = MutableUniqueCollection()
 
         # Check we can add a single item
         self.uc.add(1)
@@ -80,24 +61,25 @@ class TestUniqueCollection(unittest.TestCase):
 
         # Check we can add a set of items
         self.uc.add({9, 10, 11})
-        self.assertEqual(len(self.uc), 11)
+        self.assertEqual(len(self.uc), 11)        
 
     def test_value_error_if_non_unique_add(self):
-        self.uc = UniqueCollection()
+        """Check we get an error if we try to add non-unique items."""
+        self.uc = MutableUniqueCollection()
 
-        self.uc.add(1)
-        self.uc.add(2)
-        self.uc.add(3)
+        # Add a few items
+        self.uc.add([1, 2, 3])
 
+        # Try to add one again
         with self.assertRaises(ValueError):
             self.uc.add(1)
 
         # Check the same if we add multiples
         with self.assertRaises(ValueError):
-            self.uc.add([1, 2, 3])
+            self.uc.add([1, 2, 3])        
 
     def test_remove(self):
-        self.uc = UniqueCollection(self.sample_list)
+        self.uc = MutableUniqueCollection(self.sample_list)
 
         # Check we can remove a single item
         self.uc.remove(1)
@@ -114,13 +96,13 @@ class TestUniqueCollection(unittest.TestCase):
         self.assertEqual(len(self.uc), 0)
 
         # Check we can remove a set of items
-        self.uc = UniqueCollection(self.sample_list)
+        self.uc = MutableUniqueCollection(self.sample_list)
         self.uc.remove({1, 2, 3})
         self.assertEqual(len(self.uc), 2)
         self.assertEqual(list(self.uc), [4, 5])
 
     def test_update(self):
-        self.uc = UniqueCollection[Simple]()
+        self.uc = MutableUniqueCollection[Simple]()
 
         # Create a list of simples
         simple_1 = Simple(1, "one")
@@ -155,7 +137,7 @@ class TestUniqueCollection(unittest.TestCase):
             self.uc.update(Simple(4, "four"))
 
     def test_updates_even_when_object_is_equal(self):
-        uc = UniqueCollection[Simple]()
+        uc = MutableUniqueCollection[Simple]()
 
         # Add the simples to the instance
         uc.add(self.simples)
@@ -172,8 +154,4 @@ class TestUniqueCollection(unittest.TestCase):
             if item.id == 1:
                 self.assertEqual(item.some_value, "new value")
                 # Check the memory address is different
-                self.assertNotEqual(id(item), original_id)
-
-    def test_can_convert_to_tuple(self):
-        self.uc = UniqueCollection(self.sample_list)
-        self.assertEqual(tuple(self.uc), self.sample_tuple)
+                self.assertNotEqual(id(item), original_id)            
