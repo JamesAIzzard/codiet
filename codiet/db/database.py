@@ -137,9 +137,9 @@ class Database:
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS ingredient_base (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                ingredient_name TEXT NOT NULL UNIQUE,
-                ingredient_description TEXT,
-                ingredient_gi REAL,
+                name TEXT NOT NULL UNIQUE,
+                description TEXT,
+                gi REAL,
                 cost_unit_id INTEGER,
                 cost_value REAL,
                 cost_qty_unit_id INTEGER,

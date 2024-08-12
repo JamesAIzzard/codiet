@@ -1,4 +1,3 @@
-from codiet.db.database import Database
 from codiet.db.repository.repository_base import RepositoryBase
 
 class UnitRepository(RepositoryBase):
