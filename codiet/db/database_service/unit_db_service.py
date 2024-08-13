@@ -10,8 +10,8 @@ from codiet.models.ingredients.ingredient import Ingredient
 class UnitDBService(DatabaseServiceBase):
     """Service for interacting with the unit database."""
 
-    unitsUpdated = pyqtSignal()
-    unitConversionsUpdated = pyqtSignal()
+    unitsChanged = pyqtSignal()
+    unitConversionsChanged = pyqtSignal()
 
     def __init__(self, *args, **kwargs):
         """Initialise the unit database service."""
@@ -151,7 +151,7 @@ class UnitDBService(DatabaseServiceBase):
             # Recache the units
             self._reset_units_cache()
             # Emit the signal
-            self.unitsUpdated.emit()
+            self.unitsChanged.emit()
 
         return unit
 
@@ -171,7 +171,7 @@ class UnitDBService(DatabaseServiceBase):
             self._reset_units_cache()
 
             # Emit the signal
-            self.unitsUpdated.emit()
+            self.unitsChanged.emit()
 
         return tuple(persisted_units)
 
@@ -204,7 +204,7 @@ class UnitDBService(DatabaseServiceBase):
             self._reset_global_unit_conversions_cache()
 
             # Emit the signal
-            self.unitConversionsUpdated.emit()
+            self.unitConversionsChanged.emit()
 
         return tuple(persisted_unit_conversions)
 
@@ -349,7 +349,7 @@ class UnitDBService(DatabaseServiceBase):
             # Recache the units
             self._reset_units_cache()
             # Emit the signal
-            self.unitsUpdated.emit()
+            self.unitsChanged.emit()
 
     def update_units(self, units: tuple[Unit, ...]) -> None:
         """Update a set of units in the database."""
@@ -362,7 +362,7 @@ class UnitDBService(DatabaseServiceBase):
             self._reset_units_cache()
 
             # Emit the signal
-            self.unitsUpdated.emit()
+            self.unitsChanged.emit()
 
     def update_global_unit_conversions(self, unit_conversions: tuple[UnitConversion, ...]) -> None:
         """Update a set of global unit conversions in the database."""
@@ -390,7 +390,7 @@ class UnitDBService(DatabaseServiceBase):
             self._reset_global_unit_conversions_cache()
 
             # Emit the signal
-            self.unitConversionsUpdated.emit()
+            self.unitConversionsChanged.emit()
 
     def update_ingredient_unit_conversion(self, ingredient_unit_conversion: IngredientUnitConversion) -> None:
         """Update an ingredient unit conversion in the database."""
@@ -436,7 +436,7 @@ class UnitDBService(DatabaseServiceBase):
             # Recache the units
             self._reset_units_cache()
             # Emit the signal
-            self.unitsUpdated.emit()
+            self.unitsChanged.emit()
 
     def delete_units(self, units: tuple[Unit, ...]) -> None:
         """Delete a set of units from the database."""
@@ -445,7 +445,7 @@ class UnitDBService(DatabaseServiceBase):
             self.delete_unit(unit, _signal=False)
 
         self._reset_units_cache()
-        self.unitsUpdated.emit()
+        self.unitsChanged.emit()
 
     def delete_global_unit_conversions(self, unit_conversions: tuple[UnitConversion, ...]) -> None:
         """Delete a set of global unit conversions from the database."""
@@ -463,7 +463,7 @@ class UnitDBService(DatabaseServiceBase):
             self._reset_global_unit_conversions_cache()
 
             # Emit the signal
-            self.unitConversionsUpdated.emit()
+            self.unitConversionsChanged.emit()
 
     def delete_ingredient_unit_conversion(self, ingredient_unit_conversion: IngredientUnitConversion) -> None:
         """Delete an ingredient unit conversion from the database."""

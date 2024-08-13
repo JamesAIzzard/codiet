@@ -1,108 +1,139 @@
-from typing import TYPE_CHECKING
+from typing import Collection, TYPE_CHECKING
 
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import pyqtSignal
 
-if TYPE_CHECKING:
-    from . import DatabaseService
-from ..repository import Repository
+from codiet.db.database_service.database_service_base import DatabaseServiceBase
+
 from codiet.utils.map import Map
+from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
+from codiet.utils.unique_collection import MutableUniqueCollection as MUC
 from codiet.models.flags.flag import Flag
 from codiet.models.flags.ingredient_flag import IngredientFlag
+if TYPE_CHECKING:
+    from codiet.models.ingredients.ingredient import Ingredient
 
-class FlagDBService(QObject):
+class FlagDBService(DatabaseServiceBase):
     """Database service module for flags."""
 
     ingredientFlagsChanged = pyqtSignal()
     globalFlagsChanged = pyqtSignal()
 
-    def __init__(self, repository: Repository, db_service: 'DatabaseService'):
+    def __init__(self, *args, **kwargs) -> None:
         """Initialise the flag database service."""
-        super().__init__()
-
-        self._repository = repository
-        self._db_service = db_service
+        super().__init__(*args, **kwargs)
 
         # Cache the global flag id-name map
         self._global_flag_id_name_map:Map[int, str]|None = None
+        self._global_flags: IUC[Flag]|None = None
 
     @property
     def flag_id_name_map(self) -> Map[int, str]:
         """Get the global flag id-name map."""
         if self._global_flag_id_name_map is None:
-            self._cache_flag_id_name_map()
+            self._reset_global_flags_cache()
         return self._global_flag_id_name_map # type: ignore # checked in the property setter
     
-    def create_global_flags(self, flags: list[Flag]) -> dict[int, Flag]:
-        """Insert the global flags into the database.
-        Args:
-            flags (list[Flag]): The flags to be inserted.
-        Returns:
-            dict[int, Flag]: The flags that were inserted, where the key is the flag ID.
-        """
-        # Init a dict to store the saved flags
-        saved_flags = {}
+    @property
+    def global_flags(self) -> IUC[Flag]:
+        """Get the global flags."""
+        if self._global_flags is None:
+            self._reset_global_flags_cache()
+        return self._global_flags # type: ignore # checked in the property setter
+
+    def create_global_flag(self, flag: Flag, _signal: bool=True) -> Flag:
+        """Insert the global flags into the database."""
+        # Create the flag
+        flag_id = self._repository.flags.create_flag(
+            flag_name=flag.flag_name
+        )
+
+        # Update the ID of the flag
+        flag.id = flag_id
+
+        if _signal:
+            # Rebuild the cache and emit the signal
+            self._reset_global_flags_cache()
+            self.globalFlagsChanged.emit()
+
+        return flag
+
+    def create_global_flags(self, flags: Collection[Flag]) -> IUC[Flag]:
+        """Insert the global flags into the database."""
+        # Init a list to store the saved flags
+        saved_flags = []
 
         for flag in flags:
-            flag_id = self._repository.create_global_flag(
-                flag_name=flag.flag_name
-            )
-            flag.id = flag_id
-            saved_flags[flag_id] = flag
+            saved_flags.append(self.create_global_flag(flag, _signal=False))
         
-        # Emit the signal for the global flags change
+        # Rebuild the cache and emit the signal
+        self._reset_global_flags_cache()
         self.globalFlagsChanged.emit()
 
-        return saved_flags
+        return IUC(saved_flags)
 
+    def create_ingredient_flag(self, flag: IngredientFlag, _signal:bool = True) -> IngredientFlag:
+        """Insert the ingredient flags into the database."""
+        # Check the ingredient ID is populated
+        if flag.ingredient.id is None:
+            raise ValueError("The ingredient ID must be populated to create an ingredient flag.")
+        
+        # Check the flag ID is populated
+        if flag.id is None:
+            raise ValueError("The flag ID must be populated to create an ingredient flag.")
 
-    def create_ingredient_flags(self, flags: list[IngredientFlag]) -> dict[int, IngredientFlag]:
-        """Insert the ingredient flags into the database.
-        Args:
-            flags (list[EntityFlag]): The flags to be inserted.
-        Returns:
-            dict[int, EntityFlag]: The flags that were inserted, where the key is the flag ID.
-        """
-        # Init a dict to store the saved flags
-        saved_flags = {}
+        ingredient_flag_id = self._repository.flags.create_ingredient_flag(
+            ingredient_id=flag.ingredient.id,
+            flag_id=flag.id,
+            flag_value=flag.flag_value
+        )
+        flag.id = ingredient_flag_id
+
+        if _signal:
+            self.ingredientFlagsChanged.emit()
+
+        return flag
+
+    def create_ingredient_flags(self, flags: Collection[IngredientFlag]) -> IUC[IngredientFlag]:
+        """Insert the ingredient flags into the database."""
+        # Init a list to store the saved flags
+        saved_flags = []
 
         for flag in flags:
-            # Check the ingredient ID is populated
-            if flag.ref_entity_id is None:
-                raise ValueError("The ingredient ID must be populated to create an ingredient flag.")
-            
-            # Check the flag ID is populated
-            if flag.id is None:
-                raise ValueError("The flag ID must be populated to create an ingredient flag.")
-
-            id = self._repository.create_ingredient_flag(
-                ingredient_id=flag.ref_entity_id, # UID of the ingredient
-                flag_id=flag.id, # UID of the ingredient flag
-                flag_value=flag.flag_value
-            )
-            flag.id = id
-            saved_flags[id] = flag
+            saved_flags.append(self.create_ingredient_flag(flag, _signal=False))
 
         # Emit the signal for the ingredient flags change
         self.ingredientFlagsChanged.emit()
 
-        return saved_flags
+        return IUC(saved_flags)
     
-    def read_ingredient_flags(self, ingredient_id: int) -> dict[int, IngredientFlag]:
-        """Read the flags for the given ingredient.
-        Args:
-            ingredient_id (int): The ID of the ingredient to read the flags for.
-        Returns:
-            dict[int, EntityFlag]: The flags for the ingredient, where the key is the flag ID.
-        """
-        flag_data = self._repository.read_ingredient_flags(ingredient_id)
+    def read_all_global_flags(self) -> IUC[Flag]:
+        """Read all global flags from the database."""
+        global_flags = self._repository.flags.read_all_global_flag_names()
+
+        flags = []
+
+        for flag_id, flag_name in global_flags.items():
+            flags.append(
+                Flag(
+                    id=flag_id,
+                    flag_name=flag_name
+                )
+            )
+
+        return IUC(flags)
+
+    def read_ingredient_flags(self, ingredient: 'Ingredient') -> IUC[IngredientFlag]:
+        """Read the flags for the given ingredient."""
+        assert ingredient.id is not None
+        flags_data = self._repository.flags.read_ingredient_flags(ingredient.id)
 
         flags = {}
 
-        for uid, flag_value in flag_data.items():
-            flags[uid] = EntityFlag(
-                id=uid,
-                ref_object_id=ingredient_id,
-                value=flag_value
+        for uid, fd in flags_data.items():
+            flags[uid] = IngredientFlag(
+                ingredient=ingredient,
+                flag_name=fd["flag_name"],
+                flag_value=fd["flag_value"],
             )
 
         return flags
@@ -141,18 +172,30 @@ class FlagDBService(QObject):
                 ingredient_flag_id=flag.id
             )
 
-    def _cache_flag_id_name_map(self) -> None:
-        """Re(generates) the cached flag ID to name map
-        Emits the signal for the flag ID to name map change.
-        Returns:
-            Map: A map associating flag ID's with names.
-        """
-        # Fetch all the flags
-        flags = self._repository.read_all_global_flags()
+    def _reset_global_flags_cache(self) -> None:
+        """Re(generates) the global flag caches."""
 
-        # Clear the map
-        self.flag_id_name_map.clear()
+        # Instantiate if None
+        if self._global_flags is None:
+            self._global_flags = IUC[Flag]()
 
-        # Add each flag to the map
-        for flag_id, flag_name in flags.items():
-            self.flag_id_name_map.add_mapping(key=flag_id, value=flag_name)
+        if self._global_flag_id_name_map is None:
+            self._global_flag_id_name_map = Map[int, str](one_to_one=True)
+
+        # Reset the caches
+        # Clear instead of replace, so existing references still work.
+        self._global_flags._clear()
+        self._global_flag_id_name_map.clear()
+
+        # Read the global flags from the database
+        global_flags = MUC(self.read_all_global_flags())
+
+        # Rebuild the ID-name mape
+        for flag in global_flags:
+            assert flag.id is not None
+            self._global_flag_id_name_map.add_mapping(key=flag.id, value=flag.flag_name)
+
+        # Rebuild the global flags cache
+        for flag in global_flags:
+            self._global_flags._add(flag)
+        

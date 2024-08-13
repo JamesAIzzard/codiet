@@ -39,3 +39,6 @@ class MutableUniqueCollection(BaseUniqueCollection[T]):
                 self._items[index] = items # type: ignore
             else:
                 raise ValueError(f"Item {items} does not exist in the collection.")
+            
+    def clear(self) -> None:
+        self._clear()

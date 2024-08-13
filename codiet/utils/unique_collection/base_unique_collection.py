@@ -10,6 +10,14 @@ class BaseUniqueCollection(ABC, Generic[T]):
             for item in items:
                 self._add(item)
 
+    def _add(self, item: T) -> None:
+        if item in self._items:
+            raise ValueError(f"Item {item} already exists in the collection.")
+        self._items.append(item)
+
+    def _clear(self) -> None:
+        self._items.clear()
+
     def __len__(self):
         return len(self._items)
 
@@ -21,8 +29,3 @@ class BaseUniqueCollection(ABC, Generic[T]):
 
     def __getitem__(self, index: int) -> T:
         return self._items[index]
-
-    def _add(self, item: T) -> None:
-        if item in self._items:
-            raise ValueError(f"Item {item} already exists in the collection.")
-        self._items.append(item)

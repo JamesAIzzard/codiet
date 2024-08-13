@@ -41,17 +41,25 @@ class FlagRepository(RepositoryBase):
 
         return id
 
-    def read_all_flag_names(self) -> list[str]:
-        """Read all flag names from the flag table."""
+    def read_all_global_flag_names(self) -> dict[int, str]:
+        """Read all flag names from the flag table.
+        Returns:
+            flag_id[int]: flag_name[str]
+        """
         with self.get_cursor() as cursor:
 
             cursor.execute(
                 """
-                SELECT flag_name FROM global_flags;
+                SELECT id, flag_name FROM global_flags;
             """
             )
 
-            return [row[0] for row in cursor.fetchall()]
+            flags = {}
+
+            for row in cursor.fetchall():
+                flags[row[0]] = row[1]
+
+            return flags
         
     def read_ingredient_flags(self, ingredient_id:int) -> dict[int, dict]:
         """Read all flags for an ingredient.

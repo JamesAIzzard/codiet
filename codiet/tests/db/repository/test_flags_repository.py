@@ -1,5 +1,4 @@
 from codiet.tests.db import DatabaseTestCase
-from codiet.models.flags import Flag
 
 class TestFlagRepository(DatabaseTestCase):
     def setUp(self) -> None:
@@ -20,8 +19,8 @@ class TestFlagRepository(DatabaseTestCase):
         self.assertIsInstance(flag_3_id, int)
 
         # Read the flag names and check the new flag is there
-        flag_names = self.repository.flags.read_all_flag_names()
-        self.assertIn("Test Flag 3", flag_names)
+        flag_names = self.repository.flags.read_all_global_flag_names()
+        self.assertIn("Test Flag 3", flag_names.values())
         self.assertEqual(len(flag_names), 2) # One was created during setup 
 
     def test_create_read_ingredient_flag(self):

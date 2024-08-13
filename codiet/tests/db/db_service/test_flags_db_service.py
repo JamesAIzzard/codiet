@@ -1,0 +1,95 @@
+from unittest import mock
+
+from codiet.tests.db import DatabaseTestCase
+from codiet.models.flags.flag import Flag
+from codiet.models.ingredients.ingredient import Ingredient
+from codiet.models.flags.ingredient_flag import IngredientFlag
+
+class TestFlagDBService(DatabaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        # Create a couple of global flags
+        self.vegan_flag = Flag(flag_name="Vegan")
+        self.halal_flag = Flag(flag_name="Halal")
+        self.vegetarian_flag = Flag(flag_name="Vegetarian")
+        self.kosher_flag = Flag(flag_name="Kosher")
+
+        # Create a mock ingredient
+        self.mock_ingredient = mock.MagicMock(spec=Ingredient)
+        self.mock_ingredient.id = 1
+
+        # Create a couple of mock ingredient flags
+        self.ingredient_vegan_flag = IngredientFlag(ingredient=self.mock_ingredient, flag_name=self.vegan_flag, flag_value=True)
+        self.ingredient_halal_flag = IngredientFlag(ingredient=self.mock_ingredient, flag_name=self.halal_flag, flag_value=False)
+        self.ingredient_vegetarian_flag = IngredientFlag(ingredient=self.mock_ingredient, flag_name=self.vegetarian_flag, flag_value=True)
+        self.ingredient_kosher_flag = IngredientFlag(ingredient=self.mock_ingredient, flag_name=self.kosher_flag, flag_value=False)
+
+    def test_flag_id_name_map(self):
+        """Checks the flag ID to name mapping property is working properly."""
+        # Get the flag ID to name map
+        flag_id_name_map = self.db_service.flags.flag_id_name_map
+
+        # Check there is nothing in the map
+        self.assertEqual(len(flag_id_name_map), 0)
+
+        # Create a couple of global flags
+        vegan_flag = self.db_service.flags.create_global_flag(self.vegan_flag)
+        halal_flag = self.db_service.flags.create_global_flag(self.halal_flag)
+
+        # Check the map is correct
+        self.assertEqual(flag_id_name_map.get_value(vegan_flag.id), "Vegan") # type: ignore
+        self.assertEqual(flag_id_name_map.get_value(halal_flag.id), "Halal") # type: ignore
+
+    def test_global_flags(self):
+        """Checks the global flags property is working properly."""
+        # Get the global flags
+        global_flags = self.db_service.flags.global_flags
+
+        # Check there are no flags
+        self.assertEqual(len(global_flags), 0)
+
+        # Create a couple of global flags
+        vegan_flag = self.db_service.flags.create_global_flag(self.vegan_flag)
+        halal_flag = self.db_service.flags.create_global_flag(self.halal_flag)
+
+        # Check that the flags are in the collection
+        self.assertIn(self.vegan_flag, global_flags)
+        self.assertIn(self.halal_flag, global_flags)
+
+    def test_create_global_flag(self):
+        """Checks the creation of a global flag."""
+        pass # Tested in other tests
+
+    def test_create_global_flags(self):
+        """Checks the creation of multiple global flags."""
+        # Check there are no flags
+        self.assertEqual(len(self.db_service.flags.global_flags), 0)
+
+        # Create the flags
+        _ = self.db_service.flags.create_global_flags(
+            [self.vegan_flag, self.halal_flag]
+        )
+
+        # Read the flags
+        created_flags = self.db_service.flags.read_all_global_flags()
+
+        # Check the flags were created
+        self.assertEqual(len(created_flags), 2)
+        self.assertIn(self.vegan_flag, created_flags)
+        self.assertIn(self.halal_flag, created_flags)
+
+    # def test_create_ingredient_flag(self):
+    #     """Checks the creation of an ingredient flag."""
+    #     # Check the ingredient has no flags
+    #     self.assertEqual(len(self.db_service.flags.read_ingredient_flags(self.mock_ingredient.id)), 0)
+
+    #     # Create the flag
+    #     self.db_service.flags.create_ingredient_flag(self.ingredient_vegan_flag)
+
+    #     # Read the flags
+    #     created_flags = self.db_service.flags.read_ingredient_flags(self.mock_ingredient.id)
+
+    #     # Check the flag was created
+    #     self.assertEqual(len(self.db_service.flags.read_ingredient_flags(self.mock_ingredient.id)), 1)
+    #     self.assertIn(self.ingredient_vegan_flag, created_flags)
