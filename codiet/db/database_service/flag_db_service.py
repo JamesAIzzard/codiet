@@ -40,6 +40,20 @@ class FlagDBService(DatabaseServiceBase):
             self._reset_global_flags_cache()
         return self._global_flags # type: ignore # checked in the property setter
 
+    def get_flag_by_name(self, flag_name: str) -> Flag:
+        """Get the flag by name."""
+        for flag in self.global_flags:
+            if flag.flag_name.lower().strip() == flag_name.lower().strip():
+                return flag
+        raise ValueError(f"Flag with name {flag_name} not found.")
+
+    def get_flag_by_id(self, flag_id: int) -> Flag:
+        """Get the flag by ID."""
+        for flag in self.global_flags:
+            if flag.id == flag_id:
+                return flag
+        raise ValueError(f"Flag with ID {flag_id} not found.")
+
     def create_global_flag(self, flag: Flag, _signal: bool=True) -> Flag:
         """Insert the global flags into the database."""
         # Create the flag
@@ -71,27 +85,27 @@ class FlagDBService(DatabaseServiceBase):
 
         return IUC(saved_flags)
 
-    def create_ingredient_flag(self, flag: IngredientFlag, _signal:bool = True) -> IngredientFlag:
+    def create_ingredient_flag(self, ingredient_flag: IngredientFlag, _signal:bool = True) -> IngredientFlag:
         """Insert the ingredient flags into the database."""
         # Check the ingredient ID is populated
-        if flag.ingredient.id is None:
+        if ingredient_flag.ingredient.id is None:
             raise ValueError("The ingredient ID must be populated to create an ingredient flag.")
         
         # Check the flag ID is populated
-        if flag.id is None:
+        if ingredient_flag.flag.id is None:
             raise ValueError("The flag ID must be populated to create an ingredient flag.")
 
         ingredient_flag_id = self._repository.flags.create_ingredient_flag(
-            ingredient_id=flag.ingredient.id,
-            flag_id=flag.id,
-            flag_value=flag.flag_value
+            ingredient_id=ingredient_flag.ingredient.id,
+            flag_id=ingredient_flag.flag.id,
+            flag_value=ingredient_flag.flag_value
         )
-        flag.id = ingredient_flag_id
+        ingredient_flag.id = ingredient_flag_id
 
         if _signal:
             self.ingredientFlagsChanged.emit()
 
-        return flag
+        return ingredient_flag
 
     def create_ingredient_flags(self, flags: Collection[IngredientFlag]) -> IUC[IngredientFlag]:
         """Insert the ingredient flags into the database."""
@@ -127,35 +141,43 @@ class FlagDBService(DatabaseServiceBase):
         assert ingredient.id is not None
         flags_data = self._repository.flags.read_ingredient_flags(ingredient.id)
 
-        flags = {}
+        flags = []
 
         for uid, fd in flags_data.items():
-            flags[uid] = IngredientFlag(
+            # Grab the flag object
+            flag = self.get_flag_by_id(fd["flag_id"])
+
+            # Construct the ingredient flag
+            ing_flag = IngredientFlag(
+                id=uid,
                 ingredient=ingredient,
-                flag_name=fd["flag_name"],
-                flag_value=fd["flag_value"],
+                flag=flag,
+                flag_value=fd["flag_value"]
             )
 
-        return flags
+            flags.append(ing_flag)
+
+        return IUC(flags)
     
-    def update_ingredient_flags(self, flags: list[IngredientFlag]) -> None:
-        """Update the flags for the given ingredient.
-        Args:
-            flags (dict[int, EntityFlag]): The flags to be updated, where the key is the flag ID.
-        Returns:
-            dict[int, EntityFlag]: The updated flags, where the key is the flag ID.
-        """
-        for flag in flags:
+    def update_ingredient_flag(self, ingredient_flag: IngredientFlag, _signal=True) -> None:
+        """Update the flag for the given ingredient."""
+        # Check the ingredient ID and flag ID are populated
+        if ingredient_flag.ingredient.id is None or ingredient_flag.flag.id is None:
+            raise ValueError("The ingredient ID and flag ID must be populated to update an ingredient flag.")
+        
+        self._repository.flags.update_ingredient_flag(
+            ingredient_id=ingredient_flag.ingredient.id,
+            flag_id=ingredient_flag.flag.id,
+            flag_value=ingredient_flag.flag_value
+        )
 
-            # Check the reference ID and flag ID are populated
-            if flag.ref_entity_id is None or flag.id is None:
-                raise ValueError("The ingredient ID and flag ID must be populated to update an ingredient flag.")
-            
-            self._repository.update_ingredient_flag(
-                ingredient_id=flag.ref_entity_id,
-                flag_id=flag.id,
-                flag_value=flag.flag_value
-            )
+        # Emit the signal for the ingredient flags change
+        self.ingredientFlagsChanged.emit()
+
+    def update_ingredient_flags(self, flags: Collection[IngredientFlag]) -> None:
+        """Update the flags for the given ingredient."""
+        for flag in flags:
+            self.update_ingredient_flag(flag, _signal=False)
 
     def delete_ingredient_flags(self, flags: list[IngredientFlag]) -> None:
         """Delete the flags supplied.

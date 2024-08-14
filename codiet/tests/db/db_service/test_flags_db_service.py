@@ -19,12 +19,6 @@ class TestFlagDBService(DatabaseTestCase):
         self.mock_ingredient = mock.MagicMock(spec=Ingredient)
         self.mock_ingredient.id = 1
 
-        # Create a couple of mock ingredient flags
-        self.ingredient_vegan_flag = IngredientFlag(ingredient=self.mock_ingredient, flag=self.vegan_flag, flag_value=True)
-        self.ingredient_halal_flag = IngredientFlag(ingredient=self.mock_ingredient, flag=self.halal_flag, flag_value=False)
-        self.ingredient_vegetarian_flag = IngredientFlag(ingredient=self.mock_ingredient, flag=self.vegetarian_flag, flag_value=True)
-        self.ingredient_kosher_flag = IngredientFlag(ingredient=self.mock_ingredient, flag=self.kosher_flag, flag_value=False)
-
     def test_flag_id_name_map(self):
         """Checks the flag ID to name mapping property is working properly."""
         # Get the flag ID to name map
@@ -50,8 +44,8 @@ class TestFlagDBService(DatabaseTestCase):
         self.assertEqual(len(global_flags), 0)
 
         # Create a couple of global flags
-        vegan_flag = self.db_service.flags.create_global_flag(self.vegan_flag)
-        halal_flag = self.db_service.flags.create_global_flag(self.halal_flag)
+        _ = self.db_service.flags.create_global_flag(self.vegan_flag)
+        _ = self.db_service.flags.create_global_flag(self.halal_flag)
 
         # Check that the flags are in the collection
         self.assertIn(self.vegan_flag, global_flags)
@@ -59,7 +53,22 @@ class TestFlagDBService(DatabaseTestCase):
 
     def test_create_global_flag(self):
         """Checks the creation of a global flag."""
-        pass # Tested in other tests
+        # Check there are no flags
+        self.assertEqual(len(self.db_service.flags.global_flags), 0)
+
+        # Create the flag
+        _ = self.db_service.flags.create_global_flag(self.vegan_flag)
+
+        # Check the flag is now in the collection
+        self.assertIn(self.vegan_flag, self.db_service.flags.global_flags)
+
+        # Check we can get the flag
+        self.read_vegan_flag = self.db_service.flags.get_flag_by_name("vegan")
+
+        # Check the flag ID was set
+        self.assertIsNotNone(self.read_vegan_flag.id)
+
+
 
     def test_create_global_flags(self):
         """Checks the creation of multiple global flags."""
@@ -79,17 +88,50 @@ class TestFlagDBService(DatabaseTestCase):
         self.assertIn(self.vegan_flag, created_flags)
         self.assertIn(self.halal_flag, created_flags)
 
-    # def test_create_ingredient_flag(self):
-    #     """Checks the creation of an ingredient flag."""
-    #     # Check the ingredient has no flags
-    #     self.assertEqual(len(self.db_service.flags.read_ingredient_flags(self.mock_ingredient.id)), 0)
+    def test_create_ingredient_flag(self):
+        """Checks the creation of an ingredient flag."""
+        # Check there are no flags saved against the ingredient
+        self.assertEqual(len(self.db_service.flags.read_ingredient_flags(self.mock_ingredient)), 0)
 
-    #     # Create the flag
-    #     self.db_service.flags.create_ingredient_flag(self.ingredient_vegan_flag)
+        # Create the base flag
+        vegan_flag = self.db_service.flags.create_global_flag(self.vegan_flag)
 
-    #     # Read the flags
-    #     created_flags = self.db_service.flags.read_ingredient_flags(self.mock_ingredient.id)
+        # Create the ingredient flag
+        self.ing_vegan_flag = IngredientFlag(
+            ingredient=self.mock_ingredient,
+            flag=vegan_flag,
+            flag_value=True
+        )
 
-    #     # Check the flag was created
-    #     self.assertEqual(len(self.db_service.flags.read_ingredient_flags(self.mock_ingredient.id)), 1)
-    #     self.assertIn(self.ingredient_vegan_flag, created_flags)
+        # Save the ingredient flag
+        _ = self.db_service.flags.create_ingredient_flag(self.ing_vegan_flag)
+
+        # Read the flags
+        created_flags = self.db_service.flags.read_ingredient_flags(self.mock_ingredient)
+
+        # Check the flag was created
+        self.assertEqual(len(self.db_service.flags.read_ingredient_flags(self.mock_ingredient)), 1)
+        self.assertIn(self.ing_vegan_flag, created_flags)
+
+    def test_update_ingredient_flags(self):
+        """Check we can update ingredient flags correctly."""
+        # Create the base flag
+        vegan_flag = self.db_service.flags.create_global_flag(self.vegan_flag)
+
+        # Create the ingredient flag
+        self.ing_vegan_flag = IngredientFlag(
+            ingredient=self.mock_ingredient,
+            flag=vegan_flag
+        )
+
+        # Save the ingredient flag
+        self.ing_vegan_flag = self.db_service.flags.create_ingredient_flag(self.ing_vegan_flag)
+
+        # Check the flag value was false
+        raise NotImplementedError
+
+        # Update the flag
+
+
+        # Check the flag was updated
+
