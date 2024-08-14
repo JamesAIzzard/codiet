@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from .flag import Flag
+
 if TYPE_CHECKING:
     from codiet.models.ingredients.ingredient import Ingredient
 
@@ -10,24 +11,37 @@ class IngredientFlag(Flag):
     def __init__(
             self,
             ingredient: 'Ingredient',
+            flag: Flag,
+            flag_value: bool = False,
             *args, **kwargs
         ):
-        """Initialise the entity flag."""
-        super().__init__(*args, **kwargs)
+        """Initialize the ingredient flag."""
+        super().__init__(flag_name=flag.flag_name, *args, **kwargs)
         
         self._ingredient = ingredient
+        self._flag = flag
+        self._flag_value = flag_value
 
-    @Flag.flag_value.setter
+    @property
+    def flag_value(self) -> bool:
+        """Get the value of the flag."""
+        return self._flag_value
+
+    @flag_value.setter
     def flag_value(self, value: bool):
         """Set the value of the flag with additional checks on the ingredient."""
         # Perform any checks on the ingredient here
         # For example:
         # if self._ingredient.some_condition:
-            # Handle the condition
-            # pass
+        #     # Handle the condition
+        #     pass
 
-        # Call the parent class's setter
-        super(IngredientFlag, IngredientFlag).flag_value.fset(self, value) # type: ignore
+        self._flag_value = value
+
+    @property
+    def flag(self) -> Flag:
+        """Returns the flag associated with the ingredient flag."""
+        return self._flag
 
     @property
     def ingredient(self) -> 'Ingredient':
