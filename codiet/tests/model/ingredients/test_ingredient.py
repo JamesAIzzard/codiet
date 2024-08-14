@@ -45,6 +45,11 @@ class TestIngredient(TestCase):
             global_unit_conversions=self.global_unit_conversions
         )
 
+        # Create some ingredient flags
+        self.ing_vegan_flag = IngredientFlag(ingredient=self.ingredient, flag=self.named_global_flags.get_value("vegan"))
+        self.ing_vegetarian_flag = IngredientFlag(ingredient=self.ingredient, flag=self.named_global_flags.get_value("vegetarian"))
+        self.ing_halal_flag = IngredientFlag(ingredient=self.ingredient, flag=self.named_global_flags.get_value("halal"))
+
         # Create some test ingredient nutrient quantities
         self.protein_quantity = IngredientNutrientQuantity(
             ingredient=self.ingredient,
@@ -151,7 +156,7 @@ class TestIngredient(TestCase):
         # Check we can add a flag
         vegan_flag = IngredientFlag(
             ingredient=self.ingredient,
-            flag_name="vegan"
+            flag=self.named_global_flags.get_value("vegan"),
         )
         self.ingredient.add_flags(vegan_flag)
         self.assertIn(vegan_flag, self.ingredient.flags)
@@ -183,37 +188,35 @@ class TestIngredient(TestCase):
     def test_update_flags(self):
         """Test the update_flags method."""
         # Add a couple of ingredient flags
-        vegan_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegan")
-        vegetarian_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegetarian")
-        self.ingredient.add_flags([vegan_flag, vegetarian_flag])
+        self.ingredient.add_flags([self.ing_vegan_flag, self.ing_vegetarian_flag])
 
         # Check the flags are there
-        self.assertIn(vegan_flag, self.ingredient.flags)
-        self.assertIn(vegetarian_flag, self.ingredient.flags)
+        self.assertIn(self.ing_vegan_flag, self.ingredient.flags)
+        self.assertIn(self.ing_vegetarian_flag, self.ingredient.flags)
+
         # Check the values are correct
         self.assertFalse(self.ingredient.get_flag("vegan").flag_value)
         self.assertFalse(self.ingredient.get_flag("vegetarian").flag_value)
 
         # Create a duplicate, but with a different value
-        vegan_flag_duplicate = IngredientFlag(ingredient=self.ingredient, flag_name="vegan", flag_value=True)
+        vegan_flag_duplicate = IngredientFlag(ingredient=self.ingredient, flag=self.named_global_flags.get_value("vegan"), flag_value=True)
 
         # Check we can update the flags
         self.ingredient.update_flags(vegan_flag_duplicate)
 
         # Check the flag is updated
-        self.assertIn(vegan_flag_duplicate, self.ingredient.flags)
+        self.assertTrue(self.ingredient.get_flag("vegan").flag_value)
 
     def test_mutate_flag_externally(self):
         """Test that we can mutate a flag externally."""
         # Add a flag
-        vegetarian_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegetarian")
-        self.ingredient.add_flags(vegetarian_flag)
+        self.ingredient.add_flags(self.ing_vegetarian_flag)
 
         # Check the flag is False
         self.assertFalse(self.ingredient.get_flag("vegetarian").flag_value)
 
         # Mutate the flag externally
-        vegetarian_flag.flag_value = True
+        self.ing_vegetarian_flag.flag_value = True
 
         # Check the flag is updated
         self.assertTrue(self.ingredient.get_flag("vegetarian").flag_value)
@@ -221,23 +224,24 @@ class TestIngredient(TestCase):
     def test_remove_flags(self):
         """Test the remove_flag method."""
         # Add some flags
-        vegan_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegan")
-        vegetarian_flag = IngredientFlag(ingredient=self.ingredient, flag_name="vegetarian")
-        halal_flag = IngredientFlag(ingredient=self.ingredient, flag_name="halal")
-        self.ingredient.add_flags([vegan_flag, vegetarian_flag, halal_flag])
+        self.ingredient.add_flags([
+            self.ing_vegan_flag,
+            self.ing_vegetarian_flag,
+            self.ing_halal_flag
+        ])
 
         # Check the flags are there
-        self.assertIn(vegan_flag, self.ingredient.flags)
-        self.assertIn(vegetarian_flag, self.ingredient.flags)
-        self.assertIn(halal_flag, self.ingredient.flags)
+        self.assertIn(self.ing_vegan_flag, self.ingredient.flags)
+        self.assertIn(self.ing_vegetarian_flag, self.ingredient.flags)
+        self.assertIn(self.ing_halal_flag, self.ingredient.flags)
 
         # Check we can remove two of them
-        self.ingredient.remove_flags([vegan_flag, halal_flag])
+        self.ingredient.remove_flags([self.ing_vegan_flag, self.ing_halal_flag])
 
         # Check the flag is removed
-        self.assertNotIn(vegan_flag, self.ingredient.flags)
-        self.assertNotIn(halal_flag, self.ingredient.flags)
-        self.assertIn(vegetarian_flag, self.ingredient.flags)
+        self.assertNotIn(self.ing_vegan_flag, self.ingredient.flags)
+        self.assertNotIn(self.ing_halal_flag, self.ingredient.flags)
+        self.assertIn(self.ing_vegetarian_flag, self.ingredient.flags)
         self.assertEqual(len(self.ingredient.flags), 1)
 
     def test_update_nutrient_quantities(self):

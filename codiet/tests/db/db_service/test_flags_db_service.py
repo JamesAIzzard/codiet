@@ -20,10 +20,10 @@ class TestFlagDBService(DatabaseTestCase):
         self.mock_ingredient.id = 1
 
         # Create a couple of mock ingredient flags
-        self.ingredient_vegan_flag = IngredientFlag(ingredient=self.mock_ingredient, flag_name=self.vegan_flag, flag_value=True)
-        self.ingredient_halal_flag = IngredientFlag(ingredient=self.mock_ingredient, flag_name=self.halal_flag, flag_value=False)
-        self.ingredient_vegetarian_flag = IngredientFlag(ingredient=self.mock_ingredient, flag_name=self.vegetarian_flag, flag_value=True)
-        self.ingredient_kosher_flag = IngredientFlag(ingredient=self.mock_ingredient, flag_name=self.kosher_flag, flag_value=False)
+        self.ingredient_vegan_flag = IngredientFlag(ingredient=self.mock_ingredient, flag=self.vegan_flag, flag_value=True)
+        self.ingredient_halal_flag = IngredientFlag(ingredient=self.mock_ingredient, flag=self.halal_flag, flag_value=False)
+        self.ingredient_vegetarian_flag = IngredientFlag(ingredient=self.mock_ingredient, flag=self.vegetarian_flag, flag_value=True)
+        self.ingredient_kosher_flag = IngredientFlag(ingredient=self.mock_ingredient, flag=self.kosher_flag, flag_value=False)
 
     def test_flag_id_name_map(self):
         """Checks the flag ID to name mapping property is working properly."""
