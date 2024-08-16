@@ -3,8 +3,7 @@ from pymoo.algorithms.moo.nsga3 import NSGA3
 from pymoo.optimize import minimize
 from pymoo.util.ref_dirs import get_reference_directions
 from pymoo.visualization.scatter import Scatter
-from .utils import codiet_alg_main
-from .utils import format_results
+from .utils import solve
 
 # Create reference directions
 ref_dirs = get_reference_directions("das-dennis", 2, n_partitions=12)
@@ -25,15 +24,8 @@ constraints = [con_1, con_2, con_3]
 goal_1 = "minimise_cost"
 goal_2 = ("protein_perc", 0.3)
 goal_3 = ("carb_perc", 0.4)
-goals = [goal_1, goal_2, goal_3]
+goal_4 = ("fat_perc", 0.3)
+goals = [goal_1, goal_2, goal_3, goal_4]
 
-# Run the optimization
-res = minimize(
-    codiet_alg_main(),
-    algorithm,
-    termination=('n_gen', 200),
-    seed=1
-)
-
-# Show the results
-format_results(res)
+# Solve the optimisation problem
+solve(constraints, goals, algorithm)
