@@ -127,11 +127,50 @@ class TestFlagDBService(DatabaseTestCase):
         # Save the ingredient flag
         self.ing_vegan_flag = self.db_service.flags.create_ingredient_flag(self.ing_vegan_flag)
 
-        # Check the flag value was false
-        raise NotImplementedError
+        # Read the ingredient flag back and check it was false
+        read_flags = self.db_service.flags.read_ingredient_flags(self.mock_ingredient)
+        for flag in read_flags:
+            if flag.flag.id == vegan_flag.id:
+                self.assertFalse(flag.flag_value)
 
         # Update the flag
-
+        self.ing_vegan_flag.flag_value = True
+        self.db_service.flags.update_ingredient_flag(self.ing_vegan_flag)
 
         # Check the flag was updated
+        read_flags = self.db_service.flags.read_ingredient_flags(self.mock_ingredient)
+        for flag in read_flags:
+            if flag.flag.id == vegan_flag.id:
+                self.assertTrue(flag.flag_value)
+
+    def test_delete_ingredient_flag(self):
+        """Check we can delete an ingredient flag."""
+        # Create the global flag
+        self.vegan_flag = self.db_service.flags.create_global_flag(self.vegan_flag)
+        
+        # Create the ingredient flag
+        ing_vegan_flag = IngredientFlag(
+            ingredient=self.mock_ingredient,
+            flag=self.vegan_flag
+        )
+
+        # Save the ingredient flag
+        ing_vegan_flag = self.db_service.flags.create_ingredient_flag(ing_vegan_flag)
+
+        # Check the ingredient flag was saved
+        read_flags = self.db_service.flags.read_ingredient_flags(self.mock_ingredient)
+        for flag in read_flags:
+            if flag.flag.id == self.vegan_flag.id:
+                break
+        else:
+            self.fail("The ingredient flag was not saved.")
+
+        # Delete the flag
+        self.db_service.flags.delete_ingredient_flag(ing_vegan_flag)
+
+        # Check the flag was deleted
+        read_flags = self.db_service.flags.read_ingredient_flags(self.mock_ingredient)
+        for flag in read_flags:
+            if flag.flag.id == self.vegan_flag.id:
+                self.fail("The ingredient flag was not deleted.")
 

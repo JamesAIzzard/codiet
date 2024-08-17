@@ -179,20 +179,24 @@ class FlagDBService(DatabaseServiceBase):
         for flag in flags:
             self.update_ingredient_flag(flag, _signal=False)
 
-    def delete_ingredient_flags(self, flags: list[IngredientFlag]) -> None:
-        """Delete the flags supplied.
-        Args:
-            flags (list[EntityFlag]): The flags to be deleted.
-        """
-        for flag in flags:
+    def delete_ingredient_flag(self, ingredient_flag: IngredientFlag, _signal=True) -> None:
+        """Delete the flag for the given ingredient."""
+        # Check the ingredient ID and flag ID are populated
+        if ingredient_flag.ingredient.id is None or ingredient_flag.flag.id is None:
+            raise ValueError("The ingredient ID and flag ID must be populated to delete an ingredient flag.")
+        
+        self._repository.flags.delete_ingredient_flag(
+            ingredient_id=ingredient_flag.ingredient.id,
+            flag_id=ingredient_flag.flag.id
+        )
 
-            # Check the flag ID is populated
-            if flag.id is None:
-                raise ValueError("The flag ID must be populated to delete an ingredient flag.")
-            
-            self._repository.delete_ingredient_flag(
-                ingredient_flag_id=flag.id
-            )
+        # Emit the signal for the ingredient flags change
+        self.ingredientFlagsChanged.emit()
+
+    def delete_ingredient_flags(self, flags: Collection[IngredientFlag]) -> None:
+        """Delete the flags supplied."""
+        for flag in flags:
+            self.delete_ingredient_flag(flag, _signal=False)
 
     def _reset_global_flags_cache(self) -> None:
         """Re(generates) the global flag caches."""

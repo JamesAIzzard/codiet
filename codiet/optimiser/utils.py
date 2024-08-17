@@ -63,7 +63,6 @@ def solve(constraints, goals, algorithm):
         "spaghetti", "macaroni", "ravioli", "tortellini", "gnocchi"
     ]
 
-    # Print one of these names ever 0.3s
     for i in range(0, len(ingredients), 3):
         print(ingredients[i])
         sleep(0.02)
@@ -77,17 +76,13 @@ def solve(constraints, goals, algorithm):
     )
 
 
-    # Generate random x and y values within the specified range
     x = np.random.uniform(-1, -0.4, num_points)
     y = np.random.uniform(-0.4, 0.2, num_points)
 
-    # Define the surface, e.g., a paraboloid z = x^2 + y^2
     z = x**2 + y**2
 
-    # Generate random colors based on a temperature scale
     colors = cm.hot(np.random.rand(num_points))
 
-    # List of vegetarian, gluten-free, and nut-free meals
     meal_names = [
         "Quinoa Salad with Veggies",
         "Vegetarian Stir Fry with Tofu",
@@ -101,7 +96,6 @@ def solve(constraints, goals, algorithm):
         "Grilled Portobello Mushrooms"
     ]
 
-    # Create a 3D scatter plot
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     sc = ax.scatter(x, y, z, c=colors, marker='o')
@@ -120,40 +114,3 @@ def solve(constraints, goals, algorithm):
 
     # Show the plot
     plt.show()
-
-# def format_results(res):
-#     # Number of points
-#     num_points = 10
-
-#     # Generate random x and y values within the specified range
-#     x = np.random.uniform(-1, -0.4, num_points)
-#     y = np.random.uniform(-0.4, 0.2, num_points)
-
-#     # Define the surface, e.g., a paraboloid z = x^2 + y^2
-#     z = x**2 + y**2
-
-#     # Generate random colors based on a temperature scale
-#     colors = cm.hot(np.random.rand(num_points))
-
-#     # Generate a list of labels for each point
-#     labels = [f'Point {i}' for i in range(num_points)]
-
-#     # Create a 3D scatter plot
-#     fig = plt.figure()
-#     ax = fig.add_subplot(111, projection='3d')
-#     sc = ax.scatter(x, y, z, c=colors, marker='o')
-
-#     # Set labels
-#     ax.set_xlabel('protein_err')
-#     ax.set_ylabel('carb_err')
-#     ax.set_zlabel('fat_err')
-
-#     # Use mplcursors to display labels on hover
-#     cursor = mplcursors.cursor(sc, hover=True)
-
-#     @cursor.connect("add")
-#     def on_add(sel):
-#         sel.annotation.set_text(labels[sel.index])
-
-#     # Show the plot
-#     plt.show()
