@@ -8,7 +8,7 @@ class NutrientRepository(RepositoryBase):
     def create_global_nutrient(
             self, 
             nutrient_name: str,
-            parent_nutrient_id: int|None
+            parent_id: int|None
         ) -> int:
         """Adds a nutrient to the nutrient base table and returns the ID."""
         # Add the global nutrient to the base table
@@ -16,9 +16,9 @@ class NutrientRepository(RepositoryBase):
 
             cursor.execute(
                 """
-                INSERT INTO nutrient_base (nutrient_name, parent_nutrient_id) VALUES (?, ?);
+                INSERT INTO global_nutrients (nutrient_name, parent_id) VALUES (?, ?);
             """,
-                (nutrient_name, parent_nutrient_id),
+                (nutrient_name, parent_id),
             )
 
             # Get the ID of the nutrient
@@ -34,7 +34,7 @@ class NutrientRepository(RepositoryBase):
 
             cursor.execute(
                 """
-                INSERT INTO nutrient_aliases (alias, primary_nutrient_id) VALUES (?, ?);
+                INSERT INTO nutrient_aliases (nutrient_alias, primary_nutrient_id) VALUES (?, ?);
             """,
                 (alias, primary_nutrient_id),
             )
@@ -77,50 +77,57 @@ class NutrientRepository(RepositoryBase):
             list[dict]: A list of dictionaries containing the global nutrient data.
                 [
                     {
-                        'nutrient_id': int, 
+                        'id': int, 
                         'nutrient_name': str, 
-                        'parent_nutrient_id': int|None
+                        'parent_id': int|None
                     },
                 ]
         """
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
-                SELECT nutrient_id, nutrient_name, parent_nutrient_id FROM nutrient_base;
+                SELECT id, nutrient_name, parent_id FROM global_nutrients;
                 """
             )
             rows = cursor.fetchall()
             return [
                 {
-                    'nutrient_id': row[0], 
+                    'id': row[0], 
                     'nutrient_name': row[1], 
-                    'parent_nutrient_id': row[2]
+                    'parent_id': row[2]
                 }
                 for row in rows
             ]
         
-    def read_global_nutrient_aliases(self, nutrient_id: int) -> dict[int, str]:
+    def read_global_nutrient_aliases(self, nutrient_id: int) -> list[dict]:
         """Reads all aliases for a global nutrient.
         Args:
             nutrient_id (int): The ID of the global nutrient.
         Returns:
-            dict[int, str]: A dictionary of aliases for the global nutrient.
-                {
-                    alias_id: alias,
-                }
+            list[dict]: A list of dictionaries containing the alias data.
+                [
+                    {
+                        'alias_id': int, 
+                        'alias': str
+                    },
+                ]
         """
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
-                SELECT id, alias FROM nutrient_aliases WHERE primary_nutrient_id = ?;
+                SELECT id, nutrient_alias FROM nutrient_aliases WHERE primary_nutrient_id = ?;
                 """,
                 (nutrient_id,)
             )
             rows = cursor.fetchall()
-            return {
-                row[0]: row[1]
+            return [
+                {
+                    'alias_id': row[0], 
+                    'alias': row[1]
+                }
                 for row in rows
-            }
+            ]
+
         
     def read_ingredient_nutrient_quantities(self, ingredient_id: int) -> list[dict]:
         """Reads all nutrient quantities for an ingredient.
