@@ -6,6 +6,7 @@ from codiet.db.database import Database
 from codiet.db.repository import Repository
 from codiet.db.database_service import DatabaseService
 
+# TODO - Move this into its own file, shouldn't really be in __init__.py
 class DatabaseTestCase(unittest.TestCase):
     """Base class for Repository test cases."""
 

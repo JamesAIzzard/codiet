@@ -59,7 +59,7 @@ class NutrientRepository(RepositoryBase):
 
             cursor.execute(
                 """
-                INSERT INTO ingredient_nutrient_quantity (ingredient_id, nutrient_id, nutrient_mass_unit_id, nutrient_mass_value, ingredient_grams_qty) VALUES (?, ?, ?, ?, ?);
+                INSERT INTO ingredient_nutrient_quantities (ingredient_id, nutrient_id, ntr_mass_unit_id, ntr_mass_value, ing_grams_qty) VALUES (?, ?, ?, ?, ?);
             """,
                 (ingredient_id, nutrient_id, nutrient_mass_unit_id, nutrient_mass_value, ingredient_grams_qty),
             )
@@ -148,14 +148,14 @@ class NutrientRepository(RepositoryBase):
         with self.get_cursor() as cursor:
             cursor.execute(
                 """
-                SELECT ingredient_nutrient_id, nutrient_id, nutrient_mass_unit_id, nutrient_mass_value, ingredient_grams_qty FROM ingredient_nutrient_quantity WHERE ingredient_id = ?;
+                SELECT id, nutrient_id, ntr_mass_unit_id, ntr_mass_value, ing_grams_qty FROM ingredient_nutrient_quantities WHERE ingredient_id = ?;
                 """,
                 (ingredient_id,)
             )
             rows = cursor.fetchall()
             return [
                 {
-                    'ingredient_nutrient_id': row[0],
+                    'id': row[0],
                     'nutrient_id': row[1],
                     'nutrient_mass_unit_id': row[2],
                     'nutrient_mass_value': row[3],
@@ -177,9 +177,9 @@ class NutrientRepository(RepositoryBase):
     
                 cursor.execute(
                     """
-                    UPDATE ingredient_nutrient_quantity SET nutrient_mass_value = ?, ingredient_grams_qty = ? WHERE ingredient_id = ? AND nutrient_id = ? AND nutrient_mass_unit_id = ?;
+                    UPDATE ingredient_nutrient_quantities SET ntr_mass_value = ?, ing_grams_qty = ?, ntr_mass_unit_id = ? WHERE ingredient_id = ? AND nutrient_id = ?;
                     """,
-                    (nutrient_mass_value, ingredient_grams_qty, ingredient_id, nutrient_id, nutrient_mass_unit_id),
+                    (nutrient_mass_value, ingredient_grams_qty, nutrient_mass_unit_id, ingredient_id, nutrient_id),
                 )
     
                 if cursor.rowcount == 0:
@@ -195,7 +195,7 @@ class NutrientRepository(RepositoryBase):
     
                 cursor.execute(
                     """
-                    DELETE FROM ingredient_nutrient_quantity WHERE ingredient_id = ? AND nutrient_id = ?;
+                    DELETE FROM ingredient_nutrient_quantities WHERE ingredient_id = ? AND nutrient_id = ?;
                     """,
                     (ingredient_id, nutrient_id),
                 )
