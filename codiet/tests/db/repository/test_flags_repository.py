@@ -1,4 +1,4 @@
-from codiet.tests.db import DatabaseTestCase
+from codiet.tests.db.database_test_case import DatabaseTestCase
 
 class TestFlagRepository(DatabaseTestCase):
     def setUp(self) -> None:

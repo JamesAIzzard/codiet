@@ -1,5 +1,5 @@
 from unittest.mock import Mock
-from codiet.tests.db import DatabaseTestCase
+from codiet.tests.db.database_test_case import DatabaseTestCase
 from codiet.db_population.units import read_units_from_json, read_global_unit_conversions_from_json
 from codiet.models.units.unit import Unit
 from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion

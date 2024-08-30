@@ -1,6 +1,6 @@
 from unittest import mock
 
-from codiet.tests.db import DatabaseTestCase
+from codiet.tests.db.database_test_case import DatabaseTestCase
 from codiet.models.flags.flag import Flag
 from codiet.models.ingredients.ingredient import Ingredient
 from codiet.models.flags.ingredient_flag import IngredientFlag
