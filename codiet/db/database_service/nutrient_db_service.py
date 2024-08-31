@@ -1,63 +1,108 @@
-from typing import TYPE_CHECKING
+from typing import Collection, TYPE_CHECKING
 
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import pyqtSignal
 
-if TYPE_CHECKING:
-    from . import DatabaseService
-from codiet.db.repository import Repository
+from codiet.db.database_service.database_service_base import DatabaseServiceBase
 from codiet.utils.map import Map
+from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
+from codiet.utils.unique_collection import MutableUniqueCollection as MUC
 from codiet.models.nutrients.nutrient import Nutrient
 from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
+if TYPE_CHECKING:
+    pass
 
-class NutrientDBService(QObject):
+class NutrientDBService(DatabaseServiceBase):
     """Database service module for nutrients."""
 
     ingredientNutrientsChanged = pyqtSignal()
 
-    def __init__(self, repository: Repository, db_service: 'DatabaseService'):
+    def __init__(self, *args, **kwargs):
         """Initialise the nutrient database service."""
-        super().__init__()
+        super().__init__(*args, **kwargs)
 
-        self._repository = repository
-        self._db_service = db_service
-
-        # Cache the global nutrient id-name map
+        # Init the caches
         self._global_nutrient_id_name_map:Map[int, str]|None = None
+        self._global_nutrients: IUC[Nutrient]|None = None
 
     @property
     def global_nutrient_id_name_map(self) -> Map[int, str]:
-        """Get the global nutrient id-name map."""
+        """Get the global nutrient id-name map.
+        Caches the map if it is not already cached. Returns from
+        the cache otherwise.
+        """
         if self._global_nutrient_id_name_map is None:
-            self._cache_global_nutrient_id_name_map()
+            self._reset_global_nutrients_cache()
         return self._global_nutrient_id_name_map # type: ignore # checked in the property setter
 
-    def create_global_nutrients(self, nutrients:list[Nutrient]) -> dict[int, Nutrient]:
-        """Create global nutrients in the database."""
-        # Init a dict to store the created nutrients
-        added_nutrients = {}
+    @property
+    def global_nutrients(self) -> IUC[Nutrient]:
+        """Get the global nutrients.
+        Caches the nutrients if they are not already cached. Returns from
+        the cache otherwise.
+        """
+        if self._global_nutrients is None:
+            self._reset_global_nutrients_cache()
+        return self._global_nutrients # type: ignore # checked in the property setter
 
-        # First, add each nutrient to the database
-        for nutrient in nutrients:
-            # Add the nutrient to the database
-            id = self._repository.create_global_nutrient(
-                name=nutrient.nutrient_name,
-                parent_id=nutrient.parent_id,
+    def get_nutrient_by_name(self, nutrient_name: str) -> Nutrient:
+        """Get the nutrient by name."""
+        for nutrient in self.global_nutrients:
+            if nutrient.nutrient_name.lower().strip() == nutrient_name.lower().strip():
+                return nutrient
+        raise ValueError(f"Nutrient with name {nutrient_name} not found.")
+    
+    def get_nutrient_by_id(self, nutrient_id: int) -> Nutrient:
+        """Get the nutrient by ID."""
+        for nutrient in self.global_nutrients:
+            if nutrient.id == nutrient_id:
+                return nutrient
+        raise ValueError(f"Nutrient with ID {nutrient_id} not found.")
+
+    def create_global_nutrient(self, nutrient: Nutrient, _signal: bool=True) -> Nutrient:
+        """Insert the global nutrients into the database."""
+        # Stash the ID of the parent nutrient if it exists
+        parent_id = None
+        if nutrient.is_parent:
+            parent_id = nutrient.parent.id # type: ignore # not none because is_parent is true
+        
+        # Create the base nutrient
+        nutrient_id = self._repository.nutrients.create_global_nutrient(
+            nutrient_name=nutrient.nutrient_name,
+            parent_id=parent_id,
+        )
+
+        # Update the ID
+        nutrient.id = nutrient_id
+
+        # Add any aliases
+        for alias in nutrient.aliases:
+            self._repository.nutrients.create_global_nutrient_alias(
+                primary_nutrient_id=nutrient_id,
+                alias=alias,
             )
 
-            # Update the ID
-            nutrient.id = id
+        if _signal:
+            # Rebuild the cache and emit the signal
+            self._reset_global_nutrients_cache()
+            # If we ever allow global nutrients to be updated, we need to
+            # emit a signal here.
 
-            # Add the aliases
-            for alias in nutrient.aliases:
-                self._repository.create_global_nutrient_alias(
-                    primary_nutrient_id=id,
-                    alias=alias,
-                )   
+        return nutrient
 
-            # Add the nutrient to the dict
-            added_nutrients[id] = nutrient
+    def create_global_nutrients(self, nutrients: Collection[Nutrient]) -> IUC[Nutrient]:
+        """Insert the global nutrients into the database."""
+        # Init a list to store the saved nutrients
+        saved_nutrients = IUC()
 
-        return added_nutrients
+        for nutrient in nutrients:
+            saved_nutrients._add(self.create_global_nutrient(nutrient, _signal=False))
+        
+        # Rebuild the cache and emit the signal
+        self._reset_global_nutrients_cache()
+        # If we ever allow global nutrients to be updated, we need to
+        # emit a signal here.
+
+        return saved_nutrients
 
     def create_ingredient_nutrient_quantity(self, ing_nutr_qty: IngredientNutrientQuantity) -> IngredientNutrientQuantity:
         """Creates an entry for the ingredient nutrient quantity in the database.
@@ -89,7 +134,7 @@ class NutrientDBService(QObject):
 
         return ing_nutr_qty
     
-    def read_all_global_nutrients(self) -> dict[int, Nutrient]:
+    def read_all_global_nutrients(self) -> IUC[Nutrient]:
         """Returns all the global nutrients.
         Returns:
             Dict[int, Nutrient]: A dictionary of global nutrients, where the key is the
@@ -171,15 +216,28 @@ class NutrientDBService(QObject):
         # Emit the signal for the ingredient nutrients change
         self.ingredientNutrientsChanged.emit()
 
-    def _cache_global_nutrient_id_name_map(self) -> None:
-        """Caches the global nutrient id-name map."""
-        # If the map is None, init it
+    def _reset_global_nutrients_cache(self) -> None:
+        """(Re)generates the global nutrient caches.
+        Note:
+            Does not destroy the existing data structures, so that anything
+            that is currently referencing them will not be affected.
+        """
+        # Instantiate if None
         if self._global_nutrient_id_name_map is None:
-            self._global_nutrient_id_name_map = Map(one_to_one=True)
+            self._global_nutrient_id_name_map = Map()
+        if self._global_nutrients is None:
+            self._global_nutrients = IUC()
 
-        # Fetch all the global nutrients
-        nutrients = self.read_all_global_nutrients()
+        # Reset the caches
+        # Clear instead of replace, so existing references still work.
+        self._global_nutrient_id_name_map.clear()
+        self._global_nutrients._clear()
 
-        # Add the nutrients to the map
-        for nutrient_id, nutrient in nutrients.items():
-            self._global_nutrient_id_name_map.add_mapping(key=nutrient_id, value=nutrient.nutrient_name)
+        # Read the global nutrients from the database
+        global_nutrients = self.read_all_global_nutrients()
+
+        # Populate the caches
+        for nutrient in global_nutrients:
+            assert nutrient.id is not None
+            self._global_nutrient_id_name_map[nutrient.id] = nutrient.nutrient_name
+            self._global_nutrients._add(nutrient)

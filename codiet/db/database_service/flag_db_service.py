@@ -3,7 +3,6 @@ from typing import Collection, TYPE_CHECKING
 from PyQt6.QtCore import pyqtSignal
 
 from codiet.db.database_service.database_service_base import DatabaseServiceBase
-
 from codiet.utils.map import Map
 from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 from codiet.utils.unique_collection import MutableUniqueCollection as MUC
@@ -220,7 +219,6 @@ class FlagDBService(DatabaseServiceBase):
         for flag in global_flags:
             assert flag.id is not None
             self._global_flag_id_name_map.add_mapping(key=flag.id, value=flag.flag_name)
-
         # Rebuild the global flags cache
         for flag in global_flags:
             self._global_flags._add(flag)
