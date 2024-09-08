@@ -73,6 +73,12 @@ class NutrientRepository(RepositoryBase):
 
     def read_global_nutrients(self) -> list[dict]:
         """Reads all global nutrients from the database.
+
+        Note:
+            We only need to the parent or the child id to for each nutrient to fully
+            define the tree. It is nicer to just store a single value, and each nutrent
+            can only have a single parent, so it makes sense to store the parent id
+
         Returns:
             list[dict]: A list of dictionaries containing the global nutrient data.
                 [

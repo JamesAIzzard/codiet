@@ -1,5 +1,6 @@
+from typing import Collection
 
-
+from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 from codiet.db.stored_entity import StoredEntity
 
 class Nutrient(StoredEntity):
@@ -13,16 +14,24 @@ class Nutrient(StoredEntity):
     def __init__(
         self,
         nutrient_name: str,
-        aliases: set[str],
+        aliases: Collection[str]|None = None,
         parent: 'Nutrient | None' = None,
-        children: set['Nutrient'] | None = None,
+        children: Collection['Nutrient'] | None = None,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
         self._nutrient_name = nutrient_name
+
+        # Check supplied aliases are unique, or init empty list if not supplied
+        if aliases is not None:
+            if len(aliases) != len(set(aliases)):
+                raise ValueError("Aliases must be unique.")
+        else:
+            aliases = []
+
         self._aliases = aliases
         self._parent = parent
-        self._children = children if children is not None else set()
+        self._children = IUC(children) if children is not None else IUC['Nutrient']()
 
     @property
     def nutrient_name(self) -> str:
@@ -75,9 +84,9 @@ class Nutrient(StoredEntity):
         """Sets the instance's parent nutrient."""
         self._parent = parent
 
-    def _set_children(self, children: set['Nutrient']) -> None:
+    def _set_children(self, children: Collection['Nutrient']) -> None:
         """Add children to the nutrient."""
-        self._children = children
+        self._children = IUC(children)
 
     def __eq__(self, other):
         if isinstance(other, Nutrient):

@@ -137,35 +137,42 @@ class NutrientDBService(DatabaseServiceBase):
     def read_all_global_nutrients(self) -> IUC[Nutrient]:
         """Returns all the global nutrients.
         Returns:
-            Dict[int, Nutrient]: A dictionary of global nutrients, where the key is the
-            id of each specific nutrient.
+            IUC[Nutrient]: A unique immutable collection of all the global nutrients.
         """
-        # Fetch the data for all the nutrients
-        all_nutrients_data = self._repository.read_all_global_nutrients()
-        
-        # Init a dict to hold the nutrients and a dict to hold child relationships
-        nutrients = {}
-        children = {}
+        # Fetch the base nutrient data
+        nutrient_bases = self._repository.nutrients.read_global_nutrients()
+    
+        # Init a dict to store the nutrients as they are instantiated
+        nutrients:dict[int, Nutrient] = {}
         
         # Cycle through the raw data to create nutrients and record child relationships
-        for nutrient_id, nutrient_data in all_nutrients_data.items():
-            nutrient = Nutrient(
-                id=nutrient_id,
-                nutrient_name=nutrient_data["nutrient_name"],
-                aliases=nutrient_data["aliases"],
-                parent_id=nutrient_data["parent_id"],
-            )
-            nutrients[nutrient_id] = nutrient
-            if nutrient.parent_id is not None:
-                if nutrient.parent_id not in children:
-                    children[nutrient.parent_id] = []
-                children[nutrient.parent_id].append(nutrient_id)
+        for nb in nutrient_bases:
+
+            # Grab the aliases for this nutrient
+            aliases = self._repository.nutrients.read_global_nutrient_aliases(nb["id"])
+
+            # Init the nutrient instance
+            nutrients[nb["id"]] = (Nutrient(
+                id=nb["id"],
+                nutrient_name=nb["nutrient_name"],
+                aliases={alias["alias"] for alias in aliases},
+            ))
+
+        # Work through the raw data again, and link up references for the parent nutrient
+        for nb in nutrient_bases:
+            # If this nutrient has no parent, then skip
+            if nb["parent_id"] is None:
+                continue
+
+            # Find the nutrient instance corresponding to this nutrient data and link up the parent id
+            nutrients[nb["id"]]._parent = nutrients[nb["parent_id"]]
+
+        # Work through the nutrients list, and populate the child references
+        for nutrient in nutrients.values():
+            if nutrient.is_parent:
+                nutrients[nutrient.parent.id]._children._add(nutrient) # type: ignore (checked by is_parent)
         
-        # Populate the child_ids for each nutrient
-        for nutrient_id, nutrient in nutrients.items():
-            nutrient.child_ids = children.get(nutrient_id, [])
-        
-        return nutrients
+        return IUC(nutrients.values())
     
     def read_ingredient_nutrient_quantities(
         self, ingredient_id: int

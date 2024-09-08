@@ -1,4 +1,4 @@
-from typing import TypeVar, Iterable, TYPE_CHECKING
+from typing import TypeVar, Iterable
 
 from .base_unique_collection import BaseUniqueCollection
 from .immutable_unique_collection import ImmutableUniqueCollection
@@ -6,6 +6,10 @@ from .immutable_unique_collection import ImmutableUniqueCollection
 T = TypeVar('T')
 
 class MutableUniqueCollection(BaseUniqueCollection[T]):
+    """A mutable collection of unique items.
+    Provides an ordered, mutable, unique collection. While sets are mutable and
+    unique, they are not ordered.
+    """
 
     @property
     def immutable(self) -> ImmutableUniqueCollection[T]:

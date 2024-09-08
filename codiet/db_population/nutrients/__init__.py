@@ -28,7 +28,7 @@ def read_global_nutrients_from_json(global_nutrients_filepath: str = GLOBAL_NUTR
         children = data.get('children', {})
         for child_name, child_data in children.items():
             child_nutrient, child_nutrients = create_nutrient_tree(child_name, child_data, parent=nutrient)
-            nutrient._children.add(child_nutrient)
+            nutrient._children._add(child_nutrient)
             all_nutrients.update(child_nutrients)
 
         return nutrient, all_nutrients
