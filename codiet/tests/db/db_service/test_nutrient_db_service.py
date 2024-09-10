@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 
 from codiet.tests.db.database_test_case import DatabaseTestCase
-from codiet.tests.fixtures import units as unit_fixtures
+from codiet.tests.fixtures.units_test_fixtures import UnitsTestFixtures
 from codiet.tests.fixtures import nutrients as nutrient_fixtures
 from codiet.models.nutrients.nutrient import Nutrient
 from codiet.models.ingredients.ingredient import Ingredient
@@ -12,9 +12,10 @@ class TestNutrientDBService(DatabaseTestCase):
     def setUp(self) -> None:
         super().setUp()
         
+        self.units_fixtures = UnitsTestFixtures(self.db_service)
+        self.units_fixtures.setup_test_units() # TODO: Move into individual tests as needed
+
         # Add the test fixtures to the database
-        self.test_units = unit_fixtures.get_test_units()
-        self.db_service.units.create_units(self.test_units.values())
         self.test_nutrients = nutrient_fixtures.get_test_nutrients()
         self.db_service.nutrients.create_global_nutrients(self.test_nutrients.values())
         # self.test_ingredients = self.db_service.ingredients.create_ingredients(ingredient_fixtures.test_ingredients)
