@@ -4,11 +4,32 @@ from codiet.utils.unique_collection import MutableUniqueCollection as MUC
 from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 from codiet.db.stored_entity import StoredEntity
 from codiet.models.units.unit import Unit
-from codiet.models.units.unit_conversion import UnitConversion
+from codiet.models.units.unit_conversion import GlobalUnitConversion
 from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
 from codiet.models.units.ingredient_units_system import IngredientUnitsSystem
 from codiet.models.flags.ingredient_flag import IngredientFlag
 from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
+
+# def make_ingredient(
+#     name:str, 
+#     description:str|None=None,
+#     unit_conversions:Collection[IngredientUnitConversion]|None=None,
+#     standard_unit:Unit|None=None,
+#     cost_value:float|None=None,
+#     cost_qty_unit:Unit|None=None,
+#     cost_qty_value:float|None=None,
+#     flags:Collection[IngredientFlag]|None=None,
+#     gi:float|None=None,
+#     nutrient_quantities:Collection[IngredientNutrientQuantity]|None=None,
+#     *args, **kwargs
+# ) -> Ingredient:
+#     """Factory function for creating ingredient instances."""
+#     return Ingredient(
+#         name=name,
+#         global_units=UnitDBService.units,
+#         global_unit_conversions=UnitDBService.global_unit_conversions,
+
+#     )
 
 
 class Ingredient(StoredEntity):
@@ -18,7 +39,7 @@ class Ingredient(StoredEntity):
             self, 
             name:str,
             global_units: Collection[Unit],
-            global_unit_conversions: Collection[UnitConversion],   
+            global_unit_conversions: Collection[GlobalUnitConversion],   
             description:str|None=None,
             unit_conversions:Collection[IngredientUnitConversion]|None=None,
             standard_unit:Unit|None=None,

@@ -3,7 +3,7 @@ from unittest import TestCase
 from codiet.db_population.units import read_units_from_json
 from codiet.utils.map import Map
 from codiet.models.units.unit import Unit
-from codiet.models.units.unit_conversion import UnitConversion
+from codiet.models.units.unit_conversion import GlobalUnitConversion
 
 class TestUnitConversion(TestCase):
 
@@ -16,7 +16,7 @@ class TestUnitConversion(TestCase):
             self.named_global_units.add_mapping(global_unit.unit_name, global_unit)
 
         # Init a test unit conversion
-        self.unit_conversion = UnitConversion(
+        self.unit_conversion = GlobalUnitConversion(
             from_unit=self.named_global_units.get_value('gram'),
             to_unit=self.named_global_units.get_value('kilogram'),
             from_unit_qty=1000,

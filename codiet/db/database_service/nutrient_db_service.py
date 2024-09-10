@@ -5,7 +5,6 @@ from PyQt6.QtCore import pyqtSignal
 from codiet.db.database_service.database_service_base import DatabaseServiceBase
 from codiet.utils.map import Map
 from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
-from codiet.utils.unique_collection import MutableUniqueCollection as MUC
 from codiet.models.nutrients.nutrient import Nutrient
 from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
 if TYPE_CHECKING:
@@ -60,9 +59,9 @@ class NutrientDBService(DatabaseServiceBase):
 
     def create_global_nutrient(self, nutrient: Nutrient, _signal: bool=True) -> Nutrient:
         """Insert the global nutrients into the database."""
-        # Stash the ID of the parent nutrient if it exists
+        # Stash the ID of the parent nutrient if it has one
         parent_id = None
-        if nutrient.is_parent:
+        if nutrient.is_child:
             parent_id = nutrient.parent.id # type: ignore # not none because is_parent is true
         
         # Create the base nutrient
@@ -106,24 +105,26 @@ class NutrientDBService(DatabaseServiceBase):
 
     def create_ingredient_nutrient_quantity(self, ing_nutr_qty: IngredientNutrientQuantity) -> IngredientNutrientQuantity:
         """Creates an entry for the ingredient nutrient quantity in the database.
-        Returns the object, with the id populated.
+        Returns the instance provided, with the id populated.
 
         Args:
-            ing_nutr_qty (EntityNutrientQuantity): The nutrient quantity object.
+            ing_nutr_qty (IngredientNutrientQuantity): The nutrient quantity object.
+
         Returns:
-            EntityNutrientQuantity: The created nutrient quantity object.
+            IngredientNutrientQuantity: The created nutrient quantity object.
         """
-        # Raise an exception if the parent entity ID is not set
-        if ing_nutr_qty.parent_entity_id is None:
-            raise ValueError("The parent entity ID must be set.")
         
+        # Assert that the ingredient id
+        if ing_nutr_qty.ingredient.id is None:
+            raise ValueError("The ingredient ID must be set.")
+
         # Insert the nutrient quantity into the database
-        nutrient_quantity_id = self._repository.create_ingredient_nutrient_quantity(
-            ingredient_id=ing_nutr_qty.parent_entity_id,
-            global_nutrient_id=ing_nutr_qty.nutrient_id,
-            ntr_mass_qty=ing_nutr_qty.nutrient_mass_value,
-            ntr_mass_unit_id=ing_nutr_qty.nutrient_mass_unit_id,
-            ing_grams_qty=ing_nutr_qty.entity_grams_value,
+        nutrient_quantity_id = self._repository.nutrients.create_ingredient_nutrient_quantity(
+            ingredient_id=ing_nutr_qty.ingredient.id, # type: ignore 
+            nutrient_id=ing_nutr_qty.nutrient.id, # type: ignore
+            nutrient_mass_unit_id=ing_nutr_qty.ntr_mass_unit.id, # type: ignore
+            nutrient_mass_value=ing_nutr_qty.ntr_mass_value,
+            ingredient_grams_qty=ing_nutr_qty.entity_grams_qty,
         )
 
         # Populate the ID

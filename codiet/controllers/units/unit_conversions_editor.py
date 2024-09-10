@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import QWidget
 from PyQt6.QtCore import QObject, pyqtSignal
 
 from codiet.models.units.unit import Unit
-from codiet.models.units.unit_conversion import UnitConversion
+from codiet.models.units.unit_conversion import GlobalUnitConversion
 from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
 from codiet.views.units.unit_conversion_editor_view import UnitConversionEditorView
 from codiet.views.units.unit_conversions_editor_view import UnitConversionsEditorView
@@ -31,7 +31,7 @@ class UnitConversionsEditor(QObject):
     def __init__(
         self,
         get_global_units: Callable[[], dict[int, Unit]],
-        get_global_unit_conversions: Callable[[], dict[int, UnitConversion]],
+        get_global_unit_conversions: Callable[[], dict[int, GlobalUnitConversion]],
         get_entity_unit_conversions: Callable[[], dict[int, IngredientUnitConversion]],
         view: UnitConversionsEditorView | None = None,
         parent: QWidget | None = None,

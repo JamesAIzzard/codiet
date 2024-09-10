@@ -2,7 +2,15 @@ from codiet.db.stored_entity import StoredEntity
 from codiet.models.units.unit import Unit
 
 class BaseUnitConversion(StoredEntity):
-    """Base class for unit conversions."""
+    """Base class for unit conversions.
+
+    Unit conversions contain two units, and a corresponding pair of values which
+    describe the conversion ratio between the two units.
+
+    In this class and all child classes, the units themselves are immutable
+    after being set at instantiation, since they define the identity of the
+    unit conversion. As such, there are no setters for the units.
+    """
 
     def __init__(
             self, 

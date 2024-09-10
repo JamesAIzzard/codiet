@@ -1,3 +1,5 @@
+"""Base class for domain specific database service classes."""
+
 from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import QObject

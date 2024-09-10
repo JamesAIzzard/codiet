@@ -1,10 +1,10 @@
 import os
 import json
-from typing import Dict, Any
+from typing import Dict, Any, Collection
 
 from codiet.utils.map import Map
 from codiet.models.units.unit import Unit
-from codiet.models.units.unit_conversion import UnitConversion
+from codiet.models.units.unit_conversion import GlobalUnitConversion
 
 UNITS_FILENAME = "global_units.json"
 UNITS_FILEPATH = os.path.join(os.path.dirname(__file__), UNITS_FILENAME)
@@ -37,8 +37,8 @@ def read_units_from_json(global_units_filepath: str=UNITS_FILEPATH) -> tuple[Uni
 
 def read_global_unit_conversions_from_json(
         global_units_filepath: str=UNITS_FILEPATH,
-        global_units: tuple[Unit, ...]|None=None
-    ) -> tuple[UnitConversion, ...]:
+        global_units: Collection[Unit]|None=None
+    ) -> tuple[GlobalUnitConversion, ...]:
     """Reads the unit conversions JSON datafile and returns the data as a set of unit conversions."""
     global _cached_global_unit_conversions
     
@@ -59,7 +59,7 @@ def read_global_unit_conversions_from_json(
             from_unit = unit_dict[from_unit_name]
             for to_unit_name, conversion_factor in unit_data.get('conversions', {}).items():
                 to_unit = unit_dict[to_unit_name]
-                conversion = UnitConversion(
+                conversion = GlobalUnitConversion(
                     from_unit=from_unit,
                     to_unit=to_unit,
                     from_unit_qty=1,

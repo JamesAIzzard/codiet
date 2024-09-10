@@ -5,7 +5,7 @@ from codiet.utils.map import Map
 from codiet.utils.unique_collection import MutableUniqueCollection as MUC
 from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 from codiet.models.units.unit import Unit
-from codiet.models.units.unit_conversion import UnitConversion
+from codiet.models.units.unit_conversion import GlobalUnitConversion
 from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
 
 if TYPE_CHECKING:
@@ -20,7 +20,7 @@ class IngredientUnitsSystem:
         self,
         ingredient: 'Ingredient',
         global_units: Collection[Unit],
-        global_unit_conversions: Collection[UnitConversion],
+        global_unit_conversions: Collection[GlobalUnitConversion],
         ingredient_unit_conversions: Collection[IngredientUnitConversion]|None = None
     ):
         self._ingredient = ingredient

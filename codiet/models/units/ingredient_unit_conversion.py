@@ -1,25 +1,22 @@
 from typing import TYPE_CHECKING
 
 from .base_unit_conversion import BaseUnitConversion
-from .unit import Unit
-from .unit_conversion import UnitConversion
 
 if TYPE_CHECKING:
     from codiet.models.ingredients.ingredient import Ingredient
 
 class IngredientUnitConversion(BaseUnitConversion):
-    """Models the conversion between two units assoicated with an ingredient."""
+    """Models a unit conversion associated with an ingredient.
+    
+    Extends BaseUnitConversion to include an ingredient object, and adds
+    setters to allow the from and to unit quantities to be set.
+    """
 
     def __init__(
         self, 
         ingredient: 'Ingredient',
         *args, **kwargs
     ):
-        """Initialises the EntityUnitConversion object.
-        Extends the UnitConversion object with an entity_id, and adds setters
-        for the from_unit_qty and to_unit_qty.
-        """
-
         super().__init__(*args, **kwargs)
 
         self._ingredient = ingredient

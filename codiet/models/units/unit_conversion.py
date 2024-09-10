@@ -1,7 +1,10 @@
 from .base_unit_conversion import BaseUnitConversion
 
-class UnitConversion(BaseUnitConversion):
-    """Models the conversion between two units."""
+class GlobalUnitConversion(BaseUnitConversion):
+    """Models a global unit conversion.
+    
+    Extends BaseUnitConversion to enforce the presence of the from and to unit quantities.
+    """
 
     def __init__(
             self, 

@@ -1,3 +1,5 @@
+from typing import Collection
+
 from codiet.db.stored_entity import StoredEntity
 
 class Unit(StoredEntity):
@@ -9,7 +11,7 @@ class Unit(StoredEntity):
         single_display_name: str,
         plural_display_name: str,
         type: str,
-        aliases: set[str]|None = None,
+        aliases: Collection[str]|None = None,
         *args, **kwargs
     ):
         """Initialise the unit."""
@@ -18,7 +20,12 @@ class Unit(StoredEntity):
         self._single_display_name = single_display_name
         self._plural_display_name = plural_display_name
         self._type = type
-        self._aliases = aliases or [] # Default to an empty list if None
+        
+        # Check any aliases provided are unique
+        if aliases is not None:
+            if len(aliases) != len(set(aliases)):
+                raise ValueError("The aliases must be unique.")
+        self._aliases = aliases or []
 
     @property
     def unit_name(self) -> str:
