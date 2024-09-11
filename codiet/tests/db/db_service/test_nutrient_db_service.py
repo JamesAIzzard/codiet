@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 from codiet.tests.db.database_test_case import DatabaseTestCase
 from codiet.tests.fixtures.units_test_fixtures import UnitsTestFixtures
-from codiet.tests.fixtures import nutrients as nutrient_fixtures
+from codiet.tests.fixtures.nutrients_test_fixtures import NutrientsTestFixtures
 from codiet.models.nutrients.nutrient import Nutrient
 from codiet.models.ingredients.ingredient import Ingredient
 from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
@@ -13,54 +13,53 @@ class TestNutrientDBService(DatabaseTestCase):
         super().setUp()
         
         self.units_fixtures = UnitsTestFixtures(self.db_service)
-        self.units_fixtures.setup_test_units() # TODO: Move into individual tests as needed
-
-        # Add the test fixtures to the database
-        self.test_nutrients = nutrient_fixtures.get_test_nutrients()
-        self.db_service.nutrients.create_global_nutrients(self.test_nutrients.values())
-        # self.test_ingredients = self.db_service.ingredients.create_ingredients(ingredient_fixtures.test_ingredients)
-        # self.db_service.nutrients.create_ingredient_nutrient_quantities(nutrient_fixtures.test_ingredient_nutrient_quantities)
+        self.nutrients_fixtures = NutrientsTestFixtures(self.db_service)
 
     def test_global_nutrient_id_name_map(self) -> None:
         """Checks that the global nutrient id-name map contains the correct
         mappings for the correct nutrients."""
-        # Test nutrients saved to the database during setup
+        self.nutrients_fixtures.setup_test_nutrients()
 
         # Get the global nutrient id-name map
         nutrient_id_name_map = self.db_service.nutrients.global_nutrient_id_name_map
 
         # Check a couple of the mappings are correct
         self.assertEqual(
-            nutrient_id_name_map.get_value(self.test_nutrients["protein"].id), # type: ignore
+            nutrient_id_name_map.get_value(self.nutrients_fixtures.test_nutrients["protein"].id), # type: ignore
             "protein"
         )
         self.assertEqual(
-            nutrient_id_name_map.get_value(self.test_nutrients["carbohydrate"].id), # type: ignore
+            nutrient_id_name_map.get_value(self.nutrients_fixtures.test_nutrients["carbohydrate"].id), # type: ignore
             "carbohydrate"
         )
 
-
     def test_global_nutrients(self) -> None:
+        """Checks that the global nutrients property returns the correct nutrients."""
+        self.nutrients_fixtures.setup_test_nutrients()
+
         # Check that we get a collection of the right number of nutrient instances
         nutrients = self.db_service.nutrients.global_nutrients
 
-        self.assertEqual(len(nutrients), 4)
-        self.assertIn(self.test_nutrients["protein"], nutrients)
-        self.assertIn(self.test_nutrients["carbohydrate"], nutrients)
-        self.assertIn(self.test_nutrients["glucose"], nutrients)
-        self.assertIn(self.test_nutrients["valine"], nutrients)
+        # Check that the nutrients retured are those in the fixture
+        self.assertCountEqual(nutrients, self.nutrients_fixtures.test_nutrients.values())
 
     def test_get_nutrient_by_name(self) -> None:
+        """Checks that we can fetch a nutrient instance by its name."""
+        self.nutrients_fixtures.setup_test_nutrients()
+
         # Check that we can fetch a nutrient instance by its name
         nutrient = self.db_service.nutrients.get_nutrient_by_name("protein")
 
-        self.assertEqual(nutrient, self.test_nutrients["protein"])
+        self.assertEqual(nutrient, self.nutrients_fixtures.test_nutrients["protein"])
 
     def test_get_nutrient_by_id(self) -> None:
-        # Check that we can fetch a nutrient instance by its ID
-        nutrient = self.db_service.nutrients.get_nutrient_by_id(self.test_nutrients["protein"].id) # type: ignore
+        """Checks that we can fetch a nutrient instance by its id."""
+        self.nutrients_fixtures.setup_test_nutrients()
 
-        self.assertEqual(nutrient, self.test_nutrients["protein"])
+        # Check that we can fetch a nutrient instance by its id
+        nutrient = self.db_service.nutrients.get_nutrient_by_id(self.nutrients_fixtures.test_nutrients["protein"].id) # type: ignore
+
+        self.assertEqual(nutrient, self.nutrients_fixtures.test_nutrients["protein"])
 
     def test_create_global_nutrient(self) -> None:
         """Confirms that we can create a new global nutrient."""
