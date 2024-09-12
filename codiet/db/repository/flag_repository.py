@@ -65,7 +65,7 @@ class FlagRepository(RepositoryBase):
         """Read all flags for an ingredient.
         Returns:
             ingredient_flag_id[int]: {
-                "flag_id": flag_id[int],
+                "global_flag_id": flag_id[int],
                 "flag_value": flag_value[bool] 
             }
         """

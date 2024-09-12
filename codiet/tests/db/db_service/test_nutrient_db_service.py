@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 from codiet.tests.db.database_test_case import DatabaseTestCase
 from codiet.tests.fixtures.units_test_fixtures import UnitsTestFixtures
-from codiet.tests.fixtures.nutrients_test_fixtures import NutrientsTestFixtures
+from codiet.tests.fixtures.nutrient_test_fixtures import NutrientTestFixtures
 from codiet.models.nutrients.nutrient import Nutrient
 from codiet.models.ingredients.ingredient import Ingredient
 from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
@@ -13,7 +13,7 @@ class TestNutrientDBService(DatabaseTestCase):
         super().setUp()
         
         self.units_fixtures = UnitsTestFixtures(self.db_service)
-        self.nutrients_fixtures = NutrientsTestFixtures(self.db_service)
+        self.nutrients_fixtures = NutrientTestFixtures(self.db_service)
 
     def test_global_nutrient_id_name_map(self) -> None:
         """Checks that the global nutrient id-name map contains the correct

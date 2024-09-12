@@ -54,23 +54,23 @@ class TestIngredient(TestCase):
         self.protein_quantity = IngredientNutrientQuantity(
             ingredient=self.ingredient,
             nutrient=self.named_global_nutrients.get_value("protein"),
-            ntr_mass_unit=self.named_global_units.get_value("gram"),
-            ntr_mass_value=1,
-            ingredient_grams_qty=100
+            nutrient_mass_unit=self.named_global_units.get_value("gram"),
+            nutrient_mass_value=1,
+            ingredient_grams_value=100
         )
         self.fat_quantity = IngredientNutrientQuantity(
             ingredient=self.ingredient,
             nutrient=self.named_global_nutrients.get_value("fat"),
-            ntr_mass_unit=self.named_global_units.get_value("gram"),
-            ntr_mass_value=4,
-            ingredient_grams_qty=100
+            nutrient_mass_unit=self.named_global_units.get_value("gram"),
+            nutrient_mass_value=4,
+            ingredient_grams_value=100
         )
         self.carb_quantity = IngredientNutrientQuantity(
             ingredient=self.ingredient,
             nutrient=self.named_global_nutrients.get_value("carbohydrate"),
-            ntr_mass_unit=self.named_global_units.get_value("gram"),
-            ntr_mass_value=3,
-            ingredient_grams_qty=100
+            nutrient_mass_unit=self.named_global_units.get_value("gram"),
+            nutrient_mass_value=3,
+            ingredient_grams_value=100
         )
 
     def test_name(self):
@@ -178,9 +178,9 @@ class TestIngredient(TestCase):
         nutrient_quantity = IngredientNutrientQuantity(
             ingredient=self.ingredient,
             nutrient=self.named_global_nutrients.get_value("protein"),
-            ntr_mass_unit=self.named_global_units.get_value("gram"),
-            ntr_mass_value=1,
-            ingredient_grams_qty=100
+            nutrient_mass_unit=self.named_global_units.get_value("gram"),
+            nutrient_mass_value=1,
+            ingredient_grams_value=100
         )
         self.ingredient.add_nutrient_quantities(nutrient_quantity)
         self.assertIn(nutrient_quantity, self.ingredient.nutrient_quantities)
@@ -250,16 +250,16 @@ class TestIngredient(TestCase):
         protein_quantity = IngredientNutrientQuantity(
             ingredient=self.ingredient,
             nutrient=self.named_global_nutrients.get_value("protein"),
-            ntr_mass_unit=self.named_global_units.get_value("gram"),
-            ntr_mass_value=1,
-            ingredient_grams_qty=100
+            nutrient_mass_unit=self.named_global_units.get_value("gram"),
+            nutrient_mass_value=1,
+            ingredient_grams_value=100
         )
         fat_quantity = IngredientNutrientQuantity(
             ingredient=self.ingredient,
             nutrient=self.named_global_nutrients.get_value("fat"),
-            ntr_mass_unit=self.named_global_units.get_value("gram"),
-            ntr_mass_value=4,
-            ingredient_grams_qty=100
+            nutrient_mass_unit=self.named_global_units.get_value("gram"),
+            nutrient_mass_value=4,
+            ingredient_grams_value=100
         )        
         self.ingredient.add_nutrient_quantities([protein_quantity, fat_quantity])
         self.assertIn(protein_quantity, self.ingredient.nutrient_quantities)
@@ -269,16 +269,16 @@ class TestIngredient(TestCase):
         updated_protein_quantity = IngredientNutrientQuantity(
             ingredient=self.ingredient,
             nutrient=self.named_global_nutrients.get_value("protein"),
-            ntr_mass_unit=self.named_global_units.get_value("gram"),
-            ntr_mass_value=2,
-            ingredient_grams_qty=100
+            nutrient_mass_unit=self.named_global_units.get_value("gram"),
+            nutrient_mass_value=2,
+            ingredient_grams_value=100
         )
 
         self.ingredient.update_nutrient_quantities(updated_protein_quantity)
 
         # Check the protein quantity is updated
-        self.assertEqual(self.ingredient.get_nutrient_quantity("protein").ntr_mass_value, 2)
-        self.assertEqual(self.ingredient.get_nutrient_quantity("fat").ntr_mass_value, 4)
+        self.assertEqual(self.ingredient.get_nutrient_quantity("protein").nutrient_mass_value, 2)
+        self.assertEqual(self.ingredient.get_nutrient_quantity("fat").nutrient_mass_value, 4)
 
     def test_remove_nutrient_quantities(self):
         """Test the remove_nutrient_quantities method."""
@@ -302,13 +302,13 @@ class TestIngredient(TestCase):
 
         # Check the nutrient quantity is there
         self.assertIn(self.protein_quantity, self.ingredient.nutrient_quantities)
-        self.assertEqual(self.ingredient.get_nutrient_quantity("protein").ntr_mass_value, 1)
+        self.assertEqual(self.ingredient.get_nutrient_quantity("protein").nutrient_mass_value, 1)
 
         # Mutate the nutrient quantity externally
-        self.protein_quantity.ntr_mass_value = 2
+        self.protein_quantity.nutrient_mass_value = 2
 
         # Check this is reflected in the ingredient
-        self.assertEqual(self.ingredient.get_nutrient_quantity("protein").ntr_mass_value, 2)
+        self.assertEqual(self.ingredient.get_nutrient_quantity("protein").nutrient_mass_value, 2)
 
     def test_adding_conversion_makes_nutrient_quantity_unit_available(self):
         """Test that adding a conversion makes the nutrient quantity unit available."""
@@ -317,7 +317,7 @@ class TestIngredient(TestCase):
 
         # Check we can't change the unit to an unavailable unit
         with self.assertRaises(ValueError):
-            self.protein_quantity.ntr_mass_unit = self.named_global_units.get_value("millilitre")
+            self.protein_quantity.nutrient_mass_unit = self.named_global_units.get_value("millilitre")
 
         # Add a conversion
         conversion = IngredientUnitConversion(
@@ -330,5 +330,5 @@ class TestIngredient(TestCase):
         self.ingredient.unit_system.add_ingredient_unit_conversions(conversion)
 
         # Check we can now change the unit to the available unit
-        self.protein_quantity.ntr_mass_unit = self.named_global_units.get_value("kilogram")
-        self.assertEqual(self.protein_quantity.ntr_mass_unit, self.named_global_units.get_value("kilogram"))
+        self.protein_quantity.nutrient_mass_unit = self.named_global_units.get_value("kilogram")
+        self.assertEqual(self.protein_quantity.nutrient_mass_unit, self.named_global_units.get_value("kilogram"))

@@ -15,7 +15,7 @@ class UnitDBService(DatabaseServiceBase):
 
     unitsChanged = pyqtSignal()
     globalUnitConversionsChanged = pyqtSignal()
-    ingredientUnitConversionsChanged = pyqtSignal()
+    ingredientUnitConversionChanged = pyqtSignal()
 
     def __init__(self, *args, **kwargs):
         """Initialise the unit database service."""
@@ -436,14 +436,14 @@ class UnitDBService(DatabaseServiceBase):
         )
 
         if _signal:
-            self.ingredientUnitConversionsChanged.emit()
+            self.ingredientUnitConversionChanged.emit()
 
     def update_ingredient_unit_conversions(self, ingredient_unit_conversions: Collection[IngredientUnitConversion]) -> None:
         """Update a set of ingredient unit conversions in the database."""
         for ingredient_unit_conversion in ingredient_unit_conversions:
             self.update_ingredient_unit_conversion(ingredient_unit_conversion, _signal=False)
     
-        self.ingredientUnitConversionsChanged.emit()
+        self.ingredientUnitConversionChanged.emit()
 
     def delete_unit(self, unit: Unit, _signal:bool=True) -> None:
         """Delete a unit from the database."""
@@ -507,7 +507,7 @@ class UnitDBService(DatabaseServiceBase):
         self._repository.units.delete_ingredient_unit_conversion(ingredient_unit_conversion.id)
 
         if _signal:
-            self.ingredientUnitConversionsChanged.emit()
+            self.ingredientUnitConversionChanged.emit()
 
     def delete_ingredient_unit_conversions(self, ingredient_unit_conversions: Collection[IngredientUnitConversion]) -> None:
         """Delete a set of ingredient unit conversions from the database."""
@@ -515,7 +515,7 @@ class UnitDBService(DatabaseServiceBase):
         for ingredient_unit_conversion in ingredient_unit_conversions:
             self.delete_ingredient_unit_conversion(ingredient_unit_conversion, _signal=False)
 
-        self.ingredientUnitConversionsChanged.emit()
+        self.ingredientUnitConversionChanged.emit()
 
     def _reset_units_cache(self) -> None:
         """Rebuilds the cached units."""

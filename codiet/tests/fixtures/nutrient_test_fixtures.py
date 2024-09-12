@@ -3,8 +3,8 @@
 from codiet.db.database_service import DatabaseService
 from codiet.models.nutrients.nutrient import Nutrient
 
-class NutrientsTestFixtures:
-    """Test fixtures associated with nutrients."""
+class NutrientTestFixtures:
+    """Test fixtures class for nutrients."""
 
     def __init__(self, db_service:DatabaseService) -> None:
         self._db_service = db_service

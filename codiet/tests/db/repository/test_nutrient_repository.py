@@ -48,7 +48,7 @@ class TestNutrientRepository(DatabaseTestCase):
         )
 
         # Create a test ingredient
-        self.ingredient_1_id = self.repository.ingredients.create_ingredient(
+        self.ingredient_1_id = self.repository.ingredients.create_ingredient_base(
             ingredient_name="ingredient 1"
         )
 

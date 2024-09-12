@@ -1,4 +1,4 @@
-from typing import Collection
+from typing import Collection, TYPE_CHECKING
 
 from codiet.utils.unique_collection import MutableUniqueCollection as MUC
 from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
@@ -8,59 +8,57 @@ from codiet.models.units.unit_conversion import GlobalUnitConversion
 from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
 from codiet.models.units.ingredient_units_system import IngredientUnitsSystem
 from codiet.models.flags.ingredient_flag import IngredientFlag
-from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
+from codiet.models.nutrients.ingredient_nutrient_quantity import (
+    IngredientNutrientQuantity,
+)
 
-# def make_ingredient(
-#     name:str, 
-#     description:str|None=None,
-#     unit_conversions:Collection[IngredientUnitConversion]|None=None,
-#     standard_unit:Unit|None=None,
-#     cost_value:float|None=None,
-#     cost_qty_unit:Unit|None=None,
-#     cost_qty_value:float|None=None,
-#     flags:Collection[IngredientFlag]|None=None,
-#     gi:float|None=None,
-#     nutrient_quantities:Collection[IngredientNutrientQuantity]|None=None,
-#     *args, **kwargs
-# ) -> Ingredient:
-#     """Factory function for creating ingredient instances."""
-#     return Ingredient(
-#         name=name,
-#         global_units=UnitDBService.units,
-#         global_unit_conversions=UnitDBService.global_unit_conversions,
-
-#     )
+if TYPE_CHECKING:
+    from codiet.db.database_service.unit_db_service import UnitDBService
 
 
 class Ingredient(StoredEntity):
     """Ingredient model."""
 
+    # Class-level attributes for global units and conversions
+    _global_units: IUC[Unit]
+    _global_unit_conversions: IUC[GlobalUnitConversion]
+
+    @classmethod
+    def initialise_class(cls, unit_db_service: "UnitDBService"):
+        """Initialize class-level attributes from UnitDBService."""
+        cls._global_units = unit_db_service.units
+        cls._global_unit_conversions = unit_db_service.global_unit_conversions
+
     def __init__(
-            self, 
-            name:str,
-            global_units: Collection[Unit],
-            global_unit_conversions: Collection[GlobalUnitConversion],   
-            description:str|None=None,
-            unit_conversions:Collection[IngredientUnitConversion]|None=None,
-            standard_unit:Unit|None=None,
-            cost_value:float|None=None,
-            cost_qty_unit:Unit|None=None,
-            cost_qty_value:float|None=None,
-            flags:Collection[IngredientFlag]|None=None,
-            gi:float|None=None,
-            nutrient_quantities:Collection[IngredientNutrientQuantity]|None=None,
-            *args, **kwargs
-        ):
-        """Initialises the class."""
+        self,
+        name: str,
+        description: str | None = None,
+        unit_conversions: Collection[IngredientUnitConversion] | None = None,
+        standard_unit: Unit | None = None,
+        cost_value: float | None = None,
+        cost_qty_unit: Unit | None = None,
+        cost_qty_value: float | None = None,
+        flag_ids: MUC[int] | None = None,
+        gi: float | None = None,
+        nutrient_quantity_ids: MUC[int] | None = None,
+        *args,
+        **kwargs,
+    ):
+        """Initializes the class."""
         super().__init__(*args, **kwargs)
-    
+
+        if self._global_units is None or self._global_unit_conversions is None:
+            raise RuntimeError(
+                "Ingredient class has not been initialized. Call Ingredient.initialize_class() first."
+            )
+
         self._name = name
         self._description = description
         self._unit_system = IngredientUnitsSystem(
             ingredient=self,
-            global_units=global_units,
-            global_unit_conversions=global_unit_conversions,
-            ingredient_unit_conversions=unit_conversions
+            global_units=Ingredient._global_units,
+            global_unit_conversions=Ingredient._global_unit_conversions,
+            ingredient_unit_conversions=unit_conversions,
         )
 
         # If the standard unit is not set, just use grams
@@ -69,9 +67,11 @@ class Ingredient(StoredEntity):
         else:
             # Check the standard unit is accessible
             if standard_unit not in self._unit_system.get_available_units():
-                raise ValueError(f"{standard_unit.unit_name} is not accessible in the unit system.")
+                raise ValueError(
+                    f"{standard_unit.unit_name} is not accessible in the unit system."
+                )
             self._standard_unit = standard_unit
-        
+
         self._cost_value = cost_value
 
         # If the cost quantity unit is not set, set it to the standard unit
@@ -80,19 +80,21 @@ class Ingredient(StoredEntity):
         else:
             # Check the cost quantity unit is accessible
             if cost_qty_unit not in self._unit_system.get_available_units():
-                raise ValueError(f"{cost_qty_unit.unit_name} is not accessible in the unit system.")
+                raise ValueError(
+                    f"{cost_qty_unit.unit_name} is not accessible in the unit system."
+                )
             self._cost_qty_unit = cost_qty_unit
 
         self._cost_qty_value = cost_qty_value
-        self._flags = MUC(flags) or MUC()
+        self._flags = MUC(flag_ids) or MUC()
         self._gi = gi
-        self._nutrient_quantities = MUC(nutrient_quantities) or MUC()
+        self._nutrient_quantities = MUC(nutrient_quantity_ids) or MUC()
 
     @property
     def name(self) -> str:
         """Returns the name."""
         return self._name
-    
+
     @name.setter
     def name(self, value: str) -> None:
         """Sets the name."""
@@ -104,7 +106,7 @@ class Ingredient(StoredEntity):
     def description(self) -> str | None:
         """Returns the description."""
         return self._description
-    
+
     @description.setter
     def description(self, value: str | None) -> None:
         """Sets the description."""
@@ -119,13 +121,13 @@ class Ingredient(StoredEntity):
     def standard_unit(self) -> Unit:
         """Returns the standard unit ID."""
         return self._standard_unit
-    
+
     @standard_unit.setter
     def standard_unit(self, value: Unit) -> None:
         """Sets the standard unit ID."""
         if value is None:
             raise ValueError("Standard unit cannot be empty.")
-        
+
         # Check the standard unit is accessible
         if value not in self._unit_system.get_available_units():
             raise ValueError(f"{value.unit_name} is not accessible in the unit system.")
@@ -136,7 +138,7 @@ class Ingredient(StoredEntity):
     def cost_value(self) -> float | None:
         """Returns the cost value."""
         return self._cost_value
-    
+
     @cost_value.setter
     def cost_value(self, value: float | None) -> None:
         """Sets the cost value."""
@@ -149,7 +151,7 @@ class Ingredient(StoredEntity):
     def cost_qty_unit(self) -> Unit:
         """Returns the cost quantity unit."""
         return self._cost_qty_unit
-    
+
     @cost_qty_unit.setter
     def cost_qty_unit(self, value: Unit) -> None:
         """Sets the cost quantity unit ID."""
@@ -163,7 +165,7 @@ class Ingredient(StoredEntity):
     def cost_qty_value(self) -> float | None:
         """Returns the cost quantity value."""
         return self._cost_qty_value
-    
+
     @cost_qty_value.setter
     def cost_qty_value(self, value: float | None) -> None:
         """Sets the cost quantity value."""
@@ -181,7 +183,7 @@ class Ingredient(StoredEntity):
     def gi(self) -> float | None:
         """Returns the GI."""
         return self._gi
-    
+
     @gi.setter
     def gi(self, value: float | None) -> None:
         """Sets the GI."""
@@ -201,15 +203,19 @@ class Ingredient(StoredEntity):
                 return flag
         raise KeyError(f"Flag {flag_name} not found in ingredient.")
 
-    def add_flags(self, flags: IngredientFlag|Collection[IngredientFlag]) -> None:
+    def add_flag(self, flag: IngredientFlag) -> None:
+        """Adds a flag."""
+        self._flags.add(flag)
+
+    def add_flags(self, flags: Collection[IngredientFlag]) -> None:
         """Adds flags."""
         self._flags.add(flags)
 
-    def update_flags(self, flags: IngredientFlag|Collection[IngredientFlag]) -> None:
+    def update_flags(self, flags: IngredientFlag | Collection[IngredientFlag]) -> None:
         """Updates the flags passed in the set."""
         self._flags.update(flags)
 
-    def remove_flags(self, flags: IngredientFlag|Collection[IngredientFlag]) -> None:
+    def remove_flags(self, flags: IngredientFlag | Collection[IngredientFlag]) -> None:
         """Deletes flags."""
         self._flags.remove(flags)
 
@@ -220,15 +226,34 @@ class Ingredient(StoredEntity):
                 return nutrient_quantity
         raise KeyError(f"Nutrient {nutrient_name} not found in ingredient.")
 
-    def add_nutrient_quantities(self, nutrient_quantities: IngredientNutrientQuantity|Collection[IngredientNutrientQuantity]) -> None:
+    def add_nutrient_quantity(
+        self, nutrient_quantity: IngredientNutrientQuantity
+    ) -> None:
+        """Adds a nutrient quantity."""
+        self._nutrient_quantities.add(nutrient_quantity)
+
+    def add_nutrient_quantities(
+        self,
+        nutrient_quantities: Collection[IngredientNutrientQuantity],
+    ) -> None:
         """Adds nutrient quantities."""
         self._nutrient_quantities.add(nutrient_quantities)
 
-    def update_nutrient_quantities(self, nutrient_quantities: IngredientNutrientQuantity|Collection[IngredientNutrientQuantity]) -> None:
+    def update_nutrient_quantities(
+        self,
+        nutrient_quantities: (
+            IngredientNutrientQuantity | Collection[IngredientNutrientQuantity]
+        ),
+    ) -> None:
         """Updates nutrient quantities."""
         self._nutrient_quantities.update(nutrient_quantities)
 
-    def remove_nutrient_quantities(self, nutrient_quantities: IngredientNutrientQuantity|Collection[IngredientNutrientQuantity]) -> None:
+    def remove_nutrient_quantities(
+        self,
+        nutrient_quantities: (
+            IngredientNutrientQuantity | Collection[IngredientNutrientQuantity]
+        ),
+    ) -> None:
         """Deletes nutrient quantities."""
         self._nutrient_quantities.remove(nutrient_quantities)
 

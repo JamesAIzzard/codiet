@@ -122,9 +122,9 @@ class NutrientDBService(DatabaseServiceBase):
         nutrient_quantity_id = self._repository.nutrients.create_ingredient_nutrient_quantity(
             ingredient_id=ing_nutr_qty.ingredient.id, # type: ignore 
             nutrient_id=ing_nutr_qty.nutrient.id, # type: ignore
-            nutrient_mass_unit_id=ing_nutr_qty.ntr_mass_unit.id, # type: ignore
-            nutrient_mass_value=ing_nutr_qty.ntr_mass_value,
-            ingredient_grams_qty=ing_nutr_qty.entity_grams_qty,
+            nutrient_mass_unit_id=ing_nutr_qty.nutrient_mass_unit.id, # type: ignore
+            nutrient_mass_value=ing_nutr_qty.nutrient_mass_value,
+            ingredient_grams_qty=ing_nutr_qty.ingredient_grams_qty,
         )
 
         # Populate the ID
@@ -198,9 +198,9 @@ class NutrientDBService(DatabaseServiceBase):
                 id=nutrient_qty_data["id"],
                 nutrient_id=nutrient_id,
                 entity_id=ingredient_id,
-                ntr_mass_value=nutrient_qty_data["ntr_mass_value"],
+                nutrient_mass_value=nutrient_qty_data["ntr_mass_value"],
                 ntr_mass_unit_id=nutrient_qty_data["ntr_mass_unit_id"],
-                ingredient_grams_qty=nutrient_qty_data["ing_grams_value"],
+                ingredient_grams_value=nutrient_qty_data["ing_grams_value"],
             )
         return nutrient_quantities
     

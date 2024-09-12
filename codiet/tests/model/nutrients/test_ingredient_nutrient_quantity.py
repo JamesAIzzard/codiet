@@ -37,14 +37,14 @@ class TestIngredientNutrientQuantity(TestCase):
         enq = IngredientNutrientQuantity(
             ingredient=self.ingredient,
             nutrient=self.named_global_nutrients.get_value('protein'),
-            ntr_mass_unit=self.named_global_units.get_value('gram'),
-            ntr_mass_value=10.0,
-            ingredient_grams_qty=100.0
+            nutrient_mass_unit=self.named_global_units.get_value('gram'),
+            nutrient_mass_value=10.0,
+            ingredient_grams_value=100.0
         )
         
         # Check the instance
         self.assertEqual(enq.ingredient, self.ingredient)
         self.assertEqual(enq.nutrient, self.named_global_nutrients.get_value('protein'))
-        self.assertEqual(enq.ntr_mass_unit, self.named_global_units.get_value('gram'))
-        self.assertEqual(enq.ntr_mass_value, 10.0)
-        self.assertEqual(enq.entity_grams_qty, 100.0)
+        self.assertEqual(enq.nutrient_mass_unit, self.named_global_units.get_value('gram'))
+        self.assertEqual(enq.nutrient_mass_value, 10.0)
+        self.assertEqual(enq.ingredient_grams_qty, 100.0)

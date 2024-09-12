@@ -24,7 +24,7 @@ class BaseUniqueCollection(ABC, Generic[T]):
     def __iter__(self):
         return iter(self._items)
 
-    def __contains__(self, item: T) -> bool:
+    def __contains__(self, item: object) -> bool:
         return item in self._items
 
     def __getitem__(self, index: int) -> T:

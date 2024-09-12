@@ -186,8 +186,8 @@ def _load_ingredient_nutrient_qty_from_json(
     # Create the ingredient nutrient quantity instance
     nutrient_qty = IngredientNutrientQuantity(
         nutrient_name=nutrient_name,
-        ntr_mass_value=nutrient_data["ntr_mass_value"],
-        ntr_mass_unit=nutrient_data["ntr_mass_unit"],
+        nutrient_mass_value=nutrient_data["ntr_mass_value"],
+        nutrient_mass_unit=nutrient_data["ntr_mass_unit"],
         ing_qty_value=nutrient_data["ing_qty_value"],
         ing_qty_unit=nutrient_data["ing_qty_unit"],
     )

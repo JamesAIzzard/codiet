@@ -1,49 +1,37 @@
-from typing import TYPE_CHECKING
+"""Defines the ingredient flag class."""
 
 from .flag import Flag
 
-if TYPE_CHECKING:
-    from codiet.models.ingredients.ingredient import Ingredient
-
 class IngredientFlag(Flag):
-    """Models a flag that is associated with an ingredient."""
+    """Extends the flag class to associate it with an ingredient."""
 
     def __init__(
             self,
-            ingredient: 'Ingredient',
-            flag: Flag,
-            flag_value: bool = False,
+            global_flag_id: int,
+            ingredient_id: int,
             *args, **kwargs
         ):
-        """Initialize the ingredient flag."""
-        super().__init__(flag_name=flag.flag_name, *args, **kwargs)
+        """Initialise the ingredient flag."""
+        super().__init__(*args, **kwargs)
         
-        self._ingredient = ingredient
-        self._flag = flag
-        self._flag_value = flag_value
+        self._global_flag_id = global_flag_id
+        self._ingredient_id = ingredient_id
 
     @property
-    def flag_value(self) -> bool:
-        """Get the value of the flag."""
-        return self._flag_value
+    def global_flag_id(self) -> int:
+        """Get the global flag ID."""
+        return self._global_flag_id
 
-    @flag_value.setter
+    @Flag.flag_value.setter
     def flag_value(self, value: bool):
         """Set the value of the flag with additional checks on the ingredient."""
+        
         # Perform any checks on the ingredient here
-        # For example:
-        # if self._ingredient.some_condition:
-        #     # Handle the condition
-        #     pass
 
-        self._flag_value = value
+        # Call flag value on the superclass
+        super().flag_value = value
 
     @property
-    def flag(self) -> Flag:
-        """Returns the flag associated with the ingredient flag."""
-        return self._flag
-
-    @property
-    def ingredient(self) -> 'Ingredient':
-        """Returns the ingredient associated with the flag."""
-        return self._ingredient
+    def ingredient_id(self) -> int:
+        """Returns the ingredient id associated with the flag."""
+        return self._ingredient_id

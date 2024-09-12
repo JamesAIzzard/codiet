@@ -8,7 +8,7 @@ class TestFlagRepository(DatabaseTestCase):
         self.flag_1_id = self.repository.flags.create_flag("Test Flag 1")
 
         # Create an ingredient
-        self.ingredient_id = self.repository.ingredients.create_ingredient("Test Ingredient")
+        self.ingredient_id = self.repository.ingredients.create_ingredient_base("Test Ingredient")
 
     def test_create_read_flag(self):
         """Check that we can create and read global flags."""

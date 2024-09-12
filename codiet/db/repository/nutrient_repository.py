@@ -1,3 +1,9 @@
+"""Nutrient repository module.
+Handles low level database operations associated with nutrients.
+"""
+
+from typing import Any
+
 from codiet.db.repository.repository_base import RepositoryBase
 
 class NutrientRepository(RepositoryBase):
@@ -135,21 +141,22 @@ class NutrientRepository(RepositoryBase):
             ]
 
         
-    def read_ingredient_nutrient_quantities(self, ingredient_id: int) -> list[dict]:
+    def read_ingredient_nutrient_quantities(self, ingredient_id: int) -> dict[int, dict[str, Any]]:
         """Reads all nutrient quantities for an ingredient.
         Args:
             ingredient_id (int): The ID of the ingredient.
         Returns:
-            list[dict]: A list of dictionaries containing the nutrient quantity data.
-                [
-                    {
-                        'ingredient_nutrient_id': int,
-                        'nutrient_id': int,
+            A dict of the nutrient quantities data, indexed by the UID for
+            each nutrient quantity.
+                {
+                    'ingredient_nutrient_id': {
+                        'global_nutrient_id': int,
                         'nutrient_mass_unit_id': int,
                         'nutrient_mass_value': float|None,
-                        'ingredient_grams_qty': float|None
+                        'ingredient_grams_value': float|None
                     },
-                ]
+                    ...
+                }
         """
         with self.get_cursor() as cursor:
             cursor.execute(
@@ -159,16 +166,15 @@ class NutrientRepository(RepositoryBase):
                 (ingredient_id,)
             )
             rows = cursor.fetchall()
-            return [
-                {
-                    'id': row[0],
-                    'nutrient_id': row[1],
+            return {
+                row[0]: {
+                    'global_nutrient_id': row[1],
                     'nutrient_mass_unit_id': row[2],
                     'nutrient_mass_value': row[3],
                     'ingredient_grams_qty': row[4]
                 }
                 for row in rows
-            ]
+            }
         
     def update_ingredient_nutrient_quantity(
                 self,

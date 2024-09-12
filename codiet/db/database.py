@@ -172,8 +172,8 @@ class Database:
             CREATE TABLE IF NOT EXISTS ingredient_flags (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 ingredient_id INTEGER,
-                flag_id INTEGER,
-                flag_value BOOLEAN NOT NULL,
+                global_flag_id INTEGER,
+                flag_value BOOLEAN NOT,
                 FOREIGN KEY (ingredient_id) REFERENCES ingredients(id),
                 FOREIGN KEY (flag_id) REFERENCES global_flags(id)
             )

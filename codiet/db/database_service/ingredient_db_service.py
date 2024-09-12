@@ -1,24 +1,21 @@
-from typing import TYPE_CHECKING
+from typing import Collection
 
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import pyqtSignal
 
-if TYPE_CHECKING:
-    from . import DatabaseService
-from ..repository import Repository
+from codiet.db.database_service.database_service_base import DatabaseServiceBase
 from codiet.utils.map import Map
 from codiet.models.ingredients.ingredient import Ingredient
+from codiet.models.flags.ingredient_flag import IngredientFlag
+from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
 
-class IngredientDBService(QObject):
+class IngredientDBService(DatabaseServiceBase):
     """Database service module responsible for handling ingredients."""
 
-    ingredientIDNameChanged = pyqtSignal(object)
+    ingredientIDNameChanged = pyqtSignal()
 
-    def __init__(self, db_service:'DatabaseService', repository:Repository):
+    def __init__(self, *args, **kwargs):
         """Initialise the ingredient database service."""
-        super().__init__()
-
-        self._db_service = db_service
-        self._repository = repository
+        super().__init__(*args, **kwargs)
 
         # Cache the ingredient id-name map
         self._ingredient_id_name_map: Map[int, str]|None = None
@@ -30,89 +27,108 @@ class IngredientDBService(QObject):
             self._cache_ingredient_name_id_map()
         return self._ingredient_id_name_map # type: ignore # checked in the property setter
 
-    def create_ingredient(self, ingredient: Ingredient) -> Ingredient:
+    def create_ingredient(self, ingredient: Ingredient, _signal:bool=True) -> Ingredient:
         """Creates an ingredient in the database.
-        Args:
-            ingredient (Ingredient): The ingredient to create.
         Returns:
-            Ingredient: The created ingredient.
+            Ingredient: The created ingredient, with the ID populated.
         """
-        # Insert the ingredient name into the database
+        # Check the ingredient name is set
         if ingredient.name is None:
             raise ValueError("Ingredient name must be set.")
-        ingredient.id = self._repository.create_ingredient_base(ingredient.name)
+        
+        # Check the ID is not set
+        if ingredient.id is not None:
+            raise ValueError("Ingredient cannot have a previously set ID.")
 
-        # Recache the ingredient name id map and emit the signal
-        self._cache_ingredient_name_id_map()
+        # Create the ingredient base
+        ingredient.id = self._repository.ingredients.create_ingredient_base(
+            ingredient_name=ingredient.name,
+            ingredient_description=ingredient.description,
+            ingredient_gi=ingredient.gi,
+            cost_value=ingredient.cost_value,
+            cost_qty_unit_id=ingredient.cost_qty_unit.id,
+            cost_qty_value=ingredient.cost_qty_value,
+            standard_unit_id=ingredient.standard_unit.id
+        )
 
-        # Now we have an id, we can use the update method
-        self.update_ingredient(ingredient)
+        if _signal:
+            self._cache_ingredient_name_id_map()
+            self.ingredientIDNameChanged.emit()
 
         return ingredient
 
-    def read_ingredient(self, ingredient_id: int) -> Ingredient:
-        """Returns the ingredient with the given name.
-        Args:
-            ingredient_id (int): The id of the ingredient.
-        Returns:
-            Ingredient: The ingredient with the given id.
-        """
+    def create_ingredients(self, ingredients: Collection[Ingredient]) -> None:
+        """Creates multiple ingredients in the database."""
+        for ingredient in ingredients:
+            self.create_ingredient(ingredient, _signal=False)
+        self._cache_ingredient_name_id_map()
+        self.ingredientIDNameChanged.emit()
 
+    def read_ingredient_from_id(self, ingredient_id: int) -> Ingredient:
+        """Returns the ingredient with the given name."""
 
-        # Fetch the ingredient name corresponding to the id
-        ingredient_name = self._repository.read_ingredient_name(ingredient_id)
+        # Read the ingredient base
+        ingredient_base_data = self._repository.ingredients.read_ingredient_base(ingredient_id)
 
         # Init a fresh ingredient instance
         ingredient = Ingredient(
-            id=ingredient_id,
-            name=ingredient_name
+            id=ingredient_base_data["id"],
+            name=ingredient_base_data["name"],
+            description=ingredient_base_data["description"],
+            gi=ingredient_base_data["gi"],
+            cost_value=ingredient_base_data["cost_value"],
+            cost_qty_unit_id=ingredient_base_data["cost_qty_unit_id"],
+            cost_qty_value=ingredient_base_data["cost_qty_value"],
+            standard_unit_id=ingredient_base_data["standard_unit_id"]
         )
 
-        # Fetch the description
-        ingredient.description = self._repository.read_ingredient_description(
-            ingredient_id
-        )
+        # Fetch and add the flags
+        flags_data = self._repository.flags.read_ingredient_flags(ingredient_id)
+        
+        for ingredient_flag_id, flag_data in flags_data.items():
 
-        # Fetch the ingredient standard id
-        standard_unit_id = self._repository.read_ingredient_standard_unit_id(
-            ingredient_id
-        )
-        ingredient.standard_unit_id = standard_unit_id
+            # Create the flag
+            flag = IngredientFlag(
+                id=ingredient_flag_id,
+                global_flag_id=flag_data["global_flag_id"],
+                ingredient_id=ingredient_id,
+                flag_name=self._db_service.flags.flag_id_name_map.get_value(flag_data["global_flag_id"]),
+                flag_value=flag_data["flag_value"]
+            )
 
-        # Fetch the cost data
-        cost_data = self._repository.read_ingredient_cost(ingredient_id)
-        # If the cost qty unit id is not set, set it to the standard unit id
-        if cost_data["cost_qty_unit_id"] is None:
-            cost_data["cost_qty_unit_id"] = standard_unit_id
-        # Populate the cost data
-        ingredient.cost_value = cost_data["cost_value"]
-        ingredient.cost_qty_unit_id = cost_data["cost_qty_unit_id"]
-        ingredient.cost_qty_value = cost_data["cost_qty_value"]
+            # Add the flag to the ingredient
+            ingredient.add_flag(flag)
 
-        # Fetch the unit conversions
-        unit_conversions = self._db_service.units.read_ingredient_unit_conversions(
-            ingredient_id=ingredient_id
-        )
-        for _, conversion in unit_conversions.items():
-            ingredient.add_unit_conversion(conversion)
+        # Fetch and add the nutrients
+        nutrient_quantities_data = self._repository.nutrients.read_ingredient_nutrient_quantities(ingredient_id)
 
-        # Fetch the flags
-        flags = self._repository.read_ingredient_flags(ingredient_id)
-        for flag_id, flag_value in flags.items():
-            ingredient.add_flag(flag_id, flag_value)
-
-        # Fetch the GI
-        ingredient.gi = self._repository.read_ingredient_gi(ingredient_id)
-
-        # Fetch the nutrients
-        nutrient_quantities = self._db_service.read_ingredient_nutrient_quantities(
-            ingredient_id=ingredient_id
-        )
-        for _, nutrient_quantity in nutrient_quantities.items():
-            ingredient.add_nutrient_quantity(nutrient_quantity)
+        for nutrient_quantity_id, nutrient_quantity_data in nutrient_quantities_data.items():
+                
+                # Create the nutrient quantity
+                nutrient_quantity = IngredientNutrientQuantity(
+                    id=nutrient_quantity_id,
+                    nutrient=self._db_service.nutrients.get_nutrient_by_id(nutrient_quantity_data["global_nutrient_id"]),
+                    ingredient=ingredient,
+                    nutrient_mass_unit=self._db_service.units.get_unit_by_id(nutrient_quantity_data["ntr_mass_unit_id"]),
+                    nutrient_mass_value=nutrient_quantity_data["nutrient_mass_value"],
+                    ingredient_grams_value=nutrient_quantity_data["ingredient_grams_value"]
+                )
+    
+                # Add the nutrient quantity to the ingredient
+                ingredient.add_nutrient_quantity(nutrient_quantity)
 
         # Return the completed ingredient
         return ingredient
+
+    def read_ingredient_from_name(self, ingredient_name: str) -> Ingredient:
+        """Returns the ingredient with the given name."""
+        # Get the ID of the ingredient
+        ingredient_id = self.ingredient_id_name_map.get_key(ingredient_name)
+        return self.read_ingredient_from_id(ingredient_id)
+
+    def read_ingredient_flags(self, ingredient_id: int) -> IUC[IngredientFlag]:
+        """Returns the flags for the ingredient."""
+        return self._repository.ingredients.read_ingredient_flags(ingredient_id)
 
     def update_ingredient_name(self, ingredient_id: int, new_name: str) -> None:
         """Updates the name of the ingredient in the database.
@@ -264,25 +280,19 @@ class IngredientDBService(QObject):
         self._cache_ingredient_name_id_map()
 
     def _cache_ingredient_name_id_map(self) -> None:
-        """Re(generates) the cached ingredient ID to name map
-        Emits the signal for the ingredient ID to name map change.
-
-        Returns:
-            Map: A map associating ingredient ID's with names.
+        """Re(generates) the cached ingredient ID to name map.
+        We clear the map instead of recreating so we don't break any references.
         """
-        # If the map is None, create a new one
+        # If the map does not exist yet, create it
         if self._ingredient_id_name_map is None:
             self._ingredient_id_name_map = Map[int, str](one_to_one=True)
 
         # Fetch all the ingredients
-        ingredients = self._repository.read_all_ingredient_names()
+        ingredients = self._repository.ingredients.read_all_ingredient_names()
 
-        # Clear the map
+        # Clear the existing map
         self._ingredient_id_name_map.clear()
 
         # Add each ingredient to the map
         for ingredient_id, ingredient_name in ingredients.items():
-            self._ingredient_id_name_map.add_mapping(key=ingredient_id, value=ingredient_name)
-
-        # Emit the signal
-        self.ingredientIDNameChanged.emit(self._ingredient_id_name_map)           
+            self._ingredient_id_name_map.add_mapping(key=ingredient_id, value=ingredient_name)          
