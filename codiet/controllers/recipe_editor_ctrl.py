@@ -12,7 +12,7 @@ from codiet.utils.time import (
 )
 from codiet.utils.strings import convert_to_snake_case
 from codiet.utils.recipes import convert_recipe_to_json, save_recipe_datafile, recipe_datafile_exists
-from codiet.models.ingredients.ingredient_quantity import IngredientQuantity
+from codiet.model.ingredients.ingredient_quantity import IngredientQuantity
 from codiet.views.recipe_editor_view import RecipeEditorView
 from codiet.views.time_interval_popup_view import TimeIntervalPopupView
 from codiet.views.tags import RecipeTagSelectorPopup

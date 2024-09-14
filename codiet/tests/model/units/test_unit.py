@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from codiet.models.units.unit import Unit
+from codiet.model.units.unit import Unit
 
 class TestUnit(TestCase):
     

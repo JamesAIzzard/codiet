@@ -1,8 +1,11 @@
 """Test fixtures for the units module."""
+from typing import TYPE_CHECKING
 
-from codiet.db.database_service import DatabaseService
-from codiet.models.units.unit import Unit
-from codiet.models.units.unit_conversion import GlobalUnitConversion
+from codiet.model.units.unit import Unit
+from codiet.model.units.unit_conversion import GlobalUnitConversion
+
+if TYPE_CHECKING:
+    from codiet.db.database_service import DatabaseService
 
 class UnitsTestFixtures:
     """Test fixtures for the units module.
@@ -10,38 +13,41 @@ class UnitsTestFixtures:
     provides various methods to create test units and unit conversions.
     """
 
-    def __init__(self, db_service:DatabaseService) -> None:
-        self._db_service = db_service
-        self._test_units:dict[str, Unit]|None = None
-        self._test_units_setup:bool = False
-        self._test_global_unit_conversions:dict[str, GlobalUnitConversion]|None = None
-        self._test_global_unit_conversions_setup:bool = False
+    def __init__(self) -> None:
+        self._units:dict[str, Unit]|None = None
+        self._database_units_setup:bool = False
+        self._global_unit_conversions:dict[str, GlobalUnitConversion]|None = None
+        self._database_global_unit_conversions_setup:bool = False
 
     @property
-    def test_units(self) -> dict[str, Unit]:
+    def units(self) -> dict[str, Unit]:
         """Returns the test units."""
-        if self._test_units is None:
-            self._test_units = self._create_test_units()
-        return self._test_units
+        if self._units is None:
+            self._units = self._create_test_units()
+        return self._units
     
     @property
-    def test_global_unit_conversions(self) -> dict[str, GlobalUnitConversion]:
+    def global_unit_conversions(self) -> dict[str, GlobalUnitConversion]:
         """Returns the test global unit conversions."""
-        if self._test_global_unit_conversions is None:
-            self._test_global_unit_conversions = self._create_test_global_unit_conversions()
-        return self._test_global_unit_conversions
+        if self._global_unit_conversions is None:
+            self._global_unit_conversions = self._create_test_global_unit_conversions()
+        return self._global_unit_conversions
 
-    def setup_test_units(self) -> None:
+    def get_unit_by_name(self, unit_name:str) -> Unit:
+        """Returns a unit by name."""
+        return self.units[unit_name]
+
+    def setup_database_units(self, db_service:'DatabaseService') -> None:
         """Sets up the test units in the database."""
-        self._db_service.units.create_units(self.test_units.values())
-        self._test_units_setup = True
+        db_service.units.create_units(self.units.values())
+        self._database_units_setup = True
 
-    def setup_test_global_unit_conversions(self) -> None:
+    def setup_database_global_unit_conversions(self, db_service:'DatabaseService') -> None:
         """Sets up the test global unit conversions in the database."""
-        if not self._test_units_setup:
-            self.setup_test_units()
-        self._db_service.units.create_global_unit_conversions(self.test_global_unit_conversions.values())
-        self._test_global_unit_conversions_setup = True
+        if not self._database_units_setup:
+            self.setup_database_units(db_service=db_service)
+        db_service.units.create_global_unit_conversions(self.global_unit_conversions.values())
+        self._database_global_unit_conversions_setup = True
 
     def _create_test_units(self) -> dict[str, Unit]:
         """Instantiates a dictionary of units for testing purposes."""
@@ -82,14 +88,14 @@ class UnitsTestFixtures:
         """Instantiates a dictionary of global unit conversions for testing purposes."""
         return {
             "millilitre-litre": GlobalUnitConversion(
-                from_unit=self.test_units["millilitre"],
-                to_unit=self.test_units["litre"],
+                from_unit=self.units["millilitre"],
+                to_unit=self.units["litre"],
                 from_unit_qty=1000,
                 to_unit_qty=1
             ),
             "gram-kilogram": GlobalUnitConversion(
-                from_unit=self.test_units["gram"],
-                to_unit=self.test_units["kilogram"],
+                from_unit=self.units["gram"],
+                to_unit=self.units["kilogram"],
                 from_unit_qty=1000,
                 to_unit_qty=1
             ),

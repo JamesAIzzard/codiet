@@ -3,9 +3,9 @@ from unittest.mock import Mock
 from codiet.tests.db.database_test_case import DatabaseTestCase
 from codiet.tests.fixtures.units_test_fixtures import UnitsTestFixtures
 from codiet.tests.fixtures.nutrient_test_fixtures import NutrientTestFixtures
-from codiet.models.nutrients.nutrient import Nutrient
-from codiet.models.ingredients.ingredient import Ingredient
-from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
+from codiet.model.nutrients.nutrient import Nutrient
+from codiet.model.ingredients.ingredient import Ingredient
+from codiet.model.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
 
 class TestNutrientDBService(DatabaseTestCase):
 

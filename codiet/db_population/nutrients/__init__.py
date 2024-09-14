@@ -3,7 +3,7 @@ import os
 from typing import Any
 
 from codiet.utils.map import Map
-from codiet.models.nutrients.nutrient import Nutrient
+from codiet.model.nutrients.nutrient import Nutrient
 
 GLOBAL_NUTRIENTS_FILENAME = 'global_nutrients.json'
 GLOBAL_NUTRIENTS_FILEPATH = os.path.join(os.path.dirname(__file__), GLOBAL_NUTRIENTS_FILENAME)

@@ -5,9 +5,9 @@ from codiet.db_population.units import (
     read_global_unit_conversions_from_json,
     name_unit_map,
 )
-from codiet.models.ingredients.ingredient import Ingredient
-from codiet.models.ingredients.ingredient_quantity import IngredientQuantity
-from codiet.models.recipes.recipe import Recipe
+from codiet.model.ingredients.ingredient import Ingredient
+from codiet.model.ingredients.ingredient_quantity import IngredientQuantity
+from codiet.model.recipes.recipe import Recipe
 
 
 class TestIngredientQuantity(unittest.TestCase):

@@ -3,7 +3,7 @@ from typing import Callable
 from PyQt6.QtCore import pyqtSignal, QVariant, QObject
 from PyQt6.QtWidgets import QWidget
 
-from codiet.models.units.unit import Unit
+from codiet.model.units.unit import Unit
 from codiet.views.cost_editor_view import CostEditorView
 
 

@@ -6,10 +6,10 @@ from codiet.db.database_service.database_service_base import DatabaseServiceBase
 from codiet.utils.map import Map
 from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 from codiet.utils.unique_collection import MutableUniqueCollection as MUC
-from codiet.models.flags.flag import Flag
-from codiet.models.flags.ingredient_flag import IngredientFlag
+from codiet.model.flags.flag import Flag
+from codiet.model.flags.ingredient_flag import IngredientFlag
 if TYPE_CHECKING:
-    from codiet.models.ingredients.ingredient import Ingredient
+    from codiet.model.ingredients.ingredient import Ingredient
 
 class FlagDBService(DatabaseServiceBase):
     """Database service module for flags."""

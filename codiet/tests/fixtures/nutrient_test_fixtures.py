@@ -1,7 +1,7 @@
 """Test fixtures for tests requiring nutrient instances."""
 
 from codiet.db.database_service import DatabaseService
-from codiet.models.nutrients.nutrient import Nutrient
+from codiet.model.nutrients.nutrient import Nutrient
 
 class NutrientTestFixtures:
     """Test fixtures class for nutrients."""

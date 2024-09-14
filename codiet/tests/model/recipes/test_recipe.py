@@ -5,10 +5,10 @@ from codiet.db_population.flags import read_global_flags_from_json, global_name_
 from codiet.db_population.units import read_units_from_json, read_global_unit_conversions_from_json, name_unit_map
 from codiet.db_population.nutrients import read_global_nutrients_from_json, global_name_nutrient_map
 from codiet.db_population.tags import read_global_tags_from_json
-from codiet.models.ingredients.ingredient import Ingredient
-from codiet.models.ingredients.ingredient_quantity import IngredientQuantity
-from codiet.models.recipes.recipe import Recipe
-from codiet.models.time.recipe_serve_time_window import RecipeServeTimeWindow
+from codiet.model.ingredients.ingredient import Ingredient
+from codiet.model.ingredients.ingredient_quantity import IngredientQuantity
+from codiet.model.recipes.recipe import Recipe
+from codiet.model.time.recipe_serve_time_window import RecipeServeTimeWindow
 
 class TestRecipe(unittest.TestCase):
     def setUp(self) -> None:

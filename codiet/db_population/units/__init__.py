@@ -3,8 +3,8 @@ import json
 from typing import Dict, Any, Collection
 
 from codiet.utils.map import Map
-from codiet.models.units.unit import Unit
-from codiet.models.units.unit_conversion import GlobalUnitConversion
+from codiet.model.units.unit import Unit
+from codiet.model.units.unit_conversion import GlobalUnitConversion
 
 UNITS_FILENAME = "global_units.json"
 UNITS_FILEPATH = os.path.join(os.path.dirname(__file__), UNITS_FILENAME)

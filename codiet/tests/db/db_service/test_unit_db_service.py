@@ -4,7 +4,7 @@ import unittest
 
 from codiet.tests.db.database_test_case import DatabaseTestCase
 from codiet.tests.fixtures.units_test_fixtures import UnitsTestFixtures
-from codiet.models.units.unit import Unit
+from codiet.model.units.unit import Unit
 
 
 class TestUnitDBService(DatabaseTestCase):
@@ -19,27 +19,27 @@ class TestUnitDBService(DatabaseTestCase):
 
     def test_unit_id_name_map(self):
         """Checks that the unit ID to name map contains the correct entries."""
-        self.units_fixtures.setup_test_units()
+        self.units_fixtures.setup_database_units()
 
         # Check the length of the map is the same as the number of units
         self.assertEqual(
             len(self.db_service.units.unit_id_name_map),
-            len(self.units_fixtures.test_units),
+            len(self.units_fixtures.units),
         )
 
         # Check that the id-name in the dict matches the map
-        for unit in self.units_fixtures.test_units.values():
+        for unit in self.units_fixtures.units.values():
             self.assertEqual(self.db_service.units.unit_id_name_map.get_value(unit.id), unit.unit_name)  # type: ignore
 
     def test_unit_id_name_map_updates_when_new_unit_created(self):
         """Checks that the unit ID to name map updates when a new unit is created."""
-        self.db_service.units.create_units(self.units_fixtures.test_units.values())
+        self.db_service.units.create_units(self.units_fixtures.units.values())
 
         # Check the length of the map is the same as the number of units
         original_length = len(self.db_service.units.unit_id_name_map)
         self.assertEqual(
             len(self.db_service.units.unit_id_name_map),
-            len(self.units_fixtures.test_units),
+            len(self.units_fixtures.units),
         )
 
         # Create a new unit and add it to the database
@@ -62,32 +62,32 @@ class TestUnitDBService(DatabaseTestCase):
 
     def test_units_property(self):
         """Checks that the units property returns the correct units."""
-        self.units_fixtures.setup_test_units()
+        self.units_fixtures.setup_database_units()
 
         # Check the property returns the correct units
         self.assertEqual(
-            len(self.db_service.units.units), len(self.units_fixtures.test_units)
+            len(self.db_service.units.units), len(self.units_fixtures.units)
         )
-        for unit in self.units_fixtures.test_units.values():
+        for unit in self.units_fixtures.units.values():
             self.assertIn(unit, self.db_service.units.units)
 
     def test_gram_unit_property(self):
         """Checks that the gram unit property returns the correct unit."""
-        self.units_fixtures.setup_test_units()
+        self.units_fixtures.setup_database_units()
 
         # Check the gram unit is accessible
         self.assertEqual(
-            self.db_service.units.gram, self.units_fixtures.test_units["gram"]
+            self.db_service.units.gram, self.units_fixtures.units["gram"]
         )
 
     def test_mass_units(self):
         """Checks that the mass units property returns the correct units."""
-        self.units_fixtures.setup_test_units()
+        self.units_fixtures.setup_database_units()
 
         # Count the number of units with mass type
         mass_units = [
             unit
-            for unit in self.units_fixtures.test_units.values()
+            for unit in self.units_fixtures.units.values()
             if unit.type == "mass"
         ]
         self.assertEqual(len(mass_units), len(self.db_service.units.mass_units))
@@ -98,12 +98,12 @@ class TestUnitDBService(DatabaseTestCase):
 
     def test_volume_units(self):
         """Checks that the volume units property returns the correct units."""
-        self.units_fixtures.setup_test_units()
+        self.units_fixtures.setup_database_units()
 
         # Count the number of units with volume type
         volume_units = [
             unit
-            for unit in self.units_fixtures.test_units.values()
+            for unit in self.units_fixtures.units.values()
             if unit.type == "volume"
         ]
         self.assertEqual(len(volume_units), len(self.db_service.units.volume_units))
@@ -114,12 +114,12 @@ class TestUnitDBService(DatabaseTestCase):
 
     def test_grouping_units(self):
         """Checks that the group units property returns the correct units."""
-        self.units_fixtures.setup_test_units()
+        self.units_fixtures.setup_database_units()
 
         # Count the number of units with grouping type
         group_units = [
             unit
-            for unit in self.units_fixtures.test_units.values()
+            for unit in self.units_fixtures.units.values()
             if unit.type == "grouping"
         ]
         self.assertEqual(len(group_units), len(self.db_service.units.grouping_units))
@@ -131,142 +131,142 @@ class TestUnitDBService(DatabaseTestCase):
     def test_global_unit_conversions_property(self):
         """Checks that the global unit conversions property is returning the
         correct unit conversions."""
-        self.units_fixtures.setup_test_global_unit_conversions()
+        self.units_fixtures.setup_database_global_unit_conversions()
 
         # Check the property returns the correct unit conversions
         self.assertEqual(
             len(self.db_service.units.global_unit_conversions),
-            len(self.units_fixtures.test_global_unit_conversions),
+            len(self.units_fixtures.global_unit_conversions),
         )
         for (
             unit_conversion
-        ) in self.units_fixtures.test_global_unit_conversions.values():
+        ) in self.units_fixtures.global_unit_conversions.values():
             self.assertIn(
                 unit_conversion, self.db_service.units.global_unit_conversions
             )
 
     def test_get_unit_by_name(self):
         """Check that we can fetch a single unit by its name."""
-        self.units_fixtures.setup_test_units()
+        self.units_fixtures.setup_database_units()
 
         # Check that we can fetch the kilogram unit, and that it is the correct instance.
         kg_unit = self.db_service.units.get_unit_by_name("kilogram")
-        self.assertEqual(kg_unit, self.units_fixtures.test_units["kilogram"])
+        self.assertEqual(kg_unit, self.units_fixtures.units["kilogram"])
 
     def test_get_units_by_name(self):
         """Checks that we can get multiple units by their names."""
-        self.units_fixtures.setup_test_units()
+        self.units_fixtures.setup_database_units()
 
         # Check that we can fetch the kilogram and gram units, and that they are the correct instances.
         kg_unit, g_unit = self.db_service.units.get_units_by_name(("kilogram", "gram"))
-        self.assertEqual(kg_unit, self.units_fixtures.test_units["kilogram"])
-        self.assertEqual(g_unit, self.units_fixtures.test_units["gram"])
+        self.assertEqual(kg_unit, self.units_fixtures.units["kilogram"])
+        self.assertEqual(g_unit, self.units_fixtures.units["gram"])
 
     def test_get_unit_by_id(self):
         """Checks that we can get a single unit by its ID."""
-        self.units_fixtures.setup_test_units()
+        self.units_fixtures.setup_database_units()
 
         # Check that we can fetch the kilogram unit by its ID, and that it is the correct instance.
-        kg_unit = self.db_service.units.get_unit_by_id(self.units_fixtures.test_units["kilogram"].id)  # type: ignore
-        self.assertEqual(kg_unit, self.units_fixtures.test_units["kilogram"])
+        kg_unit = self.db_service.units.get_unit_by_id(self.units_fixtures.units["kilogram"].id)  # type: ignore
+        self.assertEqual(kg_unit, self.units_fixtures.units["kilogram"])
 
     def test_get_units_by_id(self):
         """Checks that we can get multiple units by their IDs."""
-        self.units_fixtures.setup_test_units()
+        self.units_fixtures.setup_database_units()
 
         # Check that we can fetch the kilogram and gram units by their IDs, and that they are the correct instances.
         kg_unit, g_unit = self.db_service.units.get_units_by_id(
-            (self.units_fixtures.test_units["kilogram"].id, self.units_fixtures.test_units["gram"].id)  # type: ignore
+            (self.units_fixtures.units["kilogram"].id, self.units_fixtures.units["gram"].id)  # type: ignore
         )
-        self.assertEqual(kg_unit, self.units_fixtures.test_units["kilogram"])
-        self.assertEqual(g_unit, self.units_fixtures.test_units["gram"])
+        self.assertEqual(kg_unit, self.units_fixtures.units["kilogram"])
+        self.assertEqual(g_unit, self.units_fixtures.units["gram"])
 
     def test_get_global_unit_conversion_by_units(self):
         """Checks that we can get a single unit conversion by referring to the units.
         The identity of a unit conversion is independent of the order in which the units
         are quoted, so we test both ways round.
         """
-        self.units_fixtures.setup_test_global_unit_conversions()
+        self.units_fixtures.setup_database_global_unit_conversions()
 
         # Check that we can fetch the conversion by referring to the units
         gram_kilogram_uc = self.db_service.units.get_global_unit_conversion_by_units(
-            self.units_fixtures.test_units["gram"],
-            self.units_fixtures.test_units["kilogram"],
+            self.units_fixtures.units["gram"],
+            self.units_fixtures.units["kilogram"],
         )
         self.assertEqual(
             gram_kilogram_uc,
-            self.units_fixtures.test_global_unit_conversions["gram-kilogram"],
+            self.units_fixtures.global_unit_conversions["gram-kilogram"],
         )
 
         # Check that we can fetch the conversion by referring to the units in reverse
         gram_kilogram_uc = self.db_service.units.get_global_unit_conversion_by_units(
-            self.units_fixtures.test_units["kilogram"],
-            self.units_fixtures.test_units["gram"],
+            self.units_fixtures.units["kilogram"],
+            self.units_fixtures.units["gram"],
         )
         self.assertEqual(
             gram_kilogram_uc,
-            self.units_fixtures.test_global_unit_conversions["gram-kilogram"],
+            self.units_fixtures.global_unit_conversions["gram-kilogram"],
         )
 
     def test_get_global_unit_conversions_by_units(self):
         """Checks that we can get multiple unit conversions by units."""
-        self.units_fixtures.setup_test_global_unit_conversions()
+        self.units_fixtures.setup_database_global_unit_conversions()
 
         # Check that we can fetch the conversions by referring to the units
         gram_kilogram_uc, millilitre_litre_uc = (
             self.db_service.units.get_global_unit_conversions_by_units(
                 [
                     (
-                        self.units_fixtures.test_units["gram"],
-                        self.units_fixtures.test_units["kilogram"],
+                        self.units_fixtures.units["gram"],
+                        self.units_fixtures.units["kilogram"],
                     ),
                     (
-                        self.units_fixtures.test_units["millilitre"],
-                        self.units_fixtures.test_units["litre"],
+                        self.units_fixtures.units["millilitre"],
+                        self.units_fixtures.units["litre"],
                     ),
                 ]
             )
         )
         self.assertEqual(
             gram_kilogram_uc,
-            self.units_fixtures.test_global_unit_conversions["gram-kilogram"],
+            self.units_fixtures.global_unit_conversions["gram-kilogram"],
         )
         self.assertEqual(
             millilitre_litre_uc,
-            self.units_fixtures.test_global_unit_conversions["millilitre-litre"],
+            self.units_fixtures.global_unit_conversions["millilitre-litre"],
         )
 
     def test_get_global_unit_conversion_by_id(self):
         """Checks that we can get a single unit conversion by its ID."""
-        self.units_fixtures.setup_test_global_unit_conversions()
+        self.units_fixtures.setup_database_global_unit_conversions()
 
         # Check that we can fetch the conversion by its ID
         gram_kilogram_uc = self.db_service.units.get_global_unit_conversion_by_id(
-            self.units_fixtures.test_global_unit_conversions["gram-kilogram"].id  # type: ignore
+            self.units_fixtures.global_unit_conversions["gram-kilogram"].id  # type: ignore
         )
         self.assertEqual(
             gram_kilogram_uc,
-            self.units_fixtures.test_global_unit_conversions["gram-kilogram"],
+            self.units_fixtures.global_unit_conversions["gram-kilogram"],
         )
 
     def test_get_global_unit_conversions_by_id(self):
         """Checks that we can get multiple unit conversions by their IDs."""
-        self.units_fixtures.setup_test_global_unit_conversions()
+        self.units_fixtures.setup_database_global_unit_conversions()
 
         # Check that we can fetch the conversions by their IDs
         (
             gram_kilogram_uc,
             millilitre_litre_uc,
         ) = self.db_service.units.get_global_unit_conversions_by_id(
-            (self.units_fixtures.test_global_unit_conversions["gram-kilogram"].id, self.units_fixtures.test_global_unit_conversions["millilitre-litre"].id)  # type: ignore
+            (self.units_fixtures.global_unit_conversions["gram-kilogram"].id, self.units_fixtures.global_unit_conversions["millilitre-litre"].id)  # type: ignore
         )
         self.assertEqual(
             gram_kilogram_uc,
-            self.units_fixtures.test_global_unit_conversions["gram-kilogram"],
+            self.units_fixtures.global_unit_conversions["gram-kilogram"],
         )
         self.assertEqual(
             millilitre_litre_uc,
-            self.units_fixtures.test_global_unit_conversions["millilitre-litre"],
+            self.units_fixtures.global_unit_conversions["millilitre-litre"],
         )
 
     def test_create_unit(self):
@@ -279,36 +279,36 @@ class TestUnitDBService(DatabaseTestCase):
 
     def test_create_global_unit_conversion(self):
         """Check that we can create a single global unit conversion in the database."""
-        self.units_fixtures.setup_test_global_unit_conversions()
+        self.units_fixtures.setup_database_global_unit_conversions()
 
         # Check that the unit conversion is in the database
         gram_kilogram_uc = self.db_service.units.get_global_unit_conversion_by_units(
-            self.units_fixtures.test_units["gram"],
-            self.units_fixtures.test_units["kilogram"],
+            self.units_fixtures.units["gram"],
+            self.units_fixtures.units["kilogram"],
         )
-        self.assertEqual(gram_kilogram_uc, self.units_fixtures.test_global_unit_conversions["gram-kilogram"])
+        self.assertEqual(gram_kilogram_uc, self.units_fixtures.global_unit_conversions["gram-kilogram"])
 
     def test_create_global_unit_conversions(self):
         """Check that we can create multiple global unit conversions in the database."""
-        self.units_fixtures.setup_test_global_unit_conversions()
+        self.units_fixtures.setup_database_global_unit_conversions()
 
         # Check that the unit conversions are in the database
         gram_kilogram_uc, millilitre_litre_uc = (
             self.db_service.units.get_global_unit_conversions_by_units(
                 [
                     (
-                        self.units_fixtures.test_units["gram"],
-                        self.units_fixtures.test_units["kilogram"],
+                        self.units_fixtures.units["gram"],
+                        self.units_fixtures.units["kilogram"],
                     ),
                     (
-                        self.units_fixtures.test_units["millilitre"],
-                        self.units_fixtures.test_units["litre"],
+                        self.units_fixtures.units["millilitre"],
+                        self.units_fixtures.units["litre"],
                     ),
                 ]
             )
         )
-        self.assertEqual(gram_kilogram_uc, self.units_fixtures.test_global_unit_conversions["gram-kilogram"])
-        self.assertEqual(millilitre_litre_uc, self.units_fixtures.test_global_unit_conversions["millilitre-litre"])
+        self.assertEqual(gram_kilogram_uc, self.units_fixtures.global_unit_conversions["gram-kilogram"])
+        self.assertEqual(millilitre_litre_uc, self.units_fixtures.global_unit_conversions["millilitre-litre"])
 
     @unittest.skip("Not yet implemented")
     def test_create_ingredient_unit_conversion(self):
@@ -322,23 +322,23 @@ class TestUnitDBService(DatabaseTestCase):
 
     def test_read_all_units(self):
         """Check we can get the correct collection of all units from the database."""
-        self.units_fixtures.setup_test_units()
+        self.units_fixtures.setup_database_units()
 
         # Read the units from the database
         units = self.db_service.units.read_all_units()
 
         # Check that the units are the same
-        self.assertCountEqual(units, self.units_fixtures.test_units.values())
+        self.assertCountEqual(units, self.units_fixtures.units.values())
 
     def test_read_all_global_unit_conversions(self):
         """Check we can get the correct collection of global unit conversions from the database."""
-        self.units_fixtures.setup_test_global_unit_conversions()
+        self.units_fixtures.setup_database_global_unit_conversions()
 
         # Read the unit conversions from the database
         unit_conversions = self.db_service.units.read_all_global_unit_conversions()
 
         # Check that the unit conversions are the same
-        self.assertCountEqual(unit_conversions, self.units_fixtures.test_global_unit_conversions.values())
+        self.assertCountEqual(unit_conversions, self.units_fixtures.global_unit_conversions.values())
 
     @unittest.skip("Not yet implemented")
     def test_read_ingredient_unit_conversions(self):
@@ -347,7 +347,7 @@ class TestUnitDBService(DatabaseTestCase):
 
     def test_update_unit(self):
         """Check that we can update a single existing unit in the database."""
-        self.units_fixtures.setup_test_units()
+        self.units_fixtures.setup_database_units()
 
         # Grab the kilogram unit and check its properties
         kg_unit = self.db_service.units.get_unit_by_name("kilogram")
@@ -378,7 +378,7 @@ class TestUnitDBService(DatabaseTestCase):
 
     def test_update_units(self):
         """Check that we can update multiple existing units in the database."""
-        self.units_fixtures.setup_test_units()
+        self.units_fixtures.setup_database_units()
 
         # Grab the kilogram and gram units and check their properties
         kg_unit, g_unit = self.db_service.units.get_units_by_name(("kilogram", "gram"))
@@ -428,12 +428,12 @@ class TestUnitDBService(DatabaseTestCase):
 
     def test_update_global_unit_conversion(self):
         """Check that we can update a global unit conversion in the database."""
-        self.units_fixtures.setup_test_global_unit_conversions()
+        self.units_fixtures.setup_database_global_unit_conversions()
 
         # Grab the gram-kilogram unit conversion and check its properties
         gram_kilogram_uc = self.db_service.units.get_global_unit_conversion_by_units(
-            self.units_fixtures.test_units["gram"],
-            self.units_fixtures.test_units["kilogram"],
+            self.units_fixtures.units["gram"],
+            self.units_fixtures.units["kilogram"],
         )
         self.assertEqual(gram_kilogram_uc.from_unit_qty, 1000)
         self.assertEqual(gram_kilogram_uc.to_unit_qty, 1)
@@ -448,8 +448,8 @@ class TestUnitDBService(DatabaseTestCase):
         # Reread the unit conversion from the database
         updated_gram_kilogram_uc = (
             self.db_service.units.get_global_unit_conversion_by_units(
-                self.units_fixtures.test_units["gram"],
-                self.units_fixtures.test_units["kilogram"],
+                self.units_fixtures.units["gram"],
+                self.units_fixtures.units["kilogram"],
             )
         )
 
@@ -460,19 +460,19 @@ class TestUnitDBService(DatabaseTestCase):
 
     def test_update_global_unit_conversions(self):
         """Check that we can update multiple global unit conversions in the database."""
-        self.units_fixtures.setup_test_global_unit_conversions()
+        self.units_fixtures.setup_database_global_unit_conversions()
 
         # Grab the gram-kilogram and millilitre-litre unit conversions and check their properties
         gram_kilogram_uc, millilitre_litre_uc = (
             self.db_service.units.get_global_unit_conversions_by_units(
                 [
                     (
-                        self.units_fixtures.test_units["gram"],
-                        self.units_fixtures.test_units["kilogram"],
+                        self.units_fixtures.units["gram"],
+                        self.units_fixtures.units["kilogram"],
                     ),
                     (
-                        self.units_fixtures.test_units["millilitre"],
-                        self.units_fixtures.test_units["litre"],
+                        self.units_fixtures.units["millilitre"],
+                        self.units_fixtures.units["litre"],
                     ),
                 ]
             )
@@ -499,12 +499,12 @@ class TestUnitDBService(DatabaseTestCase):
             self.db_service.units.get_global_unit_conversions_by_units(
                 [
                     (
-                        self.units_fixtures.test_units["gram"],
-                        self.units_fixtures.test_units["kilogram"],
+                        self.units_fixtures.units["gram"],
+                        self.units_fixtures.units["kilogram"],
                     ),
                     (
-                        self.units_fixtures.test_units["millilitre"],
-                        self.units_fixtures.test_units["litre"],
+                        self.units_fixtures.units["millilitre"],
+                        self.units_fixtures.units["litre"],
                     ),
                 ]
             )
@@ -533,13 +533,13 @@ class TestUnitDBService(DatabaseTestCase):
         """Checks that we can delete a unit from the database.
         Also confirms the unit is no longer present in the other properties and read methods.
         """
-        self.units_fixtures.setup_test_units()
+        self.units_fixtures.setup_database_units()
 
         # Grab the kilogram unit
         kg_unit = self.db_service.units.get_unit_by_name("kilogram")
 
         # Check the unit was fetched correctly
-        self.assertEqual(kg_unit, self.units_fixtures.test_units["kilogram"])
+        self.assertEqual(kg_unit, self.units_fixtures.units["kilogram"])
 
         # Delete the unit
         self.db_service.units.delete_unit(kg_unit)
@@ -565,14 +565,14 @@ class TestUnitDBService(DatabaseTestCase):
         """Checks that we can delete multiple units from the database.
         Also confirms the units are no longer present in the other properties and read methods.
         """
-        self.units_fixtures.setup_test_units()
+        self.units_fixtures.setup_database_units()
 
         # Grab the kilogram and gram units
         kg_unit, g_unit = self.db_service.units.get_units_by_name(("kilogram", "gram"))
 
         # Check the units were fetched correctly
-        self.assertEqual(kg_unit, self.units_fixtures.test_units["kilogram"])
-        self.assertEqual(g_unit, self.units_fixtures.test_units["gram"])
+        self.assertEqual(kg_unit, self.units_fixtures.units["kilogram"])
+        self.assertEqual(g_unit, self.units_fixtures.units["gram"])
 
         # Delete the units
         self.db_service.units.delete_units([kg_unit, g_unit])
@@ -600,16 +600,16 @@ class TestUnitDBService(DatabaseTestCase):
         """Checks that we can delete a global unit conversion from the database.
         Also confirms the unit conversion is no longer present in the other properties and read methods.
         """
-        self.units_fixtures.setup_test_global_unit_conversions()
+        self.units_fixtures.setup_database_global_unit_conversions()
 
         # Grab the gram-kilogram unit conversion
         gram_kilogram_uc = self.db_service.units.get_global_unit_conversion_by_units(
-            self.units_fixtures.test_units["gram"],
-            self.units_fixtures.test_units["kilogram"],
+            self.units_fixtures.units["gram"],
+            self.units_fixtures.units["kilogram"],
         )
 
         # Check the unit conversion was fetched correctly
-        self.assertEqual(gram_kilogram_uc, self.units_fixtures.test_global_unit_conversions["gram-kilogram"])
+        self.assertEqual(gram_kilogram_uc, self.units_fixtures.global_unit_conversions["gram-kilogram"])
 
         # Delete the unit conversion
         self.db_service.units.delete_global_unit_conversion(gram_kilogram_uc)
@@ -627,27 +627,27 @@ class TestUnitDBService(DatabaseTestCase):
         """Checks that we can delete multiple global unit conversions from the database.
         Also confirms the unit conversions are no longer present in the other properties and read methods.
         """
-        self.units_fixtures.setup_test_global_unit_conversions()
+        self.units_fixtures.setup_database_global_unit_conversions()
 
         # Grab the gram-kilogram and millilitre-litre unit conversions
         gram_kilogram_uc, millilitre_litre_uc = (
             self.db_service.units.get_global_unit_conversions_by_units(
                 [
                     (
-                        self.units_fixtures.test_units["gram"],
-                        self.units_fixtures.test_units["kilogram"],
+                        self.units_fixtures.units["gram"],
+                        self.units_fixtures.units["kilogram"],
                     ),
                     (
-                        self.units_fixtures.test_units["millilitre"],
-                        self.units_fixtures.test_units["litre"],
+                        self.units_fixtures.units["millilitre"],
+                        self.units_fixtures.units["litre"],
                     ),
                 ]
             )
         )
 
         # Check the unit conversions were fetched correctly
-        self.assertEqual(gram_kilogram_uc, self.units_fixtures.test_global_unit_conversions["gram-kilogram"])
-        self.assertEqual(millilitre_litre_uc, self.units_fixtures.test_global_unit_conversions["millilitre-litre"])
+        self.assertEqual(gram_kilogram_uc, self.units_fixtures.global_unit_conversions["gram-kilogram"])
+        self.assertEqual(millilitre_litre_uc, self.units_fixtures.global_unit_conversions["millilitre-litre"])
 
         # Delete the unit conversions
         self.db_service.units.delete_global_unit_conversions(

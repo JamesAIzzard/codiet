@@ -3,9 +3,9 @@ from typing import TYPE_CHECKING
 from codiet.db.stored_entity import StoredEntity
 
 if TYPE_CHECKING:
-    from codiet.models.ingredients.ingredient import Ingredient
-    from codiet.models.recipes.recipe import Recipe
-    from codiet.models.units.unit import Unit
+    from codiet.model.ingredients.ingredient import Ingredient
+    from codiet.model.recipes.recipe import Recipe
+    from codiet.model.units.unit import Unit
 
 class IngredientQuantity(StoredEntity):
     """Class to represent an ingredient quantity."""

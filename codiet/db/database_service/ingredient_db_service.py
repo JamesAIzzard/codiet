@@ -3,10 +3,10 @@ from typing import Collection
 from PyQt6.QtCore import pyqtSignal
 
 from codiet.db.database_service.database_service_base import DatabaseServiceBase
-from codiet.utils.map import Map
-from codiet.models.ingredients.ingredient import Ingredient
-from codiet.models.flags.ingredient_flag import IngredientFlag
-from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
+from codiet.utils import Map, IUC
+from codiet.model.ingredients.ingredient import Ingredient
+from codiet.model.flags.ingredient_flag import IngredientFlag
+from codiet.model.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
 
 class IngredientDBService(DatabaseServiceBase):
     """Database service module responsible for handling ingredients."""

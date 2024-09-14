@@ -5,9 +5,9 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QWidget
 
 from codiet.utils.map import Map
-from codiet.models.nutrients.nutrient import Nutrient
-from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
-from codiet.models.units.unit import Unit
+from codiet.model.nutrients.nutrient import Nutrient
+from codiet.model.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
+from codiet.model.units.unit import Unit
 from codiet.views.nutrients.nutrient_quantity_editor_view import (
     NutrientQuantityEditorView,
 )

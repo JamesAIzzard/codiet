@@ -2,8 +2,8 @@ from unittest import TestCase
 
 from codiet.db_population.units import read_units_from_json
 from codiet.utils.map import Map
-from codiet.models.units.unit import Unit
-from codiet.models.units.unit_conversion import GlobalUnitConversion
+from codiet.model.units.unit import Unit
+from codiet.model.units.unit_conversion import GlobalUnitConversion
 
 class TestUnitConversion(TestCase):
 

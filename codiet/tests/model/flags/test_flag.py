@@ -1,5 +1,5 @@
 import unittest
-from codiet.models.flags.flag import Flag
+from codiet.model.flags.flag import Flag
 
 class TestFlag(unittest.TestCase):
     def test_init(self):

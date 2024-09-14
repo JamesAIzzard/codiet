@@ -4,7 +4,7 @@ from datetime import time
 from codiet.db.stored_entity import StoredEntity
 
 if TYPE_CHECKING:
-    from codiet.models.recipes.recipe import Recipe
+    from codiet.model.recipes.recipe import Recipe
 
 class RecipeServeTimeWindow(StoredEntity):
     def __init__(

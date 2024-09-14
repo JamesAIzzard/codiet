@@ -4,9 +4,9 @@ from typing import Callable
 from PyQt6.QtWidgets import QWidget
 from PyQt6.QtCore import QObject, pyqtSignal
 
-from codiet.models.units.unit import Unit
-from codiet.models.units.unit_conversion import GlobalUnitConversion
-from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
+from codiet.model.units.unit import Unit
+from codiet.model.units.unit_conversion import GlobalUnitConversion
+from codiet.model.units.ingredient_unit_conversion import IngredientUnitConversion
 from codiet.views.units.unit_conversion_editor_view import UnitConversionEditorView
 from codiet.views.units.unit_conversions_editor_view import UnitConversionsEditorView
 from codiet.controllers.units.unit_conversion_definition_dialog import UnitConversionDefinitionDialog

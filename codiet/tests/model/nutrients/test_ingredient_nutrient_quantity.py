@@ -3,10 +3,10 @@ from unittest import TestCase
 from codiet.db_population.nutrients import read_global_nutrients_from_json
 from codiet.db_population.units import read_units_from_json, read_global_unit_conversions_from_json
 from codiet.utils.map import Map
-from codiet.models.nutrients.nutrient import Nutrient
-from codiet.models.units.unit import Unit
-from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
-from codiet.models.ingredients.ingredient import Ingredient
+from codiet.model.nutrients.nutrient import Nutrient
+from codiet.model.units.unit import Unit
+from codiet.model.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
+from codiet.model.ingredients.ingredient import Ingredient
 
 class TestIngredientNutrientQuantity(TestCase):
     def setUp(self):

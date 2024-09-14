@@ -1,8 +1,8 @@
 from unittest import TestCase
 from datetime import time
 
-from codiet.models.time.recipe_serve_time_window import RecipeServeTimeWindow
-from codiet.models.recipes.recipe import Recipe
+from codiet.model.time.recipe_serve_time_window import RecipeServeTimeWindow
+from codiet.model.recipes.recipe import Recipe
 
 class TestEntityServeTimeWindow(TestCase):
     

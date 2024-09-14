@@ -4,12 +4,12 @@ from collections import deque
 from codiet.utils.map import Map
 from codiet.utils.unique_collection import MutableUniqueCollection as MUC
 from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
-from codiet.models.units.unit import Unit
-from codiet.models.units.unit_conversion import GlobalUnitConversion
-from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
+from codiet.model.units.unit import Unit
+from codiet.model.units.unit_conversion import GlobalUnitConversion
+from codiet.model.units.ingredient_unit_conversion import IngredientUnitConversion
 
 if TYPE_CHECKING:
-    from codiet.models.ingredients.ingredient import Ingredient
+    from codiet.model.ingredients.ingredient import Ingredient
 
 class IngredientUnitsSystem:
     """

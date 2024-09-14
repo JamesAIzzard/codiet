@@ -2,7 +2,7 @@ import json
 import os
 
 from codiet.utils import Map
-from codiet.models.flags.flag import Flag
+from codiet.model.flags.flag import Flag
 
 GLOBAL_FLAGS_FILENAME = 'global_flags.json'
 GLOBAL_FLAGS_FILEPATH = os.path.join(os.path.dirname(__file__), GLOBAL_FLAGS_FILENAME)

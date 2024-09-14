@@ -5,10 +5,10 @@ from PyQt6.QtCore import pyqtSignal
 from codiet.utils.map import Map
 from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 from codiet.db.database_service.database_service_base import DatabaseServiceBase
-from codiet.models.units.unit import Unit
-from codiet.models.units.unit_conversion import GlobalUnitConversion
-from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
-from codiet.models.ingredients.ingredient import Ingredient
+from codiet.model.units.unit import Unit
+from codiet.model.units.unit_conversion import GlobalUnitConversion
+from codiet.model.units.ingredient_unit_conversion import IngredientUnitConversion
+from codiet.model.ingredients.ingredient import Ingredient
 
 class UnitDBService(DatabaseServiceBase):
     """Service for interacting with the unit database."""

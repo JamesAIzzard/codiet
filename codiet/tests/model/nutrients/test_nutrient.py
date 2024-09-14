@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from codiet.utils.map import Map
 from codiet.db_population.nutrients import read_global_nutrients_from_json
-from codiet.models.nutrients.nutrient import Nutrient
+from codiet.model.nutrients.nutrient import Nutrient
 
 class TestNutrient(TestCase):
 

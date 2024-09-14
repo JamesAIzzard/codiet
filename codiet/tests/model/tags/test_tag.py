@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from codiet.models.tags.tag import Tag
+from codiet.model.tags.tag import Tag
 
 class TestTag(TestCase):
 

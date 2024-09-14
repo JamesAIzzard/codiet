@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from .base_unit_conversion import BaseUnitConversion
 
 if TYPE_CHECKING:
-    from codiet.models.ingredients.ingredient import Ingredient
+    from codiet.model.ingredients.ingredient import Ingredient
 
 class IngredientUnitConversion(BaseUnitConversion):
     """Models a unit conversion associated with an ingredient.

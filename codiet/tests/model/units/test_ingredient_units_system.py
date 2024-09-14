@@ -3,10 +3,10 @@ import unittest
 from codiet.db_population.units import read_units_from_json
 from codiet.db_population.units import read_global_unit_conversions_from_json
 from codiet.utils.map import Map
-from codiet.models.units.unit import Unit
-from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
-from codiet.models.units.ingredient_units_system import IngredientUnitsSystem
-from codiet.models.ingredients.ingredient import Ingredient
+from codiet.model.units.unit import Unit
+from codiet.model.units.ingredient_unit_conversion import IngredientUnitConversion
+from codiet.model.units.ingredient_units_system import IngredientUnitsSystem
+from codiet.model.ingredients.ingredient import Ingredient
 
 class TestEntityUnitsSystem(unittest.TestCase):
 

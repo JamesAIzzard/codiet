@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
-from codiet.models.tags.tag import Tag
+from codiet.model.tags.tag import Tag
 
 if TYPE_CHECKING:
-    from codiet.models.recipes.recipe import Recipe
+    from codiet.model.recipes.recipe import Recipe
 
 class RecipeTag(Tag):
     def __init__(

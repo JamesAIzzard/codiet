@@ -3,11 +3,11 @@
 from typing import TYPE_CHECKING
 
 from codiet.db.stored_entity import StoredEntity
-from codiet.models.nutrients.nutrient import Nutrient
-from codiet.models.units.unit import Unit
+from codiet.model.nutrients.nutrient import Nutrient
+from codiet.model.units.unit import Unit
 
 if TYPE_CHECKING:
-    from codiet.models.ingredients.ingredient import Ingredient
+    from codiet.model.ingredients.ingredient import Ingredient
 
 class IngredientNutrientQuantity(StoredEntity):
     """Class to represent the nutrient quantity associated with an entity."""

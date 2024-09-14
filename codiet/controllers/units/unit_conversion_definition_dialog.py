@@ -4,7 +4,7 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QWidget
 
 from codiet.utils.map import Map
-from codiet.models.units.unit import Unit
+from codiet.model.units.unit import Unit
 from codiet.views.units.unit_conversion_definition_dialog_view import UnitConversionDefinitionDialogView
 from codiet.controllers.search.search_column import SearchColumn
 

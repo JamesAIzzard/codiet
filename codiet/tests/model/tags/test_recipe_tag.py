@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from codiet.models.tags.recipe_tag import RecipeTag
-from codiet.models.recipes.recipe import Recipe
+from codiet.model.tags.recipe_tag import RecipeTag
+from codiet.model.recipes.recipe import Recipe
 
 class TestRecipeTag(TestCase):
 

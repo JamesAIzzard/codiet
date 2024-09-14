@@ -1,7 +1,7 @@
 import json
 import os
 
-from codiet.models.tags.tag import Tag
+from codiet.model.tags.tag import Tag
 
 GLOBAL_TAGS_FILENAME = 'global_tags.json'
 GLOBAL_TAGS_FILEPATH = os.path.join(os.path.dirname(__file__), GLOBAL_TAGS_FILENAME)

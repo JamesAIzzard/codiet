@@ -1,9 +1,9 @@
 from unittest import mock
 
 from codiet.tests.db.database_test_case import DatabaseTestCase
-from codiet.models.flags.flag import Flag
-from codiet.models.ingredients.ingredient import Ingredient
-from codiet.models.flags.ingredient_flag import IngredientFlag
+from codiet.model.flags.flag import Flag
+from codiet.model.ingredients.ingredient import Ingredient
+from codiet.model.flags.ingredient_flag import IngredientFlag
 
 class TestFlagDBService(DatabaseTestCase):
     def setUp(self) -> None:

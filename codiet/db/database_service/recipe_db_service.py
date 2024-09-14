@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from . import DatabaseService
 from codiet.db.repository import Repository
 from codiet.utils.map import Map
-from codiet.models.recipes.recipe import Recipe
+from codiet.model.recipes.recipe import Recipe
 
 class RecipeDBService(QObject):
     """Database service module for recipes."""

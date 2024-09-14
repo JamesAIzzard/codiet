@@ -3,11 +3,11 @@ from typing import Tuple
 from PyQt6.QtWidgets import QLabel
 
 from codiet.db.database_service import DatabaseService
-from codiet.models.ingredients.ingredient import Ingredient
-from codiet.models.nutrients import filter_leaf_nutrients
-from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
-from codiet.models.units.ingredient_unit_conversion import IngredientUnitConversion
-from codiet.models.units.ingredient_units_system import IngredientUnitsSystem
+from codiet.model.ingredients.ingredient import Ingredient
+from codiet.model.nutrients import filter_leaf_nutrients
+from codiet.model.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
+from codiet.model.units.ingredient_unit_conversion import IngredientUnitConversion
+from codiet.model.units.ingredient_units_system import IngredientUnitsSystem
 from codiet.views.ingredients.ingredient_editor_view import IngredientEditorView
 from codiet.controllers.base_controller import BaseController
 from codiet.controllers.dialogs import (

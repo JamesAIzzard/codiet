@@ -5,8 +5,8 @@ from PyQt6.QtCore import pyqtSignal
 from codiet.db.database_service.database_service_base import DatabaseServiceBase
 from codiet.utils.map import Map
 from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
-from codiet.models.nutrients.nutrient import Nutrient
-from codiet.models.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
+from codiet.model.nutrients.nutrient import Nutrient
+from codiet.model.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
 if TYPE_CHECKING:
     pass
 

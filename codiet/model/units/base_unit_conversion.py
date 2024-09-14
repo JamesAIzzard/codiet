@@ -1,5 +1,5 @@
 from codiet.db.stored_entity import StoredEntity
-from codiet.models.units.unit import Unit
+from codiet.model.units.unit import Unit
 
 class BaseUnitConversion(StoredEntity):
     """Base class for unit conversions.

@@ -14,7 +14,7 @@ from codiet.db_population import (
 )
 from codiet.db_population.units import read_units_from_json
 from codiet.utils.tags import flatten_tree
-from codiet.models.ingredients.ingredient import IngredientNutrientQuantity
+from codiet.model.ingredients.ingredient import IngredientNutrientQuantity
 from codiet.db.database_service import DatabaseService
 
 def push_global_units_to_db(db_service:DatabaseService) -> None:
