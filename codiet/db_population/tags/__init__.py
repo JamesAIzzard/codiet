@@ -20,7 +20,7 @@ def read_global_tags_from_json(global_tags_filepath: str=GLOBAL_TAGS_FILEPATH) -
         data: list[str] = json.load(f)
 
     for tag_name in data:
-        tag = Tag(tag_name=tag_name)
+        tag = Tag(name=tag_name)
         tags.add(tag)
 
     _cached_global_tags = tags

@@ -11,8 +11,12 @@
             "id": "a21b093bd74f0c74",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {}
+              "type": "markdown",
+              "state": {
+                "file": "model/tags/tag.md",
+                "mode": "source",
+                "source": false
+              }
             }
           }
         ]
@@ -81,6 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "model/tags/tag.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -97,6 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "model/tags/tag.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -118,7 +124,9 @@
             "type": "leaf",
             "state": {
               "type": "outline",
-              "state": {}
+              "state": {
+                "file": "model/tags/tag.md"
+              }
             }
           }
         ]
@@ -140,12 +148,17 @@
   },
   "active": "a21b093bd74f0c74",
   "lastOpenFiles": [
+    "model/tags/tag.md",
+    "model/time/__pycache__/time_window.cpython-312.pyc",
+    "model/time/time_window.py",
+    "model/time/__pycache__/time_interval.cpython-312.pyc",
+    "model/time/time_interval.py",
+    "tests/model/recipes/__pycache__/test_recipe.cpython-312.pyc.2374030117600",
     "model/cost/__pycache__/cost_rate.cpython-312.pyc",
     "model/cost/__pycache__/__init__.cpython-312.pyc",
     "model/cost/__pycache__",
     "model/cost/cost_rate.py",
     "model/cost/__init__.py",
-    "model/cost",
     "model/ingredients/ingredient.md",
     "tests/fixtures/flag_test_fixtures.md"
   ]

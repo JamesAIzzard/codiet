@@ -1,7 +1,7 @@
 """Test fixtures for tests requiring ingredient instances."""
 from typing import TYPE_CHECKING
 
-from codiet.model.ingredients.ingredient import Ingredient
+from codiet.model.ingredients import Ingredient, IngredientQuantity
 
 if TYPE_CHECKING:
     from codiet.tests.fixtures import UnitTestFixtures
@@ -30,7 +30,7 @@ class IngredientTestFixtures:
     def ingredients(self) -> dict[str, Ingredient]:
         """Returns the test ingredients."""
         if self._test_ingredients is None:
-            self._test_ingredients = self._build_ingredients()
+            self._test_ingredients = self._create_ingredients()
         return self._test_ingredients
     
     def get_ingredient_by_name(self, ingredient_name:str) -> Ingredient:
@@ -42,7 +42,12 @@ class IngredientTestFixtures:
         db_service.ingredients.create_ingredients(self.ingredients.values())
         self._database_ingredients_setup = True
 
-    def _build_ingredients(self) -> dict[str, Ingredient]:
+    def create_ingredient_quantity(self, ingredient_name:str) -> IngredientQuantity:
+        """Creates an ingredient quantity."""
+        ingredient = self.get_ingredient_by_name(ingredient_name)
+        return IngredientQuantity(ingredient)
+
+    def _create_ingredients(self) -> dict[str, Ingredient]:
         """Instantiates a dictionary of ingredients for testing purposes."""
         return {
             "apple": Ingredient(

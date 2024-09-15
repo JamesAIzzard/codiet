@@ -13,7 +13,6 @@ class IngredientQuantity(StoredEntity):
     def __init__(
         self,
         ingredient: 'Ingredient',
-        recipe: 'Recipe',
         qty_value: float | None = None,
         qty_unit: 'Unit|None' = None,
         qty_utol: float | None = None,
@@ -23,7 +22,6 @@ class IngredientQuantity(StoredEntity):
         """Initialises the class."""
         super().__init__(*args, **kwargs)
 
-        self._recipe = recipe
         self._ingredient = ingredient
         self._qty_value = qty_value
 
@@ -43,11 +41,6 @@ class IngredientQuantity(StoredEntity):
     def ingredient(self) -> 'Ingredient':
         """Get the ingredient."""
         return self._ingredient
-    
-    @property
-    def recipe(self) -> 'Recipe':
-        """Get the recipe."""
-        return self._recipe
     
     @property
     def qty_value(self) -> float|None:

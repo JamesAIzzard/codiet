@@ -9,10 +9,10 @@ class TestTag(TestCase):
 
     def test_init_without_id(self):
         """Check we can initialise the tag without an ID."""
-        tag = Tag(tag_name="Test")
+        tag = Tag(name="Test")
         # Check its the right type
         self.assertIsInstance(tag, Tag)
         # Check the tag name is correct
-        self.assertEqual(tag.tag_name, "Test")
+        self.assertEqual(tag.name, "Test")
         # Check the ID is None
         self.assertIsNone(tag.id)

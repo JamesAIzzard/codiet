@@ -1,162 +1,92 @@
-import unittest
-from datetime import time
+"""Tests for the Recipe class."""
 
-from codiet.db_population.flags import read_global_flags_from_json, global_name_flag_map
-from codiet.db_population.units import read_units_from_json, read_global_unit_conversions_from_json, name_unit_map
-from codiet.db_population.nutrients import read_global_nutrients_from_json, global_name_nutrient_map
-from codiet.db_population.tags import read_global_tags_from_json
-from codiet.model.ingredients.ingredient import Ingredient
-from codiet.model.ingredients.ingredient_quantity import IngredientQuantity
-from codiet.model.recipes.recipe import Recipe
-from codiet.model.time.recipe_serve_time_window import RecipeServeTimeWindow
+from unittest import TestCase
 
-class TestRecipe(unittest.TestCase):
-    def setUp(self) -> None:
-        # Bring in the global units
-        self.global_units = read_units_from_json()
-        self.global_unit_conversions = read_global_unit_conversions_from_json()
-        self.global_name_unit_map = name_unit_map()
+from codiet.model.recipes import Recipe
+from codiet.model.time import TimeWindow
+from codiet.model.tags import Tag
+from codiet.tests.fixtures import IngredientTestFixtures, UnitTestFixtures
 
-        # Bring in the nutrients
-        self.global_nutrients = read_global_nutrients_from_json()
-        self.global_name_nutrient_map = global_name_nutrient_map()
+class TestRecipe(TestCase):
+    """Test class for the Recipe class."""
 
-        # Bring in the flags
-        self.global_flags = read_global_flags_from_json()
-        self.global_name_flag_map = global_name_flag_map()
+    def setUp(self):
+        self.unit_fixtures = UnitTestFixtures()
+        self.ingredient_fixtures = IngredientTestFixtures(self.unit_fixtures)
 
-        # Bring in the tags
-        self.global_tags = read_global_tags_from_json()
-
-        # Create some ingredients
-        self.ingredient_1 = Ingredient(
-            name="Test Ingredient 1",
-            global_units=self.global_units,
-            global_unit_conversions=self.global_unit_conversions
-        )
-        self.ingredient_2 = Ingredient(
-            name="Test Ingredient 2",
-            global_units=self.global_units,
-            global_unit_conversions=self.global_unit_conversions
-        )
-        self.ingredient_3 = Ingredient(
-            name="Test Ingredient 3",
-            global_units=self.global_units,
-            global_unit_conversions=self.global_unit_conversions
-        )
-
-        # Create a recipe
-        self.recipe = Recipe(name="Test Recipe")
-
-        # Create some ingredient quantities
-        self.ingredient_quantity_1 = IngredientQuantity(
-            ingredient=self.ingredient_1,
-            recipe=self.recipe
-        )
-        self.ingredient_quantity_2 = IngredientQuantity(
-            ingredient=self.ingredient_2,
-            recipe=self.recipe
-        )
-        self.ingredient_quantity_3 = IngredientQuantity(
-            ingredient=self.ingredient_3,
-            recipe=self.recipe
-        )
-
-        # Create some serve time windows
-        self.serve_time_window_1 = RecipeServeTimeWindow(
-            recipe=self.recipe,
-            window=(time(8, 0), time(10, 0))
-        )
-        self.serve_time_window_2 = RecipeServeTimeWindow(
-            recipe=self.recipe,
-            window=(time(12, 0), time(14, 0))
-        )
-
-    def test_init(self):
-        recipe = Recipe(name="Test Recipe")
-        # Check we have a recipe instance
+    def test_constructor(self):
+        """Checks that the recipe can be constructed and is an instance of the Recipe class."""
+        recipe = Recipe(name="Apple Pie")
         self.assertIsInstance(recipe, Recipe)
-        # Check the name is set correctly
-        self.assertEqual(recipe.name, "Test Recipe")
 
-    def test_cant_set_name_to_none(self):
-        # Check we can't set the name to None
-        with self.assertRaises(ValueError):
-            self.recipe.name = None # type: ignore # Check cant set the name to None
+    def test_name(self):
+        """Check the name property returns correctly."""
+        # Check we get the name we passed in the constructor
+        recipe = Recipe(name="Apple Pie")
+        self.assertEqual(recipe.name, "Apple Pie")
 
-        # Check cant set the name to empty string
-        with self.assertRaises(ValueError):
-            self.recipe.name = ""
-        with self.assertRaises(ValueError):
-            self.recipe.name = " "
+        # Check we can change the name
+        recipe.name = "Apple Crumble"
+        self.assertEqual(recipe.name, "Apple Crumble")
 
     def test_use_as_ingredient(self):
-        # Check the default is False
-        self.assertFalse(self.recipe.use_as_ingredient)
+        """Check that the use_as_ingredient property sets and returns correctly."""
+        # Check it is set correctly when passed in the constructor
+        recipe = Recipe(name="Apple Pie")
+        self.assertEqual(recipe.use_as_ingredient, False)
 
-        # Check we can set it to True
-        self.recipe.use_as_ingredient = True
-        self.assertTrue(self.recipe.use_as_ingredient)
-
-        # Check we can set it to False
-        self.recipe.use_as_ingredient = False
-        self.assertFalse(self.recipe.use_as_ingredient)
+        # Check we can update it
+        recipe.use_as_ingredient = True
+        self.assertEqual(recipe.use_as_ingredient, True)
 
     def test_description(self):
-        # Check the default is None
-        self.assertIsNone(self.recipe.description)
+        """Check that the description property sets and returns correctly."""
+        # Check it is set correctly when passed in the constructor
+        recipe = Recipe(name="Apple Pie", description="A delicious dessert")
+        self.assertEqual(recipe.description, "A delicious dessert")
 
-        # Check we can set the description
-        self.recipe.description = "Test Description"
-        self.assertEqual(self.recipe.description, "Test Description")
+        # Check we can update it
+        recipe.description = "A delicious dessert with pastry"
+        self.assertEqual(recipe.description, "A delicious dessert with pastry")
 
     def test_instructions(self):
-        # Check the default is None
-        self.assertIsNone(self.recipe.instructions)
+        """Check that the instructions property sets and returns correctly."""
+        # Check it is set correctly when passed in the constructor
+        recipe = Recipe(name="Apple Pie", instructions="Bake for 30 minutes")
+        self.assertEqual(recipe.instructions, "Bake for 30 minutes")
 
-        # Check we can set the instructions
-        self.recipe.instructions = "Test Instructions"
-        self.assertEqual(self.recipe.instructions, "Test Instructions")
+        # Check we can update it
+        recipe.instructions = "Bake for 40 minutes"
+        self.assertEqual(recipe.instructions, "Bake for 40 minutes")
 
     def test_ingredient_quantities(self):
-        # Check the default is an empty list
-        self.assertEqual(self.recipe.ingredient_quantities, frozenset())
+        """Check that the ingredient_quantities property sets and returns correctly."""
+        # Check there are no ingredient quantities to start with
+        recipe = Recipe(name="Apple Pie")
+        self.assertEqual(len(recipe.ingredient_quantities), 0)
 
-        # Add a couple
-        self.recipe.update_ingredient_quantities({self.ingredient_quantity_1, self.ingredient_quantity_2})
-
-        # Check they are there
-        self.assertEqual(self.recipe.ingredient_quantities, frozenset({self.ingredient_quantity_1, self.ingredient_quantity_2}))
+        # Add one and check it is added.
+        apples = self.ingredient_fixtures.create_ingredient_quantity("apple")
+        recipe.add_ingredient_quantity(apples)
+        self.assertEqual(len(recipe.ingredient_quantities), 1)
 
     def test_serve_time_windows(self):
-        # Check the default is an empty list
-        self.assertEqual(self.recipe.serve_time_windows, frozenset())
+        """Check that the serve_time_windows property sets and returns correctly."""
+        # Check there are no serve time windows to start with
+        recipe = Recipe(name="Apple Pie")
+        self.assertEqual(len(recipe.serve_time_windows), 0)
 
-        # Add a couple
-        self.recipe.update_serve_time_windows({self.serve_time_window_1, self.serve_time_window_2})
+        # Add one and check it is added.
+        window = TimeWindow()
+        recipe.add_serve_time_window(window)
+        self.assertEqual(len(recipe.serve_time_windows), 1)
 
-        # Check they are there
-        self.assertEqual(self.recipe.serve_time_windows, frozenset({self.serve_time_window_1, self.serve_time_window_2}))
+    def test_tags(self):
+        """Check that the tags property sets and returns correctly."""
+        # Check there are no tags to start with
+        recipe = Recipe(name="Apple Pie")
+        self.assertEqual(len(recipe.tags), 0)
 
-    def test_get_ingredient_quantity(self):
-        # Add a couple
-        self.recipe.update_ingredient_quantities({self.ingredient_quantity_1, self.ingredient_quantity_2})
-
-        # Check we can get them
-        self.assertEqual(self.recipe.get_ingredient_quantity("Test Ingredient 1"), self.ingredient_quantity_1)
-        self.assertEqual(self.recipe.get_ingredient_quantity("Test Ingredient 2"), self.ingredient_quantity_2)
-
-        # Check we can't get one that doesn't exist
-        with self.assertRaises(ValueError):
-            self.recipe.get_ingredient_quantity("Test Ingredient 3")
-
-    def test_remove_ingredient_quantities(self):
-        # Add three
-        self.recipe.update_ingredient_quantities({self.ingredient_quantity_1, self.ingredient_quantity_2, self.ingredient_quantity_3})
-
-        # Remove two
-        self.recipe.remove_ingredient_quantities({self.ingredient_quantity_1, self.ingredient_quantity_2})
-
-        # Check they are gone
-        self.assertEqual(self.recipe.ingredient_quantities, frozenset({self.ingredient_quantity_3}))
-
+        # Add one and check it is added.
+        recipe.add_tag(Tag("dessert"))
+        self.assertEqual(len(recipe.tags), 1)

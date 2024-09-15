@@ -7,8 +7,8 @@ from codiet.utils import MUC, IUC
 
 if TYPE_CHECKING:
     from codiet.model.ingredients import IngredientQuantity
-    from codiet.model.time import RecipeServeTimeWindow
-    from codiet.model.tags import RecipeTag
+    from codiet.model.time import TimeWindow
+    from codiet.model.tags import Tag
 
 
 class Recipe(StoredEntity):
@@ -21,8 +21,8 @@ class Recipe(StoredEntity):
         instructions: str | None = None,
         use_as_ingredient: bool = False,
         ingredient_quantities: Collection['IngredientQuantity']|None = None,
-        serve_time_windows: Collection['RecipeServeTimeWindow']|None = None,
-        tags: Collection['RecipeTag']|None = None,
+        serve_time_windows: Collection['TimeWindow']|None = None,
+        tags: Collection['Tag']|None = None,
         *args,**kwargs,
     ):
         """Initialises the class."""
@@ -88,14 +88,18 @@ class Recipe(StoredEntity):
         return IUC(self._ingredient_quantities)
 
     @property
-    def serve_time_windows(self) -> IUC['RecipeServeTimeWindow']:
+    def serve_time_windows(self) -> IUC['TimeWindow']:
         """Returns the serve time windows for the recipe."""
         return IUC(self._serve_time_windows)
 
     @property
-    def tags(self) -> IUC['RecipeTag']:
+    def tags(self) -> IUC['Tag']:
         """Returns an immutable list of tags for the recipe."""
         return IUC(self._tags)
+
+    def add_ingredient_quantity(self, ingredient_quantity: 'IngredientQuantity') -> None:
+        """Add an ingredient to the recipe."""
+        self._ingredient_quantities.add(ingredient_quantity)
 
     def get_ingredient_quantity_by_name(self, ingredient_name: str) -> 'IngredientQuantity':
         """Get an ingredient quantity by its name."""
@@ -103,13 +107,6 @@ class Recipe(StoredEntity):
             if ingredient_qty.ingredient.name == ingredient_name:
                 return ingredient_qty
         raise ValueError(f"Ingredient quantity with name '{ingredient_name}' not found.")
-    
-    def get_ingredient_quantity_by_id(self, ingredient_id: int) -> 'IngredientQuantity':
-        """Get an ingredient quantity by its ID."""
-        for ingredient_qty in self._ingredient_quantities:
-            if ingredient_qty.ingredient.id == ingredient_id:
-                return ingredient_qty
-        raise ValueError(f"Ingredient quantity with ID '{ingredient_id}' not found.")
 
     def remove_ingredient_quantity(self, ingredient_quantity: 'IngredientQuantity') -> None:
         """Remove an ingredient from the recipe."""
@@ -118,12 +115,20 @@ class Recipe(StoredEntity):
                 self._ingredient_quantities.remove(ingredient_qty)
                 break
 
-    def remove_serve_time_window(self, serve_time_window: 'RecipeServeTimeWindow') -> None:
+    def add_serve_time_window(self, serve_time_window: 'TimeWindow') -> None:
+        """Add a serve time window to the recipe."""
+        self._serve_time_windows.add(serve_time_window)
+
+    def remove_serve_time_window(self, serve_time_window: 'TimeWindow') -> None:
         """Remove a serve time window from the recipe."""
         for window in self._serve_time_windows:
             if window == serve_time_window:
                 self._serve_time_windows.remove(window)
                 break
+
+    def add_tag(self, tag: 'Tag') -> None:
+        """Add a tag to the recipe."""
+        self._tags.add(tag)
 
     def __eq__(self, other):
         """Check if two recipes are equal."""

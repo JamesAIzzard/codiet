@@ -1,6 +1,6 @@
 """Tests for the ingredient module."""
 
-from unittest import TestCase, skip
+from unittest import TestCase
 
 from codiet.model.ingredients import Ingredient
 from codiet.model.flags import IngredientFlag
