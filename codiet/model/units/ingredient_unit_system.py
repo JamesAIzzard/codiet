@@ -192,7 +192,7 @@ class IngredientUnitSystem:
                         new_path = path + [(current_unit, next_unit)]
                         queue.append((next_unit, new_path))
 
-        raise ValueError(f"No conversion path found between {from_unit.unit_name} and {to_unit.unit_name}")
+        raise ValueError(f"No conversion path found between {from_unit.name} and {to_unit.name}")
 
     def _update(self):
         """Updates the object to reflect the latest units and conversions."""
@@ -219,5 +219,5 @@ class IngredientUnitSystem:
         # Recreate the map
         self._name_unit_map.clear()
         for unit in self._global_units:
-            self._name_unit_map.add_mapping(unit.unit_name, unit)
+            self._name_unit_map.add_mapping(unit.name, unit)
         

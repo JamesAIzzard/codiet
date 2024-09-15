@@ -36,7 +36,7 @@ def read_global_unit_conversions_from_json(
     data = _read_dict_from_json(unit_conversions_json_filepath)
 
     # For efficiency, create a dictionary for quick unit lookup
-    unit_dict = {unit.unit_name: unit for unit in global_units}
+    unit_dict = {unit.name: unit for unit in global_units}
 
     for conversion_key, conversion_data in data.items():
         from_unit = unit_dict.get(conversion_data['from_unit'])

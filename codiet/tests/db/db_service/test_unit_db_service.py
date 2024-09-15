@@ -29,7 +29,7 @@ class TestUnitDBService(DatabaseTestCase):
 
         # Check that the id-name in the dict matches the map
         for unit in self.units_fixtures.units.values():
-            self.assertEqual(self.db_service.units.unit_id_name_map.get_value(unit.id), unit.unit_name)  # type: ignore
+            self.assertEqual(self.db_service.units.unit_id_name_map.get_value(unit.id), unit.name)  # type: ignore
 
     def test_unit_id_name_map_updates_when_new_unit_created(self):
         """Checks that the unit ID to name map updates when a new unit is created."""
@@ -554,7 +554,7 @@ class TestUnitDBService(DatabaseTestCase):
         # Check the unit is no longer in the unit_id_name_map
         self.assertNotIn(kg_unit.id, self.db_service.units.unit_id_name_map.keys)
         self.assertNotIn(
-            kg_unit.unit_name, self.db_service.units.unit_id_name_map.values
+            kg_unit.name, self.db_service.units.unit_id_name_map.values
         )
 
         # Check read_all_units no longer returns the unit
@@ -584,11 +584,11 @@ class TestUnitDBService(DatabaseTestCase):
         # Check the units are no longer in the unit_id_name_map
         self.assertNotIn(kg_unit.id, self.db_service.units.unit_id_name_map.keys)
         self.assertNotIn(
-            kg_unit.unit_name, self.db_service.units.unit_id_name_map.values
+            kg_unit.name, self.db_service.units.unit_id_name_map.values
         )
         self.assertNotIn(g_unit.id, self.db_service.units.unit_id_name_map.keys)
         self.assertNotIn(
-            g_unit.unit_name, self.db_service.units.unit_id_name_map.values
+            g_unit.name, self.db_service.units.unit_id_name_map.values
         )
 
         # Check read_all_units no longer returns the units

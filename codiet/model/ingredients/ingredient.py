@@ -64,7 +64,7 @@ class Ingredient(StoredEntity):
             # Check the standard unit is accessible
             if standard_unit not in self._unit_system.get_available_units():
                 raise ValueError(
-                    f"{standard_unit.unit_name} is not accessible in the unit system."
+                    f"{standard_unit.name} is not accessible in the unit system."
                 )
             self._standard_unit = standard_unit
 
@@ -110,7 +110,7 @@ class Ingredient(StoredEntity):
 
         # Check the standard unit is accessible
         if value not in self._unit_system.get_available_units():
-            raise ValueError(f"{value.unit_name} is not accessible in the unit system.")
+            raise ValueError(f"{value.name} is not accessible in the unit system.")
 
         self._standard_unit = value
 

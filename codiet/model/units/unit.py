@@ -28,7 +28,7 @@ class Unit(StoredEntity):
         self._aliases = aliases or []
 
     @property
-    def unit_name(self) -> str:
+    def name(self) -> str:
         """Return the unit name."""
         return self._unit_name
 
@@ -55,9 +55,9 @@ class Unit(StoredEntity):
     def __eq__(self, other):
         """Check if two units are equal based on their unit name and type."""
         if isinstance(other, Unit):
-            return self.unit_name == other.unit_name and self.type == other.type
+            return self.name == other.name and self.type == other.type
         return False
 
     def __hash__(self):
         """Return the hash based on the unit name and type."""
-        return hash((self.unit_name, self.type))            
+        return hash((self.name, self.type))            

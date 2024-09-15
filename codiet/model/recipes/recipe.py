@@ -10,7 +10,6 @@ if TYPE_CHECKING:
     from codiet.model.time import TimeWindow
     from codiet.model.tags import Tag
 
-
 class Recipe(StoredEntity):
     """Models a recipe."""
 

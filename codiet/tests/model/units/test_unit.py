@@ -19,7 +19,7 @@ class TestUnit(TestCase):
             )
     
             # Check the unit name is set correctly
-            self.assertEqual(unit.unit_name, "test")
+            self.assertEqual(unit.name, "test")
     
             # Check the single display name is set correctly
             self.assertEqual(unit.single_display_name, "Test")

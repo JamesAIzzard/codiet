@@ -1,11 +1,10 @@
 """Test fixtures for the units module."""
 from typing import TYPE_CHECKING
 
-from codiet.model.units import Unit, UnitConversion, IngredientUnitConversion
+from codiet.model.units import Unit, UnitConversion
 
 if TYPE_CHECKING:
     from codiet.db.database_service import DatabaseService
-    from codiet.model.ingredients import Ingredient
 
 class UnitTestFixtures:
     """Test fixtures for the units module."""
@@ -23,6 +22,11 @@ class UnitTestFixtures:
             self._units = self._create_test_units()
         return self._units
     
+    @property
+    def gram(self) -> Unit:
+        """Returns the gram unit."""
+        return self.units["gram"]
+
     @property
     def global_unit_conversions(self) -> dict[tuple[str, str], UnitConversion]:
         """Returns the test global unit conversions.
