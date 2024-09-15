@@ -97,7 +97,7 @@ class FlagDBService(DatabaseServiceBase):
         ingredient_flag_id = self._repository.flags.create_ingredient_flag(
             ingredient_id=ingredient_flag.ingredient.id,
             flag_id=ingredient_flag.flag.id,
-            flag_value=ingredient_flag.flag_value
+            flag_value=ingredient_flag.value
         )
         ingredient_flag.id = ingredient_flag_id
 
@@ -167,7 +167,7 @@ class FlagDBService(DatabaseServiceBase):
         self._repository.flags.update_ingredient_flag(
             ingredient_id=ingredient_flag.ingredient.id,
             flag_id=ingredient_flag.flag.id,
-            flag_value=ingredient_flag.flag_value
+            flag_value=ingredient_flag.value
         )
 
         # Emit the signal for the ingredient flags change

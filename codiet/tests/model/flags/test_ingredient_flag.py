@@ -24,7 +24,7 @@ class TestIngredientFlag(TestCase):
         )
         self.assertEqual(ingredient_flag.ingredient, self.ingredient_fixtures.ingredients["apple"])
         self.assertEqual(ingredient_flag.flag_name, "vegan")
-        self.assertFalse(ingredient_flag.flag_value)
+        self.assertFalse(ingredient_flag.value)
 
         # Check we can initialise with a value
         ingredient_flag = IngredientFlag(
@@ -34,7 +34,7 @@ class TestIngredientFlag(TestCase):
         )
         self.assertEqual(ingredient_flag.ingredient, self.ingredient_fixtures.ingredients["apple"])
         self.assertEqual(ingredient_flag.flag_name, "vegan")
-        self.assertTrue(ingredient_flag.flag_value)
+        self.assertTrue(ingredient_flag.value)
 
     def test_value_setter(self):
         """Checks the flag_value property is returning the correct value."""

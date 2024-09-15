@@ -131,17 +131,17 @@ class TestFlagDBService(DatabaseTestCase):
         read_flags = self.db_service.flags.read_ingredient_flags(self.mock_ingredient)
         for flag in read_flags:
             if flag.flag.id == vegan_flag.id:
-                self.assertFalse(flag.flag_value)
+                self.assertFalse(flag.value)
 
         # Update the flag
-        self.ing_vegan_flag.flag_value = True
+        self.ing_vegan_flag.value = True
         self.db_service.flags.update_ingredient_flag(self.ing_vegan_flag)
 
         # Check the flag was updated
         read_flags = self.db_service.flags.read_ingredient_flags(self.mock_ingredient)
         for flag in read_flags:
             if flag.flag.id == vegan_flag.id:
-                self.assertTrue(flag.flag_value)
+                self.assertTrue(flag.value)
 
     def test_delete_ingredient_flag(self):
         """Check we can delete an ingredient flag."""

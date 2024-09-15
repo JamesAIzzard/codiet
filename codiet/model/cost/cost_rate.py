@@ -1,0 +1,2 @@
+class CostRate:
+    pass

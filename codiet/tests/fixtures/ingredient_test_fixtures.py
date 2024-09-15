@@ -48,25 +48,16 @@ class IngredientTestFixtures:
             "apple": Ingredient(
                 name="apple",
                 description="A fruit",
-                cost_value=1.0,
-                cost_qty_value=1.0,
-                cost_qty_unit=self._units_fixtures.get_unit_by_name("kilogram"),
                 gi=40.0
             ),
             "chicken": Ingredient(
                 name="chicken",
                 description="A meat",
-                cost_value=3.0,
-                cost_qty_value=1.0,
-                cost_qty_unit=self._units_fixtures.get_unit_by_name("kilogram"),
                 gi=60.0
             ),
             "potato": Ingredient(
                 name="broccoli",
                 description="A vegetable",
-                cost_value=4.0,
-                cost_qty_value=1.0,
-                cost_qty_unit=self._units_fixtures.get_unit_by_name("kilogram"),
                 gi=70.0
             )
         }

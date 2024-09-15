@@ -1,16 +1,14 @@
 from typing import Collection, TYPE_CHECKING
 
-from codiet.utils.unique_collection import MutableUniqueCollection as MUC
-from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
+from codiet.utils import MUC, IUC
 from codiet.db.stored_entity import StoredEntity
-from codiet.model.units.ingredient_unit_system import IngredientUnitSystem
+from codiet.model.units import IngredientUnitSystem
+from codiet.model.cost import CostRate
 
 if TYPE_CHECKING:
     from codiet.model.units import Unit, UnitConversion, IngredientUnitConversion
-    from codiet.model.flags.ingredient_flag import IngredientFlag
-    from codiet.model.nutrients.ingredient_nutrient_quantity import (
-        IngredientNutrientQuantity,
-    )
+    from codiet.model.flags import IngredientFlag
+    from codiet.model.nutrients import IngredientNutrientQuantity
 
 class Ingredient(StoredEntity):
     """Ingredient model."""
@@ -35,16 +33,14 @@ class Ingredient(StoredEntity):
         description: str | None = None,
         unit_conversions: Collection['IngredientUnitConversion'] | None = None,
         standard_unit: 'Unit | None' = None,
-        cost_value: float | None = None,
-        cost_qty_unit: 'Unit | None' = None,
-        cost_qty_value: float | None = None,
-        flag_ids: MUC[int] | None = None,
+        cost_rate: 'CostRate | None' = None,
+        flags: Collection['IngredientFlag'] | None = None,
         gi: float | None = None,
-        nutrient_quantity_ids: MUC[int] | None = None,
+        nutrient_quantities: Collection['IngredientNutrientQuantity'] | None = None,
         *args,
         **kwargs,
     ):
-        """Initializes the class."""
+        """Initialises the class."""
         super().__init__(*args, **kwargs)
 
         if self._global_units is None or self._global_unit_conversions is None:
@@ -72,23 +68,12 @@ class Ingredient(StoredEntity):
                 )
             self._standard_unit = standard_unit
 
-        self._cost_value = cost_value
+        # Deal with the cost rate class
+        self._cost_rate = cost_rate or CostRate()
 
-        # If the cost quantity unit is not set, set it to the standard unit
-        if cost_qty_unit is None:
-            self._cost_qty_unit = self._standard_unit
-        else:
-            # Check the cost quantity unit is accessible
-            if cost_qty_unit not in self._unit_system.get_available_units():
-                raise ValueError(
-                    f"{cost_qty_unit.unit_name} is not accessible in the unit system."
-                )
-            self._cost_qty_unit = cost_qty_unit
-
-        self._cost_qty_value = cost_qty_value
-        self._flags = MUC(flag_ids) or MUC()
+        self._flags = MUC(flags) or MUC()
         self._gi = gi
-        self._nutrient_quantities = MUC(nutrient_quantity_ids) or MUC()
+        self._nutrient_quantities = MUC(nutrient_quantities) or MUC()
 
     @property
     def name(self) -> str:
@@ -130,44 +115,9 @@ class Ingredient(StoredEntity):
         self._standard_unit = value
 
     @property
-    def cost_value(self) -> float | None:
-        """Returns the cost value."""
-        return self._cost_value
-
-    @cost_value.setter
-    def cost_value(self, value: float | None) -> None:
-        """Sets the cost value."""
-        # Raise an exception if the value is negative
-        if value is not None and value < 0:
-            raise ValueError("Cost value cannot be negative.")
-        self._cost_value = value
-
-    @property
-    def cost_qty_unit(self) -> 'Unit':
-        """Returns the cost quantity unit."""
-        return self._cost_qty_unit
-
-    @cost_qty_unit.setter
-    def cost_qty_unit(self, value: 'Unit') -> None:
-        """Sets the cost quantity unit ID."""
-        if value is None:
-            raise ValueError("Cost quantity unit cannot be empty.")
-        if value not in self._unit_system.get_available_units():
-            raise ValueError(f"{value.unit_name} is not accessible in the unit system.")
-        self._cost_qty_unit = value
-
-    @property
-    def cost_qty_value(self) -> float | None:
-        """Returns the cost quantity value."""
-        return self._cost_qty_value
-
-    @cost_qty_value.setter
-    def cost_qty_value(self, value: float | None) -> None:
-        """Sets the cost quantity value."""
-        # Raise an exception if the value is negative
-        if value is not None and value < 0:
-            raise ValueError("Cost quantity value cannot be negative.")
-        self._cost_qty_value = value
+    def cost_rate(self) -> 'CostRate':
+        """Returns the cost rate."""
+        return self._cost_rate
 
     @property
     def flags(self) -> IUC['IngredientFlag']:
@@ -191,7 +141,7 @@ class Ingredient(StoredEntity):
         """Returns the nutrient quantities."""
         return self._nutrient_quantities.immutable
 
-    def get_flag(self, flag_name: str) -> 'IngredientFlag':
+    def get_flag_by_name(self, flag_name: str) -> 'IngredientFlag':
         """Returns a flag by name."""
         for flag in self._flags:
             if flag.flag_name == flag_name:
@@ -202,11 +152,16 @@ class Ingredient(StoredEntity):
         """Adds a flag."""
         self._flags.add(flag)
 
+    def add_flags(self, flags: Collection['IngredientFlag']) -> None:
+        """Adds multiple flags."""
+        for flag in flags:
+            self.add_flag(flag)
+
     def remove_flag(self, flag: 'IngredientFlag') -> None:
         """Deletes a flag."""
         self._flags.remove(flag)
 
-    def get_nutrient_quantity(self, nutrient_name: str) -> 'IngredientNutrientQuantity':
+    def get_nutrient_quantity_by_name(self, nutrient_name: str) -> 'IngredientNutrientQuantity':
         """Returns a nutrient quantity by name."""
         for nutrient_quantity in self._nutrient_quantities:
             if nutrient_quantity.nutrient.nutrient_name == nutrient_name:
@@ -218,6 +173,11 @@ class Ingredient(StoredEntity):
     ) -> None:
         """Adds a nutrient quantity."""
         self._nutrient_quantities.add(nutrient_quantity)
+
+    def add_nutrient_quantities(self, nutrient_quantities: Collection['IngredientNutrientQuantity']) -> None:
+        """Adds multiple nutrient quantities."""
+        for nutrient_quantity in nutrient_quantities:
+            self.add_nutrient_quantity(nutrient_quantity)
 
     def remove_nutrient_quantity(
         self,
