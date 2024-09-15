@@ -1,28 +1,22 @@
 """Defines the RecipeQuantity class."""
 
-from typing import TYPE_CHECKING, Collection
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from codiet.model import DomainService
     from codiet.model.recipes import Recipe
-    from codiet.model.units import Unit, UnitConversion
+    from codiet.model.units import Unit
 
 
 class RecipeQuantity:
     """Models a recipe quantity."""
 
-    _units: Collection["Unit"] | None = None
-    _global_unit_conversions: Collection["UnitConversion"] | None = None
+    _domain_service:'DomainService'
 
     @classmethod
-    def setup(
-        cls,
-        units: Collection["Unit"],
-        global_unit_conversions: Collection["UnitConversion"],
-    ) -> None:
+    def setup(cls,domain_service:'DomainService') -> None:
         """Sets up the units and global unit conversions for the Recipe class."""
-        cls._units = units
-        cls._global_unit_conversions = global_unit_conversions
-        cls._gram = next(u for u in units if u.name == "gram")
+        cls._domain_service = domain_service
 
     def __init__(
         self,
@@ -32,7 +26,7 @@ class RecipeQuantity:
     ):
         """Initialises the class."""
         self._recipe = recipe
-        self._quantity_unit = quantity_unit or self._gram
+        self._quantity_unit = quantity_unit or self._domain_service.gram
         self._quantity = quantity
 
     @property

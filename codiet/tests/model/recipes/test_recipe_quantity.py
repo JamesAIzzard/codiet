@@ -1,22 +1,15 @@
 """Defines tests for the RecipeQuantity class."""
 
-from unittest import TestCase
-
 from codiet.model.recipes import RecipeQuantity, Recipe
-from codiet.tests.fixtures import UnitTestFixtures
+from codiet.tests.model import BaseModelTest
 
 
-class BaseRecipeQuantityTest(TestCase):
+class BaseRecipeQuantityTest(BaseModelTest):
     """Base class for RecipeQuantity tests."""
 
     def setUp(self) -> None:
-        self.unit_fixtures = UnitTestFixtures()
-
-        RecipeQuantity.setup(
-            units=self.unit_fixtures.units.values(),
-            global_unit_conversions=self.unit_fixtures.global_unit_conversions.values(),
-        )
-
+        super().setUp()
+        RecipeQuantity.setup(self.domain_service)
 
 class TestConstructor(BaseRecipeQuantityTest):
     """Test class for the RecipeQuantity class."""
