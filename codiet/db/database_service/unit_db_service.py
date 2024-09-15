@@ -1,14 +1,14 @@
-from typing import Collection
+"""Defines the service for interacting with the unit database."""
+from typing import Collection, TYPE_CHECKING
 
 from PyQt6.QtCore import pyqtSignal
 
-from codiet.utils.map import Map
-from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
+from codiet.utils import Map, IUC
 from codiet.db.database_service.database_service_base import DatabaseServiceBase
-from codiet.model.units.unit import Unit
-from codiet.model.units.unit_conversion import GlobalUnitConversion
-from codiet.model.units.ingredient_unit_conversion import IngredientUnitConversion
-from codiet.model.ingredients.ingredient import Ingredient
+from codiet.model.units import Unit, UnitConversion, IngredientUnitConversion
+
+if TYPE_CHECKING:
+    from codiet.model.ingredients import Ingredient
 
 class UnitDBService(DatabaseServiceBase):
     """Service for interacting with the unit database."""
@@ -29,7 +29,7 @@ class UnitDBService(DatabaseServiceBase):
         self._mass_units: IUC[Unit]|None = None
         self._volume_units: IUC[Unit]|None = None
         self._grouping_units: IUC[Unit]|None = None
-        self._global_unit_conversions: IUC[GlobalUnitConversion]|None = None
+        self._global_unit_conversions: IUC[UnitConversion]|None = None
 
         # Cache the gram id. This the base unit, and used all over.
         self._gram: Unit|None = None
@@ -80,7 +80,7 @@ class UnitDBService(DatabaseServiceBase):
         return self._grouping_units
     
     @property
-    def global_unit_conversions(self) -> IUC[GlobalUnitConversion]:
+    def global_unit_conversions(self) -> IUC[UnitConversion]:
         """Returns all the global unit conversions."""
         if self._global_unit_conversions is None:
             self._global_unit_conversions = self.read_all_global_unit_conversions()
@@ -111,7 +111,7 @@ class UnitDBService(DatabaseServiceBase):
             units.append(self.get_unit_by_id(unit_id))
         return IUC(units)
 
-    def get_global_unit_conversion_by_units(self, from_unit: Unit, to_unit: Unit) -> GlobalUnitConversion:
+    def get_global_unit_conversion_by_units(self, from_unit: Unit, to_unit: Unit) -> UnitConversion:
         """Retrieves a single unit conversion by its units."""
         for unit_conversion in self.global_unit_conversions:
             if unit_conversion.from_unit == from_unit and unit_conversion.to_unit == to_unit:
@@ -120,19 +120,19 @@ class UnitDBService(DatabaseServiceBase):
                 return unit_conversion
         raise KeyError(f"Unit conversion from {from_unit} to {to_unit} not found.")
 
-    def get_global_unit_conversions_by_units(self, unit_pairs: Collection[tuple[Unit, Unit]]) -> IUC[GlobalUnitConversion]:
+    def get_global_unit_conversions_by_units(self, unit_pairs: Collection[tuple[Unit, Unit]]) -> IUC[UnitConversion]:
         """Retrieves multiple unit conversions by their units."""
         return IUC(self.get_global_unit_conversion_by_units(from_unit, to_unit) 
                      for from_unit, to_unit in unit_pairs)
 
-    def get_global_unit_conversion_by_id(self, id: int) -> GlobalUnitConversion:
+    def get_global_unit_conversion_by_id(self, id: int) -> UnitConversion:
         """Retrieves a single unit conversion by its id."""
         for unit_conversion in self.global_unit_conversions:
             if unit_conversion.id == id:
                 return unit_conversion
         raise KeyError(f"Unit conversion with id {id} not found.")
 
-    def get_global_unit_conversions_by_id(self, ids: Collection[int]) -> IUC[GlobalUnitConversion]:
+    def get_global_unit_conversions_by_id(self, ids: Collection[int]) -> IUC[UnitConversion]:
         """Retrieves multiple unit conversions by their ids."""
         return IUC(self.get_global_unit_conversion_by_id(id) for id in ids)
     
@@ -184,7 +184,7 @@ class UnitDBService(DatabaseServiceBase):
 
         return IUC(persisted_units)
 
-    def create_global_unit_conversion(self, unit_conversion: GlobalUnitConversion, _signal:bool=True) -> GlobalUnitConversion:
+    def create_global_unit_conversion(self, unit_conversion: UnitConversion, _signal:bool=True) -> UnitConversion:
         """Insert a global unit conversion into the database."""
         # Confirm that both from and to units are persisted
         assert unit_conversion.from_unit.id is not None
@@ -210,7 +210,7 @@ class UnitDBService(DatabaseServiceBase):
 
         return unit_conversion
 
-    def create_global_unit_conversions(self, unit_conversions: Collection[GlobalUnitConversion]) -> IUC[GlobalUnitConversion]:
+    def create_global_unit_conversions(self, unit_conversions: Collection[UnitConversion]) -> IUC[UnitConversion]:
         """Insert a set of global unit conversions into the database."""
         # Init return dict
         persisted_unit_conversions = []
@@ -287,7 +287,7 @@ class UnitDBService(DatabaseServiceBase):
         # Return the set as a frozenset
         return IUC(units)
 
-    def read_all_global_unit_conversions(self) -> IUC[GlobalUnitConversion]:
+    def read_all_global_unit_conversions(self) -> IUC[UnitConversion]:
         """Returns all the global unit conversions."""
         unit_conversions = []
         
@@ -296,7 +296,7 @@ class UnitDBService(DatabaseServiceBase):
         
         for row in global_unit_conversions_data:
             # Construct the UnitConversion object
-            unit_conversion = GlobalUnitConversion(
+            unit_conversion = UnitConversion(
                 from_unit=self.get_unit_by_id(row['from_unit_id']),
                 to_unit=self.get_unit_by_id(row['to_unit_id']),
                 from_unit_qty=row['from_unit_qty'],
@@ -309,7 +309,7 @@ class UnitDBService(DatabaseServiceBase):
         # Return the set as a frozenset
         return IUC(unit_conversions)
 
-    def read_ingredient_unit_conversions(self, ingredient: Ingredient) -> IUC[IngredientUnitConversion]:
+    def read_ingredient_unit_conversions(self, ingredient: 'Ingredient') -> IUC[IngredientUnitConversion]:
         """Returns all the ingredient unit conversions for an ingredient."""
         ingredient_unit_conversions = []
 
@@ -378,7 +378,7 @@ class UnitDBService(DatabaseServiceBase):
         self._reset_units_cache()
         self.unitsChanged.emit()
 
-    def update_global_unit_conversion(self, unit_conversion: GlobalUnitConversion, _signal:bool=True) -> None:
+    def update_global_unit_conversion(self, unit_conversion: UnitConversion, _signal:bool=True) -> None:
         """Update a global unit conversion in the database."""
         # Check the unit conversion id is set
         if unit_conversion.id is None:
@@ -404,7 +404,7 @@ class UnitDBService(DatabaseServiceBase):
             # Emit the signal
             self.globalUnitConversionsChanged
 
-    def update_global_unit_conversions(self, unit_conversions: Collection[GlobalUnitConversion]) -> None:
+    def update_global_unit_conversions(self, unit_conversions: Collection[UnitConversion]) -> None:
         """Update a collection of global unit conversions in the database."""
         # For each unit conversion
         for unit_conversion in unit_conversions:
@@ -474,7 +474,7 @@ class UnitDBService(DatabaseServiceBase):
         self._reset_units_cache()
         self.unitsChanged.emit()
 
-    def delete_global_unit_conversion(self, unit_conversion: GlobalUnitConversion, _signal:bool=True) -> None:
+    def delete_global_unit_conversion(self, unit_conversion: UnitConversion, _signal:bool=True) -> None:
         """Delete a global unit conversion from the database."""
         # Check the unit conversion id is set
         if unit_conversion.id is None:
@@ -487,7 +487,7 @@ class UnitDBService(DatabaseServiceBase):
             self._reset_global_unit_conversions_cache()
             self.globalUnitConversionsChanged.emit()
 
-    def delete_global_unit_conversions(self, unit_conversions: Collection[GlobalUnitConversion]) -> None:
+    def delete_global_unit_conversions(self, unit_conversions: Collection[UnitConversion]) -> None:
         """Delete a collection of global unit conversions from the database."""
         # For each unit conversion
         for unit_conversion in unit_conversions:

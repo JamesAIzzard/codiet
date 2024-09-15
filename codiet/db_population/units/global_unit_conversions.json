@@ -1,0 +1,92 @@
+{
+    "gram-kilogram": {
+        "from_unit": "gram",
+        "to_unit": "kilogram",
+        "from_quantity": 1,
+        "to_quantity": 0.001
+    },
+    "gram-milligram": {
+        "from_unit": "gram",
+        "to_unit": "milligram",
+        "from_quantity": 1,
+        "to_quantity": 1000
+    },
+    "gram-microgram": {
+        "from_unit": "gram",
+        "to_unit": "microgram",
+        "from_quantity": 1,
+        "to_quantity": 1000000
+    },
+    "gram-ounce": {
+        "from_unit": "gram",
+        "to_unit": "ounce",
+        "from_quantity": 1,
+        "to_quantity": 0.03527396
+    },
+    "gram-pound": {
+        "from_unit": "gram",
+        "to_unit": "pound",
+        "from_quantity": 1,
+        "to_quantity": 0.00220462
+    },
+    "millilitre-litre": {
+        "from_unit": "millilitre",
+        "to_unit": "litre",
+        "from_quantity": 1,
+        "to_quantity": 0.001
+    },
+    "millilitre-fluid ounce": {
+        "from_unit": "millilitre",
+        "to_unit": "fluid ounce",
+        "from_quantity": 1,
+        "to_quantity": 0.033814
+    },
+    "millilitre-pint": {
+        "from_unit": "millilitre",
+        "to_unit": "pint",
+        "from_quantity": 1,
+        "to_quantity": 0.00211338
+    },
+    "millilitre-quart": {
+        "from_unit": "millilitre",
+        "to_unit": "quart",
+        "from_quantity": 1,
+        "to_quantity": 0.00105669
+    },
+    "millilitre-gallon": {
+        "from_unit": "millilitre",
+        "to_unit": "gallon",
+        "from_quantity": 1,
+        "to_quantity": 0.000264172
+    },
+    "millilitre-cup": {
+        "from_unit": "millilitre",
+        "to_unit": "cup",
+        "from_quantity": 1,
+        "to_quantity": 0.00422675
+    },
+    "millilitre-tbsp": {
+        "from_unit": "millilitre",
+        "to_unit": "tbsp",
+        "from_quantity": 1,
+        "to_quantity": 0.067628
+    },
+    "millilitre-tsp": {
+        "from_unit": "millilitre",
+        "to_unit": "tsp",
+        "from_quantity": 1,
+        "to_quantity": 0.202884
+    },
+    "millilitre-pinch": {
+        "from_unit": "millilitre",
+        "to_unit": "pinch",
+        "from_quantity": 1,
+        "to_quantity": 1.62305
+    },
+    "millilitre-dash": {
+        "from_unit": "millilitre",
+        "to_unit": "dash",
+        "from_quantity": 1,
+        "to_quantity": 0.811525
+    }
+}

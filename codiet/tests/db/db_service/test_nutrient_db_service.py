@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 
 from codiet.tests.db.database_test_case import DatabaseTestCase
-from codiet.tests.fixtures.units_test_fixtures import UnitsTestFixtures
+from codiet.tests.fixtures.unit_test_fixtures import UnitTestFixtures
 from codiet.tests.fixtures.nutrient_test_fixtures import NutrientTestFixtures
 from codiet.model.nutrients.nutrient import Nutrient
 from codiet.model.ingredients.ingredient import Ingredient
@@ -12,7 +12,7 @@ class TestNutrientDBService(DatabaseTestCase):
     def setUp(self) -> None:
         super().setUp()
         
-        self.units_fixtures = UnitsTestFixtures(self.db_service)
+        self.units_fixtures = UnitTestFixtures(self.db_service)
         self.nutrients_fixtures = NutrientTestFixtures(self.db_service)
 
     def test_global_nutrient_id_name_map(self) -> None:
@@ -25,11 +25,11 @@ class TestNutrientDBService(DatabaseTestCase):
 
         # Check a couple of the mappings are correct
         self.assertEqual(
-            nutrient_id_name_map.get_value(self.nutrients_fixtures.test_nutrients["protein"].id), # type: ignore
+            nutrient_id_name_map.get_value(self.nutrients_fixtures.nutrients["protein"].id), # type: ignore
             "protein"
         )
         self.assertEqual(
-            nutrient_id_name_map.get_value(self.nutrients_fixtures.test_nutrients["carbohydrate"].id), # type: ignore
+            nutrient_id_name_map.get_value(self.nutrients_fixtures.nutrients["carbohydrate"].id), # type: ignore
             "carbohydrate"
         )
 
@@ -41,7 +41,7 @@ class TestNutrientDBService(DatabaseTestCase):
         nutrients = self.db_service.nutrients.global_nutrients
 
         # Check that the nutrients retured are those in the fixture
-        self.assertCountEqual(nutrients, self.nutrients_fixtures.test_nutrients.values())
+        self.assertCountEqual(nutrients, self.nutrients_fixtures.nutrients.values())
 
     def test_get_nutrient_by_name(self) -> None:
         """Checks that we can fetch a nutrient instance by its name."""
@@ -50,16 +50,16 @@ class TestNutrientDBService(DatabaseTestCase):
         # Check that we can fetch a nutrient instance by its name
         nutrient = self.db_service.nutrients.get_nutrient_by_name("protein")
 
-        self.assertEqual(nutrient, self.nutrients_fixtures.test_nutrients["protein"])
+        self.assertEqual(nutrient, self.nutrients_fixtures.nutrients["protein"])
 
     def test_get_nutrient_by_id(self) -> None:
         """Checks that we can fetch a nutrient instance by its id."""
         self.nutrients_fixtures.setup_test_nutrients()
 
         # Check that we can fetch a nutrient instance by its id
-        nutrient = self.db_service.nutrients.get_nutrient_by_id(self.nutrients_fixtures.test_nutrients["protein"].id) # type: ignore
+        nutrient = self.db_service.nutrients.get_nutrient_by_id(self.nutrients_fixtures.nutrients["protein"].id) # type: ignore
 
-        self.assertEqual(nutrient, self.nutrients_fixtures.test_nutrients["protein"])
+        self.assertEqual(nutrient, self.nutrients_fixtures.nutrients["protein"])
 
     def test_create_global_nutrient(self) -> None:
         """Confirms that we can create a new global nutrient."""

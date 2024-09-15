@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import QWidget
 from PyQt6.QtCore import QObject, pyqtSignal
 
 from codiet.model.units.unit import Unit
-from codiet.model.units.unit_conversion import GlobalUnitConversion
+from codiet.model.units.global_unit_conversion import GlobalUnitConversion
 from codiet.model.units.ingredient_unit_conversion import IngredientUnitConversion
 from codiet.views.units.unit_conversion_editor_view import UnitConversionEditorView
 from codiet.views.units.unit_conversions_editor_view import UnitConversionsEditorView

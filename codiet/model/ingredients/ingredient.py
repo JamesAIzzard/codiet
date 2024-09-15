@@ -3,33 +3,27 @@ from typing import Collection, TYPE_CHECKING
 from codiet.utils.unique_collection import MutableUniqueCollection as MUC
 from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 from codiet.db.stored_entity import StoredEntity
-from codiet.model.units.ingredient_units_system import IngredientUnitsSystem
+from codiet.model.units.ingredient_unit_system import IngredientUnitSystem
 
 if TYPE_CHECKING:
-    from codiet.model.units.unit import Unit
-    from codiet.model.units.unit_conversion import GlobalUnitConversion
-    from codiet.model.units.ingredient_unit_conversion import IngredientUnitConversion
+    from codiet.model.units import Unit, UnitConversion, IngredientUnitConversion
     from codiet.model.flags.ingredient_flag import IngredientFlag
     from codiet.model.nutrients.ingredient_nutrient_quantity import (
         IngredientNutrientQuantity,
     )
-
-if TYPE_CHECKING:
-    from codiet.db.database_service.unit_db_service import UnitDBService
-
 
 class Ingredient(StoredEntity):
     """Ingredient model."""
 
     # Class-level attributes for global units and conversions
     _global_units: IUC['Unit']
-    _global_unit_conversions: IUC['GlobalUnitConversion']
+    _global_unit_conversions: IUC['UnitConversion']
 
     @classmethod
     def initialise_class(
         cls,
         global_units: Collection['Unit'],
-        global_unit_conversions: Collection['GlobalUnitConversion'],
+        global_unit_conversions: Collection['UnitConversion'],
     ):
         """Initialize class-level attributes from UnitDBService."""
         cls._global_units = IUC(global_units)
@@ -60,7 +54,7 @@ class Ingredient(StoredEntity):
 
         self._name = name
         self._description = description
-        self._unit_system = IngredientUnitsSystem(
+        self._unit_system = IngredientUnitSystem(
             ingredient=self,
             global_units=Ingredient._global_units,
             global_unit_conversions=Ingredient._global_unit_conversions,

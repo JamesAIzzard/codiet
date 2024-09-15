@@ -5,7 +5,7 @@ from codiet.db_population.units import read_global_unit_conversions_from_json
 from codiet.utils.map import Map
 from codiet.model.units.unit import Unit
 from codiet.model.units.ingredient_unit_conversion import IngredientUnitConversion
-from codiet.model.units.ingredient_units_system import IngredientUnitsSystem
+from codiet.model.units.ingredient_unit_system import IngredientUnitSystem
 from codiet.model.ingredients.ingredient import Ingredient
 
 class TestEntityUnitsSystem(unittest.TestCase):
@@ -28,7 +28,7 @@ class TestEntityUnitsSystem(unittest.TestCase):
         )        
 
         # Create a system with disconnected graph
-        self.disconnected_system = IngredientUnitsSystem(
+        self.disconnected_system = IngredientUnitSystem(
             ingredient=self.ingredient,
             global_units=self.global_units,
             global_unit_conversions=self.global_unit_conversions,
@@ -45,7 +45,7 @@ class TestEntityUnitsSystem(unittest.TestCase):
             from_unit_qty=1,
             to_unit_qty=1.2,
         )
-        self.connected_system = IngredientUnitsSystem(
+        self.connected_system = IngredientUnitSystem(
             ingredient=self.ingredient,
             global_units=self.global_units,
             global_unit_conversions=self.global_unit_conversions,
@@ -55,8 +55,8 @@ class TestEntityUnitsSystem(unittest.TestCase):
     def test_init(self):
         """Test the initialisation of EntityUnitsSystem."""
         # Check both of the systems are the right type
-        self.assertIsInstance(self.disconnected_system, IngredientUnitsSystem)
-        self.assertIsInstance(self.connected_system, IngredientUnitsSystem)
+        self.assertIsInstance(self.disconnected_system, IngredientUnitSystem)
+        self.assertIsInstance(self.connected_system, IngredientUnitSystem)
 
     def test_ingredient(self):
         """Test the retrieval of the ingredient."""

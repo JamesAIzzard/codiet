@@ -11,7 +11,9 @@ class TestIngredientFlag(TestCase):
         self.ingredient_fixtures = IngredientTestFixtures(
             units_test_fixtures=self.unit_fixtures
         )
-        self.flag_fixtures = FlagTestFixtures()
+        self.flag_fixtures = FlagTestFixtures(
+            ingredient_fixtures=self.ingredient_fixtures
+        )
 
     def test_init(self):
         """Check we can create IngredientFlag instances in the right ways."""
@@ -35,18 +37,9 @@ class TestIngredientFlag(TestCase):
         self.assertTrue(ingredient_flag.flag_value)
 
     def test_value_setter(self):
-        """Test the setter for flag_value."""
-        # Create an ingredient flag
-        ingredient_flag = IngredientFlag(
-            ingredient=self.mock_ingredient,
-            flag=self.vegan_flag
-        )
-
-        # Check it initialised with False
-        self.assertFalse(ingredient_flag.flag_value)
-
-        # Set the value to True
-        ingredient_flag.flag_value = True
-
-        # Check the value is True
-        self.assertTrue(ingredient_flag.flag_value)    
+        """Checks the flag_value property is returning the correct value."""
+        vegan_flag = self.flag_fixtures.get_ingredient_flag_by_name("vegan")
+        vegan_flag.flag_value = False
+        self.assertFalse(vegan_flag.flag_value)
+        vegan_flag.flag_value = True
+        self.assertTrue(vegan_flag.flag_value)

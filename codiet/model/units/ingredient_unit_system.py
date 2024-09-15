@@ -1,17 +1,16 @@
+"""Defines a system of units which controls the interaction of units and conversions
+on an ingredient instance."""
+
 from typing import TYPE_CHECKING, Collection
 from collections import deque
 
-from codiet.utils.map import Map
-from codiet.utils.unique_collection import MutableUniqueCollection as MUC
-from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
-from codiet.model.units.unit import Unit
-from codiet.model.units.unit_conversion import GlobalUnitConversion
-from codiet.model.units.ingredient_unit_conversion import IngredientUnitConversion
+from codiet.utils import Map, MUC, IUC
 
 if TYPE_CHECKING:
-    from codiet.model.ingredients.ingredient import Ingredient
+    from codiet.model.ingredients import Ingredient
+    from codiet.model.units import Unit, UnitConversion, IngredientUnitConversion
 
-class IngredientUnitsSystem:
+class IngredientUnitSystem:
     """
     Represents a system for managing ingredient units and conversions.
     """
@@ -19,9 +18,9 @@ class IngredientUnitsSystem:
     def __init__(
         self,
         ingredient: 'Ingredient',
-        global_units: Collection[Unit],
-        global_unit_conversions: Collection[GlobalUnitConversion],
-        ingredient_unit_conversions: Collection[IngredientUnitConversion]|None = None
+        global_units: Collection['Unit'],
+        global_unit_conversions: Collection['UnitConversion'],
+        ingredient_unit_conversions: Collection['IngredientUnitConversion']|None = None
     ):
         self._ingredient = ingredient
         self._global_units = MUC(global_units)
@@ -40,47 +39,47 @@ class IngredientUnitsSystem:
         return self._ingredient
 
     @property
-    def gram(self) -> Unit:
+    def gram(self) -> 'Unit':
         """Retrieves the gram unit."""
         return self._get_unit_by_name("gram")
 
     @property
-    def global_units(self) -> IUC[Unit]:
+    def global_units(self) -> IUC['Unit']:
         """Retrieves the global units."""
         return self._global_units.immutable
     
     @property
-    def available_units(self) -> IUC[Unit]:
+    def available_units(self) -> IUC['Unit']:
         """Retrieves all available units."""
         return IUC(self.get_available_units())
 
     @property
-    def ingredient_unit_conversions(self) -> IUC[IngredientUnitConversion]:
+    def ingredient_unit_conversions(self) -> IUC['IngredientUnitConversion']:
         """Retrieves the entity unit conversions."""
         return self._ingredient_unit_conversions.immutable
 
     @ingredient_unit_conversions.setter
-    def ingredient_unit_conversions(self, ingredient_unit_conversions: Collection[IngredientUnitConversion]):
+    def ingredient_unit_conversions(self, ingredient_unit_conversions: Collection['IngredientUnitConversion']):
         """Replaces the existing entity unit conversions with a new list."""
         self._ingredient_unit_conversions = MUC(ingredient_unit_conversions)
         self._update()
 
-    def add_ingredient_unit_conversions(self, ingredient_unit_conversions: IngredientUnitConversion | Collection[IngredientUnitConversion]):
+    def add_ingredient_unit_conversions(self, ingredient_unit_conversions: 'IngredientUnitConversion' | Collection['IngredientUnitConversion']):
         """Adds entity unit conversions to the existing list."""
         self._ingredient_unit_conversions.add(ingredient_unit_conversions)
         self._update()
 
-    def update_ingredient_unit_conversions(self, ingredient_unit_conversions: IngredientUnitConversion | Collection[IngredientUnitConversion]):
+    def update_ingredient_unit_conversions(self, ingredient_unit_conversions: 'IngredientUnitConversion' | Collection['IngredientUnitConversion']):
         """Adds entity unit conversions to the existing list."""
         self._ingredient_unit_conversions.update(ingredient_unit_conversions)
         self._update()
 
-    def remove_ingredient_unit_conversions(self, entity_unit_conversions: IngredientUnitConversion | Collection[IngredientUnitConversion]):
+    def remove_ingredient_unit_conversions(self, entity_unit_conversions: 'IngredientUnitConversion' | Collection['IngredientUnitConversion']):
         """Removes entity unit conversions from the existing list."""
         self._ingredient_unit_conversions.remove(entity_unit_conversions)
         self._update()
 
-    def can_convert_units(self, from_unit: Unit, to_unit:Unit) -> bool:
+    def can_convert_units(self, from_unit: 'Unit', to_unit:'Unit') -> bool:
         """Checks if two units can be converted between."""
         try:
             self._find_conversion_path(from_unit, to_unit)
@@ -88,7 +87,7 @@ class IngredientUnitsSystem:
         except ValueError:
             return False
 
-    def get_conversion_factor(self, from_unit: Unit, to_unit: Unit) -> float:
+    def get_conversion_factor(self, from_unit: 'Unit', to_unit: 'Unit') -> float:
         """
         Calculates the conversion factor between two unit IDs.
         To go from 'from_unit' to 'to_unit', we multiply the first unit qty by the factor.
@@ -102,7 +101,7 @@ class IngredientUnitsSystem:
             factor *= self._graph[u1][u2]
         return factor
 
-    def convert_units(self, quantity: float, from_unit: Unit, to_unit: Unit) -> float:
+    def convert_units(self, quantity: float, from_unit: 'Unit', to_unit: 'Unit') -> float:
         """
         Converts a quantity from one unit to another.
 
@@ -114,8 +113,8 @@ class IngredientUnitsSystem:
 
     def rescale_quantity(
             self,
-            ref_from_unit: Unit,
-            ref_to_unit: Unit,
+            ref_from_unit: 'Unit',
+            ref_to_unit: 'Unit',
             ref_from_quantity: float,
             ref_to_quantity: float,
             quantity: float,
@@ -133,7 +132,7 @@ class IngredientUnitsSystem:
 
         return result
 
-    def get_available_units(self, root_unit: Unit|None=None) -> IUC[Unit]:
+    def get_available_units(self, root_unit: 'Unit|None'=None) -> IUC['Unit']:
         """
         Retrieves all available units starting from a root unit ID.
         If the root unit ID is None, the root unit is assumed to be grams.
@@ -160,7 +159,7 @@ class IngredientUnitsSystem:
         """
         self._path_cache.clear()
 
-    def _get_unit_by_name(self, unit_name:str) -> Unit:
+    def _get_unit_by_name(self, unit_name:str) -> 'Unit':
         """Retrieves a unit by its name."""
         if self._name_unit_map is None:
             self._cache_name_unit_map()
@@ -169,7 +168,7 @@ class IngredientUnitsSystem:
             raise ValueError(f"Unit {unit_name} not found.")
         return unit
 
-    def _find_conversion_path(self, from_unit: Unit, to_unit: Unit) -> list[tuple[Unit, Unit]]:
+    def _find_conversion_path(self, from_unit: 'Unit', to_unit: 'Unit') -> list[tuple['Unit', 'Unit']]:
         """
         Finds a conversion path between two units using BFS.
         """
@@ -216,7 +215,7 @@ class IngredientUnitsSystem:
         """Caches the name-unit map."""
         # Create the map if was None
         if self._name_unit_map is None:
-            self._name_unit_map = Map[str, Unit]()
+            self._name_unit_map = Map[str, 'Unit']()
         # Recreate the map
         self._name_unit_map.clear()
         for unit in self._global_units:

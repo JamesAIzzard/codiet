@@ -11,6 +11,6 @@ class Optimiser:
     def __init__(self):
         """Initialises the class."""
 
-    def solve(self, problem:'MOOProblem', algorith:'MOOAlgorithm') -> IUC['MealPlan']:
+    def solve(self, problem:'MOOProblem', algorithm:'MOOAlgorithm') -> IUC['MealPlan']:
         """Solve the specified problem with the specified algorithm."""
         raise NotImplementedError("Method not implemented.")

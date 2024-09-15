@@ -3,7 +3,7 @@
 import unittest
 
 from codiet.tests.db.database_test_case import DatabaseTestCase
-from codiet.tests.fixtures.units_test_fixtures import UnitsTestFixtures
+from codiet.tests.fixtures.unit_test_fixtures import UnitTestFixtures
 from codiet.model.units.unit import Unit
 
 
@@ -15,7 +15,7 @@ class TestUnitDBService(DatabaseTestCase):
         """
         super().setUp()
 
-        self.units_fixtures = UnitsTestFixtures(self.db_service)
+        self.units_fixtures = UnitTestFixtures(self.db_service)
 
     def test_unit_id_name_map(self):
         """Checks that the unit ID to name map contains the correct entries."""

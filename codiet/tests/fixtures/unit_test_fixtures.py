@@ -1,22 +1,19 @@
 """Test fixtures for the units module."""
 from typing import TYPE_CHECKING
 
-from codiet.model.units.unit import Unit
-from codiet.model.units.unit_conversion import GlobalUnitConversion
+from codiet.model.units import Unit, UnitConversion, IngredientUnitConversion
 
 if TYPE_CHECKING:
     from codiet.db.database_service import DatabaseService
+    from codiet.model.ingredients import Ingredient
 
-class UnitsTestFixtures:
-    """Test fixtures for the units module.
-    Accepts a DatabaseService instance to interact with the database, and
-    provides various methods to create test units and unit conversions.
-    """
+class UnitTestFixtures:
+    """Test fixtures for the units module."""
 
     def __init__(self) -> None:
         self._units:dict[str, Unit]|None = None
         self._database_units_setup:bool = False
-        self._global_unit_conversions:dict[str, GlobalUnitConversion]|None = None
+        self._global_unit_conversions:dict[tuple[str, str], UnitConversion]|None = None
         self._database_global_unit_conversions_setup:bool = False
 
     @property
@@ -27,8 +24,10 @@ class UnitsTestFixtures:
         return self._units
     
     @property
-    def global_unit_conversions(self) -> dict[str, GlobalUnitConversion]:
-        """Returns the test global unit conversions."""
+    def global_unit_conversions(self) -> dict[tuple[str, str], UnitConversion]:
+        """Returns the test global unit conversions.
+        The dictionary key is a tuple of the from and to unit names.
+        """
         if self._global_unit_conversions is None:
             self._global_unit_conversions = self._create_test_global_unit_conversions()
         return self._global_unit_conversions
@@ -36,6 +35,10 @@ class UnitsTestFixtures:
     def get_unit_by_name(self, unit_name:str) -> Unit:
         """Returns a unit by name."""
         return self.units[unit_name]
+
+    def get_global_unit_conversion_by_name(self, conversion_name:tuple[str, str]) -> UnitConversion:
+        """Returns a global unit conversion by name."""
+        return self.global_unit_conversions[conversion_name]
 
     def setup_database_units(self, db_service:'DatabaseService') -> None:
         """Sets up the test units in the database."""
@@ -84,16 +87,16 @@ class UnitsTestFixtures:
             )
         }
 
-    def _create_test_global_unit_conversions(self) -> dict[str, GlobalUnitConversion]:
+    def _create_test_global_unit_conversions(self) -> dict[tuple[str, str], UnitConversion]:
         """Instantiates a dictionary of global unit conversions for testing purposes."""
         return {
-            "millilitre-litre": GlobalUnitConversion(
+            ("millilitre", "litre"): UnitConversion(
                 from_unit=self.units["millilitre"],
                 to_unit=self.units["litre"],
                 from_unit_qty=1000,
                 to_unit_qty=1
             ),
-            "gram-kilogram": GlobalUnitConversion(
+            ("gram", "kilogram"): UnitConversion(
                 from_unit=self.units["gram"],
                 to_unit=self.units["kilogram"],
                 from_unit_qty=1000,

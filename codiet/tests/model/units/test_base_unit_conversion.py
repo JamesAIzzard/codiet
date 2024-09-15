@@ -3,7 +3,7 @@ from unittest import TestCase
 from codiet.db_population.units import read_units_from_json
 from codiet.utils.map import Map
 from codiet.model.units.unit import Unit
-from codiet.model.units.base_unit_conversion import BaseUnitConversion
+from codiet.model.units.unit_conversion import UnitConversion
 
 class TestBaseUnitConversion(TestCase):
         
@@ -16,7 +16,7 @@ class TestBaseUnitConversion(TestCase):
                 self.named_global_units.add_mapping(global_unit.unit_name, global_unit)
 
             # Init a test unit conversion
-            self.defined_unit_conversion = BaseUnitConversion(
+            self.defined_unit_conversion = UnitConversion(
                 from_unit=self.named_global_units.get_value('gram'),
                 to_unit=self.named_global_units.get_value('kilogram'),
                 from_unit_qty=1000,
@@ -24,7 +24,7 @@ class TestBaseUnitConversion(TestCase):
             )
 
             # Init an undefined unit conversion
-            self.undefined_unit_conversion = BaseUnitConversion(
+            self.undefined_unit_conversion = UnitConversion(
                 from_unit=self.named_global_units.get_value('gram'),
                 to_unit=self.named_global_units.get_value('kilogram'),
             )
@@ -48,7 +48,7 @@ class TestBaseUnitConversion(TestCase):
             # Create a Unit object with 'test' as the unit name
             unit = self.named_global_units.get_value('gram')
             with self.assertRaises(ValueError):
-                BaseUnitConversion(
+                UnitConversion(
                     from_unit=unit,
                     to_unit=unit,
                 )
@@ -77,19 +77,19 @@ class TestBaseUnitConversion(TestCase):
         def test_equality(self):
             """Test the equality of two UnitConversion objects."""
             # Create two identical unit conversion objects
-            unit_conversion1 = BaseUnitConversion(
+            unit_conversion1 = UnitConversion(
                 from_unit=self.named_global_units.get_value('gram'),
                 to_unit=self.named_global_units.get_value('kilogram'),
                 from_unit_qty=1000,
                 to_unit_qty=1
             )
-            unit_conversion2 = BaseUnitConversion(
+            unit_conversion2 = UnitConversion(
                 from_unit=self.named_global_units.get_value('gram'),
                 to_unit=self.named_global_units.get_value('kilogram'),
                 from_unit_qty=1000,
                 to_unit_qty=1
             )
-            unit_conversion3 = BaseUnitConversion(
+            unit_conversion3 = UnitConversion(
                 from_unit=self.named_global_units.get_value('gram'),
                 to_unit=self.named_global_units.get_value('millilitre'),
                 from_unit_qty=1,
