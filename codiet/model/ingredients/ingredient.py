@@ -34,8 +34,8 @@ class Ingredient(StoredEntity, UsesDomainService):
         self._description = description
         self._unit_system = IngredientUnitSystem(
             ingredient=self,
-            global_units=self._domain_service.global_units,
-            global_unit_conversions=self._domain_service.global_unit_conversions,
+            global_units=self.domain_service.global_units,
+            global_unit_conversions=self.domain_service.global_unit_conversions,
             ingredient_unit_conversions=unit_conversions,
         )
 

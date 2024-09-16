@@ -1,5 +1,6 @@
 class StoredEntity:
-    def __init__(self, id: int | None = None):
+    def __init__(self, id: int | None = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._id = id
 
     @property

@@ -15,7 +15,7 @@ class IsQuantity(UsesDomainService):
             *args, **kwargs
         ):
         super().__init__(*args, **kwargs)
-        self._quantity_unit = quantity_unit or self._domain_service.gram
+        self._quantity_unit = quantity_unit or self.domain_service.gram
         self._quantity_value = quantity_value
 
     @property

@@ -5,8 +5,6 @@ from codiet.model.quantity.is_quantity import IsQuantity
 
 if TYPE_CHECKING:
     from codiet.model.ingredients.ingredient import Ingredient
-    from codiet.model.units.unit import Unit
-
 
 class IngredientQuantity(IsQuantity, StoredEntity):
     """Class to represent an ingredient quantity."""

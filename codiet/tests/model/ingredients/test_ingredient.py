@@ -11,7 +11,6 @@ class BaseIngredientTest(BaseModelTest):
     def setUp(self) -> None:
         super().setUp()
 
-
 class TestConstructor(BaseIngredientTest):
 
     def test_constructor(self):
