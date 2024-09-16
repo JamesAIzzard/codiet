@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from codiet.model.ingredients import Ingredient
     from codiet.model.units import Unit, UnitConversion
 
-class IngredientUnitSystem:
+class UnitSystem:
     """
     Represents a system for managing ingredient units and conversions.
     """

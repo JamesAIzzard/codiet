@@ -6,6 +6,9 @@ class SingletonMeta(type):
         if cls not in cls._instances:
             # Create a new instance if it doesn't exist
             cls._instances[cls] = super(SingletonMeta, cls).__call__(*args, **kwargs)
+        else:
+            # Re-initialize the existing instance
+            cls._instances[cls].__init__(*args, **kwargs)
         return cls._instances[cls]
     
     def get_instance(cls):

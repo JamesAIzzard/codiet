@@ -5,7 +5,7 @@ from datetime import time
 from codiet.tests.model import BaseModelTest
 from codiet.tests.fixtures import IngredientTestFixtures
 from codiet.model.recipes import Recipe
-from codiet.model.ingredients import Ingredient, IngredientQuantity
+from codiet.model.ingredients import IngredientQuantity
 from codiet.model.time import TimeWindow
 from codiet.model.tags import Tag
 
@@ -14,9 +14,6 @@ class BaseRecipeTest(BaseModelTest):
 
     def setUp(self) -> None:
         super().setUp()
-        Recipe.setup(self._domain_service)
-        Ingredient.setup(self._domain_service)
-        IngredientQuantity.setup(self._domain_service)
         self.ingredient_fixtures = IngredientTestFixtures()
 
 class TestConstructor(BaseRecipeTest):

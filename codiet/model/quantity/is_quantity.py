@@ -23,7 +23,17 @@ class IsQuantity(UsesDomainService):
         """Returns the quantity unit."""
         return self._quantity_unit
     
+    @quantity_unit.setter
+    def quantity_unit(self, value: 'Unit') -> None:
+        """Sets the quantity unit."""
+        self._quantity_unit = value
+
     @property
     def quantity_value(self) -> float | None:
         """Returns the quantity value."""
         return self._quantity_value
+    
+    @quantity_value.setter
+    def quantity_value(self, value: float) -> None:
+        """Sets the quantity value."""
+        self._quantity_value = value

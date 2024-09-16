@@ -3,7 +3,7 @@ from typing import Collection, TYPE_CHECKING
 from codiet.utils import MUC, IUC
 from codiet.db.stored_entity import StoredEntity
 from codiet.model.domain_service import UsesDomainService
-from codiet.model.units import IngredientUnitSystem
+from codiet.model.units import UnitSystem
 from codiet.model.cost import CostRate
 
 if TYPE_CHECKING:
@@ -32,7 +32,7 @@ class Ingredient(StoredEntity, UsesDomainService):
 
         self._name = name
         self._description = description
-        self._unit_system = IngredientUnitSystem(
+        self._unit_system = UnitSystem(
             ingredient=self,
             global_units=self.domain_service.global_units,
             global_unit_conversions=self.domain_service.global_unit_conversions,

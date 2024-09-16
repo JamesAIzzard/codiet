@@ -5,7 +5,7 @@ from PyQt6.QtCore import pyqtSignal
 
 from codiet.utils import Map, IUC
 from codiet.db.database_service.database_service_base import DatabaseServiceBase
-from codiet.model.units import Unit, UnitConversion, IngredientUnitConversion
+from codiet.model.units import Unit, UnitConversion
 
 if TYPE_CHECKING:
     from codiet.model.ingredients import Ingredient
@@ -224,7 +224,7 @@ class UnitDBService(DatabaseServiceBase):
 
         return IUC(persisted_unit_conversions)
 
-    def create_ingredient_unit_conversion(self, ingredient_unit_conversion: IngredientUnitConversion) -> IngredientUnitConversion:
+    def create_ingredient_unit_conversion(self, ingredient_unit_conversion: UnitConversion) -> UnitConversion:
         """Insert a set of ingredient unit conversions into the database."""
 
         # Confirm that both from and to units are persisted
@@ -247,7 +247,7 @@ class UnitDBService(DatabaseServiceBase):
 
         return ingredient_unit_conversion
 
-    def create_ingredient_unit_conversions(self, ingredient_unit_conversions: Collection[IngredientUnitConversion]) -> IUC[IngredientUnitConversion]:
+    def create_ingredient_unit_conversions(self, ingredient_unit_conversions: Collection[UnitConversion]) -> IUC[UnitConversion]:
         """Insert a set of ingredient unit conversions into the database."""
         # Init return dict
         persisted_ingredient_unit_conversions = []
@@ -309,7 +309,7 @@ class UnitDBService(DatabaseServiceBase):
         # Return the set as a frozenset
         return IUC(unit_conversions)
 
-    def read_ingredient_unit_conversions(self, ingredient: 'Ingredient') -> IUC[IngredientUnitConversion]:
+    def read_ingredient_unit_conversions(self, ingredient: 'Ingredient') -> IUC[UnitConversion]:
         """Returns all the ingredient unit conversions for an ingredient."""
         ingredient_unit_conversions = []
 
@@ -321,7 +321,7 @@ class UnitDBService(DatabaseServiceBase):
         
         for uc_id, uc_data in ingredient_unit_conversions_data.items():
             # Construct the IngredientUnitConversion object
-            unit_conversion = IngredientUnitConversion(
+            unit_conversion = UnitConversion(
                 from_unit=self.get_unit_by_id(uc_data['from_unit_id']),
                 to_unit=self.get_unit_by_id(uc_data['to_unit_id']),
                 from_unit_qty=uc_data['from_unit_qty'],
@@ -414,7 +414,7 @@ class UnitDBService(DatabaseServiceBase):
         self._reset_global_unit_conversions_cache()
         self.globalUnitConversionsChanged.emit()
 
-    def update_ingredient_unit_conversion(self, ingredient_unit_conversion: IngredientUnitConversion, _signal:bool=True) -> None:
+    def update_ingredient_unit_conversion(self, ingredient_unit_conversion: UnitConversion, _signal:bool=True) -> None:
         """Update an ingredient unit conversion in the database."""
         # Check the unit conversion id is set
         if ingredient_unit_conversion.id is None:
@@ -438,7 +438,7 @@ class UnitDBService(DatabaseServiceBase):
         if _signal:
             self.ingredientUnitConversionChanged.emit()
 
-    def update_ingredient_unit_conversions(self, ingredient_unit_conversions: Collection[IngredientUnitConversion]) -> None:
+    def update_ingredient_unit_conversions(self, ingredient_unit_conversions: Collection[UnitConversion]) -> None:
         """Update a set of ingredient unit conversions in the database."""
         for ingredient_unit_conversion in ingredient_unit_conversions:
             self.update_ingredient_unit_conversion(ingredient_unit_conversion, _signal=False)
@@ -497,7 +497,7 @@ class UnitDBService(DatabaseServiceBase):
         self._reset_global_unit_conversions_cache()
         self.globalUnitConversionsChanged.emit()
 
-    def delete_ingredient_unit_conversion(self, ingredient_unit_conversion: IngredientUnitConversion, _signal:bool=True) -> None:
+    def delete_ingredient_unit_conversion(self, ingredient_unit_conversion: UnitConversion, _signal:bool=True) -> None:
         """Delete an ingredient unit conversion from the database."""
         # Check the unit conversion id is set
         if ingredient_unit_conversion.id is None:
@@ -509,7 +509,7 @@ class UnitDBService(DatabaseServiceBase):
         if _signal:
             self.ingredientUnitConversionChanged.emit()
 
-    def delete_ingredient_unit_conversions(self, ingredient_unit_conversions: Collection[IngredientUnitConversion]) -> None:
+    def delete_ingredient_unit_conversions(self, ingredient_unit_conversions: Collection[UnitConversion]) -> None:
         """Delete a set of ingredient unit conversions from the database."""
         # For each unit conversion
         for ingredient_unit_conversion in ingredient_unit_conversions:

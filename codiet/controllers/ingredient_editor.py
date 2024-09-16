@@ -7,7 +7,7 @@ from codiet.model.ingredients.ingredient import Ingredient
 from codiet.model.nutrients import filter_leaf_nutrients
 from codiet.model.nutrients.nutrient_quantity import NutrientQuantity
 from codiet.model.units.ingredient_unit_conversion import IngredientUnitConversion
-from codiet.model.units.ingredient_unit_system import IngredientUnitSystem
+from codiet.model.units.unit_system import UnitSystem
 from codiet.views.ingredients.ingredient_editor_view import IngredientEditorView
 from codiet.controllers.base_controller import BaseController
 from codiet.controllers.dialogs import (
@@ -40,7 +40,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self._global_flags = self._db_service.repository.read_all_global_flags()
         self._global_nutrients = self._db_service.read_all_global_nutrients()
         self._global_leaf_nutrients = filter_leaf_nutrients(self._global_nutrients)
-        self._ingredient_unit_system = IngredientUnitSystem(
+        self._ingredient_unit_system = UnitSystem(
             global_units=self._db_service.units.global_units,
             global_unit_conversions=self._db_service.units.global_unit_conversions,
             ingredient_unit_conversions={},  # Update when ingredient is loaded
