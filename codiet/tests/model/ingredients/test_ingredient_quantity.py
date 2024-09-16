@@ -11,6 +11,7 @@ class BaseIngredientQuantityTest(BaseModelTest):
     def setUp(self) -> None:
         super().setUp()
         Ingredient.setup(self.domain_service)
+        IngredientQuantity.setup(self.domain_service)
         self.ingredient_fixtures = IngredientTestFixtures()
 
 class TestConstructor(BaseIngredientQuantityTest):
@@ -27,4 +28,11 @@ class TestConstructor(BaseIngredientQuantityTest):
         apple = self.ingredient_fixtures.get_ingredient_by_name("apple")
         apple_quantity = IngredientQuantity(apple)
         self.assertIs(apple_quantity.ingredient, apple)
+
+    def test_quantity_unit_is_default(self):
+        """Check that the quantity unit is set to the default."""
+        apple_quantity = IngredientQuantity(
+            self.ingredient_fixtures.get_ingredient_by_name("apple")
+        )
+        self.assertIs(apple_quantity.quantity_unit, self.domain_service.gram)
         

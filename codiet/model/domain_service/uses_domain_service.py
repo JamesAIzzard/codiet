@@ -15,9 +15,4 @@ class UsesDomainService:
 
     def __init__(self, *args, **kwargs) -> None:
         """Initialises the class."""
-        if not self._setup_run:
-            raise ValueError(
-                "The domain service has not been set up for this class. "
-                "Please call the setup method first."
-            )
         super().__init__(*args, **kwargs)
