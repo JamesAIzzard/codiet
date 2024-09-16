@@ -1,7 +1,7 @@
 """Test fixtures for the flags module."""
 from typing import TYPE_CHECKING
 
-from codiet.model.flags import Flag, IngredientFlag
+from codiet.model.flags import Flag
 
 if TYPE_CHECKING:
     from codiet.model.ingredients import Ingredient
@@ -26,26 +26,19 @@ class FlagTestFixtures:
         """Returns a flag by name."""
         return self.flags[flag_name]
 
-    def create_ingredient_flag(self, flag_name:str, ingredient:'Ingredient') -> IngredientFlag:
-        """Creates an ingredient flag."""
-        return IngredientFlag(
-            flag_name=flag_name,
-            ingredient=ingredient
-        )
-
     def _create_flags(self) -> dict[str, Flag]:
         """Instantiates a dictionary of flags for testing purposes."""
         return {
             "vegan": Flag(
-                flag_name="vegan",
+                name="vegan",
             ),
             "vegetarian": Flag(
-                flag_name="vegetarian",
+                name="vegetarian",
             ),
             "gluten_free": Flag(
-                flag_name="gluten_free",
+                name="gluten_free",
             ),
             "dairy_free": Flag(
-                flag_name="dairy_free",
+                name="dairy_free",
             ),
         }

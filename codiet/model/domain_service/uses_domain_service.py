@@ -13,6 +13,13 @@ class UsesDomainService:
         cls._domain_service = domain_service
         cls._setup_run = True
 
+    def __new__(cls, *args, **kwargs):
+        if not cls._setup_run:
+            raise RuntimeError(
+                f"Setup not run for {cls.__name__}. Please call {cls.__name__}.setup() before instantiation."
+            )
+        return super().__new__(cls)
+
     def __init__(self, *args, **kwargs) -> None:
-        """Initialises the class."""
+        """Initializes the class."""
         super().__init__(*args, **kwargs)

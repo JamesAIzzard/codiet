@@ -21,7 +21,7 @@ def read_global_flags_from_json(global_flags_filepath: str=GLOBAL_FLAGS_FILEPATH
         data: list[str] = json.load(f)
 
     for flag_name in data:
-        flag = Flag(flag_name=flag_name)
+        flag = Flag(name=flag_name)
         flags.add(flag)
 
     _cached_global_flags = flags

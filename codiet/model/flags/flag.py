@@ -4,25 +4,35 @@ from codiet.db.stored_entity import StoredEntity
 
 class Flag(StoredEntity):
     """Models a flag.
-    Note:
-        A flag alone does not have a value. A flag only gets a value
-        when it is associated with an ingredient.
+    A flag can be set to three values: True, False, or None.
+    None indicates the flag has not been set, and may therefore be True or False.
     """
 
     def __init__(
             self, 
-            flag_name: str,
+            name: str,
             *args, **kwargs
         ):
         """Initialise the flag."""
         super().__init__(*args, **kwargs)
 
-        self._flag_name = flag_name
+        self._name = name
+        self._value:bool|None = None
 
     @property
     def name(self) -> str:
         """Get the name of the flag."""
-        return self._flag_name
+        return self._name
+
+    @property
+    def value(self) -> bool|None:
+        """Get the value of the flag."""
+        return self._value
+    
+    @value.setter
+    def value(self, value: bool|None) -> None:
+        """Set the value of the flag."""
+        self._value = value
 
     def __eq__(self, other) -> bool:
         """Check if two flags are equal."""

@@ -7,7 +7,7 @@ from codiet.utils.map import Map
 from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 from codiet.utils.unique_collection import MutableUniqueCollection as MUC
 from codiet.model.flags.flag import Flag
-from codiet.model.flags.ingredient_flag import IngredientFlag
+
 if TYPE_CHECKING:
     from codiet.model.ingredients.ingredient import Ingredient
 
@@ -84,7 +84,7 @@ class FlagDBService(DatabaseServiceBase):
 
         return IUC(saved_flags)
 
-    def create_ingredient_flag(self, ingredient_flag: IngredientFlag, _signal:bool = True) -> IngredientFlag:
+    def create_ingredient_flag(self, ingredient_flag: Flag, _signal:bool = True) -> Flag:
         """Insert the ingredient flags into the database."""
         # Check the ingredient ID is populated
         if ingredient_flag.ingredient.id is None:
@@ -106,7 +106,7 @@ class FlagDBService(DatabaseServiceBase):
 
         return ingredient_flag
 
-    def create_ingredient_flags(self, flags: Collection[IngredientFlag]) -> IUC[IngredientFlag]:
+    def create_ingredient_flags(self, flags: Collection[Flag]) -> IUC[Flag]:
         """Insert the ingredient flags into the database."""
         # Init a list to store the saved flags
         saved_flags = []
@@ -129,13 +129,13 @@ class FlagDBService(DatabaseServiceBase):
             flags.append(
                 Flag(
                     id=flag_id,
-                    flag_name=flag_name
+                    name=flag_name
                 )
             )
 
         return IUC(flags)
 
-    def read_ingredient_flags(self, ingredient: 'Ingredient') -> IUC[IngredientFlag]:
+    def read_ingredient_flags(self, ingredient: 'Ingredient') -> IUC[Flag]:
         """Read the flags for the given ingredient."""
         assert ingredient.id is not None
         flags_data = self._repository.flags.read_ingredient_flags(ingredient.id)
@@ -158,7 +158,7 @@ class FlagDBService(DatabaseServiceBase):
 
         return IUC(flags)
     
-    def update_ingredient_flag(self, ingredient_flag: IngredientFlag, _signal=True) -> None:
+    def update_ingredient_flag(self, ingredient_flag: Flag, _signal=True) -> None:
         """Update the flag for the given ingredient."""
         # Check the ingredient ID and flag ID are populated
         if ingredient_flag.ingredient.id is None or ingredient_flag.flag.id is None:
@@ -173,12 +173,12 @@ class FlagDBService(DatabaseServiceBase):
         # Emit the signal for the ingredient flags change
         self.ingredientFlagsChanged.emit()
 
-    def update_ingredient_flags(self, flags: Collection[IngredientFlag]) -> None:
+    def update_ingredient_flags(self, flags: Collection[Flag]) -> None:
         """Update the flags for the given ingredient."""
         for flag in flags:
             self.update_ingredient_flag(flag, _signal=False)
 
-    def delete_ingredient_flag(self, ingredient_flag: IngredientFlag, _signal=True) -> None:
+    def delete_ingredient_flag(self, ingredient_flag: Flag, _signal=True) -> None:
         """Delete the flag for the given ingredient."""
         # Check the ingredient ID and flag ID are populated
         if ingredient_flag.ingredient.id is None or ingredient_flag.flag.id is None:
@@ -192,7 +192,7 @@ class FlagDBService(DatabaseServiceBase):
         # Emit the signal for the ingredient flags change
         self.ingredientFlagsChanged.emit()
 
-    def delete_ingredient_flags(self, flags: Collection[IngredientFlag]) -> None:
+    def delete_ingredient_flags(self, flags: Collection[Flag]) -> None:
         """Delete the flags supplied."""
         for flag in flags:
             self.delete_ingredient_flag(flag, _signal=False)

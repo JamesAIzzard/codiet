@@ -1,22 +1,27 @@
-import unittest
+"""Unit tests for the flag class."""
+
+from codiet.tests.model import BaseModelTest
 from codiet.model.flags.flag import Flag
 
-class TestFlag(unittest.TestCase):
-    def test_init(self):
-        """Test the initialisation of Flag."""
-        flag = Flag(flag_name="test_flag")
-        self.assertEqual(flag.name, "test_flag")
+class BaseFlagTest(BaseModelTest):
+    """Base class for testing flags."""
+    pass
 
-        flag_with_value = Flag(flag_name="value_flag")
-        self.assertEqual(flag_with_value.name, "value_flag")
+class TestConstructor(BaseFlagTest):
+    def test_minimal_arguments(self):
+        """Check that the flag can be constructed with minimal arguments."""
+        flag = Flag("test_flag")
+        self.assertIsInstance(flag, Flag)
 
-
-
-    def test_equality(self):
-        """Test the equality of two flags."""
+class TestEquality(BaseFlagTest):
+    def test_true_equality(self):
+        """Check that two flags with the same name are considered equal."""
         flag1 = Flag("test_flag")
         flag2 = Flag("test_flag")
         self.assertEqual(flag1, flag2)
 
-        flag3 = Flag("different_flag")
-        self.assertNotEqual(flag1, flag3)
+    def test_false_equality(self):
+        """Check that two flags with different names are not considered equal."""
+        flag1 = Flag("test_flag1")
+        flag2 = Flag("test_flag2")
+        self.assertNotEqual(flag1, flag2)

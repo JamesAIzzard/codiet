@@ -14,9 +14,9 @@ class BaseRecipeTest(BaseModelTest):
 
     def setUp(self) -> None:
         super().setUp()
-        Recipe.setup(self.domain_service)
-        Ingredient.setup(self.domain_service)
-        IngredientQuantity.setup(self.domain_service)
+        Recipe.setup(self._domain_service)
+        Ingredient.setup(self._domain_service)
+        IngredientQuantity.setup(self._domain_service)
         self.ingredient_fixtures = IngredientTestFixtures()
 
 class TestConstructor(BaseRecipeTest):

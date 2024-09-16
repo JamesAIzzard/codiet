@@ -2,15 +2,14 @@
 
 from typing import Collection, TYPE_CHECKING
 
-from codiet.utils import IUC
+from codiet.utils import IUC, SingletonMeta
 
 if TYPE_CHECKING:
     from codiet.model.units import Unit, UnitConversion
     from codiet.model.flags import Flag
     from codiet.model.nutrients import Nutrient
-    from codiet.model.ingredients import Ingredient
 
-class DomainService:
+class DomainService(metaclass=SingletonMeta):
     """The domain service for the model."""
 
     def __init__(

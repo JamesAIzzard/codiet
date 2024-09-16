@@ -9,7 +9,7 @@ class BaseRecipeQuantityTest(BaseModelTest):
 
     def setUp(self) -> None:
         super().setUp()
-        RecipeQuantity.setup(self.domain_service)
+        RecipeQuantity.setup(self._domain_service)
 
 class TestConstructor(BaseRecipeQuantityTest):
     """Test class for the RecipeQuantity class."""

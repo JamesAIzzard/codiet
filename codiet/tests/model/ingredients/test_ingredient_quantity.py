@@ -10,8 +10,8 @@ class BaseIngredientQuantityTest(BaseModelTest):
 
     def setUp(self) -> None:
         super().setUp()
-        Ingredient.setup(self.domain_service)
-        IngredientQuantity.setup(self.domain_service)
+        Ingredient.setup(self._domain_service)
+        IngredientQuantity.setup(self._domain_service)
         self.ingredient_fixtures = IngredientTestFixtures()
 
 class TestConstructor(BaseIngredientQuantityTest):
@@ -35,13 +35,13 @@ class TestConstructor(BaseIngredientQuantityTest):
         apple_quantity = IngredientQuantity(
             self.ingredient_fixtures.get_ingredient_by_name("apple")
         )
-        self.assertIs(apple_quantity.quantity_unit, self.domain_service.gram)
+        self.assertIs(apple_quantity.quantity_unit, self._domain_service.gram)
 
     def test_quantity_unit_is_set(self):
         """Check that the quantity unit is set correctly."""
         apple_quantity = IngredientQuantity(
             self.ingredient_fixtures.get_ingredient_by_name("apple"),
-            quantity_unit=self.domain_service.get_unit_by_name("kilogram")
+            quantity_unit=self._domain_service.get_unit_by_name("kilogram")
         )
-        kilogram = self.domain_service.get_unit_by_name("kilogram")
+        kilogram = self._domain_service.get_unit_by_name("kilogram")
         self.assertIs(apple_quantity.quantity_unit, kilogram)

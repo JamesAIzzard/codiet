@@ -5,8 +5,8 @@ from PyQt6.QtCore import pyqtSignal
 from codiet.db.database_service.database_service_base import DatabaseServiceBase
 from codiet.utils import Map, IUC
 from codiet.model.ingredients.ingredient import Ingredient
-from codiet.model.flags.ingredient_flag import IngredientFlag
 from codiet.model.nutrients.nutrient_quantity import NutrientQuantity
+from codiet.model.flags import Flag
 
 class IngredientDBService(DatabaseServiceBase):
     """Database service module responsible for handling ingredients."""
@@ -126,7 +126,7 @@ class IngredientDBService(DatabaseServiceBase):
         ingredient_id = self.ingredient_id_name_map.get_key(ingredient_name)
         return self.read_ingredient_from_id(ingredient_id)
 
-    def read_ingredient_flags(self, ingredient_id: int) -> IUC[IngredientFlag]:
+    def read_ingredient_flags(self, ingredient_id: int) -> IUC[Flag]:
         """Returns the flags for the ingredient."""
         return self._repository.ingredients.read_ingredient_flags(ingredient_id)
 
