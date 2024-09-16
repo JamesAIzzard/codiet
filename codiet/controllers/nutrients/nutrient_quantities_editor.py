@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import QWidget
 
 from codiet.utils.map import Map
 from codiet.model.nutrients.nutrient import Nutrient
-from codiet.model.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
+from codiet.model.nutrients.nutrient_quantity import NutrientQuantity
 from codiet.model.units.unit import Unit
 from codiet.views.nutrients.nutrient_quantity_editor_view import (
     NutrientQuantityEditorView,
@@ -37,7 +37,7 @@ class NutrientQuantitiesEditor(QObject):
         get_global_leaf_nutrients: Callable[[], dict[int, Nutrient]],
         get_global_mass_units: Callable[[], dict[int, Unit]],
         get_entity_available_units: Callable[[], dict[int, Unit]],
-        get_entity_nutrient_quantities: Callable[[], dict[int, IngredientNutrientQuantity]],
+        get_entity_nutrient_quantities: Callable[[], dict[int, NutrientQuantity]],
         rescale_nutrient_mass: Callable[[int, int, float, float, float], float],
         default_mass_unit_id: int,
         view: NutrientQuantitiesEditorView | None = None,
@@ -73,7 +73,7 @@ class NutrientQuantitiesEditor(QObject):
         self._cached_mass_units = get_global_mass_units()
         self._cached_leaf_nutrient_name_id_map = Map[int, str]()
         for nutrient_id, nutrient in self._cached_leaf_nutrients.items():
-            self._cached_leaf_nutrient_name_id_map.add_mapping(nutrient_id, nutrient.nutrient_name)
+            self._cached_leaf_nutrient_name_id_map.add_mapping(nutrient_id, nutrient.name)
 
         # Init the controller for the view search column
         self.nutrient_quantities_column = SearchColumn(
@@ -115,7 +115,7 @@ class NutrientQuantitiesEditor(QObject):
             nutrient_id (int): The global nutrient ID.
         """
         # Create a new EntityNutrientQuantity object
-        entity_nutrient_quantity = IngredientNutrientQuantity(
+        entity_nutrient_quantity = NutrientQuantity(
             nutrient_id=nutrient_id,
             ntr_mass_unit_id=self._default_mass_unit_id,
         )
@@ -137,7 +137,7 @@ class NutrientQuantitiesEditor(QObject):
         # Emit the nutrientQuantityAdded signal
         self.nutrientQuantityAdded.emit(entity_nutrient_quantity)
 
-    def _add_nutrient_quantity(self, nutrient_quantity: IngredientNutrientQuantity) -> None:
+    def _add_nutrient_quantity(self, nutrient_quantity: NutrientQuantity) -> None:
         """Adds a nutrient quantity to the listbox.
 
         Args:

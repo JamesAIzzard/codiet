@@ -33,7 +33,7 @@ class IngredientFlag(Flag):
     def value(self, value: bool|None):
         """Set the flag value."""
         if not self.can_have_value(value):
-            raise ValueError(f"Flag {self.flag_name} cannot have value {value}.")
+            raise ValueError(f"Flag {self.name} cannot have value {value}.")
         self._flag_value = value
 
     @property

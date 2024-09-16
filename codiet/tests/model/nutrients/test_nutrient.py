@@ -13,7 +13,7 @@ class TestNutrient(TestCase):
         # Map them to their names
         self.named_global_nutrients = Map[str, Nutrient]()
         for global_nutrient in self.global_nutrients:
-            self.named_global_nutrients.add_mapping(global_nutrient.nutrient_name, global_nutrient)
+            self.named_global_nutrients.add_mapping(global_nutrient.name, global_nutrient)
 
     def test_init(self):
         """Test the minimal initialisation of Nutrient class."""
@@ -24,7 +24,7 @@ class TestNutrient(TestCase):
         )
 
         # Check if the nutrient name is set correctly
-        self.assertEqual(nutrient.nutrient_name, 'test')
+        self.assertEqual(nutrient.name, 'test')
 
         # Check if the aliases list is set correctly
         self.assertEqual(nutrient.aliases, frozenset(["test_alias", "test_alias2"]))

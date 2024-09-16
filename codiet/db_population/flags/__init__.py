@@ -33,6 +33,6 @@ def global_name_flag_map() -> Map[str, Flag]:
 
     name_flag_map = Map()
     for flag in flags:
-        name_flag_map[flag.flag_name] = flag
+        name_flag_map[flag.name] = flag
 
     return name_flag_map

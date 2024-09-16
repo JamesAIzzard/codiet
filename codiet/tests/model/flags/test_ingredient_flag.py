@@ -1,7 +1,7 @@
 """Tests for the IngredientFlag class."""
 from unittest import TestCase
 
-from codiet.tests.fixtures import IngredientTestFixtures, FlagTestFixtures, UnitsTestFixtures
+from codiet.tests.fixtures import IngredientTestFixtures, FlagTestFixtures
 from codiet.model.flags.ingredient_flag import IngredientFlag
 
 class TestIngredientFlag(TestCase):
@@ -23,7 +23,7 @@ class TestIngredientFlag(TestCase):
             ingredient=self.ingredient_fixtures.ingredients["apple"],
         )
         self.assertEqual(ingredient_flag.ingredient, self.ingredient_fixtures.ingredients["apple"])
-        self.assertEqual(ingredient_flag.flag_name, "vegan")
+        self.assertEqual(ingredient_flag.name, "vegan")
         self.assertFalse(ingredient_flag.value)
 
         # Check we can initialise with a value
@@ -33,7 +33,7 @@ class TestIngredientFlag(TestCase):
             value=True
         )
         self.assertEqual(ingredient_flag.ingredient, self.ingredient_fixtures.ingredients["apple"])
-        self.assertEqual(ingredient_flag.flag_name, "vegan")
+        self.assertEqual(ingredient_flag.name, "vegan")
         self.assertTrue(ingredient_flag.value)
 
     def test_value_setter(self):

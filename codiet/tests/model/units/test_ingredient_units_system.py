@@ -1,7 +1,5 @@
 import unittest
 
-from codiet.db_population.units import read_units_from_json
-from codiet.db_population.units import read_global_unit_conversions_from_json
 from codiet.utils.map import Map
 from codiet.model.units.unit import Unit
 from codiet.model.units.ingredient_unit_conversion import IngredientUnitConversion

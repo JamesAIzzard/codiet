@@ -31,8 +31,8 @@ class Recipe(StoredEntity):
         self._description = description
         self._instructions = instructions
         self._ingredient_quantities = MUC(ingredient_quantities) or MUC['IngredientQuantity']()
-        self._serve_time_windows = MUC(serve_time_windows) or MUC['RecipeServeTimeWindow']()
-        self._tags = MUC(tags) or MUC['RecipeTag']()
+        self._serve_time_windows = MUC(serve_time_windows) or MUC['TimeWindow']()
+        self._tags = MUC(tags) or MUC['Tag']()
 
     @property
     def name(self) -> str:

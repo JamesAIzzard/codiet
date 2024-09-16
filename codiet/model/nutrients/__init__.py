@@ -1,2 +1,2 @@
 from .nutrient import Nutrient
-from .ingredient_nutrient_quantity import IngredientNutrientQuantity
+from .nutrient_quantity import NutrientQuantity

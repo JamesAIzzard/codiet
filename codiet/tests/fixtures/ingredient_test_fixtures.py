@@ -4,20 +4,12 @@ from typing import TYPE_CHECKING
 from codiet.model.ingredients import Ingredient, IngredientQuantity
 
 if TYPE_CHECKING:
-    from codiet.tests.fixtures import UnitTestFixtures
     from codiet.db import DatabaseService
 
 class IngredientTestFixtures:
     """Test fixtures class for ingredients."""
 
-    def __init__(self, units_test_fixtures:'UnitTestFixtures') -> None:
-        self._units_fixtures = units_test_fixtures
-
-        # Initialise the ingredient class level attributes
-        Ingredient.initialise_class(
-            global_units=self._units_fixtures.units.values(),
-            global_unit_conversions=self._units_fixtures.global_unit_conversions.values()
-        )
+    def __init__(self) -> None:
 
         # Cache the ingredients for efficiency
         self._test_ingredients:dict[str, Ingredient]|None = None

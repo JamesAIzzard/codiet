@@ -6,7 +6,7 @@ from codiet.db.database_service.database_service_base import DatabaseServiceBase
 from codiet.utils import Map, IUC
 from codiet.model.ingredients.ingredient import Ingredient
 from codiet.model.flags.ingredient_flag import IngredientFlag
-from codiet.model.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
+from codiet.model.nutrients.nutrient_quantity import NutrientQuantity
 
 class IngredientDBService(DatabaseServiceBase):
     """Database service module responsible for handling ingredients."""
@@ -105,7 +105,7 @@ class IngredientDBService(DatabaseServiceBase):
         for nutrient_quantity_id, nutrient_quantity_data in nutrient_quantities_data.items():
                 
                 # Create the nutrient quantity
-                nutrient_quantity = IngredientNutrientQuantity(
+                nutrient_quantity = NutrientQuantity(
                     id=nutrient_quantity_id,
                     nutrient=self._db_service.nutrients.get_nutrient_by_id(nutrient_quantity_data["global_nutrient_id"]),
                     ingredient=ingredient,

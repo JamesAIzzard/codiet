@@ -1,11 +1,10 @@
 from unittest import TestCase
 
 from codiet.db_population.nutrients import read_global_nutrients_from_json
-from codiet.db_population.units import read_units_from_json, read_global_unit_conversions_from_json
 from codiet.utils.map import Map
 from codiet.model.nutrients.nutrient import Nutrient
 from codiet.model.units.unit import Unit
-from codiet.model.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
+from codiet.model.nutrients.nutrient_quantity import NutrientQuantity
 from codiet.model.ingredients.ingredient import Ingredient
 
 class TestIngredientNutrientQuantity(TestCase):
@@ -18,7 +17,7 @@ class TestIngredientNutrientQuantity(TestCase):
         # Map the nutrients to their names
         self.named_global_nutrients = Map[str, Nutrient]()
         for global_nutrient in self.global_nutrients:
-            self.named_global_nutrients.add_mapping(global_nutrient.nutrient_name, global_nutrient)
+            self.named_global_nutrients.add_mapping(global_nutrient.name, global_nutrient)
 
         # Map the units to their names
         self.named_global_units = Map[str, Unit]()
@@ -34,7 +33,7 @@ class TestIngredientNutrientQuantity(TestCase):
 
     def test_init(self):
         """Check that we can initialise an instance."""
-        enq = IngredientNutrientQuantity(
+        enq = NutrientQuantity(
             ingredient=self.ingredient,
             nutrient=self.named_global_nutrients.get_value('protein'),
             nutrient_mass_unit=self.named_global_units.get_value('gram'),

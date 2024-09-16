@@ -34,7 +34,7 @@ class Nutrient(StoredEntity):
         self._children = IUC(children) if children is not None else IUC['Nutrient']()
 
     @property
-    def nutrient_name(self) -> str:
+    def name(self) -> str:
         """Get the name of the nutrient."""
         return self._nutrient_name
 
@@ -90,8 +90,8 @@ class Nutrient(StoredEntity):
 
     def __eq__(self, other):
         if isinstance(other, Nutrient):
-            return self.id == other.id and self.nutrient_name == other.nutrient_name
+            return self.id == other.id and self.name == other.name
         return False
 
     def __hash__(self):
-        return hash((self.id, self.nutrient_name))
+        return hash((self.id, self.name))

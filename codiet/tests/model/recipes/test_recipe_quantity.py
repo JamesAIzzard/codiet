@@ -30,3 +30,12 @@ class TestConstructor(BaseRecipeQuantityTest):
         """Checks that the quantity defaults to None when not provided in the constructor."""
         apple_pie = RecipeQuantity(Recipe("Apple Pie"))
         self.assertIsNone(apple_pie.quantity)
+
+class TestQuantityUnitProperty(BaseRecipeQuantityTest):
+    """Test class for the quantity_unit property."""
+
+    def test_exception_raised_when_setting_to_none(self):
+        """Checks that an exception is raised when setting the quantity unit to None."""
+        apple_pie = RecipeQuantity(Recipe("Apple Pie"))
+        with self.assertRaises(ValueError):
+            apple_pie.quantity_unit = None # type: ignore

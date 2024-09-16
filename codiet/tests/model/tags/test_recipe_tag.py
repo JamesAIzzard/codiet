@@ -1,6 +1,5 @@
 from unittest import TestCase
 
-from codiet.model.tags.recipe_tag import Tag
 from codiet.model.recipes.recipe import Recipe
 
 class TestRecipeTag(TestCase):

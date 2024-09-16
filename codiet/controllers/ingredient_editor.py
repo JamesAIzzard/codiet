@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import QLabel
 from codiet.db.database_service import DatabaseService
 from codiet.model.ingredients.ingredient import Ingredient
 from codiet.model.nutrients import filter_leaf_nutrients
-from codiet.model.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
+from codiet.model.nutrients.nutrient_quantity import NutrientQuantity
 from codiet.model.units.ingredient_unit_conversion import IngredientUnitConversion
 from codiet.model.units.ingredient_unit_system import IngredientUnitSystem
 from codiet.views.ingredients.ingredient_editor_view import IngredientEditorView
@@ -398,7 +398,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         )
         self._db_service.repository.commit()
 
-    def _on_nutrient_qty_added(self, nutrient_quantity: IngredientNutrientQuantity) -> None:
+    def _on_nutrient_qty_added(self, nutrient_quantity: NutrientQuantity) -> None:
         """Handler for adding a nutrient quantity to the ingredient."""
         # Add the ingredient ID to the nutrient quantity
         nutrient_quantity.parent_entity_id = self.ingredient.id
@@ -408,7 +408,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self._db_service.create_ingredient_nutrient_quantity(nutrient_quantity)
         self._db_service.repository.commit()
 
-    def _on_nutrient_qty_changed(self, nutrient_quantity: IngredientNutrientQuantity):
+    def _on_nutrient_qty_changed(self, nutrient_quantity: NutrientQuantity):
         """Handler for changes to the ingredient nutrient quantities."""
         # Update the nutrient quantity on the model
         self.ingredient.update_nutrient_quantity(nutrient_quantity)

@@ -20,18 +20,22 @@ class Flag(StoredEntity):
         self._flag_name = flag_name
 
     @property
-    def flag_name(self) -> str:
+    def name(self) -> str:
         """Get the name of the flag."""
         return self._flag_name
 
     def __eq__(self, other) -> bool:
         """Check if two flags are equal."""
-        return self.flag_name == other.flag_name
+        # If the other object is not a flag, they are not equal
+        if not isinstance(other, Flag):
+            return False
+        
+        return self.name == other.name
     
     def __hash__(self) -> int:
         """Return the hash of the flag name."""
-        return hash(self.flag_name)
+        return hash(self.name)
     
     def __str__(self) -> str:
         """Return the flag name."""
-        return self.flag_name
+        return self.name

@@ -1,7 +1,7 @@
 """Test fixtures for tests requiring nutrient instances."""
 from typing import TYPE_CHECKING
 
-from codiet.model.nutrients import Nutrient, IngredientNutrientQuantity
+from codiet.model.nutrients import Nutrient, NutrientQuantity
 
 if TYPE_CHECKING:
     from codiet.db import DatabaseService
@@ -29,10 +29,10 @@ class NutrientTestFixtures:
         """Sets up the test nutrients in the database."""
         db_service.nutrients.create_global_nutrients(self.nutrients.values())
 
-    def create_ingredient_nutrient_quantity(self, nutrient_name:str, ingredient:'Ingredient') -> IngredientNutrientQuantity:
+    def create_ingredient_nutrient_quantity(self, nutrient_name:str, ingredient:'Ingredient') -> NutrientQuantity:
         """Creates an ingredient nutrient quantity."""
         nutrient = self.get_nutrient_by_name(nutrient_name)
-        return IngredientNutrientQuantity(
+        return NutrientQuantity(
             nutrient=nutrient,
             ingredient=ingredient
         )
@@ -56,6 +56,9 @@ class NutrientTestFixtures:
         valine = Nutrient(
             nutrient_name="valine"
         )
+        fat = Nutrient(
+            nutrient_name="fat"
+        )
 
         # Configure parent child relationships
         protein._set_children([valine])
@@ -68,5 +71,6 @@ class NutrientTestFixtures:
             "protein": protein,
             "carbohydrate": carbohydrate,
             "glucose": glucose,
-            "valine": valine
+            "valine": valine,
+            "fat": fat
         }

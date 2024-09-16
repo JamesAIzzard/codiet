@@ -42,7 +42,7 @@ class FlagDBService(DatabaseServiceBase):
     def get_flag_by_name(self, flag_name: str) -> Flag:
         """Get the flag by name."""
         for flag in self.global_flags:
-            if flag.flag_name.lower().strip() == flag_name.lower().strip():
+            if flag.name.lower().strip() == flag_name.lower().strip():
                 return flag
         raise ValueError(f"Flag with name {flag_name} not found.")
 
@@ -57,7 +57,7 @@ class FlagDBService(DatabaseServiceBase):
         """Insert the global flags into the database."""
         # Create the flag
         flag_id = self._repository.flags.create_flag(
-            flag_name=flag.flag_name
+            flag_name=flag.name
         )
 
         # Update the ID of the flag
@@ -218,7 +218,7 @@ class FlagDBService(DatabaseServiceBase):
         # Rebuild the ID-name mape
         for flag in global_flags:
             assert flag.id is not None
-            self._global_flag_id_name_map.add_mapping(key=flag.id, value=flag.flag_name)
+            self._global_flag_id_name_map.add_mapping(key=flag.id, value=flag.name)
         # Rebuild the global flags cache
         for flag in global_flags:
             self._global_flags._add(flag)

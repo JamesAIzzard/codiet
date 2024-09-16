@@ -6,7 +6,7 @@ from codiet.db.database_service.database_service_base import DatabaseServiceBase
 from codiet.utils.map import Map
 from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 from codiet.model.nutrients.nutrient import Nutrient
-from codiet.model.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
+from codiet.model.nutrients.nutrient_quantity import NutrientQuantity
 if TYPE_CHECKING:
     pass
 
@@ -46,7 +46,7 @@ class NutrientDBService(DatabaseServiceBase):
     def get_nutrient_by_name(self, nutrient_name: str) -> Nutrient:
         """Get the nutrient by name."""
         for nutrient in self.global_nutrients:
-            if nutrient.nutrient_name.lower().strip() == nutrient_name.lower().strip():
+            if nutrient.name.lower().strip() == nutrient_name.lower().strip():
                 return nutrient
         raise ValueError(f"Nutrient with name {nutrient_name} not found.")
     
@@ -66,7 +66,7 @@ class NutrientDBService(DatabaseServiceBase):
         
         # Create the base nutrient
         nutrient_id = self._repository.nutrients.create_global_nutrient(
-            nutrient_name=nutrient.nutrient_name,
+            nutrient_name=nutrient.name,
             parent_id=parent_id,
         )
 
@@ -103,7 +103,7 @@ class NutrientDBService(DatabaseServiceBase):
 
         return saved_nutrients
 
-    def create_ingredient_nutrient_quantity(self, ing_nutr_qty: IngredientNutrientQuantity) -> IngredientNutrientQuantity:
+    def create_ingredient_nutrient_quantity(self, ing_nutr_qty: NutrientQuantity) -> NutrientQuantity:
         """Creates an entry for the ingredient nutrient quantity in the database.
         Returns the instance provided, with the id populated.
 
@@ -177,7 +177,7 @@ class NutrientDBService(DatabaseServiceBase):
     
     def read_ingredient_nutrient_quantities(
         self, ingredient_id: int
-    ) -> dict[int, IngredientNutrientQuantity]:
+    ) -> dict[int, NutrientQuantity]:
         """Returns the nutrient quantities for the given ingredient.
         Args:
             ingredient_id (int): The id of the ingredient.
@@ -186,7 +186,7 @@ class NutrientDBService(DatabaseServiceBase):
             id of each specific nutrient quantity.
         """
         # Init a dict to hold the nutrient quantities
-        nutrient_quantities: dict[int, IngredientNutrientQuantity] = {}
+        nutrient_quantities: dict[int, NutrientQuantity] = {}
         # Fetch the raw data from the repo
         raw_nutrient_quantities = self._repository.read_ingredient_nutrient_quantities(
             ingredient_id
@@ -194,7 +194,7 @@ class NutrientDBService(DatabaseServiceBase):
         # Cycle through the raw data
         for nutrient_id, nutrient_qty_data in raw_nutrient_quantities.items():
             # And add the data to the dict
-            nutrient_quantities[nutrient_id] = IngredientNutrientQuantity(
+            nutrient_quantities[nutrient_id] = NutrientQuantity(
                 id=nutrient_qty_data["id"],
                 nutrient_id=nutrient_id,
                 entity_id=ingredient_id,
@@ -204,7 +204,7 @@ class NutrientDBService(DatabaseServiceBase):
             )
         return nutrient_quantities
     
-    def update_ingredient_nutrient_quantity(self, ing_nutr_qty: IngredientNutrientQuantity) -> None:
+    def update_ingredient_nutrient_quantity(self, ing_nutr_qty: NutrientQuantity) -> None:
         """Updates the nutrient quantity in the database.
         Args:
             ing_nutr_qty (EntityNutrientQuantity): The nutrient quantity object.
@@ -247,5 +247,5 @@ class NutrientDBService(DatabaseServiceBase):
         # Populate the caches
         for nutrient in global_nutrients:
             assert nutrient.id is not None
-            self._global_nutrient_id_name_map[nutrient.id] = nutrient.nutrient_name
+            self._global_nutrient_id_name_map[nutrient.id] = nutrient.name
             self._global_nutrients._add(nutrient)

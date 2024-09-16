@@ -5,10 +5,10 @@ class TestFlag(unittest.TestCase):
     def test_init(self):
         """Test the initialisation of Flag."""
         flag = Flag(flag_name="test_flag")
-        self.assertEqual(flag.flag_name, "test_flag")
+        self.assertEqual(flag.name, "test_flag")
 
         flag_with_value = Flag(flag_name="value_flag")
-        self.assertEqual(flag_with_value.flag_name, "value_flag")
+        self.assertEqual(flag_with_value.name, "value_flag")
 
 
 

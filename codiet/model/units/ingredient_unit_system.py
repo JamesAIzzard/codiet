@@ -8,7 +8,7 @@ from codiet.utils import Map, MUC, IUC
 
 if TYPE_CHECKING:
     from codiet.model.ingredients import Ingredient
-    from codiet.model.units import Unit, UnitConversion, IngredientUnitConversion
+    from codiet.model.units import Unit, UnitConversion
 
 class IngredientUnitSystem:
     """
@@ -20,7 +20,7 @@ class IngredientUnitSystem:
         ingredient: 'Ingredient',
         global_units: Collection['Unit'],
         global_unit_conversions: Collection['UnitConversion'],
-        ingredient_unit_conversions: Collection['IngredientUnitConversion']|None = None
+        ingredient_unit_conversions: Collection['UnitConversion']|None = None
     ):
         self._ingredient = ingredient
         self._global_units = MUC(global_units)
@@ -54,27 +54,27 @@ class IngredientUnitSystem:
         return IUC(self.get_available_units())
 
     @property
-    def ingredient_unit_conversions(self) -> IUC['IngredientUnitConversion']:
+    def ingredient_unit_conversions(self) -> IUC['UnitConversion']:
         """Retrieves the entity unit conversions."""
         return self._ingredient_unit_conversions.immutable
 
     @ingredient_unit_conversions.setter
-    def ingredient_unit_conversions(self, ingredient_unit_conversions: Collection['IngredientUnitConversion']):
+    def ingredient_unit_conversions(self, ingredient_unit_conversions: Collection['UnitConversion']):
         """Replaces the existing entity unit conversions with a new list."""
         self._ingredient_unit_conversions = MUC(ingredient_unit_conversions)
         self._update()
 
-    def add_ingredient_unit_conversions(self, ingredient_unit_conversions: 'IngredientUnitConversion' | Collection['IngredientUnitConversion']):
+    def add_ingredient_unit_conversions(self, ingredient_unit_conversions: 'UnitConversion' | Collection['UnitConversion']):
         """Adds entity unit conversions to the existing list."""
         self._ingredient_unit_conversions.add(ingredient_unit_conversions)
         self._update()
 
-    def update_ingredient_unit_conversions(self, ingredient_unit_conversions: 'IngredientUnitConversion' | Collection['IngredientUnitConversion']):
+    def update_ingredient_unit_conversions(self, ingredient_unit_conversions: 'UnitConversion' | Collection['UnitConversion']):
         """Adds entity unit conversions to the existing list."""
         self._ingredient_unit_conversions.update(ingredient_unit_conversions)
         self._update()
 
-    def remove_ingredient_unit_conversions(self, entity_unit_conversions: 'IngredientUnitConversion' | Collection['IngredientUnitConversion']):
+    def remove_ingredient_unit_conversions(self, entity_unit_conversions: 'UnitConversion' | Collection['UnitConversion']):
         """Removes entity unit conversions from the existing list."""
         self._ingredient_unit_conversions.remove(entity_unit_conversions)
         self._update()

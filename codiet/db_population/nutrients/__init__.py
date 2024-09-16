@@ -46,6 +46,6 @@ def global_name_nutrient_map() -> Map[str, Nutrient]:
     
     name_nutrient_map = Map()
     for nutrient in nutrients:
-        name_nutrient_map[nutrient.nutrient_name] = nutrient
+        name_nutrient_map[nutrient.name] = nutrient
 
     return name_nutrient_map

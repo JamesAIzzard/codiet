@@ -5,7 +5,7 @@ from codiet.tests.fixtures.unit_test_fixtures import UnitTestFixtures
 from codiet.tests.fixtures.nutrient_test_fixtures import NutrientTestFixtures
 from codiet.model.nutrients.nutrient import Nutrient
 from codiet.model.ingredients.ingredient import Ingredient
-from codiet.model.nutrients.ingredient_nutrient_quantity import IngredientNutrientQuantity
+from codiet.model.nutrients.nutrient_quantity import NutrientQuantity
 
 class TestNutrientDBService(DatabaseTestCase):
 
