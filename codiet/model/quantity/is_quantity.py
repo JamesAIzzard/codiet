@@ -14,6 +14,7 @@ class IsQuantity(UsesDomainService):
             quantity_value: float | None = None,
             *args, **kwargs
         ):
+        super().__init__(*args, **kwargs)
         self._quantity_unit = quantity_unit or self._domain_service.gram
         self._quantity_value = quantity_value
 

@@ -4,13 +4,14 @@ from typing import TYPE_CHECKING, Collection
 
 from codiet.db import StoredEntity
 from codiet.utils import MUC, IUC
+from codiet.model.domain_service import UsesDomainService
 
 if TYPE_CHECKING:
     from codiet.model.ingredients import IngredientQuantity
     from codiet.model.time import TimeWindow
     from codiet.model.tags import Tag
 
-class Recipe(StoredEntity):
+class Recipe(UsesDomainService, StoredEntity):
     """Models a recipe."""
 
     def __init__(
@@ -109,10 +110,7 @@ class Recipe(StoredEntity):
 
     def remove_ingredient_quantity(self, ingredient_quantity: 'IngredientQuantity') -> None:
         """Remove an ingredient from the recipe."""
-        for ingredient_qty in self._ingredient_quantities:
-            if ingredient_qty == ingredient_quantity:
-                self._ingredient_quantities.remove(ingredient_qty)
-                break
+        self._ingredient_quantities.remove(ingredient_quantity)
 
     def add_serve_time_window(self, serve_time_window: 'TimeWindow') -> None:
         """Add a serve time window to the recipe."""
@@ -120,14 +118,15 @@ class Recipe(StoredEntity):
 
     def remove_serve_time_window(self, serve_time_window: 'TimeWindow') -> None:
         """Remove a serve time window from the recipe."""
-        for window in self._serve_time_windows:
-            if window == serve_time_window:
-                self._serve_time_windows.remove(window)
-                break
+        self._serve_time_windows.remove(serve_time_window)
 
     def add_tag(self, tag: 'Tag') -> None:
         """Add a tag to the recipe."""
         self._tags.add(tag)
+
+    def remove_tag(self, tag: 'Tag') -> None:
+        """Remove a tag from the recipe."""
+        self._tags.remove(tag)
 
     def __eq__(self, other):
         """Check if two recipes are equal."""

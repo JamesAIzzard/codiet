@@ -29,10 +29,19 @@ class TestConstructor(BaseIngredientQuantityTest):
         apple_quantity = IngredientQuantity(apple)
         self.assertIs(apple_quantity.ingredient, apple)
 
-    def test_quantity_unit_is_default(self):
-        """Check that the quantity unit is set to the default."""
+    def test_empty_quantity_unit_gets_default(self):
+        """Check that the quantity unit is set to the default unit when omitted
+        from the constructor."""
         apple_quantity = IngredientQuantity(
             self.ingredient_fixtures.get_ingredient_by_name("apple")
         )
         self.assertIs(apple_quantity.quantity_unit, self.domain_service.gram)
-        
+
+    def test_quantity_unit_is_set(self):
+        """Check that the quantity unit is set correctly."""
+        apple_quantity = IngredientQuantity(
+            self.ingredient_fixtures.get_ingredient_by_name("apple"),
+            quantity_unit=self.domain_service.get_unit_by_name("kilogram")
+        )
+        kilogram = self.domain_service.get_unit_by_name("kilogram")
+        self.assertIs(apple_quantity.quantity_unit, kilogram)
