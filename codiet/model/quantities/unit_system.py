@@ -1,85 +1,47 @@
-"""Defines a system of units which controls the interaction of units and conversions
-on an ingredient instance."""
-
 from typing import TYPE_CHECKING, Collection
 from collections import deque
 
-from codiet.utils import Map, MUC, IUC
+from codiet.utils import MUC, IUC
+from codiet.model.domain_service import UsesDomainService
+from codiet.model.quantities import Quantity
 
 if TYPE_CHECKING:
-    from codiet.model.ingredients import Ingredient
-    from codiet.model.units import Unit, UnitConversion
+    from codiet.model.quantities import Unit, UnitConversion
 
-class UnitSystem:
-    """
-    Represents a system for managing ingredient units and conversions.
-    """
+class UnitSystem(UsesDomainService):
+    """Models a system of units and conversions associated with an entity."""
 
     def __init__(
         self,
-        ingredient: 'Ingredient',
-        global_units: Collection['Unit'],
-        global_unit_conversions: Collection['UnitConversion'],
-        ingredient_unit_conversions: Collection['UnitConversion']|None = None
+        entity_unit_conversions: Collection['UnitConversion']|None = None
     ):
-        self._ingredient = ingredient
-        self._global_units = MUC(global_units)
-        self._global_unit_conversions = MUC(global_unit_conversions)
-        self._ingredient_unit_conversions = MUC(ingredient_unit_conversions) or MUC()
+        super().__init__()
+        self._entity_unit_conversions = MUC(entity_unit_conversions) or MUC['UnitConversion']()
+        self._graph: dict['Unit', dict['Unit', float]] = {}
+        self._path_cache: dict[tuple['Unit', 'Unit'], list[tuple['Unit', 'Unit']]] = {}
+        self._update()
 
-        self._graph: dict[Unit, dict[Unit, float]] = {}
-        self._path_cache: dict[tuple[Unit, Unit], list[tuple[Unit, Unit]]] = {}
-        self._name_unit_map: Map[str, Unit]|None = None
-        self._gram: Unit|None = None
-        self._update()        
-
-    @property
-    def ingredient(self) -> 'Ingredient':
-        """Retrieves the ingredient."""
-        return self._ingredient
-
-    @property
-    def gram(self) -> 'Unit':
-        """Retrieves the gram unit."""
-        return self._get_unit_by_name("gram")
-
-    @property
-    def global_units(self) -> IUC['Unit']:
-        """Retrieves the global units."""
-        return self._global_units.immutable
-    
     @property
     def available_units(self) -> IUC['Unit']:
         """Retrieves all available units."""
-        return IUC(self.get_available_units())
+        return IUC(self._get_available_units())
 
     @property
-    def ingredient_unit_conversions(self) -> IUC['UnitConversion']:
+    def entity_unit_conversions(self) -> IUC['UnitConversion']:
         """Retrieves the entity unit conversions."""
-        return self._ingredient_unit_conversions.immutable
+        return IUC(self._entity_unit_conversions)
 
-    @ingredient_unit_conversions.setter
-    def ingredient_unit_conversions(self, ingredient_unit_conversions: Collection['UnitConversion']):
-        """Replaces the existing entity unit conversions with a new list."""
-        self._ingredient_unit_conversions = MUC(ingredient_unit_conversions)
-        self._update()
-
-    def add_ingredient_unit_conversions(self, ingredient_unit_conversions: 'UnitConversion' | Collection['UnitConversion']):
+    def add_entity_unit_conversion(self, unit_conversion: 'UnitConversion'):
         """Adds entity unit conversions to the existing list."""
-        self._ingredient_unit_conversions.add(ingredient_unit_conversions)
+        self._entity_unit_conversions.add(unit_conversion)
         self._update()
 
-    def update_ingredient_unit_conversions(self, ingredient_unit_conversions: 'UnitConversion' | Collection['UnitConversion']):
-        """Adds entity unit conversions to the existing list."""
-        self._ingredient_unit_conversions.update(ingredient_unit_conversions)
-        self._update()
-
-    def remove_ingredient_unit_conversions(self, entity_unit_conversions: 'UnitConversion' | Collection['UnitConversion']):
+    def remove_entity_unit_conversion(self, entity_unit_conversion: 'UnitConversion'):
         """Removes entity unit conversions from the existing list."""
-        self._ingredient_unit_conversions.remove(entity_unit_conversions)
+        self._entity_unit_conversions.remove(entity_unit_conversion)
         self._update()
 
-    def can_convert_units(self, from_unit: 'Unit', to_unit:'Unit') -> bool:
+    def can_convert_units(self, from_unit: 'Unit', to_unit: 'Unit') -> bool:
         """Checks if two units can be converted between."""
         try:
             self._find_conversion_path(from_unit, to_unit)
@@ -87,9 +49,23 @@ class UnitSystem:
         except ValueError:
             return False
 
+    def convert_quantity(self, quantity: Quantity, to_unit: 'Unit') -> Quantity:
+        """
+        Converts a quantity from one unit to another.
+
+        Raises:
+            ValueError: If no conversion path is found between the given units.
+        """
+        if quantity.unit == to_unit:
+            return quantity
+
+        conversion_factor = self.get_conversion_factor(quantity.unit, to_unit)
+        converted_value = quantity.value * conversion_factor if quantity.value is not None else None
+        return Quantity(unit=to_unit, value=converted_value)
+
     def get_conversion_factor(self, from_unit: 'Unit', to_unit: 'Unit') -> float:
         """
-        Calculates the conversion factor between two unit IDs.
+        Calculates the conversion factor between two units.
         To go from 'from_unit' to 'to_unit', we multiply the first unit qty by the factor.
 
         Raises:
@@ -101,44 +77,13 @@ class UnitSystem:
             factor *= self._graph[u1][u2]
         return factor
 
-    def convert_units(self, quantity: float, from_unit: 'Unit', to_unit: 'Unit') -> float:
+    def _get_available_units(self, root_unit: 'Unit|None' = None) -> IUC['Unit']:
         """
-        Converts a quantity from one unit to another.
-
-        Raises:
-            ValueError: If no conversion path is found between the given unit IDs.
-        """
-        conversion_factor = self.get_conversion_factor(from_unit, to_unit)
-        return quantity * conversion_factor
-
-    def rescale_quantity(
-            self,
-            ref_from_unit: 'Unit',
-            ref_to_unit: 'Unit',
-            ref_from_quantity: float,
-            ref_to_quantity: float,
-            quantity: float,
-    ) -> float:
-        """
-        Rescales a quantity based on a change in a reference quantity.
-        """
-        ref_from_quantity_base = self.convert_units(ref_from_quantity, ref_from_unit, self.gram)
-        ref_to_quantity_base = self.convert_units(ref_to_quantity, ref_to_unit, self.gram)
-        quantity_base = self.convert_units(quantity, ref_from_unit, self.gram)
-
-        scaling_factor = quantity_base / ref_from_quantity_base
-        result_base = ref_to_quantity_base * scaling_factor
-        result = self.convert_units(result_base, self.gram, ref_to_unit)
-
-        return result
-
-    def get_available_units(self, root_unit: 'Unit|None'=None) -> IUC['Unit']:
-        """
-        Retrieves all available units starting from a root unit ID.
-        If the root unit ID is None, the root unit is assumed to be grams.
+        Retrieves all available units starting from a root unit.
+        If the root unit is None, the root unit is assumed to be grams.
         """
         if root_unit is None:
-            root_unit = self.gram
+            root_unit = self.domain_service.gram
 
         visited = set()
         queue = deque([root_unit])
@@ -154,19 +99,8 @@ class UnitSystem:
         return IUC(available_units)
 
     def clear_path_cache(self):
-        """
-        Clears the conversion path cache.
-        """
+        """Clears the conversion path cache."""
         self._path_cache.clear()
-
-    def _get_unit_by_name(self, unit_name:str) -> 'Unit':
-        """Retrieves a unit by its name."""
-        if self._name_unit_map is None:
-            self._cache_name_unit_map()
-        unit = self._name_unit_map.get_value(unit_name) # type: ignore # cache guarantees map is not None
-        if unit is None:
-            raise ValueError(f"Unit {unit_name} not found.")
-        return unit
 
     def _find_conversion_path(self, from_unit: 'Unit', to_unit: 'Unit') -> list[tuple['Unit', 'Unit']]:
         """
@@ -196,28 +130,19 @@ class UnitSystem:
 
     def _update(self):
         """Updates the object to reflect the latest units and conversions."""
-        self._cache_name_unit_map()
-
         self._graph.clear()
         self._path_cache.clear()
-        all_conversions = list(self._global_unit_conversions) + list(self._ingredient_unit_conversions)
+        all_conversions = list(self.domain_service.global_unit_conversions) + list(self._entity_unit_conversions)
 
         for conv in all_conversions:
-            if conv.from_unit not in self._graph:
-                self._graph[conv.from_unit] = {}
-            if conv.to_unit not in self._graph:
-                self._graph[conv.to_unit] = {}
-            
-            self._graph[conv.from_unit][conv.to_unit] = conv.ratio
-            self._graph[conv.to_unit][conv.from_unit] = 1 / conv.ratio
+            if conv.is_defined:
+                from_unit, to_unit = conv.quantities[0].unit, conv.quantities[1].unit
+                ratio = conv.quantities[1].value / conv.quantities[0].value if conv.quantities[0].value else 0
 
-    def _cache_name_unit_map(self):
-        """Caches the name-unit map."""
-        # Create the map if was None
-        if self._name_unit_map is None:
-            self._name_unit_map = Map[str, 'Unit']()
-        # Recreate the map
-        self._name_unit_map.clear()
-        for unit in self._global_units:
-            self._name_unit_map.add_mapping(unit.name, unit)
-        
+                if from_unit not in self._graph:
+                    self._graph[from_unit] = {}
+                if to_unit not in self._graph:
+                    self._graph[to_unit] = {}
+
+                self._graph[from_unit][to_unit] = ratio
+                self._graph[to_unit][from_unit] = 1 / ratio

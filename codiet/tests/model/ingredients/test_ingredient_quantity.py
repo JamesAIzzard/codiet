@@ -3,6 +3,7 @@
 from codiet.tests.model import BaseModelTest
 from codiet.tests.fixtures import IngredientTestFixtures
 from codiet.model.ingredients import Ingredient, IngredientQuantity
+from codiet.model.quantities import Quantity
 
 
 class BaseIngredientQuantityTest(BaseModelTest):
@@ -33,13 +34,13 @@ class TestConstructor(BaseIngredientQuantityTest):
         apple_quantity = IngredientQuantity(
             self.ingredient_fixtures.get_ingredient_by_name("apple")
         )
-        self.assertIs(apple_quantity.quantity_unit, self.domain_service.gram)
+        self.assertIs(apple_quantity.quantity.unit, self.domain_service.gram)
 
     def test_quantity_unit_is_set(self):
         """Check that the quantity unit is set correctly."""
         apple_quantity = IngredientQuantity(
             self.ingredient_fixtures.get_ingredient_by_name("apple"),
-            quantity_unit=self.domain_service.get_unit_by_name("kilogram")
+            quantity=Quantity(self.domain_service.get_unit_by_name("kilogram"))
         )
         kilogram = self.domain_service.get_unit_by_name("kilogram")
-        self.assertIs(apple_quantity.quantity_unit, kilogram)
+        self.assertIs(apple_quantity.quantity.unit, kilogram)

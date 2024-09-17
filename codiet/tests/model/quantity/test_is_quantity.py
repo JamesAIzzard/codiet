@@ -14,10 +14,10 @@ class TestConstructor(BaseIsQuantityTest):
 
     def test_unit_defaults_to_grams(self):
         """Checks that the quantity unit defaults to grams when not provided in the constructor."""
-        quantity = is_quantified.IsQuantified()
-        self.assertIs(quantity.quantity_unit, self.unit_fixtures.gram)
+        test_quantity = is_quantified.IsQuantified()
+        self.assertIs(test_quantity.quantity.unit, self.unit_fixtures.gram)
     
     def test_quantity_value_defaults_to_none(self):
         """Checks that the quantity defaults to None when not provided in the constructor."""
-        quantity = is_quantified.IsQuantified()
-        self.assertIsNone(quantity.quantity_value)
+        test_quantity = is_quantified.IsQuantified()
+        self.assertIsNone(test_quantity.quantity.value)

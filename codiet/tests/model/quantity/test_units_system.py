@@ -46,7 +46,7 @@ class TestEntityUnitsSystem(unittest.TestCase):
             ingredient=self.ingredient,
             global_units=self.global_units,
             global_unit_conversions=self.global_unit_conversions,
-            ingredient_unit_conversions=tuple([conversion])
+            entity_unit_conversions=tuple([conversion])
         )
 
     def test_init(self):
@@ -123,7 +123,7 @@ class TestEntityUnitsSystem(unittest.TestCase):
             from_unit_qty=100,
             to_unit_qty=1,
         )
-        self.disconnected_system.add_ingredient_unit_conversions(slice_conversion)
+        self.disconnected_system.add_entity_unit_conversions(slice_conversion)
 
         # Convert 200 grams to slices
         self.assertEqual(self.disconnected_system.convert_units(

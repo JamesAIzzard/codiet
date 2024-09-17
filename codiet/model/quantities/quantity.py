@@ -13,12 +13,14 @@ class Quantity(UsesDomainService):
     def __init__(self, unit: 'Unit|None'=None, value: float|None=None):
         """Initialise the Quantity object."""
         super().__init__()
-        self._unit = unit or self.domain_service.gram
+        self._unit = unit
         self._value = value
 
     @property
     def unit(self) -> 'Unit':
         """Returns the unit of the quantity."""
+        if self._unit is None:
+            self._unit = self.domain_service.gram
         return self._unit
 
     @property

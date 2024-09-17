@@ -33,7 +33,7 @@ class UnitConversion(StoredEntity):
         return all(qty.value is not None for qty in self.quantities)
 
     @property
-    def _fowards_ratio(self) -> float:
+    def _forwards_ratio(self) -> float:
         """Return the ratio of the from unit to the to unit."""
         if not self.is_defined:
             raise ValueError("The quantities are not defined.")
@@ -42,7 +42,7 @@ class UnitConversion(StoredEntity):
     @property
     def _reverse_ratio(self) -> float:
         """Return the ratio of the to unit to the from unit."""
-        return 1 / self._fowards_ratio
+        return 1 / self._forwards_ratio
 
     def has_unit(self, unit) -> bool:
         """Check if the unit is in the quantities."""
@@ -65,13 +65,13 @@ class UnitConversion(StoredEntity):
             return self._convert_reverse(quantity)
 
     def _convert_forward(self, quantity: Quantity) -> Quantity:
-        """Convert from quantities[0].unit to quantities[1].unit using the forward ratio."""
-        converted_value = quantity.value * self._fowards_ratio # type: ignore
+        """Convert from quantities[0].unit to quantities[1].unit."""
+        converted_value = quantity.value * self._forwards_ratio # type: ignore
         converted_unit = self.quantities[1].unit
         return Quantity(value=converted_value, unit=converted_unit)
 
     def _convert_reverse(self, quantity: Quantity) -> Quantity:
-        """Convert from quantities[1].unit to quantities[0].unit using the reverse ratio."""
+        """Convert from quantities[1].unit to quantities[0].unit."""
         converted_value = quantity.value * self._reverse_ratio # type: ignore
         converted_unit = self.quantities[0].unit
         return Quantity(value=converted_value, unit=converted_unit)

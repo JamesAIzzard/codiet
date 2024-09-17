@@ -8,9 +8,11 @@ class UsesDomainService:
     def __init__(self, *args, **kwargs) -> None:
         """Initializes the class."""
         super().__init__(*args, **kwargs)
-        self._domain_service = DomainService.get_instance()
+        self._domain_service:DomainService|None = None
 
     @property
     def domain_service(self) -> DomainService:
         """Get the domain service."""
-        return self._domain_service
+        if self._domain_service is None:
+            self._domain_service = DomainService.get_instance()
+        return self._domain_service # type: ignore

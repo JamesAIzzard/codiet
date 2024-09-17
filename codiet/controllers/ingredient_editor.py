@@ -43,7 +43,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self._ingredient_unit_system = UnitSystem(
             global_units=self._db_service.units.global_units,
             global_unit_conversions=self._db_service.units.global_unit_conversions,
-            ingredient_unit_conversions={},  # Update when ingredient is loaded
+            entity_unit_conversions={},  # Update when ingredient is loaded
         )
 
         # Create some supporting dialogs
@@ -181,7 +181,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         self._ingredient = ingredient
 
         # Update the ingredient unit system
-        self._ingredient_unit_system.ingredient_unit_conversions = (
+        self._ingredient_unit_system.entity_unit_conversions = (
             ingredient.unit_conversions
         )
 

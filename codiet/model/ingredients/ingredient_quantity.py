@@ -11,7 +11,7 @@ class IngredientQuantity(IsQuantified, StoredEntity):
 
     def __init__(
         self,
-        ingredient: "Ingredient",
+        ingredient: 'Ingredient',
         qty_utol: float | None = None,
         qty_ltol: float | None = None,
         *args,
