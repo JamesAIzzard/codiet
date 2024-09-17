@@ -2,6 +2,7 @@
 
 from codiet.tests.model import BaseModelTest
 from codiet.model.units import UnitConversion
+from codiet.model.quantities import Quantity
 
 class BaseUnitConversionTest(BaseModelTest):
     """Base class for testing the UnitConversion class."""
@@ -11,17 +12,12 @@ class BaseUnitConversionTest(BaseModelTest):
 
 class TestConstructor(BaseUnitConversionTest):
     """Tests the constructor of the UnitConversion class."""
-    
-    # def test_minimal_arguments(self) -> None:
-    #     """Check that we can instantiate an instance with minimal arguments."""
-    #     unit_conversion = UnitConversion()
-    #     self.assertIsInstance(unit_conversion, UnitConversion)
 
     def test_minimal_arguments(self) -> None:
         """Check that we can instantiate an instance with minimal arguments."""
         gram = self.domain_service.gram
         kilogram = self.domain_service.get_unit_by_name("kilogram")
-        unit_conversion = UnitConversion(gram, kilogram)
+        unit_conversion = UnitConversion(Quantity(gram), Quantity(kilogram))
         self.assertIsInstance(unit_conversion, UnitConversion)
 
     def test_quantities_default_to_none(self) -> None:

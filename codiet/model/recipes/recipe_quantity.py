@@ -2,14 +2,14 @@
 
 from typing import TYPE_CHECKING
 
-from codiet.model.quantity.is_quantity import IsQuantity
+from codiet.model.quantities.is_quantified import IsQuantified
 
 if TYPE_CHECKING:
     from codiet.model.recipes import Recipe
     from codiet.model.units import Unit
 
 
-class RecipeQuantity(IsQuantity):
+class RecipeQuantity(IsQuantified):
     """Models a recipe quantity."""
 
     def __init__(

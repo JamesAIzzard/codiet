@@ -3,14 +3,14 @@
 from typing import TYPE_CHECKING
 
 from codiet.db.stored_entity import StoredEntity
-from codiet.model.quantity.is_quantity import IsQuantity
+from codiet.model.quantities.is_quantified import IsQuantified
 from codiet.model.nutrients.nutrient import Nutrient
 
 if TYPE_CHECKING:
     from codiet.model.ingredients.ingredient import Ingredient
 
 
-class NutrientQuantity(IsQuantity, StoredEntity):
+class NutrientQuantity(IsQuantified, StoredEntity):
     """Class to represent the nutrient quantity associated with an entity."""
 
     def __init__(

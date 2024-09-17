@@ -1,8 +1,8 @@
 import unittest
 
 from codiet.utils.map import Map
-from codiet.model.units.unit import Unit
-from codiet.model.units.unit_system import UnitSystem
+from codiet.model.quantities.unit import Unit
+from codiet.model.quantities.unit_system import UnitSystem
 from codiet.model.ingredients.ingredient import Ingredient
 
 class TestEntityUnitsSystem(unittest.TestCase):

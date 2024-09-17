@@ -7,7 +7,7 @@ from codiet.model.ingredients.ingredient import Ingredient
 from codiet.model.nutrients import filter_leaf_nutrients
 from codiet.model.nutrients.nutrient_quantity import NutrientQuantity
 from codiet.model.units.ingredient_unit_conversion import IngredientUnitConversion
-from codiet.model.units.unit_system import UnitSystem
+from codiet.model.quantities.unit_system import UnitSystem
 from codiet.views.ingredients.ingredient_editor_view import IngredientEditorView
 from codiet.controllers.base_controller import BaseController
 from codiet.controllers.dialogs import (

@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import QWidget
 from codiet.utils.map import Map
 from codiet.model.nutrients.nutrient import Nutrient
 from codiet.model.nutrients.nutrient_quantity import NutrientQuantity
-from codiet.model.units.unit import Unit
+from codiet.model.quantities.unit import Unit
 from codiet.views.nutrients.nutrient_quantity_editor_view import (
     NutrientQuantityEditorView,
 )
