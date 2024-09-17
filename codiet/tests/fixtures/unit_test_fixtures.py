@@ -60,33 +60,33 @@ class UnitTestFixtures:
         """Instantiates a dictionary of units for testing purposes."""
         return {
             "gram": Unit(
-                unit_name="gram",
-                single_display_name="g",
-                plural_display_name="g",
+                name="gram",
+                singular_abbreviation="g",
+                plural_abbreviation="g",
                 type="mass"
             ),
             "kilogram": Unit(
-                unit_name="kilogram",
-                single_display_name="kg",
-                plural_display_name="kg",
+                name="kilogram",
+                singular_abbreviation="kg",
+                plural_abbreviation="kg",
                 aliases=["kgs"],
                 type="mass"),
             "millilitre": Unit(
-                unit_name="millilitre",
-                single_display_name="ml",
-                plural_display_name="ml",
+                name="millilitre",
+                singular_abbreviation="ml",
+                plural_abbreviation="ml",
                 type="volume"
             ),
             "litre": Unit(
-                unit_name="litre",
-                single_display_name="l",
-                plural_display_name="l",
+                name="litre",
+                singular_abbreviation="l",
+                plural_abbreviation="l",
                 type="volume"
             ),
             "slice": Unit(
-                unit_name="slice",
-                single_display_name="slice",
-                plural_display_name="slices",
+                name="slice",
+                singular_abbreviation="slice",
+                plural_abbreviation="slices",
                 type="grouping"
             )
         }

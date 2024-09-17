@@ -16,9 +16,9 @@ def read_units_from_json(units_json_filepath: str=UNITS_FILEPATH) -> IUC[Unit]:
 
     for unit_name, unit_data in data.items():
         unit = Unit(
-            unit_name=unit_name,
-            single_display_name=unit_data['single_display_name'],
-            plural_display_name=unit_data['plural_display_name'],
+            name=unit_name,
+            singular_abbreviation=unit_data['single_display_name'],
+            plural_abbreviation=unit_data['plural_display_name'],
             type=unit_data['type'],
             aliases=set(unit_data.get('aliases', []))
         )

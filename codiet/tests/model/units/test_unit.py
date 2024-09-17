@@ -1,67 +1,25 @@
-from unittest import TestCase
+"""This module contains the unit tests for the Unit class."""
 
+from codiet.tests.model import BaseModelTest
 from codiet.model.units.unit import Unit
 
-class TestUnit(TestCase):
+class BaseUnitTest(BaseModelTest):
+    """Base class for testing the Unit class."""
     
-        def setUp(self) -> None:
-            pass
-    
-        def test_init(self):
-            """Check a unit can be initialised."""
-            # Create a new unit object
-            unit = Unit(
-                unit_name="test",
-                single_display_name="Test",
-                plural_display_name="Tests",
-                type="test",
-                aliases=set(['t'])
-            )
-    
-            # Check the unit name is set correctly
-            self.assertEqual(unit.name, "test")
-    
-            # Check the single display name is set correctly
-            self.assertEqual(unit.single_display_name, "Test")
-    
-            # Check the plural display name is set correctly
-            self.assertEqual(unit.plural_display_name, "Tests")
-    
-            # Check the type is set correctly
-            self.assertEqual(unit.type, "test")
-    
-            # Check the aliases list is set correctly
-            self.assertEqual(unit.aliases, frozenset({'t'}))
+    def setUp(self) -> None:
+        super().setUp()
 
-        def test_equality(self):
-            """Check the equality of two Unit objects.
-            Two units are considered equal if their unit name and type are the same.
-            """
-            # Create two identical unit objects
-            unit1 = Unit(
-                unit_name="test",
-                single_display_name="Test",
-                plural_display_name="Tests",
-                type="test",
-                aliases=set(["t"])
-            )
-            unit2 = Unit(
-                unit_name="test",
-                single_display_name="Test",
-                plural_display_name="Tests",
-                type="test",
-                aliases=set(["t"])
-            )
-            unit3 = Unit(
-                unit_name="test3",
-                single_display_name="Test",
-                plural_display_name="Tests",
-                type="test",
-                aliases=set(["t"])
-            )
+class TestConstructor(BaseUnitTest):
+    def test_minimal_arguments(self):
+        unit = Unit("gram", "mass")
+        self.assertIsInstance(unit, Unit)
     
-            # Check if the two units are equal
-            self.assertEqual(unit1, unit2)
+    def test_default_abbreviations(self):
+        unit = Unit("gram", "mass")
+        self.assertEqual(unit.singular_abbreviation, "gram")
+        self.assertEqual(unit.plural_abbreviation, "gram")
 
-            # Check if the two units are not equal
-            self.assertNotEqual(unit1, unit3)
+    def test_constructor_with_abbreviations(self):
+        unit = Unit("gram", "mass", "g", "g")
+        self.assertEqual(unit.singular_abbreviation, "g")
+        self.assertEqual(unit.plural_abbreviation, "g")

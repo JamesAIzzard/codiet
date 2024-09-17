@@ -274,9 +274,9 @@ class UnitDBService(DatabaseServiceBase):
             
             # Construct the Unit object
             unit = Unit(
-                unit_name=unit_base['unit_name'],
-                single_display_name=unit_base['single_display_name'],
-                plural_display_name=unit_base['plural_display_name'],
+                name=unit_base['unit_name'],
+                singular_abbreviation=unit_base['single_display_name'],
+                plural_abbreviation=unit_base['plural_display_name'],
                 type=unit_base['unit_type'],
                 aliases=set(aliases.values()),
                 id=unit_base['id']
