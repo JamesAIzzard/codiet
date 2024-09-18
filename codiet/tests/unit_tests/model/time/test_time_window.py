@@ -2,7 +2,7 @@
 
 from datetime import time
 
-from codiet.tests.model import BaseModelTest
+from codiet.tests import BaseModelTest
 from codiet.model.time import TimeWindow
 
 class BaseTimeWindowTest(BaseModelTest):

@@ -1,6 +1,6 @@
 """This module contains unit tests for the UnitConversion class."""
 
-from codiet.tests.model import BaseModelTest
+from codiet.tests import BaseModelTest
 from codiet.model.quantities import UnitConversion, Quantity
 
 class BaseUnitConversionTest(BaseModelTest):

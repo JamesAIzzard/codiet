@@ -1,7 +1,7 @@
 """Defines tests for the RecipeQuantity class."""
 
 from codiet.model.recipes import RecipeQuantity, Recipe
-from codiet.tests.model import BaseModelTest
+from codiet.tests import BaseModelTest
 
 
 class BaseRecipeQuantityTest(BaseModelTest):

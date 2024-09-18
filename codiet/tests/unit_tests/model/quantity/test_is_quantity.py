@@ -1,7 +1,7 @@
 """Defines tests for the IsQuantity class."""
 
 from codiet.model.quantities import is_quantified
-from codiet.tests.model import BaseModelTest
+from codiet.tests import BaseModelTest
 
 class BaseIsQuantityTest(BaseModelTest):
     """Base class for testing the IsQuantity class."""

@@ -1,8 +1,6 @@
-"""Tests for the Recipe class."""
-
 from datetime import time
 
-from codiet.tests.model import BaseModelTest
+from codiet.tests import BaseModelTest
 from codiet.tests.fixtures import IngredientTestFixtures
 from codiet.model.recipes import Recipe
 from codiet.model.ingredients import IngredientQuantity

@@ -1,6 +1,6 @@
 """Tests for the NutrientQuantity class."""
 
-from codiet.tests.model import BaseModelTest
+from codiet.tests import BaseModelTest
 from codiet.model.nutrients import NutrientQuantity
 
 class BaseNutrientQuantityTest(BaseModelTest):

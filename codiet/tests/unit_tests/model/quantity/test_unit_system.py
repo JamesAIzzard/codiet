@@ -1,4 +1,4 @@
-from codiet.tests.model import BaseModelTest
+from codiet.tests import BaseModelTest
 from codiet.tests.fixtures import UnitTestFixtures
 from codiet.model.quantities import UnitSystem, UnitConversion, Quantity
 

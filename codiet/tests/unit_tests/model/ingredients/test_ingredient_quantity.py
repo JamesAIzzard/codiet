@@ -1,6 +1,6 @@
 """Tests for the IngredientQuantity class."""
 
-from codiet.tests.model import BaseModelTest
+from codiet.tests import BaseModelTest
 from codiet.tests.fixtures import IngredientTestFixtures
 from codiet.model.ingredients import Ingredient, IngredientQuantity
 from codiet.model.quantities import Quantity

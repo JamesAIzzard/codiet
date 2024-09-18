@@ -8,7 +8,6 @@ from codiet.tests.fixtures import (
 
 
 class BaseModelTest(BaseCodietTest):
-    """Base class for testing model elements."""
 
     @property
     def domain_service(self) -> DomainService:
@@ -23,7 +22,6 @@ class BaseModelTest(BaseCodietTest):
 
     def tearDown(self) -> None:
         return super().tearDown()
-
 
     def _init_essential_fixtures(self):
         self.unit_fixtures = UnitTestFixtures()

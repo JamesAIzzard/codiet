@@ -1,6 +1,6 @@
 """Tests for the ingredient module."""
 
-from codiet.tests.model import BaseModelTest
+from codiet.tests import BaseModelTest
 from codiet.model.ingredients import Ingredient
 from codiet.model.nutrients import NutrientQuantity
 

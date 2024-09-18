@@ -1,6 +1,6 @@
 """Unit tests for the flag class."""
 
-from codiet.tests.model import BaseModelTest
+from codiet.tests import BaseModelTest
 from codiet.model.flags.flag import Flag
 
 class BaseFlagTest(BaseModelTest):
