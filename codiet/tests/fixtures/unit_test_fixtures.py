@@ -44,7 +44,7 @@ class UnitTestFixtures:
         """Returns a unit by name."""
         return self.units[unit_name]
 
-    def get_global_unit_conversion_by_name(
+    def get_unit_conversion_by_name(
         self, conversion_name: tuple[str, str]
     ) -> UnitConversion:
         """Returns a global unit conversion by name."""
@@ -118,5 +118,5 @@ class UnitTestFixtures:
                     Quantity(unit=self.units["gram"], value=1),
                     Quantity(unit=self.units["kilogram"], value=1000),
                 )
-            ),
+            )
         }
