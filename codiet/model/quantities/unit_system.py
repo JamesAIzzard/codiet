@@ -59,11 +59,11 @@ class UnitSystem(UsesDomainService):
         if quantity.unit == to_unit:
             return quantity
 
-        conversion_factor = self.get_conversion_factor(quantity.unit, to_unit)
+        conversion_factor = self._get_conversion_factor(quantity.unit, to_unit)
         converted_value = quantity.value * conversion_factor if quantity.value is not None else None
         return Quantity(unit=to_unit, value=converted_value)
 
-    def get_conversion_factor(self, from_unit: 'Unit', to_unit: 'Unit') -> float:
+    def _get_conversion_factor(self, from_unit: 'Unit', to_unit: 'Unit') -> float:
         """
         Calculates the conversion factor between two units.
         To go from 'from_unit' to 'to_unit', we multiply the first unit qty by the factor.
@@ -94,11 +94,11 @@ class UnitSystem(UsesDomainService):
             if unit not in visited:
                 visited.add(unit)
                 available_units.append(unit)
-                queue.extend(set(self._graph.get(unit, {}).keys()) - visited)
+                queue.extend(set(self._graph.get(unit, {}).keys()) - visited) # type: ignore
 
         return IUC(available_units)
 
-    def clear_path_cache(self):
+    def _clear_path_cache(self):
         """Clears the conversion path cache."""
         self._path_cache.clear()
 
