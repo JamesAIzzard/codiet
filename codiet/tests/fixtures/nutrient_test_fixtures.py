@@ -1,13 +1,13 @@
-"""Test fixtures for tests requiring nutrient instances."""
 from typing import TYPE_CHECKING
 
+from codiet.tests.fixtures import BaseTestFixtures
 from codiet.model.nutrients import Nutrient, NutrientQuantity
 
 if TYPE_CHECKING:
     from codiet.db import DatabaseService
     from codiet.model.ingredients import Ingredient
 
-class NutrientTestFixtures:
+class NutrientTestFixtures(BaseTestFixtures):
     """Test fixtures class for nutrients."""
 
     def __init__(self) -> None:

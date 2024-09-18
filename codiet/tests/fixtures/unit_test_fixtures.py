@@ -1,14 +1,13 @@
-"""Test fixtures for the units module."""
-
 from typing import TYPE_CHECKING
 
+from codiet.tests.fixtures import BaseTestFixtures
 from codiet.model.quantities import Unit, UnitConversion, Quantity
 
 if TYPE_CHECKING:
     from codiet.db.database_service import DatabaseService
 
 
-class UnitTestFixtures:
+class UnitTestFixtures(BaseTestFixtures):
     """Test fixtures for the units module."""
 
     def __init__(self) -> None:

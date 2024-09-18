@@ -29,4 +29,25 @@ class TestConstructor(BaseUnitSystemTest):
         unit_system = UnitSystem([gram_millilitre])
         self.assertIsInstance(unit_system, UnitSystem)
         self.assertEqual(len(unit_system.entity_unit_conversions), 1)
+
+class TestAddEntityUnitConversion(BaseUnitSystemTest):
+    def test_add_entity_unit_conversion(self):
+        """Check we can add an entity unit conversion to the unit system."""
+        gram = self.unit_fixtures.gram
+        millilitre = self.unit_fixtures.get_unit_by_name("millilitre")
+
+        unit_system = UnitSystem()
+
+        assert len(unit_system.entity_unit_conversions) == 0
+
+        gram_millilitre = UnitConversion(
+            (
+                Quantity(self.unit_fixtures.get_unit_by_name("gram"), 1),
+                Quantity(self.unit_fixtures.get_unit_by_name("millilitre"), 1)
+            )
+        )
+        unit_system.add_entity_unit_conversion(gram_millilitre)
+
+        self.assertEqual(len(unit_system.entity_unit_conversions), 1)
+        self.assertIn(gram_millilitre, unit_system.entity_unit_conversions)
     
