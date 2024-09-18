@@ -1,4 +1,5 @@
 from codiet.tests import BaseModelTest
+from codiet.tests.fixtures import FlagTestFixtures, NutrientTestFixtures
 from codiet.model.ingredients import Ingredient
 from codiet.model.nutrients import NutrientQuantity
 
@@ -8,6 +9,8 @@ class BaseIngredientTest(BaseModelTest):
 
     def setUp(self) -> None:
         super().setUp()
+        self.flag_fixtures = FlagTestFixtures()
+        self.nutrient_fixtures = NutrientTestFixtures()
 
 class TestConstructor(BaseIngredientTest):
 
@@ -52,13 +55,13 @@ class TestStandardUnitProperty(BaseIngredientTest):
 
 class TestGetFlagByName(BaseIngredientTest):
 
-    def test_get_flag_by_name(self):
-        """Check we can retrieve a flag by its name."""
+    def test_can_get_flag_by_name(self):
         apple = Ingredient(name="Apple")
-        vegan_flag, vegetarian_flag = self._domain_service.get_flags_by_names(
-            ["vegan", "vegetarian"]
-        )
-        apple.add_flags([vegan_flag, vegetarian_flag])
+
+        vegan_flag = self.flag_fixtures.get_flag_by_name("vegan")
+        vegetarian_flag = self.flag_fixtures.get_flag_by_name("vegetarian")
+
+        [apple.add_flag(flag) for flag in [vegan_flag, vegetarian_flag]]
 
         self.assertIs(apple.get_flag_by_name("vegan"), vegan_flag)
 
@@ -89,12 +92,15 @@ class TestRemoveFlag(BaseIngredientTest):
         """Check that we can remove a flag."""
         apple = Ingredient(name="Apple")
 
-        # Add a couple of flags to check that we only remove the one we want
         vegan_flag = self.flag_fixtures.get_flag_by_name("vegan")
         vegetarian_flag = self.flag_fixtures.get_flag_by_name("vegetarian")
-        apple.add_flags([vegan_flag, vegetarian_flag])
+
+        [apple.add_flag(flag) for flag in [vegan_flag, vegetarian_flag]]
+
         self.assertEqual(len(apple.flags), 2)
+
         apple.remove_flag(vegan_flag)
+
         self.assertEqual(len(apple.flags), 1)
         self.assertNotIn(vegan_flag, apple.flags)
 
@@ -104,29 +110,25 @@ class TestGetNutrientQuantityByName(BaseIngredientTest):
     def test_get_nutrient_quantity_by_name(self):
         """Check we can retrieve a nutrient quantity by its name."""
         apple = Ingredient(name="Apple")
-        protein_quantity = NutrientQuantity(
-            self._domain_service.get_nutrient_by_name("protein")
-        )
+        protein_quantity = self.nutrient_fixtures.create_nutrient_quantity_by_name("protein")
         apple.add_nutrient_quantity(protein_quantity)
         self.assertEqual(
             apple.get_nutrient_quantity_by_name("protein"), protein_quantity
         )
 
-    def test_remove_nutrient_quantities(self):
-        """Check that we can remove an ingredient nutrient quantity."""
+class TestRemoveNutrientQuantity(BaseIngredientTest):
+    def test_can_remove_nutrient_quantity(self):
         apple = Ingredient(name="Apple")
 
-        # Add a couple of nutrient quantities to check that we only remove the one we want
-        protein_quantity = NutrientQuantity(
-            self._domain_service.get_nutrient_by_name("protein")
-        )
-        fat_quantity = NutrientQuantity(
-            self._domain_service.get_nutrient_by_name("fat")
-        )
-        apple.add_nutrient_quantities([protein_quantity, fat_quantity])
+        protein_quantity = self.nutrient_fixtures.create_nutrient_quantity_by_name("protein")
+        fat_quantity = self.nutrient_fixtures.create_nutrient_quantity_by_name("fat")
+
+        [apple.add_nutrient_quantity(quantity) for quantity in [protein_quantity, fat_quantity]]
+
         self.assertEqual(len(apple.nutrient_quantities), 2)
         
         apple.remove_nutrient_quantity(protein_quantity)
+
         self.assertEqual(len(apple.nutrient_quantities), 1)
         self.assertNotIn(protein_quantity, apple.nutrient_quantities)
         self.assertIn(fat_quantity, apple.nutrient_quantities)

@@ -25,17 +25,13 @@ class NutrientTestFixtures(BaseTestFixtures):
         """Returns a nutrient by name."""
         return self.nutrients[nutrient_name]
 
+    def create_nutrient_quantity_by_name(self, nutrient_name:str) -> NutrientQuantity:
+        nutrient = self.get_nutrient_by_name(nutrient_name)
+        return NutrientQuantity(nutrient)
+
     def setup_database_nutrients(self, db_service:'DatabaseService') -> None:
         """Sets up the test nutrients in the database."""
         db_service.nutrients.create_global_nutrients(self.nutrients.values())
-
-    def create_ingredient_nutrient_quantity(self, nutrient_name:str, ingredient:'Ingredient') -> NutrientQuantity:
-        """Creates an ingredient nutrient quantity."""
-        nutrient = self.get_nutrient_by_name(nutrient_name)
-        return NutrientQuantity(
-            nutrient=nutrient,
-            ingredient=ingredient
-        )
 
     def _create_test_nutrients(self) -> dict[str, Nutrient]:
         """Instantiates a dictionary of nutrients for testing purposes."""

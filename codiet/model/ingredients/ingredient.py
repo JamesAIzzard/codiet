@@ -12,7 +12,6 @@ if TYPE_CHECKING:
     from codiet.model.nutrients import NutrientQuantity
 
 class Ingredient(StoredEntity, UsesDomainService):
-    """Ingredient model."""
 
     def __init__(
         self,
@@ -129,11 +128,6 @@ class Ingredient(StoredEntity, UsesDomainService):
         """Adds a flag."""
         self._flags.add(flag)
 
-    def add_flags(self, flags: Collection['Flag']) -> None:
-        """Adds multiple flags."""
-        for flag in flags:
-            self.add_flag(flag)
-
     def remove_flag(self, flag: 'Flag') -> None:
         """Deletes a flag."""
         self._flags.remove(flag)
@@ -150,11 +144,6 @@ class Ingredient(StoredEntity, UsesDomainService):
     ) -> None:
         """Adds a nutrient quantity."""
         self._nutrient_quantities.add(nutrient_quantity)
-
-    def add_nutrient_quantities(self, nutrient_quantities: Collection['NutrientQuantity']) -> None:
-        """Adds multiple nutrient quantities."""
-        for nutrient_quantity in nutrient_quantities:
-            self.add_nutrient_quantity(nutrient_quantity)
 
     def remove_nutrient_quantity(
         self,

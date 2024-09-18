@@ -7,5 +7,3 @@ class BaseRecipeTest(BaseModelTest):
     def setUp(self) -> None:
         super().setUp()
         self.ingredient_fixtures = IngredientTestFixtures()
-
-class TestCanCreateEntireRecipe
