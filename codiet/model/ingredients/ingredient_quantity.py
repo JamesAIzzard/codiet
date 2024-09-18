@@ -1,17 +1,17 @@
 from typing import TYPE_CHECKING
 
 from codiet.db.stored_entity import StoredEntity
-from codiet.model.quantity.is_quantity import IsQuantity
+from codiet.model.quantities.is_quantified import IsQuantified
 
 if TYPE_CHECKING:
     from codiet.model.ingredients.ingredient import Ingredient
 
-class IngredientQuantity(IsQuantity, StoredEntity):
+class IngredientQuantity(IsQuantified, StoredEntity):
     """Class to represent an ingredient quantity."""
 
     def __init__(
         self,
-        ingredient: "Ingredient",
+        ingredient: 'Ingredient',
         qty_utol: float | None = None,
         qty_ltol: float | None = None,
         *args,

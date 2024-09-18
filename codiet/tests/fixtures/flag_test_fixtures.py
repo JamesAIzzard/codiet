@@ -1,16 +1,7 @@
-"""Test fixtures for the flags module."""
-from typing import TYPE_CHECKING
-
+from codiet.tests.fixtures import BaseTestFixtures
 from codiet.model.flags import Flag
 
-if TYPE_CHECKING:
-    from codiet.model.ingredients import Ingredient
-
-class FlagTestFixtures:
-    """Test fixtures for the flags module.
-    Provides various methods to create test flags and configure test
-    flags in the database.
-    """
+class FlagTestFixtures(BaseTestFixtures):
 
     def __init__(self) -> None:
         self._flags:dict[str, Flag]|None = None

@@ -1,3 +1,4 @@
+from .base_test_fixtures import BaseTestFixtures
 from .unit_test_fixtures import UnitTestFixtures
 from .flag_test_fixtures import FlagTestFixtures
 from .ingredient_test_fixtures import IngredientTestFixtures

@@ -5,7 +5,7 @@ from PyQt6.QtCore import pyqtSignal
 
 from codiet.utils import Map, IUC
 from codiet.db.database_service.database_service_base import DatabaseServiceBase
-from codiet.model.units import Unit, UnitConversion
+from codiet.model.quantities import Unit, UnitConversion
 
 if TYPE_CHECKING:
     from codiet.model.ingredients import Ingredient

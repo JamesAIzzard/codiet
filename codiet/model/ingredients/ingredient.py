@@ -3,11 +3,11 @@ from typing import Collection, TYPE_CHECKING
 from codiet.utils import MUC, IUC
 from codiet.db.stored_entity import StoredEntity
 from codiet.model.domain_service import UsesDomainService
-from codiet.model.units import UnitSystem
+from codiet.model.quantities import UnitSystem
 from codiet.model.cost import CostRate
 
 if TYPE_CHECKING:
-    from codiet.model.units import Unit, UnitConversion
+    from codiet.model.quantities import Unit, UnitConversion
     from codiet.model.flags import Flag
     from codiet.model.nutrients import NutrientQuantity
 
@@ -32,19 +32,14 @@ class Ingredient(StoredEntity, UsesDomainService):
 
         self._name = name
         self._description = description
-        self._unit_system = UnitSystem(
-            ingredient=self,
-            global_units=self.domain_service.global_units,
-            global_unit_conversions=self.domain_service.global_unit_conversions,
-            ingredient_unit_conversions=unit_conversions,
-        )
+        self._unit_system = UnitSystem(unit_conversions or [])
 
         # If the standard unit is not set, just use grams
         if standard_unit is None:
-            self._standard_unit = self._unit_system.gram
+            self._standard_unit = self.domain_service.gram
         else:
             # Check the standard unit is accessible
-            if standard_unit not in self._unit_system.get_available_units():
+            if standard_unit not in self._unit_system._get_available_units():
                 raise ValueError(
                     f"{standard_unit.name} is not accessible in the unit system."
                 )
@@ -91,7 +86,7 @@ class Ingredient(StoredEntity, UsesDomainService):
             raise ValueError("Standard unit cannot be empty.")
 
         # Check the standard unit is accessible
-        if value not in self._unit_system.get_available_units():
+        if value not in self._unit_system._get_available_units():
             raise ValueError(f"{value.name} is not accessible in the unit system.")
 
         self._standard_unit = value
