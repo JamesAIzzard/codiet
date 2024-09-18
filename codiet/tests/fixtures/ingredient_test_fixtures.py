@@ -29,6 +29,10 @@ class IngredientTestFixtures(BaseTestFixtures):
         """Returns an ingredient by name."""
         return self.ingredients[ingredient_name]
 
+    def create_ingredient_quantity_by_name(self, ingredient_name:str) -> IngredientQuantity:
+        ingredient = self.get_ingredient_by_name(ingredient_name)
+        return IngredientQuantity(ingredient)
+
     def setup_database_ingredients(self, db_service:'DatabaseService') -> None:
         """Sets up the test ingredients in the database."""
         db_service.ingredients.create_ingredients(self.ingredients.values())
@@ -42,19 +46,7 @@ class IngredientTestFixtures(BaseTestFixtures):
     def _create_ingredients(self) -> dict[str, Ingredient]:
         """Instantiates a dictionary of ingredients for testing purposes."""
         return {
-            "apple": Ingredient(
-                name="apple",
-                description="A fruit",
-                gi=40.0
-            ),
-            "chicken": Ingredient(
-                name="chicken",
-                description="A meat",
-                gi=60.0
-            ),
-            "potato": Ingredient(
-                name="broccoli",
-                description="A vegetable",
-                gi=70.0
-            )
+            "apple": Ingredient("Apple"),
+            "chicken": Ingredient("Chicken"),
+            "potato": Ingredient("Potato"),
         }

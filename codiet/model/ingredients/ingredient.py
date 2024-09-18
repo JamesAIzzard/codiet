@@ -16,40 +16,19 @@ class Ingredient(StoredEntity, UsesDomainService):
     def __init__(
         self,
         name: str,
-        description: str | None = None,
-        unit_conversions: Collection['UnitConversion'] | None = None,
-        standard_unit: 'Unit | None' = None,
-        cost_rate: 'CostRate | None' = None,
-        flags: Collection['Flag'] | None = None,
-        gi: float | None = None,
-        nutrient_quantities: Collection['NutrientQuantity'] | None = None,
         *args,
         **kwargs,
     ):
-        """Initialises the class."""
         super().__init__(*args, **kwargs)
 
         self._name = name
-        self._description = description
-        self._unit_system = UnitSystem(unit_conversions or [])
-
-        # If the standard unit is not set, just use grams
-        if standard_unit is None:
-            self._standard_unit = self.domain_service.gram
-        else:
-            # Check the standard unit is accessible
-            if standard_unit not in self._unit_system._get_available_units():
-                raise ValueError(
-                    f"{standard_unit.name} is not accessible in the unit system."
-                )
-            self._standard_unit = standard_unit
-
-        # Deal with the cost rate class
-        self._cost_rate = cost_rate or CostRate()
-
-        self._flags = MUC(flags) or MUC()
-        self._gi = gi
-        self._nutrient_quantities = MUC(nutrient_quantities) or MUC()
+        self._description:str|None = None
+        self._unit_system = UnitSystem()
+        self._standard_unit = self.domain_service.gram
+        self._cost_rate = CostRate()
+        self._flags = MUC['Flag']()
+        self._gi:float|None = None
+        self._nutrient_quantities = MUC['NutrientQuantity']()
 
     @property
     def name(self) -> str:

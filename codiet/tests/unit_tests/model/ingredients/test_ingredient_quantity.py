@@ -17,9 +17,7 @@ class TestConstructor(BaseIngredientQuantityTest):
 
     def test_minimal_arguments(self):
         """Check that the ingredient quantity can be constructed with minimal arguments."""
-        apple_quantity = IngredientQuantity(
-            self.ingredient_fixtures.get_ingredient_by_name("apple")
-        )
+        apple_quantity = self.ingredient_fixtures.create_ingredient_quantity_by_name("apple")
         self.assertIsInstance(apple_quantity, IngredientQuantity)
 
     def test_ingredient_is_set(self):

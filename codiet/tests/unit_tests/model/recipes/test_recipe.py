@@ -16,7 +16,7 @@ class BaseRecipeTest(BaseModelTest):
 
 class TestConstructor(BaseRecipeTest):
 
-    def test_constructor(self):
+    def test_can_init(self):
         """Checks that the recipe can be constructed and is an instance of the Recipe class."""
         recipe = Recipe(name="Apple Pie")
         self.assertIsInstance(recipe, Recipe)
@@ -42,9 +42,11 @@ class TestGetIngredientQuantityByName(BaseRecipeTest):
     def test_get_ingredient_quantity_by_name(self):
         """Check that an ingredient quantity can be retrieved by its name."""
         recipe = Recipe(name="Apple Pie")
-        apple = IngredientQuantity(self.ingredient_fixtures.get_ingredient_by_name("apple"))
-        recipe.add_ingredient_quantity(apple)
-        self.assertEqual(recipe.get_ingredient_quantity_by_name("apple"), apple)
+
+        apple_quantity = self.ingredient_fixtures.create_ingredient_quantity_by_name("apple")
+        recipe.add_ingredient_quantity(apple_quantity)
+
+        self.assertIs(recipe.get_ingredient_quantity_by_name("apple"), apple_quantity)
 
     def test_get_ingredient_quantity_by_name_not_found(self):
         """Check that an exception is raised when an ingredient quantity is not found."""

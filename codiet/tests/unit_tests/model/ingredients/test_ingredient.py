@@ -19,28 +19,11 @@ class TestConstructor(BaseIngredientTest):
         apple = Ingredient(name="Apple")
         self.assertIsInstance(apple, Ingredient)
 
-    def test_populates_description(self):
-        """Check that the description property sets and returns correctly."""
-        # Check it is set correctly when passed in the constructor
-        apple = Ingredient(name="Apple", description="A fruit")
-        self.assertEqual(apple.description, "A fruit")
-
     def test_standard_unit_defaults_to_grams(self):
         """Test that the standard unit defaults to grams."""
         gram = self.unit_fixtures.get_unit_by_name("gram")
         apple = Ingredient(name="Apple")
         self.assertEqual(apple.standard_unit, gram)
-
-    def test_cant_init_with_unavailable_units(self):
-        """Check that we get a value error if we try to initialise
-        with a unit that is not available via conversions."""
-        # Create an ingredient with a unit that is not available
-        with self.assertRaises(ValueError):
-            Ingredient(
-                name="Apple",
-                standard_unit=self.unit_fixtures.get_unit_by_name("millilitre"),
-            )
-
 
 class TestStandardUnitProperty(BaseIngredientTest):
 
