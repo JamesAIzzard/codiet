@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from codiet.db.database_service import DatabaseService
 
 
-class UnitTestFixtures(BaseTestFixtures):
+class QuantitiesTestFixtures(BaseTestFixtures):
     """Test fixtures for the units module."""
 
     def __init__(self) -> None:
@@ -49,8 +49,7 @@ class UnitTestFixtures(BaseTestFixtures):
             self._entity_unit_conversions = self._create_test_entity_unit_conversions()
         return self._entity_unit_conversions
 
-    def get_unit_by_name(self, unit_name: str) -> Unit:
-        """Returns a unit by name."""
+    def get_unit(self, unit_name: str) -> Unit:
         return self.units[unit_name]
 
     def get_unit_conversion_by_unit_names(
@@ -63,14 +62,12 @@ class UnitTestFixtures(BaseTestFixtures):
         raise ValueError(f"Unit conversion not found for {conversion_name}")
 
     def setup_database_units(self, db_service: "DatabaseService") -> None:
-        """Sets up the test units in the database."""
         db_service.units.create_units(self.units.values())
         self._database_units_setup = True
 
     def setup_database_global_unit_conversions(
         self, db_service: "DatabaseService"
     ) -> None:
-        """Sets up the test global unit conversions in the database."""
         if not self._database_units_setup:
             self.setup_database_units(db_service=db_service)
         db_service.units.create_global_unit_conversions(
@@ -79,7 +76,6 @@ class UnitTestFixtures(BaseTestFixtures):
         self._database_global_unit_conversions_setup = True
 
     def _create_test_units(self) -> dict[str, Unit]:
-        """Instantiates a dictionary of units for testing purposes."""
         return {
             "gram": Unit(
                 name="gram",

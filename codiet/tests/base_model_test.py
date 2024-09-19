@@ -1,10 +1,8 @@
 from codiet.model.domain_service import DomainService
 from codiet.tests import BaseCodietTest
-from codiet.tests.fixtures import (
-    UnitTestFixtures,
-    FlagTestFixtures,
-    NutrientTestFixtures
-)
+from codiet.tests.fixtures.nutrients import NutrientTestFixtures
+from codiet.tests.fixtures.quantities import QuantitiesTestFixtures
+from codiet.tests.fixtures.flags import FlagTestFixtures
 
 
 class BaseModelTest(BaseCodietTest):
@@ -24,7 +22,7 @@ class BaseModelTest(BaseCodietTest):
         return super().tearDown()
 
     def _init_essential_fixtures(self):
-        self.unit_fixtures = UnitTestFixtures()
+        self.unit_fixtures = QuantitiesTestFixtures()
         self.flag_fixtures = FlagTestFixtures()
         self.nutrient_fixtures = NutrientTestFixtures()
 

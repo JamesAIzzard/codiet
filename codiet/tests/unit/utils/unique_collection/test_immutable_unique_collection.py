@@ -1,6 +1,6 @@
 import unittest
 
-from codiet.tests.utils.unique_collection import Simple
+from codiet.tests.unit.utils.unique_collection import Simple
 from codiet.utils.unique_collection import ImmutableUniqueCollection
 
 class TestImmutableUniqueCollection(unittest.TestCase):

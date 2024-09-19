@@ -1,5 +1,6 @@
 from codiet.tests import BaseModelTest
-from codiet.tests.fixtures import FlagTestFixtures, NutrientTestFixtures
+from codiet.tests.fixtures.nutrients import NutrientTestFixtures
+from codiet.tests.fixtures.flags import FlagTestFixtures
 from codiet.model.ingredients import Ingredient
 from codiet.model.nutrients import NutrientQuantity
 
@@ -21,7 +22,7 @@ class TestConstructor(BaseIngredientTest):
 
     def test_standard_unit_defaults_to_grams(self):
         """Test that the standard unit defaults to grams."""
-        gram = self.unit_fixtures.get_unit_by_name("gram")
+        gram = self.unit_fixtures.get_unit("gram")
         apple = Ingredient(name="Apple")
         self.assertEqual(apple.standard_unit, gram)
 
@@ -33,7 +34,7 @@ class TestStandardUnitProperty(BaseIngredientTest):
         apple = Ingredient(name="Apple")
 
         with self.assertRaises(ValueError):
-            apple.standard_unit = self.unit_fixtures.get_unit_by_name("millilitre")
+            apple.standard_unit = self.unit_fixtures.get_unit("millilitre")
 
 
 class TestGetFlagByName(BaseIngredientTest):

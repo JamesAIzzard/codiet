@@ -1,12 +1,12 @@
 from codiet.tests import BaseModelTest
-from codiet.tests.fixtures import UnitTestFixtures
+from codiet.tests.fixtures.quantities import QuantitiesTestFixtures
 from codiet.model.quantities import UnitSystem, UnitConversion, Quantity
 
 class BaseUnitSystemTest(BaseModelTest):
     
     def setUp(self) -> None:
         super().setUp()
-        self.unit_fixtures = UnitTestFixtures()
+        self.unit_fixtures = QuantitiesTestFixtures()
 
 class TestConstructor(BaseUnitSystemTest):
 
@@ -19,8 +19,8 @@ class TestConstructor(BaseUnitSystemTest):
     def test_construct_with_entity_unit_conversions(self):
         gram_millilitre = UnitConversion(
             (
-                Quantity(self.unit_fixtures.get_unit_by_name("gram"), 1),
-                Quantity(self.unit_fixtures.get_unit_by_name("millilitre"), 1)
+                Quantity(self.unit_fixtures.get_unit("gram"), 1),
+                Quantity(self.unit_fixtures.get_unit("millilitre"), 1)
             )
         )
         unit_system = UnitSystem([gram_millilitre])
@@ -43,7 +43,7 @@ class TestAvailableUnits(BaseUnitSystemTest):
         gram_millilitre = self.unit_fixtures.get_unit_conversion_by_unit_names(("gram", "millilitre"))
         unit_system.add_entity_unit_conversion(gram_millilitre)
 
-        millilitre = self.unit_fixtures.get_unit_by_name("millilitre")
+        millilitre = self.unit_fixtures.get_unit("millilitre")
         self.assertIn(millilitre, unit_system.available_units)
 
 class TestAddEntityUnitConversion(BaseUnitSystemTest):
@@ -95,8 +95,8 @@ class TestCanConvertUnits(BaseUnitSystemTest):
     def test_cant_convert_mass_to_fluid_until_conversion_added(self):
         unit_system = UnitSystem()
 
-        gram = self.unit_fixtures.get_unit_by_name("gram")
-        millilitre = self.unit_fixtures.get_unit_by_name("millilitre")
+        gram = self.unit_fixtures.get_unit("gram")
+        millilitre = self.unit_fixtures.get_unit("millilitre")
 
         self.assertFalse(unit_system.can_convert_units(gram, millilitre))
 
@@ -111,8 +111,8 @@ class TestConvertQuantity(BaseUnitSystemTest):
     def test_convert_quantity(self):
         unit_system = UnitSystem()
 
-        gram = self.unit_fixtures.get_unit_by_name("gram")
-        kilogram = self.unit_fixtures.get_unit_by_name("kilogram")
+        gram = self.unit_fixtures.get_unit("gram")
+        kilogram = self.unit_fixtures.get_unit("kilogram")
 
         quantity = Quantity(gram, 1000)
         converted_quantity = unit_system.convert_quantity(quantity, kilogram)
@@ -123,8 +123,8 @@ class TestConvertQuantity(BaseUnitSystemTest):
     def test_can_convert_quantity_after_conversion_is_added(self):
         unit_system = UnitSystem()
 
-        gram = self.unit_fixtures.get_unit_by_name("gram")
-        millilitre = self.unit_fixtures.get_unit_by_name("millilitre")
+        gram = self.unit_fixtures.get_unit("gram")
+        millilitre = self.unit_fixtures.get_unit("millilitre")
 
         quantity = Quantity(gram, 1000)
 

@@ -1,0 +1,2 @@
+class RecipeTestFixtures:
+    pass
