@@ -1,8 +1,12 @@
 from typing import TYPE_CHECKING
 
 from codiet.tests.fixtures import BaseTestFixtures
-from codiet.tests.fixtures.quantities.create_test_units import create_test_units
-from codiet.model.quantities import Unit, UnitConversion, Quantity
+from .create_test_units import create_test_units
+from .create_test_unit_conversions import (
+    create_test_global_unit_conversions,
+    create_test_entity_unit_conversions,
+)
+from codiet.model.quantities import Unit, UnitConversion
 
 if TYPE_CHECKING:
     from codiet.db.database_service import DatabaseService
@@ -38,7 +42,7 @@ class QuantitiesTestFixtures(BaseTestFixtures):
         The dictionary key is a tuple of the from and to unit names.
         """
         if self._global_unit_conversions is None:
-            self._global_unit_conversions = self._create_test_global_unit_conversions()
+            self._global_unit_conversions = create_test_global_unit_conversions(self.units)
         return self._global_unit_conversions
     
     @property
@@ -47,7 +51,7 @@ class QuantitiesTestFixtures(BaseTestFixtures):
         The dictionary key is a tuple of the from and to unit names.
         """
         if self._entity_unit_conversions is None:
-            self._entity_unit_conversions = self._create_test_entity_unit_conversions()
+            self._entity_unit_conversions = create_test_entity_unit_conversions(self.units)
         return self._entity_unit_conversions
 
     def get_unit(self, unit_name: str) -> Unit:
@@ -75,39 +79,3 @@ class QuantitiesTestFixtures(BaseTestFixtures):
             self.global_unit_conversions.values()
         )
         self._database_global_unit_conversions_setup = True
-
-    def _create_test_global_unit_conversions(
-        self,
-    ) -> dict[tuple[str, str], UnitConversion]:
-        return {
-            ("millilitre", "litre"): UnitConversion(
-                (
-                    Quantity(unit=self.units["millilitre"], value=1000),
-                    Quantity(unit=self.units["litre"], value=1),
-                )
-            ),
-            ("gram", "kilogram"): UnitConversion(
-                (
-                    Quantity(unit=self.units["gram"], value=1000),
-                    Quantity(unit=self.units["kilogram"], value=1),
-                )
-            )
-        }
-    
-    def _create_test_entity_unit_conversions(
-        self,
-    ) -> dict[tuple[str, str], UnitConversion]:
-        return {
-            ("gram", "millilitre"): UnitConversion(
-                (
-                    Quantity(unit=self.units["gram"], value=1),
-                    Quantity(unit=self.units["millilitre"], value=1),
-                )
-            ),
-            ("gram", "slice"): UnitConversion(
-                (
-                    Quantity(unit=self.units["gram"], value=100),
-                    Quantity(unit=self.units["whole"], value=1),
-                )
-            )
-        }
