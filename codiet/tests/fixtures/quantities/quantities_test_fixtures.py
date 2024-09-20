@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from codiet.tests.fixtures import BaseTestFixtures
+from codiet.tests.fixtures.quantities.create_test_units import create_test_units
 from codiet.model.quantities import Unit, UnitConversion, Quantity
 
 if TYPE_CHECKING:
@@ -24,7 +25,7 @@ class QuantitiesTestFixtures(BaseTestFixtures):
     @property
     def units(self) -> dict[str, Unit]:
         if self._units is None:
-            self._units = self._create_test_units()
+            self._units = create_test_units()
         return self._units
 
     @property
@@ -75,41 +76,6 @@ class QuantitiesTestFixtures(BaseTestFixtures):
         )
         self._database_global_unit_conversions_setup = True
 
-    def _create_test_units(self) -> dict[str, Unit]:
-        return {
-            "gram": Unit(
-                name="gram",
-                singular_abbreviation="g",
-                plural_abbreviation="g",
-                type="mass",
-            ),
-            "kilogram": Unit(
-                name="kilogram",
-                singular_abbreviation="kg",
-                plural_abbreviation="kg",
-                aliases=["kgs"],
-                type="mass",
-            ),
-            "millilitre": Unit(
-                name="millilitre",
-                singular_abbreviation="ml",
-                plural_abbreviation="ml",
-                type="volume",
-            ),
-            "litre": Unit(
-                name="litre",
-                singular_abbreviation="l",
-                plural_abbreviation="l",
-                type="volume",
-            ),
-            "slice": Unit(
-                name="slice",
-                singular_abbreviation="slice",
-                plural_abbreviation="slices",
-                type="grouping",
-            ),
-        }
-
     def _create_test_global_unit_conversions(
         self,
     ) -> dict[tuple[str, str], UnitConversion]:
@@ -141,7 +107,7 @@ class QuantitiesTestFixtures(BaseTestFixtures):
             ("gram", "slice"): UnitConversion(
                 (
                     Quantity(unit=self.units["gram"], value=100),
-                    Quantity(unit=self.units["slice"], value=1),
+                    Quantity(unit=self.units["whole"], value=1),
                 )
             )
         }
