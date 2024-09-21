@@ -10,8 +10,8 @@ class BaseIngredientTest(BaseModelTest):
 
     def setUp(self) -> None:
         super().setUp()
-        self.flag_fixtures = FlagTestFixtures()
-        self.nutrient_fixtures = NutrientTestFixtures()
+        self.flag_fixtures = FlagTestFixtures.initialise()
+        self.nutrient_fixtures = NutrientTestFixtures.initialise()
 
 class TestConstructor(BaseIngredientTest):
 

@@ -10,7 +10,8 @@ class BaseIngredientQuantityTest(BaseModelTest):
 
     def setUp(self) -> None:
         super().setUp()
-        self.ingredient_fixtures = IngredientTestFixtures()
+        self.ingredient_fixtures = IngredientTestFixtures.initialise()
+        self.ingredient_fixtures = IngredientTestFixtures.get_instance()
 
 class TestConstructor(BaseIngredientQuantityTest):
 

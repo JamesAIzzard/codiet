@@ -20,9 +20,9 @@ class BaseModelTest(BaseCodietTest):
         self._domain_service = DomainService.get_instance()
 
     def _init_essential_fixtures(self):
-        self.quantities_fixtures = QuantitiesTestFixtures()
-        self.flag_fixtures = FlagTestFixtures()
-        self.nutrient_fixtures = NutrientTestFixtures()
+        self.quantities_fixtures = QuantitiesTestFixtures.initialise()
+        self.flag_fixtures = FlagTestFixtures.initialise()
+        self.nutrient_fixtures = NutrientTestFixtures.initialise()
 
     def _init_domain_service(self):
         DomainService.initialise(

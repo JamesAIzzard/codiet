@@ -8,8 +8,8 @@ class BaseAppleIntegrationTest(BaseModelTest):
 
     def setUp(self) -> None:
         super().setUp()
-        self.ingredient_fixtures = IngredientTestFixtures()
-        self.unit_fixtures = QuantitiesTestFixtures()
+        self.ingredient_fixtures = IngredientTestFixtures.initialise()
+        self.unit_fixtures = QuantitiesTestFixtures.initialise()
 
 class TestCreateApple(BaseAppleIntegrationTest):
 

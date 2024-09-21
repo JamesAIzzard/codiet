@@ -6,7 +6,7 @@ class BaseUnitSystemTest(BaseModelTest):
     
     def setUp(self) -> None:
         super().setUp()
-        self.unit_fixtures = QuantitiesTestFixtures()
+        self.unit_fixtures = QuantitiesTestFixtures.initialise()
 
 class TestConstructor(BaseUnitSystemTest):
 

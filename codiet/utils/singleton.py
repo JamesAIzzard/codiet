@@ -1,19 +1,26 @@
-class SingletonMeta(type):
-    def __init__(cls, name, bases, namespace):
-        super().__init__(name, bases, namespace)
-        cls._instance = None
+from typing import TypeVar, Type, Any, cast
 
-    def initialise(cls, *args, **kwargs):
-        if cls._instance is None:
+T = TypeVar('T')
+
+class SingletonMeta(type):
+    _instance: Any = None
+
+    def __init__(cls: Type[T], name: str, bases: tuple, namespace: dict):
+        super().__init__(name, bases, namespace)
+
+    def __call__(cls: Type[T], *args: Any, **kwargs: Any) -> None:
+        raise Exception("Direct instantiation is not allowed. Use 'initialise' instead.")
+
+    def initialise(cls: Type[T], *args: Any, **kwargs: Any) -> T:
+        if cls._instance is None: # type: ignore
             # First-time initialization
-            cls._instance = super().__call__(*args, **kwargs)
+            cls._instance = super().__call__(*args, **kwargs) # type: ignore
         else:
             # Re-initialize the existing instance
-            cls._instance.__init__(*args, **kwargs)
-        return cls._instance
+            cls._instance.__init__(*args, **kwargs) # type: ignore
+        return cast(T, cls._instance) # type: ignore
 
-    def get_instance(cls):
-        if cls._instance is None:
+    def get_instance(cls: Type[T]) -> T:
+        if cls._instance is None: # type: ignore
             raise Exception("Singleton instance not initialized. Call 'initialize' first.")
-        return cls._instance
-
+        return cls._instance # type: ignore

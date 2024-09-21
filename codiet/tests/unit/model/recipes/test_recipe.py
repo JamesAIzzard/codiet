@@ -12,7 +12,7 @@ class BaseRecipeUnitTest(BaseModelTest):
 
     def setUp(self) -> None:
         super().setUp()
-        self.ingredient_fixtures = IngredientTestFixtures()
+        self.ingredient_fixtures = IngredientTestFixtures.initialise()
 
 class TestConstructor(BaseRecipeUnitTest):
 
