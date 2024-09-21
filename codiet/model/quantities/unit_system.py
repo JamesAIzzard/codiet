@@ -31,6 +31,10 @@ class UnitSystem(UsesDomainService):
         """Retrieves the entity unit conversions."""
         return IUC(self._entity_unit_conversions)
 
+    def check_unit_available(self, unit: 'Unit') -> bool:
+        """Checks if a unit is available in the system."""
+        return unit in self.available_units
+
     def add_entity_unit_conversion(self, unit_conversion: 'UnitConversion'):
         """Adds entity unit conversions to the existing list."""
         self._entity_unit_conversions.add(unit_conversion)

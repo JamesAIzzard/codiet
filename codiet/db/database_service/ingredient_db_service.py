@@ -115,7 +115,7 @@ class IngredientDBService(DatabaseServiceBase):
                 )
     
                 # Add the nutrient quantity to the ingredient
-                ingredient.add_nutrient_quantity(nutrient_quantity)
+                ingredient._add_nutrient_quantity(nutrient_quantity)
 
         # Return the completed ingredient
         return ingredient

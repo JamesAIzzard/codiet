@@ -22,7 +22,7 @@ class TestConstructor(BaseIngredientTest):
 
     def test_standard_unit_defaults_to_grams(self):
         """Test that the standard unit defaults to grams."""
-        gram = self.unit_fixtures.get_unit("gram")
+        gram = self.quantities_fixtures.get_unit("gram")
         apple = Ingredient(name="Apple")
         self.assertEqual(apple.standard_unit, gram)
 
@@ -34,85 +34,65 @@ class TestStandardUnitProperty(BaseIngredientTest):
         apple = Ingredient(name="Apple")
 
         with self.assertRaises(ValueError):
-            apple.standard_unit = self.unit_fixtures.get_unit("millilitre")
+            apple.standard_unit = self.quantities_fixtures.get_unit("millilitre")
 
 
-class TestGetFlagByName(BaseIngredientTest):
+class TestGetFlag(BaseIngredientTest):
 
-    def test_can_get_flag_by_name(self):
+    def test_exception_when_getting_unknown_flag(self):
         apple = Ingredient(name="Apple")
-
-        vegan_flag = self.flag_fixtures.get_flag_by_name("vegan")
-        vegetarian_flag = self.flag_fixtures.get_flag_by_name("vegetarian")
-
-        [apple.add_flag(flag) for flag in [vegan_flag, vegetarian_flag]]
-
-        self.assertIs(apple.get_flag_by_name("vegan"), vegan_flag)
-
-
-class TestAddFlag(BaseIngredientTest):
-
-    def test_add_flag(self):
-        """Check that we can add a flag to an ingredient."""
-        apple = Ingredient(name="Apple")
-        vegan_flag = self._domain_service.get_flag_by_name("vegan")
-        apple.add_flag(vegan_flag)
-
-        self.assertIn(vegan_flag, apple.flags)
-
-    def test_exception_if_adding_duplicate_flag(self):
-        """Check that we get an exception if we try to add a flag that is already present."""
-        apple = Ingredient(name="Apple")
-        vegan_flag = self._domain_service.get_flag_by_name("vegan")
-        apple.add_flag(vegan_flag)
 
         with self.assertRaises(ValueError):
-            apple.add_flag(vegan_flag)
+            apple.get_flag("foobar")
 
-
-class TestRemoveFlag(BaseIngredientTest):
-
-    def test_remove_flag(self):
-        """Check that we can remove a flag."""
+    def test_returns_unset_flag_with_value_none(self):
         apple = Ingredient(name="Apple")
 
-        vegan_flag = self.flag_fixtures.get_flag_by_name("vegan")
-        vegetarian_flag = self.flag_fixtures.get_flag_by_name("vegetarian")
+        self.assertIsNone(apple.get_flag("vegan").value)
 
-        [apple.add_flag(flag) for flag in [vegan_flag, vegetarian_flag]]
+    def test_returns_set_flag(self):
+        apple = Ingredient(name="Apple")
 
-        self.assertEqual(len(apple.flags), 2)
+        apple.set_flag("vegan", True)
 
-        apple.remove_flag(vegan_flag)
+        self.assertTrue(apple.get_flag("vegan").value)
 
-        self.assertEqual(len(apple.flags), 1)
-        self.assertNotIn(vegan_flag, apple.flags)
+class TestSetFlag(BaseIngredientTest):
 
+    def test_can_set_flag_true(self):
+        apple = Ingredient(name="Apple")
 
-class TestGetNutrientQuantityByName(BaseIngredientTest):
+        apple.set_flag("vegan", True)
+        
+        self.assertTrue(apple.get_flag("vegan").value)
 
-    def test_get_nutrient_quantity_by_name(self):
+    def test_can_set_flag_false(self):
+        apple = Ingredient(name="Apple")
+
+        apple.set_flag("vegan", False)
+
+        self.assertFalse(apple.get_flag("vegan").value)
+
+    def test_can_set_flag_none(self):
+        apple = Ingredient(name="Apple")
+
+        apple.set_flag("vegan", None)
+
+        self.assertIsNone(apple.get_flag("vegan").value)
+
+    def test_exception_when_setting_unknown_flag(self):
+        apple = Ingredient(name="Apple")
+
+        with self.assertRaises(ValueError):
+            apple.set_flag("foobar", True)
+
+class TestGetNutrientQuantity(BaseIngredientTest):
+
+    def test_get_nutrient_quantity(self):
         """Check we can retrieve a nutrient quantity by its name."""
         apple = Ingredient(name="Apple")
-        protein_quantity = self.nutrient_fixtures.create_nutrient_quantity_by_name("protein")
-        apple.add_nutrient_quantity(protein_quantity)
+        protein_quantity = self.nutrient_fixtures.create_nutrient_quantity("protein")
+        apple._add_nutrient_quantity(protein_quantity)
         self.assertEqual(
-            apple.get_nutrient_quantity_by_name("protein"), protein_quantity
+            apple.get_nutrient_quantity("protein"), protein_quantity
         )
-
-class TestRemoveNutrientQuantity(BaseIngredientTest):
-    def test_can_remove_nutrient_quantity(self):
-        apple = Ingredient(name="Apple")
-
-        protein_quantity = self.nutrient_fixtures.create_nutrient_quantity_by_name("protein")
-        fat_quantity = self.nutrient_fixtures.create_nutrient_quantity_by_name("fat")
-
-        [apple.add_nutrient_quantity(quantity) for quantity in [protein_quantity, fat_quantity]]
-
-        self.assertEqual(len(apple.nutrient_quantities), 2)
-        
-        apple.remove_nutrient_quantity(protein_quantity)
-
-        self.assertEqual(len(apple.nutrient_quantities), 1)
-        self.assertNotIn(protein_quantity, apple.nutrient_quantities)
-        self.assertIn(fat_quantity, apple.nutrient_quantities)

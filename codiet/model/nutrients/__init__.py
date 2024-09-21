@@ -1,2 +1,4 @@
 from .nutrient import Nutrient
 from .nutrient_quantity import NutrientQuantity
+from .has_nutrient_quantities import HasNutrientQuantities
+from .has_settable_nutrient_quantities import HasSettableNutrientQuantities

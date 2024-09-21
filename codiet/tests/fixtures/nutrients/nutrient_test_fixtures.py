@@ -8,7 +8,6 @@ if TYPE_CHECKING:
     from codiet.model.ingredients import Ingredient
 
 class NutrientTestFixtures(BaseTestFixtures):
-    """Test fixtures class for nutrients."""
 
     def __init__(self) -> None:
 
@@ -25,7 +24,7 @@ class NutrientTestFixtures(BaseTestFixtures):
         """Returns a nutrient by name."""
         return self.nutrients[nutrient_name]
 
-    def create_nutrient_quantity_by_name(self, nutrient_name:str) -> NutrientQuantity:
+    def create_nutrient_quantity(self, nutrient_name:str) -> NutrientQuantity:
         nutrient = self.get_nutrient_by_name(nutrient_name)
         return NutrientQuantity(nutrient)
 

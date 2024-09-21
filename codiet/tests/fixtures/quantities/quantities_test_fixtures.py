@@ -13,7 +13,6 @@ if TYPE_CHECKING:
 
 
 class QuantitiesTestFixtures(BaseTestFixtures):
-    """Test fixtures for the units module."""
 
     def __init__(self) -> None:
         self._units: dict[str, Unit] | None = None
@@ -38,18 +37,12 @@ class QuantitiesTestFixtures(BaseTestFixtures):
 
     @property
     def global_unit_conversions(self) -> dict[tuple[str, str], UnitConversion]:
-        """Returns the test global unit conversions.
-        The dictionary key is a tuple of the from and to unit names.
-        """
         if self._global_unit_conversions is None:
             self._global_unit_conversions = create_test_global_unit_conversions(self.units)
         return self._global_unit_conversions
     
     @property
     def entity_unit_conversions(self) -> dict[tuple[str, str], UnitConversion]:
-        """Returns the test entity unit conversions.
-        The dictionary key is a tuple of the from and to unit names.
-        """
         if self._entity_unit_conversions is None:
             self._entity_unit_conversions = create_test_entity_unit_conversions(self.units)
         return self._entity_unit_conversions

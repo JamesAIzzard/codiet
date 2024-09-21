@@ -1,26 +1,19 @@
 class SingletonMeta(type):
-    """A metaclass that creates a Singleton base type when called."""
-    _instances = {}
+    def __init__(cls, name, bases, namespace):
+        super().__init__(name, bases, namespace)
+        cls._instance = None
 
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            # Create and initialize a new instance if it doesn't exist
-            cls._instances[cls] = super(SingletonMeta, cls).__call__(*args, **kwargs)
-        # Return the existing instance without re-initializing
-        return cls._instances[cls]
+    def initialise(cls, *args, **kwargs):
+        if cls._instance is None:
+            # First-time initialization
+            cls._instance = super().__call__(*args, **kwargs)
+        else:
+            # Re-initialize the existing instance
+            cls._instance.__init__(*args, **kwargs)
+        return cls._instance
 
     def get_instance(cls):
-        """Returns the singleton instance of the class."""
-        if cls not in cls._instances:
-            raise Exception(f"{cls.__name__} has not been initialized yet.")
-        return cls._instances[cls]
+        if cls._instance is None:
+            raise Exception("Singleton instance not initialized. Call 'initialize' first.")
+        return cls._instance
 
-    def reset_instance(cls):
-        """Resets the singleton instance of the class."""
-        if cls in cls._instances:
-            del cls._instances[cls]
-
-    @classmethod
-    def reset_all_instances(mcs):
-        """Resets all singleton instances."""
-        mcs._instances.clear()

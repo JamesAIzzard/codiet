@@ -3,10 +3,6 @@
 from codiet.db.stored_entity import StoredEntity
 
 class Flag(StoredEntity):
-    """Models a flag.
-    A flag can be set to three values: True, False, or None.
-    None indicates the flag has not been set, and may therefore be True or False.
-    """
 
     def __init__(
             self, 
@@ -21,21 +17,20 @@ class Flag(StoredEntity):
 
     @property
     def name(self) -> str:
-        """Get the name of the flag."""
         return self._name
 
     @property
     def value(self) -> bool|None:
-        """Get the value of the flag."""
         return self._value
-    
+
     @value.setter
     def value(self, value: bool|None) -> None:
-        """Set the value of the flag."""
+        self._value = value
+
+    def set_value(self, value: bool|None) -> None:
         self._value = value
 
     def __eq__(self, other) -> bool:
-        """Check if two flags are equal."""
         # If the other object is not a flag, they are not equal
         if not isinstance(other, Flag):
             return False
@@ -43,9 +38,7 @@ class Flag(StoredEntity):
         return self.name == other.name
     
     def __hash__(self) -> int:
-        """Return the hash of the flag name."""
         return hash(self.name)
     
     def __str__(self) -> str:
-        """Return the flag name."""
         return self.name

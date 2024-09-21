@@ -1,35 +1,35 @@
 from codiet.tests.fixtures import BaseTestFixtures
-from codiet.model.flags import Flag
+from codiet.model.flags import Flag, FlagDefinition
 
 class FlagTestFixtures(BaseTestFixtures):
 
     def __init__(self) -> None:
-        self._flags:dict[str, Flag]|None = None
+        self._flag_definitions:dict[str, FlagDefinition]|None = None
 
     @property
-    def flags(self) -> dict[str, Flag]:
+    def flag_definitions(self) -> dict[str, FlagDefinition]:
         """Returns the test flags."""
-        if self._flags is None:
-            self._flags = self._create_flags()
-        return self._flags
+        if self._flag_definitions is None:
+            self._flag_definitions = self._create_flags_definitions()
+        return self._flag_definitions
 
-    def get_flag_by_name(self, flag_name:str) -> Flag:
+    def get_flag_definition(self, flag_name:str) -> FlagDefinition:
         """Returns a flag by name."""
-        return self.flags[flag_name]
+        return self.flag_definitions[flag_name]
 
-    def _create_flags(self) -> dict[str, Flag]:
+    def _create_flags_definitions(self) -> dict[str, FlagDefinition]:
         """Instantiates a dictionary of flags for testing purposes."""
         return {
-            "vegan": Flag(
-                name="vegan",
+            "vegan": FlagDefinition(
+                flag_name="vegan",
             ),
-            "vegetarian": Flag(
-                name="vegetarian",
+            "vegetarian": FlagDefinition(
+                flag_name="vegetarian",
             ),
-            "gluten_free": Flag(
-                name="gluten_free",
+            "gluten_free": FlagDefinition(
+                flag_name="gluten_free",
             ),
-            "dairy_free": Flag(
-                name="dairy_free",
+            "dairy_free": FlagDefinition(
+                flag_name="dairy_free",
             ),
         }

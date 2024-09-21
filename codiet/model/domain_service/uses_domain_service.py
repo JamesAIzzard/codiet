@@ -1,18 +1,17 @@
-"""This module contains the UsesDomainService class."""
-
 from codiet.model.domain_service.domain_service import DomainService
 
 class UsesDomainService:
+    _domain_service: DomainService|None = None
+
+    @classmethod
+    def get_domain_service(cls) -> DomainService:
+        if cls._domain_service is None:
+            cls._domain_service = DomainService.get_instance()
+        return cls._domain_service # type: ignore
     
-    """Base class for all classes that use the domain service singleton."""
-    def __init__(self, *args, **kwargs) -> None:
-        """Initializes the class."""
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._domain_service:DomainService|None = None
 
     @property
     def domain_service(self) -> DomainService:
-        """Get the domain service."""
-        if self._domain_service is None:
-            self._domain_service = DomainService.get_instance()
-        return self._domain_service # type: ignore
+        return self.get_domain_service()

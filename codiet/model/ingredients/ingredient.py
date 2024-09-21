@@ -1,17 +1,25 @@
 from typing import Collection, TYPE_CHECKING
 
-from codiet.utils import MUC, IUC
+from codiet.model.cost.quantity_cost import QuantityCost
+from codiet.utils import IUC, UniqueDict
 from codiet.db.stored_entity import StoredEntity
 from codiet.model.domain_service import UsesDomainService
+from codiet.model.cost import HasSettableQuantityCost
 from codiet.model.quantities import UnitSystem
-from codiet.model.cost import CostRate
+from codiet.model.flags import HasSettableFlags, Flag
+from codiet.model.nutrients import HasSettableNutrientQuantities, NutrientQuantity
 
 if TYPE_CHECKING:
-    from codiet.model.quantities import Unit, UnitConversion
-    from codiet.model.flags import Flag
-    from codiet.model.nutrients import NutrientQuantity
+    from codiet.model.quantities import Unit, UnitConversion, Quantity
 
-class Ingredient(StoredEntity, UsesDomainService):
+
+class Ingredient(
+    HasSettableQuantityCost,
+    HasSettableNutrientQuantities,
+    HasSettableFlags,
+    StoredEntity,
+    UsesDomainService,
+):
 
     def __init__(
         self,
@@ -22,114 +30,112 @@ class Ingredient(StoredEntity, UsesDomainService):
         super().__init__(*args, **kwargs)
 
         self._name = name
-        self._description:str|None = None
+        self._description: str | None = None
         self._unit_system = UnitSystem()
         self._standard_unit = self.domain_service.gram
-        self._cost_rate = CostRate()
-        self._flags = MUC['Flag']()
-        self._gi:float|None = None
-        self._nutrient_quantities = MUC['NutrientQuantity']()
+        self._gi: float | None = None
+        self._flags = UniqueDict[str, 'Flag']()
+        self._nutrient_quantities = UniqueDict[str, 'NutrientQuantity']()
 
     @property
     def name(self) -> str:
-        """Returns the name."""
         return self._name
 
     @name.setter
     def name(self, value: str) -> None:
-        """Sets the name."""
         if not value.strip().replace(" ", ""):
             raise ValueError("Name cannot be empty.")
         self._name = value
 
     @property
     def description(self) -> str | None:
-        """Returns the description."""
         return self._description
 
     @description.setter
     def description(self, value: str | None) -> None:
-        """Sets the description."""
         self._description = value
 
     @property
-    def standard_unit(self) -> 'Unit':
-        """Returns the standard unit ID."""
+    def standard_unit(self) -> "Unit":
         return self._standard_unit
 
     @standard_unit.setter
-    def standard_unit(self, value: 'Unit') -> None:
-        """Sets the standard unit ID."""
-        if value is None:
-            raise ValueError("Standard unit cannot be empty.")
+    def standard_unit(self, unit: "Unit|str") -> None:
+        if isinstance(unit, str):
+            unit = self.domain_service.get_unit(unit)
 
-        # Check the standard unit is accessible
-        if value not in self._unit_system._get_available_units():
-            raise ValueError(f"{value.name} is not accessible in the unit system.")
+        if not self._unit_system.check_unit_available(unit):
+            raise ValueError(f"Unit {unit} is not available on {self.name}.")
 
-        self._standard_unit = value
-
-    @property
-    def cost_rate(self) -> 'CostRate':
-        """Returns the cost rate."""
-        return self._cost_rate
-
-    @property
-    def flags(self) -> IUC['Flag']:
-        """Returns the flags."""
-        return IUC(self._flags)
+        self._standard_unit = unit
 
     @property
     def gi(self) -> float | None:
-        """Returns the GI."""
         return self._gi
 
     @gi.setter
     def gi(self, value: float | None) -> None:
-        """Sets the GI."""
         if value is not None and (value < 0 or value > 100):
             raise ValueError("GI must be between 0 and 100.")
         self._gi = value
 
     @property
-    def nutrient_quantities(self) -> IUC['NutrientQuantity']:
-        """Returns the nutrient quantities."""
-        return self._nutrient_quantities.immutable
+    def flags(self) -> IUC["Flag"]:
+        return IUC(self._flags.values())
 
-    def get_flag_by_name(self, flag_name: str) -> 'Flag':
-        """Returns a flag by name."""
-        for flag in self._flags:
-            if flag.name == flag_name:
-                return flag
-        raise KeyError(f"Flag {flag_name} not found in ingredient.")
+    @property
+    def nutrient_quantities(self) -> IUC["NutrientQuantity"]:
+        return IUC(self._nutrient_quantities.values())
 
-    def add_flag(self, flag: 'Flag') -> None:
-        """Adds a flag."""
-        self._flags.add(flag)
+    def add_unit_conversion(self, unit_conversion: "UnitConversion") -> None:
+        self._unit_system.add_entity_unit_conversion(unit_conversion)
 
-    def remove_flag(self, flag: 'Flag') -> None:
-        """Deletes a flag."""
-        self._flags.remove(flag)
+    def set_quantity_cost(self, quantity_cost: QuantityCost) -> "Ingredient":
+        if not self._unit_system.check_unit_available(quantity_cost.quantity.unit):
+            raise ValueError(
+                f"Unit {quantity_cost.quantity.unit} is not available on {self.name}."
+            )
 
-    def get_nutrient_quantity_by_name(self, nutrient_name: str) -> 'NutrientQuantity':
-        """Returns a nutrient quantity by name."""
-        for nutrient_quantity in self._nutrient_quantities:
-            if nutrient_quantity.nutrient.name == nutrient_name:
-                return nutrient_quantity
-        raise KeyError(f"Nutrient {nutrient_name} not found in ingredient.")
+        self._quantity_cost = quantity_cost
 
-    def add_nutrient_quantity(
-        self, nutrient_quantity: 'NutrientQuantity'
-    ) -> None:
-        """Adds a nutrient quantity."""
-        self._nutrient_quantities.add(nutrient_quantity)
+        return self
 
-    def remove_nutrient_quantity(
-        self,
-        nutrient_quantity: 'NutrientQuantity'
-    ) -> None:
-        """Deletes nutrient quantities."""
-        self._nutrient_quantities.remove(nutrient_quantity)
+    def get_flag(self, name: str) -> 'Flag':
+        if not name in self.domain_service.flag_names:
+            raise ValueError(f"Flag {name} is not known to the system.")
+        
+        try:
+            return self._flags[name]
+        except KeyError:
+            self._add_flag(Flag(name))
+            return self._flags[name]
+
+    def set_flag(self, name: str, value: bool | None) -> 'Ingredient':
+        self.get_flag(name).value = value
+        return self
+
+    def _add_flag(self, flag: Flag) -> 'Ingredient':
+        self._flags[flag.name] = flag
+        return self
+
+    def get_nutrient_quantity(self, nutrient_name: str) -> 'NutrientQuantity':
+        try:
+            return self._nutrient_quantities[nutrient_name]
+        except KeyError:
+            nutrient = self.domain_service.get_nutrient(nutrient_name)
+            nutrient_quantity = NutrientQuantity(nutrient)
+            self._add_nutrient_quantity(nutrient_quantity)
+            return nutrient_quantity
+
+    def set_nutrient_quantity(self, nutrient_name: str, quantity: 'Quantity') -> 'Ingredient':
+        nutrient_quantity = self.get_nutrient_quantity(nutrient_name)
+        nutrient_quantity.quantity = quantity
+        return self
+
+    def _add_nutrient_quantity(self, nutrient_quantity: "NutrientQuantity") -> "Ingredient":
+        # TODO: Install any validation on the nutrient quantity
+        self._nutrient_quantities[nutrient_quantity.nutrient.name] = nutrient_quantity
+        return self
 
     def __eq__(self, other):
         if not isinstance(other, Ingredient):

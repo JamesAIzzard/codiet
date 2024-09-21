@@ -403,7 +403,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
         # Add the ingredient ID to the nutrient quantity
         nutrient_quantity.parent_entity_id = self.ingredient.id
         # Add the nutrient quantity to the ingredient
-        self.ingredient.add_nutrient_quantity(nutrient_quantity)
+        self.ingredient._add_nutrient_quantity(nutrient_quantity)
         # Add the nutrient quantity to the database
         self._db_service.create_ingredient_nutrient_quantity(nutrient_quantity)
         self._db_service.repository.commit()
