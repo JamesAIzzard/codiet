@@ -1,10 +1,6 @@
-from typing import TYPE_CHECKING
 from datetime import time
 
 from codiet.db.stored_entity import StoredEntity
-
-if TYPE_CHECKING:
-    from codiet.model.recipes.recipe import Recipe
 
 class TimeWindow(StoredEntity):
     def __init__(
