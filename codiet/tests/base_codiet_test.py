@@ -1,6 +1,5 @@
 from unittest import TestCase
 
-from codiet.utils.singleton import SingletonInitError
 from codiet.model.domain_service import DomainService
 from codiet.tests.fixtures.flags.flag_test_fixtures import FlagTestFixtures
 from codiet.tests.fixtures.ingredients.ingredient_test_fixtures import IngredientTestFixtures
@@ -17,45 +16,38 @@ class BaseCodietTest(TestCase):
         return DomainService.get_instance()     
     
     @property
-    def flag_fixtures(self) -> 'FlagTestFixtures':
-        return self._get_or_initialize_fixture(FlagTestFixtures)
+    def flag_fixtures(self) -> FlagTestFixtures:
+        return FlagTestFixtures.get_instance()
     
     @property
-    def ingredient_fixtures(self) -> 'IngredientTestFixtures':
-        return self._get_or_initialize_fixture(IngredientTestFixtures)
+    def ingredient_fixtures(self) -> IngredientTestFixtures:
+        return IngredientTestFixtures.get_instance()
     
     @property
-    def nutrient_fixtures(self) -> 'NutrientTestFixtures':
-        return self._get_or_initialize_fixture(NutrientTestFixtures)
+    def nutrient_fixtures(self) -> NutrientTestFixtures:
+        return NutrientTestFixtures.get_instance()
 
     @property
-    def quantities_fixtures(self) -> 'QuantitiesTestFixtures':
-        return self._get_or_initialize_fixture(QuantitiesTestFixtures)
+    def quantities_fixtures(self) -> QuantitiesTestFixtures:
+        return QuantitiesTestFixtures.get_instance()
     
     @property
-    def recipe_fixtures(self) -> 'RecipeTestFixtures':
-        return self._get_or_initialize_fixture(RecipeTestFixtures)
+    def recipe_fixtures(self) -> RecipeTestFixtures:
+        return RecipeTestFixtures.get_instance()
     
     @property
-    def time_fixtures(self) -> 'TimeTestFixtures':
-        return self._get_or_initialize_fixture(TimeTestFixtures)
-    
-    def _get_or_initialize_fixture(self, fixture_class):
-        try:
-            return fixture_class.get_instance()
-        except SingletonInitError:
-            fixture_class.initialise()
-            return fixture_class.get_instance()
+    def time_fixtures(self) -> TimeTestFixtures:
+        return TimeTestFixtures.get_instance()
 
     def setUp(self) -> None:
         super().setUp()
 
+        # Since modules which do not subclass this class have access to these singletons,
+        # we can't lazy initialise them in the properties here.
         self.reset_fixtures()
+        self.initialise_fixtures()
 
         self.reset_domain_service()
-        # Domain service must be initialized in setUp because
-        # model classes use it, and so lazy init in this class
-        # might be too late.
         DomainService.initialise(
             units=self.quantities_fixtures.units,
             global_unit_conversions=self.quantities_fixtures.global_unit_conversions,
@@ -70,6 +62,14 @@ class BaseCodietTest(TestCase):
         QuantitiesTestFixtures.clear_instance()
         RecipeTestFixtures.clear_instance()
         TimeTestFixtures.clear_instance()
+
+    def initialise_fixtures(self) -> None:
+        FlagTestFixtures.initialise()
+        IngredientTestFixtures.initialise()
+        NutrientTestFixtures.initialise()
+        QuantitiesTestFixtures.initialise()
+        RecipeTestFixtures.initialise()
+        TimeTestFixtures.initialise()
 
     def reset_domain_service(self) -> None:
         DomainService.clear_instance()
