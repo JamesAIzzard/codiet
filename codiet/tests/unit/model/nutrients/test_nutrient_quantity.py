@@ -1,9 +1,9 @@
 """Tests for the NutrientQuantity class."""
 
-from codiet.tests import BaseModelTest
+from codiet.tests import BaseCodietTest
 from codiet.model.nutrients import NutrientQuantity
 
-class BaseNutrientQuantityTest(BaseModelTest):
+class BaseNutrientQuantityTest(BaseCodietTest):
     """Base class for testing NutrientQuantity elements."""
 
     def setUp(self) -> None:

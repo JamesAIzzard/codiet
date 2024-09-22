@@ -2,10 +2,10 @@
 
 from datetime import time
 
-from codiet.tests import BaseModelTest
+from codiet.tests import BaseCodietTest
 from codiet.model.time import TimeWindow
 
-class BaseTimeWindowTest(BaseModelTest):
+class BaseTimeWindowTest(BaseCodietTest):
     """Base class for testing the TimeWindow class."""
     
     def setUp(self) -> None:

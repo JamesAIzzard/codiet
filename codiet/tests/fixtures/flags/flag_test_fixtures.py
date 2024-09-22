@@ -1,8 +1,10 @@
+from codiet.tests.fixtures import BaseTestFixture
 from codiet.model.flags import FlagDefinition
 
-class FlagTestFixtures:
+class FlagTestFixtures(BaseTestFixture):
 
     def __init__(self) -> None:
+        super().__init__()
         self._flag_definitions:dict[str, FlagDefinition]|None = None
 
     @property

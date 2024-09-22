@@ -1,14 +1,15 @@
 from typing import TYPE_CHECKING
 
+from codiet.tests.fixtures import BaseTestFixture
 from codiet.model.nutrients import Nutrient, NutrientQuantity
 
 if TYPE_CHECKING:
     from codiet.db import DatabaseService
 
-class NutrientTestFixtures:
+class NutrientTestFixtures(BaseTestFixture):
 
     def __init__(self) -> None:
-
+        super().__init__()
         self._nutrients:dict[str, Nutrient]|None = None
 
     @property

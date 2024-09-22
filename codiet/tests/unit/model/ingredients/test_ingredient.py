@@ -1,8 +1,8 @@
-from codiet.tests import BaseModelTest
+from codiet.tests import BaseCodietTest
 from codiet.model.ingredients import Ingredient
 
 
-class TestConstructor(BaseModelTest):
+class TestConstructor(BaseCodietTest):
 
     def test_constructor(self):
         """Checks that the ingredient can be constructed and is an instance of the Ingredient class."""
@@ -15,7 +15,7 @@ class TestConstructor(BaseModelTest):
         apple = Ingredient(name="Apple")
         self.assertEqual(apple.standard_unit, gram)
 
-class TestStandardUnitProperty(BaseModelTest):
+class TestStandardUnitProperty(BaseCodietTest):
 
     def test_cant_change_standard_unit_to_unset_unit(self):
         """Check we get an exception if we try and set the standard unit to a unit
@@ -26,7 +26,7 @@ class TestStandardUnitProperty(BaseModelTest):
             apple.standard_unit = self.quantities_fixtures.get_unit("millilitre")
 
 
-class TestGetFlag(BaseModelTest):
+class TestGetFlag(BaseCodietTest):
 
     def test_exception_when_getting_unknown_flag(self):
         apple = Ingredient(name="Apple")
@@ -46,7 +46,7 @@ class TestGetFlag(BaseModelTest):
 
         self.assertTrue(apple.get_flag("vegan").value)
 
-class TestSetFlag(BaseModelTest):
+class TestSetFlag(BaseCodietTest):
 
     def test_can_set_flag_true(self):
         apple = Ingredient(name="Apple")
@@ -75,7 +75,7 @@ class TestSetFlag(BaseModelTest):
         with self.assertRaises(ValueError):
             apple.set_flag("foobar", True)
 
-class TestGetNutrientQuantity(BaseModelTest):
+class TestGetNutrientQuantity(BaseCodietTest):
 
     def test_get_nutrient_quantity(self):
         """Check we can retrieve a nutrient quantity by its name."""

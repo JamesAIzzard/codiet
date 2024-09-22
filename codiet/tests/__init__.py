@@ -1,1 +1,1 @@
-from .base_model_test import BaseModelTest
+from .base_codiet_test import BaseCodietTest

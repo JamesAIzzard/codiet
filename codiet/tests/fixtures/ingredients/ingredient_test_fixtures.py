@@ -1,15 +1,16 @@
 from typing import TYPE_CHECKING
 
+from codiet.tests.fixtures import BaseTestFixture
 from .create_test_ingredients import create_test_ingredients
 from codiet.model.ingredients import Ingredient, IngredientQuantity
 
 if TYPE_CHECKING:
     from codiet.model.quantities import Quantity
 
-class IngredientTestFixtures:
+class IngredientTestFixtures(BaseTestFixture):
 
     def __init__(self) -> None:
-
+        super().__init__()
         self._test_ingredients:dict[str, Ingredient]|None = None
 
     @property

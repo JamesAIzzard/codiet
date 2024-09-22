@@ -1,9 +1,9 @@
 """This module contains the unit tests for the Unit class."""
 
-from codiet.tests import BaseModelTest
+from codiet.tests import BaseCodietTest
 from codiet.model.quantities.unit import Unit
 
-class BaseUnitTest(BaseModelTest):
+class BaseUnitTest(BaseCodietTest):
     """Base class for testing the Unit class."""
     
     def setUp(self) -> None:

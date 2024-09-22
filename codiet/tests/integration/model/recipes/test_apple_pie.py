@@ -1,8 +1,8 @@
-from codiet.tests import BaseModelTest
+from codiet.tests import BaseCodietTest
 
 from codiet.model.recipes import Recipe
 
-class TestCreateApplePie(BaseModelTest):
+class TestCreateApplePie(BaseCodietTest):
 
     def test_can_make_apple_pie(self):
         apple_pie = self.recipe_fixtures.apple_pie

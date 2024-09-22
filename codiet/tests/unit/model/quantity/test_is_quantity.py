@@ -1,7 +1,7 @@
 from codiet.model.quantities import IsQuantified
-from codiet.tests import BaseModelTest
+from codiet.tests import BaseCodietTest
 
-class BaseIsQuantityTest(BaseModelTest):
+class BaseIsQuantityTest(BaseCodietTest):
     
     def setUp(self) -> None:
         super().setUp()

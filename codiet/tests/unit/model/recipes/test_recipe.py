@@ -1,12 +1,12 @@
 from datetime import time
 
-from codiet.tests import BaseModelTest
+from codiet.tests import BaseCodietTest
 from codiet.model.recipes import Recipe
 from codiet.model.ingredients import IngredientQuantity
 from codiet.model.time import TimeWindow
 from codiet.model.tags import Tag
 
-class TestConstructor(BaseModelTest):
+class TestConstructor(BaseCodietTest):
 
     def test_can_init(self):
         """Checks that the recipe can be constructed and is an instance of the Recipe class."""
@@ -19,7 +19,7 @@ class TestConstructor(BaseModelTest):
         recipe = Recipe(name="Apple Pie")
         self.assertEqual(recipe.name, "Apple Pie")
 
-class TestAddIngredientQuantity(BaseModelTest):
+class TestAddIngredientQuantity(BaseCodietTest):
 
     def test_add_ingredient_quantity(self):
         """Check that an ingredient quantity can be added to the recipe."""
@@ -29,7 +29,7 @@ class TestAddIngredientQuantity(BaseModelTest):
         recipe.add_ingredient_quantity(apple)
         self.assertIn(apple, recipe.ingredient_quantities)
 
-class TestGetIngredientQuantityByName(BaseModelTest):
+class TestGetIngredientQuantityByName(BaseCodietTest):
 
     def test_get_ingredient_quantity_by_name(self):
         """Check that an ingredient quantity can be retrieved by its name."""
@@ -46,7 +46,7 @@ class TestGetIngredientQuantityByName(BaseModelTest):
         with self.assertRaises(ValueError):
             recipe.get_ingredient_quantity_by_name("apple")
 
-class TestRemoveIngredientQuantity(BaseModelTest):
+class TestRemoveIngredientQuantity(BaseCodietTest):
 
     def test_remove_ingredient_quantity(self):
         """Check that an ingredient quantity can be removed from the recipe."""
@@ -63,7 +63,7 @@ class TestRemoveIngredientQuantity(BaseModelTest):
         with self.assertRaises(ValueError):
             recipe.remove_ingredient_quantity(apple)
 
-class TestAddServeTimeWindow(BaseModelTest):
+class TestAddServeTimeWindow(BaseCodietTest):
 
     def test_add_serve_time_window(self):
         """Check that a serve time window can be added to the recipe."""
@@ -73,7 +73,7 @@ class TestAddServeTimeWindow(BaseModelTest):
         recipe.add_serve_time_window(breakfast)
         self.assertIn(breakfast, recipe.serve_time_windows)
 
-class TestRemoveServeTimeWindow(BaseModelTest):
+class TestRemoveServeTimeWindow(BaseCodietTest):
 
     def test_remove_serve_time_window(self):
         """Check that a serve time window can be removed from the recipe."""
@@ -90,7 +90,7 @@ class TestRemoveServeTimeWindow(BaseModelTest):
         with self.assertRaises(ValueError):
             recipe.remove_serve_time_window(breakfast)
 
-class TestAddTag(BaseModelTest):
+class TestAddTag(BaseCodietTest):
 
     def test_add_tag(self):
         """Check that a tag can be added to the recipe."""
@@ -100,7 +100,7 @@ class TestAddTag(BaseModelTest):
         recipe.add_tag(dessert)
         self.assertIn(dessert, recipe.tags)
 
-class TestRemoveTag(BaseModelTest):
+class TestRemoveTag(BaseCodietTest):
 
     def test_remove_tag(self):
         """Check that a tag can be removed from the recipe."""

@@ -1,7 +1,7 @@
-from codiet.tests import BaseModelTest
+from codiet.tests import BaseCodietTest
 from codiet.model.quantities import UnitSystem, UnitConversion, Quantity
 
-class TestConstructor(BaseModelTest):
+class TestConstructor(BaseCodietTest):
 
     def test_construct_with_no_args(self):
         unit_system = UnitSystem()
@@ -21,7 +21,7 @@ class TestConstructor(BaseModelTest):
         self.assertIsInstance(unit_system, UnitSystem)
         self.assertEqual(len(unit_system.entity_unit_conversions), 1)
 
-class TestAvailableUnits(BaseModelTest):
+class TestAvailableUnits(BaseCodietTest):
     
     def test_get_mass_units_only_without_additional_conversions(self):
         unit_system = UnitSystem()
@@ -39,7 +39,7 @@ class TestAvailableUnits(BaseModelTest):
         millilitre = self.quantities_fixtures.get_unit("millilitre")
         self.assertIn(millilitre, unit_system.available_units)
 
-class TestAddEntityUnitConversion(BaseModelTest):
+class TestAddEntityUnitConversion(BaseCodietTest):
 
     def test_add_entity_unit_conversion(self):
         unit_system = UnitSystem()
@@ -61,7 +61,7 @@ class TestAddEntityUnitConversion(BaseModelTest):
         with self.assertRaises(ValueError):
             unit_system.add_entity_unit_conversion(gram_millilitre)
 
-class TestRemoveEntityUnitConversion(BaseModelTest):
+class TestRemoveEntityUnitConversion(BaseCodietTest):
     
     def test_remove_entity_unit_conversion(self):
         unit_system = UnitSystem()
@@ -83,7 +83,7 @@ class TestRemoveEntityUnitConversion(BaseModelTest):
         with self.assertRaises(ValueError):
             unit_system.remove_entity_unit_conversion(gram_millilitre)
 
-class TestCanConvertUnits(BaseModelTest):
+class TestCanConvertUnits(BaseCodietTest):
 
     def test_cant_convert_mass_to_fluid_until_conversion_added(self):
         unit_system = UnitSystem()
@@ -99,7 +99,7 @@ class TestCanConvertUnits(BaseModelTest):
 
         self.assertTrue(unit_system.can_convert_units(gram, millilitre))
 
-class TestConvertQuantity(BaseModelTest):
+class TestConvertQuantity(BaseCodietTest):
     
     def test_convert_quantity(self):
         unit_system = UnitSystem()

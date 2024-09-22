@@ -1,8 +1,8 @@
-from codiet.tests import BaseModelTest
+from codiet.tests import BaseCodietTest
 from codiet.model.ingredients import IngredientQuantity
 from codiet.model.quantities import Quantity
 
-class TestConstructor(BaseModelTest):
+class TestConstructor(BaseCodietTest):
 
     def test_minimal_arguments(self):
         apple_quantity = self.ingredient_fixtures.create_ingredient_quantity("apple")

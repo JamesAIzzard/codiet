@@ -1,9 +1,7 @@
-"""Unit tests for the flag class."""
-
-from codiet.tests import BaseModelTest
+from codiet.tests import BaseCodietTest
 from codiet.model.flags.flag import Flag
 
-class BaseFlagTest(BaseModelTest):
+class BaseFlagTest(BaseCodietTest):
     """Base class for testing flags."""
     pass
 

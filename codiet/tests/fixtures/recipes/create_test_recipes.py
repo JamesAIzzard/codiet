@@ -1,10 +1,11 @@
-
 from codiet.model.recipes import Recipe
 from codiet.model.quantities import Quantity
 from codiet.model.tags import Tag
 
 def create_apple_pie() -> Recipe:
-    fixtures = Fixtures.get_instance()
+    from codiet.tests.fixtures import IngredientTestFixtures, TimeTestFixtures
+    ingredient_fixtures = IngredientTestFixtures.get_instance()
+    time_fixtures = TimeTestFixtures.get_instance()
 
     apple_pie = Recipe("Apple Pie")
 
@@ -15,22 +16,22 @@ def create_apple_pie() -> Recipe:
     apple_pie.instructions = "Bake the apple pie."
     
     apple_pie.add_ingredient_quantity(
-        fixtures.create_ingredient_quantity(
+        ingredient_fixtures.create_ingredient_quantity(
             "apple", Quantity("whole", 7)
         )
     )
     apple_pie.add_ingredient_quantity(
-        fixtures.create_ingredient_quantity(
+        ingredient_fixtures.create_ingredient_quantity(
             "sugar", Quantity("cup", 1)
         )
     )
     apple_pie.add_ingredient_quantity(
-        fixtures.create_ingredient_quantity(
+        ingredient_fixtures.create_ingredient_quantity(
             "butter", Quantity("tablespoon", 2)
         )
     )
     apple_pie.add_ingredient_quantity(
-        fixtures.create_ingredient_quantity(
+        ingredient_fixtures.create_ingredient_quantity(
             "flour", Quantity("cup", 2.5)
         )
     )

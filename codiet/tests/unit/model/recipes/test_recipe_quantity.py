@@ -1,10 +1,10 @@
 """Defines tests for the RecipeQuantity class."""
 
 from codiet.model.recipes import RecipeQuantity, Recipe
-from codiet.tests import BaseModelTest
+from codiet.tests import BaseCodietTest
 
 
-class BaseRecipeQuantityTest(BaseModelTest):
+class BaseRecipeQuantityTest(BaseCodietTest):
     """Base class for RecipeQuantity tests."""
 
     def setUp(self) -> None:
