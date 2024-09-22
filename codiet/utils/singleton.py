@@ -1,4 +1,4 @@
-from typing import TypeVar, Type, Any, cast
+from typing import TypeVar, Type, Any
 
 T = TypeVar('T')
 
@@ -11,14 +11,13 @@ class SingletonMeta(type):
     def __call__(cls: Type[T], *args: Any, **kwargs: Any) -> None:
         raise Exception("Direct instantiation is not allowed. Use 'initialise' instead.")
 
-    def initialise(cls: Type[T], *args: Any, **kwargs: Any) -> T:
+    def initialise(cls: Type[T], *args: Any, **kwargs: Any) -> None:
         if cls._instance is None: # type: ignore
             # First-time initialization
             cls._instance = super().__call__(*args, **kwargs) # type: ignore
         else:
             # Re-initialize the existing instance
             cls._instance.__init__(*args, **kwargs) # type: ignore
-        return cast(T, cls._instance) # type: ignore
 
     def get_instance(cls: Type[T]) -> T:
         if cls._instance is None: # type: ignore

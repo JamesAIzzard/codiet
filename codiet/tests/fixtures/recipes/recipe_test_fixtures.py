@@ -1,18 +1,17 @@
 from typing import TYPE_CHECKING
 
-from codiet.tests.fixtures import BaseTestFixtures
-from .create_test_recipes import create_test_recipes
+from .create_test_recipes import create_apple_pie
 
 if TYPE_CHECKING:
     from codiet.model.recipes import Recipe
 
-class RecipeTestFixtures(BaseTestFixtures):
+class RecipeTestFixtures:
     
     def __init__(self) -> None:
-        self._test_recipes:dict[str, 'Recipe']|None = None
-
+        self._apple_pie = None
+    
     @property
-    def recipes(self) -> dict[str, 'Recipe']:
-        if self._test_recipes is None:
-            self._test_recipes = create_test_recipes()
-        return self._test_recipes
+    def apple_pie(self) -> 'Recipe':
+        if self._apple_pie is None:
+            self._apple_pie = create_apple_pie()
+        return self._apple_pie

@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 
-from codiet.tests.fixtures import BaseTestFixtures
 from .create_test_units import create_test_units
 from .create_test_unit_conversions import (
     create_test_global_unit_conversions,
@@ -12,7 +11,7 @@ if TYPE_CHECKING:
     from codiet.db.database_service import DatabaseService
 
 
-class QuantitiesTestFixtures(BaseTestFixtures):
+class QuantitiesTestFixtures:
 
     def __init__(self) -> None:
         self._units: dict[str, Unit] | None = None

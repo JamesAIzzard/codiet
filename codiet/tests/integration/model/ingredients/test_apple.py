@@ -1,18 +1,8 @@
 from codiet.tests import BaseModelTest
-from codiet.tests.fixtures.ingredients import IngredientTestFixtures
-from codiet.tests.fixtures.quantities import QuantitiesTestFixtures
-from codiet.tests.fixtures.ingredients import create_apple
 from codiet.model.ingredients import Ingredient
 
-class BaseAppleIntegrationTest(BaseModelTest):
-
-    def setUp(self) -> None:
-        super().setUp()
-        self.ingredient_fixtures = IngredientTestFixtures.initialise()
-        self.unit_fixtures = QuantitiesTestFixtures.initialise()
-
-class TestCreateApple(BaseAppleIntegrationTest):
+class TestCreateApple(BaseModelTest):
 
     def test_can_create_apple(self):
-        apple = create_apple()
+        apple = self.ingredient_fixtures.get_ingredient_by_name("apple")
         self.assertIsInstance(apple, Ingredient)

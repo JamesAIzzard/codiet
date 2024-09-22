@@ -1,7 +1,6 @@
-from codiet.tests.fixtures import BaseTestFixtures
-from codiet.model.flags import Flag, FlagDefinition
+from codiet.model.flags import FlagDefinition
 
-class FlagTestFixtures(BaseTestFixtures):
+class FlagTestFixtures:
 
     def __init__(self) -> None:
         self._flag_definitions:dict[str, FlagDefinition]|None = None
@@ -10,14 +9,14 @@ class FlagTestFixtures(BaseTestFixtures):
     def flag_definitions(self) -> dict[str, FlagDefinition]:
         """Returns the test flags."""
         if self._flag_definitions is None:
-            self._flag_definitions = self._create_flags_definitions()
+            self._flag_definitions = self._create_flag_definitions()
         return self._flag_definitions
 
     def get_flag_definition(self, flag_name:str) -> FlagDefinition:
         """Returns a flag by name."""
         return self.flag_definitions[flag_name]
 
-    def _create_flags_definitions(self) -> dict[str, FlagDefinition]:
+    def _create_flag_definitions(self) -> dict[str, FlagDefinition]:
         """Instantiates a dictionary of flags for testing purposes."""
         return {
             "vegan": FlagDefinition(

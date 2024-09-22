@@ -1,19 +1,8 @@
 from codiet.tests import BaseModelTest
-from codiet.tests.fixtures.nutrients import NutrientTestFixtures
-from codiet.tests.fixtures.flags import FlagTestFixtures
 from codiet.model.ingredients import Ingredient
-from codiet.model.nutrients import NutrientQuantity
 
 
-class BaseIngredientTest(BaseModelTest):
-    """Base class for Ingredient tests."""
-
-    def setUp(self) -> None:
-        super().setUp()
-        self.flag_fixtures = FlagTestFixtures.initialise()
-        self.nutrient_fixtures = NutrientTestFixtures.initialise()
-
-class TestConstructor(BaseIngredientTest):
+class TestConstructor(BaseModelTest):
 
     def test_constructor(self):
         """Checks that the ingredient can be constructed and is an instance of the Ingredient class."""
@@ -26,7 +15,7 @@ class TestConstructor(BaseIngredientTest):
         apple = Ingredient(name="Apple")
         self.assertEqual(apple.standard_unit, gram)
 
-class TestStandardUnitProperty(BaseIngredientTest):
+class TestStandardUnitProperty(BaseModelTest):
 
     def test_cant_change_standard_unit_to_unset_unit(self):
         """Check we get an exception if we try and set the standard unit to a unit
@@ -37,7 +26,7 @@ class TestStandardUnitProperty(BaseIngredientTest):
             apple.standard_unit = self.quantities_fixtures.get_unit("millilitre")
 
 
-class TestGetFlag(BaseIngredientTest):
+class TestGetFlag(BaseModelTest):
 
     def test_exception_when_getting_unknown_flag(self):
         apple = Ingredient(name="Apple")
@@ -57,7 +46,7 @@ class TestGetFlag(BaseIngredientTest):
 
         self.assertTrue(apple.get_flag("vegan").value)
 
-class TestSetFlag(BaseIngredientTest):
+class TestSetFlag(BaseModelTest):
 
     def test_can_set_flag_true(self):
         apple = Ingredient(name="Apple")
@@ -86,7 +75,7 @@ class TestSetFlag(BaseIngredientTest):
         with self.assertRaises(ValueError):
             apple.set_flag("foobar", True)
 
-class TestGetNutrientQuantity(BaseIngredientTest):
+class TestGetNutrientQuantity(BaseModelTest):
 
     def test_get_nutrient_quantity(self):
         """Check we can retrieve a nutrient quantity by its name."""

@@ -1,1 +1,1 @@
-from .base_test_fixtures import BaseTestFixtures
+from .fixtures import Fixtures

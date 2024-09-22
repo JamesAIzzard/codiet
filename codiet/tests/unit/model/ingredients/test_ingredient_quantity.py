@@ -1,19 +1,8 @@
-"""Tests for the IngredientQuantity class."""
-
 from codiet.tests import BaseModelTest
-from codiet.tests.fixtures.ingredients import IngredientTestFixtures
-from codiet.model.ingredients import Ingredient, IngredientQuantity
+from codiet.model.ingredients import IngredientQuantity
 from codiet.model.quantities import Quantity
 
-
-class BaseIngredientQuantityTest(BaseModelTest):
-
-    def setUp(self) -> None:
-        super().setUp()
-        self.ingredient_fixtures = IngredientTestFixtures.initialise()
-        self.ingredient_fixtures = IngredientTestFixtures.get_instance()
-
-class TestConstructor(BaseIngredientQuantityTest):
+class TestConstructor(BaseModelTest):
 
     def test_minimal_arguments(self):
         apple_quantity = self.ingredient_fixtures.create_ingredient_quantity("apple")
