@@ -17,3 +17,9 @@ class RecipeTestFixtures(BaseTestFixture):
         if self._apple_pie is None:
             self._apple_pie = create_apple_pie()
         return self._apple_pie
+    
+    @property
+    def recipes(self) -> dict[str, 'Recipe']:
+        return {
+            'apple_pie': self.apple_pie,
+        }

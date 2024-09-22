@@ -1,0 +1,1 @@
+from .recipe_test_fixtures import RecipeTestFixtures

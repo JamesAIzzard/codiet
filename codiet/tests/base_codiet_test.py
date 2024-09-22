@@ -7,6 +7,7 @@ from codiet.tests.fixtures.nutrients.nutrient_test_fixtures import NutrientTestF
 from codiet.tests.fixtures.quantities.quantities_test_fixtures import QuantitiesTestFixtures
 from codiet.tests.fixtures.recipes.recipe_test_fixtures import RecipeTestFixtures
 from codiet.tests.fixtures.time.time_test_fixtures import TimeTestFixtures
+from codiet.tests.fixtures.constraints import ConstraintTestFixtures
 
 
 class BaseCodietTest(TestCase):
@@ -39,6 +40,7 @@ class BaseCodietTest(TestCase):
         QuantitiesTestFixtures.clear_instance()
         RecipeTestFixtures.clear_instance()
         TimeTestFixtures.clear_instance()
+        ConstraintTestFixtures.clear_instance()
 
     def initialise_fixtures(self) -> None:
         FlagTestFixtures.initialise()
@@ -47,6 +49,7 @@ class BaseCodietTest(TestCase):
         QuantitiesTestFixtures.initialise()
         RecipeTestFixtures.initialise()
         TimeTestFixtures.initialise()
+        ConstraintTestFixtures.initialise()
 
     def reset_domain_service(self) -> None:
         DomainService.clear_instance()

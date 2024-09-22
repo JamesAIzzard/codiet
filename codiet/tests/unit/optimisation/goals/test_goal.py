@@ -1,6 +1,5 @@
 from codiet.tests import BaseCodietTest
-
-from codiet.optimisation import Goal
+from codiet.optimisation.goals import Goal
 
 class BaseGoalTest(BaseCodietTest):
     pass
