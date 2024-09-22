@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from codiet.db import StoredEntity
 from codiet.utils import MUC, IUC
 from codiet.model.domain_service import UsesDomainService
+from codiet.model.flags import Flag, HasFlags
 
 if TYPE_CHECKING:
     from codiet.model.ingredients import IngredientQuantity
@@ -10,7 +11,7 @@ if TYPE_CHECKING:
     from codiet.model.tags import Tag
 
 
-class Recipe(UsesDomainService, StoredEntity):
+class Recipe(HasFlags, UsesDomainService, StoredEntity):
 
     def __init__(
         self,
@@ -77,6 +78,28 @@ class Recipe(UsesDomainService, StoredEntity):
     @property
     def tags(self) -> IUC["Tag"]:
         return IUC(self._tags)
+
+    def get_flag(self, name: str) -> Flag:
+        flag = Flag(name)
+
+        if self.is_flag_none_on_any_ingredient(name):
+            return flag.set_value(None)
+        elif self.is_flag_false_on_any_ingredient(name):
+            return flag.set_value(False)
+        else:
+            return flag.set_value(True)
+
+    def is_flag_none_on_any_ingredient(self, name: str) -> bool:
+        for ingredient_quantity in self._ingredient_quantities:
+            if ingredient_quantity.ingredient.get_flag(name).value is None:
+                return True
+        return False
+    
+    def is_flag_false_on_any_ingredient(self, name: str) -> bool:
+        for ingredient_quantity in self._ingredient_quantities:
+            if ingredient_quantity.ingredient.get_flag(name).value is False:
+                return True
+        return False
 
     def add_ingredient_quantity(
         self, ingredient_quantity: "IngredientQuantity"

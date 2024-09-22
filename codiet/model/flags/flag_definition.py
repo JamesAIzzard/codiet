@@ -1,6 +1,7 @@
 class FlagDefinition:
     
-    def __init__(self, flag_name: str) -> None:
+    def __init__(self, flag_name: str, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self._flag_name = flag_name
 
     @property

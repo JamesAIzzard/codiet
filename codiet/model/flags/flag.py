@@ -27,8 +27,9 @@ class Flag(StoredEntity):
     def value(self, value: bool|None) -> None:
         self._value = value
 
-    def set_value(self, value: bool|None) -> None:
+    def set_value(self, value: bool|None) -> 'Flag':
         self._value = value
+        return self
 
     def __eq__(self, other) -> bool:
         # If the other object is not a flag, they are not equal
