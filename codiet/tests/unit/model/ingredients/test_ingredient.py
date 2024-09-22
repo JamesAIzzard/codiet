@@ -1,8 +1,15 @@
 from codiet.tests import BaseCodietTest
+from codiet.tests.fixtures import QuantitiesTestFixtures, NutrientTestFixtures
 from codiet.model.ingredients import Ingredient
 
+class BaseIngredientTest(BaseCodietTest):
+    
+    def setUp(self) -> None:
+        super().setUp()
+        self.quantities_fixtures = QuantitiesTestFixtures.get_instance()
+        self.nutrient_fixtures = NutrientTestFixtures.get_instance()
 
-class TestConstructor(BaseCodietTest):
+class TestConstructor(BaseIngredientTest):
 
     def test_constructor(self):
         """Checks that the ingredient can be constructed and is an instance of the Ingredient class."""
@@ -15,7 +22,7 @@ class TestConstructor(BaseCodietTest):
         apple = Ingredient(name="Apple")
         self.assertEqual(apple.standard_unit, gram)
 
-class TestStandardUnitProperty(BaseCodietTest):
+class TestStandardUnitProperty(BaseIngredientTest):
 
     def test_cant_change_standard_unit_to_unset_unit(self):
         """Check we get an exception if we try and set the standard unit to a unit
@@ -26,7 +33,7 @@ class TestStandardUnitProperty(BaseCodietTest):
             apple.standard_unit = self.quantities_fixtures.get_unit("millilitre")
 
 
-class TestGetFlag(BaseCodietTest):
+class TestGetFlag(BaseIngredientTest):
 
     def test_exception_when_getting_unknown_flag(self):
         apple = Ingredient(name="Apple")
@@ -46,7 +53,7 @@ class TestGetFlag(BaseCodietTest):
 
         self.assertTrue(apple.get_flag("vegan").value)
 
-class TestSetFlag(BaseCodietTest):
+class TestSetFlag(BaseIngredientTest):
 
     def test_can_set_flag_true(self):
         apple = Ingredient(name="Apple")
@@ -75,7 +82,7 @@ class TestSetFlag(BaseCodietTest):
         with self.assertRaises(ValueError):
             apple.set_flag("foobar", True)
 
-class TestGetNutrientQuantity(BaseCodietTest):
+class TestGetNutrientQuantity(BaseIngredientTest):
 
     def test_get_nutrient_quantity(self):
         """Check we can retrieve a nutrient quantity by its name."""

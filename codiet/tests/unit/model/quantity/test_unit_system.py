@@ -1,7 +1,14 @@
 from codiet.tests import BaseCodietTest
+from codiet.tests.fixtures import QuantitiesTestFixtures
 from codiet.model.quantities import UnitSystem, UnitConversion, Quantity
 
-class TestConstructor(BaseCodietTest):
+class BaseUnitSystemTest(BaseCodietTest):
+    
+        def setUp(self) -> None:
+            super().setUp()
+            self.quantities_fixtures = QuantitiesTestFixtures.get_instance()
+
+class TestConstructor(BaseUnitSystemTest):
 
     def test_construct_with_no_args(self):
         unit_system = UnitSystem()
@@ -21,7 +28,7 @@ class TestConstructor(BaseCodietTest):
         self.assertIsInstance(unit_system, UnitSystem)
         self.assertEqual(len(unit_system.entity_unit_conversions), 1)
 
-class TestAvailableUnits(BaseCodietTest):
+class TestAvailableUnits(BaseUnitSystemTest):
     
     def test_get_mass_units_only_without_additional_conversions(self):
         unit_system = UnitSystem()
@@ -39,7 +46,7 @@ class TestAvailableUnits(BaseCodietTest):
         millilitre = self.quantities_fixtures.get_unit("millilitre")
         self.assertIn(millilitre, unit_system.available_units)
 
-class TestAddEntityUnitConversion(BaseCodietTest):
+class TestAddEntityUnitConversion(BaseUnitSystemTest):
 
     def test_add_entity_unit_conversion(self):
         unit_system = UnitSystem()
@@ -61,7 +68,7 @@ class TestAddEntityUnitConversion(BaseCodietTest):
         with self.assertRaises(ValueError):
             unit_system.add_entity_unit_conversion(gram_millilitre)
 
-class TestRemoveEntityUnitConversion(BaseCodietTest):
+class TestRemoveEntityUnitConversion(BaseUnitSystemTest):
     
     def test_remove_entity_unit_conversion(self):
         unit_system = UnitSystem()
@@ -83,7 +90,7 @@ class TestRemoveEntityUnitConversion(BaseCodietTest):
         with self.assertRaises(ValueError):
             unit_system.remove_entity_unit_conversion(gram_millilitre)
 
-class TestCanConvertUnits(BaseCodietTest):
+class TestCanConvertUnits(BaseUnitSystemTest):
 
     def test_cant_convert_mass_to_fluid_until_conversion_added(self):
         unit_system = UnitSystem()
@@ -99,7 +106,7 @@ class TestCanConvertUnits(BaseCodietTest):
 
         self.assertTrue(unit_system.can_convert_units(gram, millilitre))
 
-class TestConvertQuantity(BaseCodietTest):
+class TestConvertQuantity(BaseUnitSystemTest):
     
     def test_convert_quantity(self):
         unit_system = UnitSystem()

@@ -1,8 +1,15 @@
 from codiet.tests import BaseCodietTest
+from codiet.tests.fixtures import IngredientTestFixtures
+from codiet.model.domain_service import DomainService
 from codiet.model.ingredients import IngredientQuantity
 from codiet.model.quantities import Quantity
 
 class TestConstructor(BaseCodietTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.ingredient_fixtures = IngredientTestFixtures.get_instance()
+        self.domain_service = DomainService.get_instance()
 
     def test_minimal_arguments(self):
         apple_quantity = self.ingredient_fixtures.create_ingredient_quantity("apple")

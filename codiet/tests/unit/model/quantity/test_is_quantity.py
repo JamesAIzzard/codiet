@@ -1,10 +1,12 @@
 from codiet.model.quantities import IsQuantified
 from codiet.tests import BaseCodietTest
+from codiet.tests.fixtures import QuantitiesTestFixtures
 
 class BaseIsQuantityTest(BaseCodietTest):
     
     def setUp(self) -> None:
         super().setUp()
+        self.quantities_fixtures = QuantitiesTestFixtures.get_instance()
 
 class TestConstructor(BaseIsQuantityTest):
 

@@ -11,34 +11,6 @@ from codiet.tests.fixtures.time.time_test_fixtures import TimeTestFixtures
 
 class BaseCodietTest(TestCase):
 
-    @property
-    def domain_service(self) -> DomainService:
-        return DomainService.get_instance()     
-    
-    @property
-    def flag_fixtures(self) -> FlagTestFixtures:
-        return FlagTestFixtures.get_instance()
-    
-    @property
-    def ingredient_fixtures(self) -> IngredientTestFixtures:
-        return IngredientTestFixtures.get_instance()
-    
-    @property
-    def nutrient_fixtures(self) -> NutrientTestFixtures:
-        return NutrientTestFixtures.get_instance()
-
-    @property
-    def quantities_fixtures(self) -> QuantitiesTestFixtures:
-        return QuantitiesTestFixtures.get_instance()
-    
-    @property
-    def recipe_fixtures(self) -> RecipeTestFixtures:
-        return RecipeTestFixtures.get_instance()
-    
-    @property
-    def time_fixtures(self) -> TimeTestFixtures:
-        return TimeTestFixtures.get_instance()
-
     def setUp(self) -> None:
         super().setUp()
 
@@ -48,11 +20,16 @@ class BaseCodietTest(TestCase):
         self.initialise_fixtures()
 
         self.reset_domain_service()
+
+        quantities_fixtures = QuantitiesTestFixtures.get_instance()
+        flag_fixtures = FlagTestFixtures.get_instance()
+        nutrient_fixtures = NutrientTestFixtures.get_instance()
+
         DomainService.initialise(
-            units=self.quantities_fixtures.units,
-            global_unit_conversions=self.quantities_fixtures.global_unit_conversions,
-            flag_definitions=self.flag_fixtures.flag_definitions,
-            nutrients=self.nutrient_fixtures.nutrients
+            units=quantities_fixtures.units,
+            global_unit_conversions=quantities_fixtures.global_unit_conversions,
+            flag_definitions=flag_fixtures.flag_definitions,
+            nutrients=nutrient_fixtures.nutrients
         )
 
     def reset_fixtures(self) -> None:
