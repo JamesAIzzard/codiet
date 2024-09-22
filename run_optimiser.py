@@ -1,1 +1,1 @@
-from codiet.optimiser import trial_run
+from codiet.optimisation import trial_run
