@@ -48,11 +48,16 @@ class TestAddConstraint(BaseProblemTest):
 
     def test_can_add_constraint_to_specific_meal(self):
         problem = Problem({
-            "Breakfast": {}
+            "Breakfast": {
+                "Drink": {},
+                "Main": {}
+            }
         })
 
         self.assertEqual(len(problem["Breakfast"].constraints), 0)
 
         problem["Breakfast"].add_constraint(FlagConstraint('vegan', True))
+        problem["Breakfast"]["Drink"].add_constraint(FlagConstraint('vegan', True))
 
         self.assertEqual(len(problem["Breakfast"].constraints), 1)
+        self.assertEqual(len(problem["Breakfast"]["Drink"].constraints), 1)

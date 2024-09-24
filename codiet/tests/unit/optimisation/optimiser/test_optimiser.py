@@ -45,16 +45,15 @@ class TestSolve(BaseOptimiserTest):
         for item in results:
             self.assertIsInstance(item, Solution)
     
-    @skip("Not yet implemented")
     def test_all_diet_plans_satisfy_recipe_problem_flag_constraints(self):
         optimiser = self.optimiser_fixtures.deterministic_optimiser
 
         problem = Problem({"Breakfast": {}})
-        problem.add_constraint(FlagConstraint("vegan", True))
-        problem.add_constraint(FlagConstraint("gluten_free", True))
+        problem["Breakfast"].add_constraint(FlagConstraint("vegan", True))
+        problem["Breakfast"].add_constraint(FlagConstraint("gluten_free", True))
 
         results = optimiser.solve(problem)
 
         for solution in results:
-            self.assertTrue(solution.get_flag('vegan').value)
-            self.assertTrue(solution.get_flag('gluten_free').value)
+            self.assertTrue(solution["Breakfast"].get_flag("vegan").value)
+            self.assertTrue(solution["Breakfast"].get_flag("gluten_free").value)

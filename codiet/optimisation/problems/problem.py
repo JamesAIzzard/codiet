@@ -1,14 +1,14 @@
 from typing import TYPE_CHECKING
 from codiet.utils import IUC, MUC
-from ..tree_node import TreeNode, DictStructure
+from .. import TreeNode
 
 if TYPE_CHECKING:
     from ..constraints import Constraint
     from ..goals import Goal
 
 class Problem(TreeNode['Problem']):
-    def __init__(self, structure:DictStructure|None = None, *args, **kwargs):
-        super().__init__(structure, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         
         self._constraints = MUC['Constraint']()
         self._goals = MUC['Goal']()
