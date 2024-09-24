@@ -6,15 +6,12 @@ if TYPE_CHECKING:
     from ..constraints import Constraint
     from ..goals import Goal
 
-class Problem(TreeNode):
+class Problem(TreeNode['Problem']):
     def __init__(self, structure:DictStructure|None = None, *args, **kwargs):
         super().__init__(structure, *args, **kwargs)
         
         self._constraints = MUC['Constraint']()
         self._goals = MUC['Goal']()
-
-    def _create_child(self, value: DictStructure) -> 'Problem':
-        return Problem(value)
 
     @property
     def constraints(self) -> IUC['Constraint']:
