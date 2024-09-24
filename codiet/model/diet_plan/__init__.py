@@ -1,1 +1,0 @@
-from .diet_plan import DietPlan

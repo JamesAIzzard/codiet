@@ -8,9 +8,23 @@ from codiet.tests.fixtures.quantities.quantities_test_fixtures import Quantities
 from codiet.tests.fixtures.recipes.recipe_test_fixtures import RecipeTestFixtures
 from codiet.tests.fixtures.time.time_test_fixtures import TimeTestFixtures
 from codiet.tests.fixtures.constraints import ConstraintTestFixtures
+from codiet.tests.fixtures.optimiser import OptimiserTestFixtures
 
 
 class BaseCodietTest(TestCase):
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self._fixtures = [
+            FlagTestFixtures,
+            IngredientTestFixtures,
+            NutrientTestFixtures,
+            QuantitiesTestFixtures,
+            RecipeTestFixtures,
+            TimeTestFixtures,
+            ConstraintTestFixtures,
+            OptimiserTestFixtures
+        ]
 
     def setUp(self) -> None:
         super().setUp()
@@ -34,22 +48,12 @@ class BaseCodietTest(TestCase):
         )
 
     def reset_fixtures(self) -> None:
-        FlagTestFixtures.clear_instance()
-        IngredientTestFixtures.clear_instance()
-        NutrientTestFixtures.clear_instance()
-        QuantitiesTestFixtures.clear_instance()
-        RecipeTestFixtures.clear_instance()
-        TimeTestFixtures.clear_instance()
-        ConstraintTestFixtures.clear_instance()
+        for fixture in self._fixtures:
+            fixture.clear_instance()
 
     def initialise_fixtures(self) -> None:
-        FlagTestFixtures.initialise()
-        IngredientTestFixtures.initialise()
-        NutrientTestFixtures.initialise()
-        QuantitiesTestFixtures.initialise()
-        RecipeTestFixtures.initialise()
-        TimeTestFixtures.initialise()
-        ConstraintTestFixtures.initialise()
+        for fixture in self._fixtures:
+            fixture.initialise()
 
     def reset_domain_service(self) -> None:
         DomainService.clear_instance()

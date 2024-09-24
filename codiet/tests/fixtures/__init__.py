@@ -5,3 +5,5 @@ from .nutrients.nutrient_test_fixtures import NutrientTestFixtures
 from .quantities.quantities_test_fixtures import QuantitiesTestFixtures
 from .recipes.recipe_test_fixtures import RecipeTestFixtures
 from .time.time_test_fixtures import TimeTestFixtures
+from .constraints.constraint_test_fixtures import ConstraintTestFixtures
+from .optimiser.optimiser_test_fixtures import OptimiserTestFixtures
