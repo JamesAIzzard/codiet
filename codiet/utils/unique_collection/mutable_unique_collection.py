@@ -6,10 +6,6 @@ from .immutable_unique_collection import ImmutableUniqueCollection
 T = TypeVar('T')
 
 class MutableUniqueCollection(BaseUniqueCollection[T]):
-    """A mutable collection of unique items.
-    Provides an ordered, mutable, unique collection. While sets are mutable and
-    unique, they are not ordered.
-    """
 
     @property
     def immutable(self) -> ImmutableUniqueCollection[T]:
@@ -21,6 +17,9 @@ class MutableUniqueCollection(BaseUniqueCollection[T]):
                 self._add(item)
         else:
             self._add(items) # type: ignore
+
+    def append(self, items: T|Iterable[T]) -> None:
+        self.add(items)
 
     def remove(self, items: T|Iterable[T]) -> None:
         if isinstance(items, Iterable) and not isinstance(items, str):

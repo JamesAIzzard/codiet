@@ -9,13 +9,16 @@ class TreeNode:
         if structure:
             self._build_from_dict(structure)
 
-    def _build_from_dict(self, structure: dict):
+    def _build_from_dict(self, structure: DictStructure):
         for key, value in structure.items():
-            child = TreeNode(value if isinstance(value, dict) else None)
+            child = self._create_child(value)
             self.add_child(key, child)
 
-    def add_child(self, key: str, child: 'TreeNode') -> None:
-        self._children[key] = child
+    def _create_child(self, value: DictStructure) -> 'TreeNode':
+        return self.__class__(value)
+
+    def add_child(self, key: str, child: 'TreeNode|None'=None) -> None:
+        self._children[key] = child or self._create_child({})
 
     def get_child(self, key: str) -> 'TreeNode':
         return self._children[key]
@@ -37,3 +40,6 @@ class TreeNode:
 
     def __contains__(self, key: str) -> bool:
         return key in self._children
+    
+    def __len__(self) -> int:
+        return len(self._children)

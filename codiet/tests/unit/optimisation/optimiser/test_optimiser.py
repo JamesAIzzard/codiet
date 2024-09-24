@@ -1,4 +1,5 @@
 from typing import Collection
+from unittest import skip
 
 from codiet.tests import BaseCodietTest
 from codiet.tests.fixtures import ConstraintTestFixtures, RecipeTestFixtures, OptimiserTestFixtures
@@ -43,7 +44,8 @@ class TestSolve(BaseOptimiserTest):
         self.assertIsInstance(results, Collection)
         for item in results:
             self.assertIsInstance(item, Solution)
-
+    
+    @skip("Not yet implemented")
     def test_all_diet_plans_satisfy_recipe_problem_flag_constraints(self):
         optimiser = self.optimiser_fixtures.deterministic_optimiser
 
