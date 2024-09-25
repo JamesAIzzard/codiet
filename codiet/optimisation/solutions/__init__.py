@@ -1,1 +1,1 @@
-from .solution import Solution
+from .diet_solution import DietSolution
