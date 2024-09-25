@@ -1,5 +1,6 @@
 from typing import Collection, TYPE_CHECKING
 
+from codiet.utils import IUC
 from codiet.optimisation.problems import DietProblem
 from codiet.optimisation.solutions import DietSolution
 from codiet.optimisation.algorithms import Algorithm
@@ -16,8 +17,8 @@ class Optimiser:
         self._recipe_source: Collection['Recipe']|None = None
         self._algorithm: 'Algorithm|None' = None
 
-    def solve(self, problem:'DietProblem') -> 'DietSolution':
-        return DietSolution(problem)
+    def solve(self, problem:'DietProblem') -> IUC['DietSolution']:
+        return IUC([DietSolution(problem)])
     
     def set_recipe_source(self, recipes:Collection['Recipe']) -> 'Optimiser':
         return self
