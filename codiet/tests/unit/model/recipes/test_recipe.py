@@ -41,7 +41,7 @@ class TestGetIngredientQuantityByName(BaseRecipeTest):
         """Check that an ingredient quantity can be retrieved by its name."""
         recipe = Recipe(name="Apple Pie")
 
-        apple_quantity = self.ingredient_fixtures.create_ingredient_quantity("apple")
+        apple_quantity = self.ingredient_fixtures.create_test_ingredient_quantity("apple")
         recipe.add_ingredient_quantity(apple_quantity)
 
         self.assertIs(recipe.get_ingredient_quantity_by_name("apple"), apple_quantity)

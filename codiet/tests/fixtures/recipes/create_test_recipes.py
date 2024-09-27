@@ -23,22 +23,22 @@ class RecipeFactory(BaseTestFixture):
         apple_pie.instructions = "Bake the apple pie."
         
         apple_pie.add_ingredient_quantity(
-            self.ingredient_fixtures.create_ingredient_quantity(
+            self.ingredient_fixtures.create_test_ingredient_quantity(
                 "apple", Quantity("whole", 7)
             )
         )
         apple_pie.add_ingredient_quantity(
-            self.ingredient_fixtures.create_ingredient_quantity(
+            self.ingredient_fixtures.create_test_ingredient_quantity(
                 "sugar", Quantity("cup", 1)
             )
         )
         apple_pie.add_ingredient_quantity(
-            self.ingredient_fixtures.create_ingredient_quantity(
+            self.ingredient_fixtures.create_test_ingredient_quantity(
                 "butter", Quantity("tablespoon", 2)
             )
         )
         apple_pie.add_ingredient_quantity(
-            self.ingredient_fixtures.create_ingredient_quantity(
+            self.ingredient_fixtures.create_test_ingredient_quantity(
                 "flour", Quantity("cup", 2.5)
             )
         )

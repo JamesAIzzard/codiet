@@ -1,0 +1,22 @@
+{
+    "name": "flour",
+    "description": "A powder made by grinding raw grains, used in baking and cooking",
+    "unit_conversions": [
+        [["gram", 120], ["cup", 1]]
+    ],
+    "standard_unit": "cup",
+    "quantity_cost": {
+        "quantity": ["kilogram", 1],
+        "cost": 2.50
+    },
+    "flags": {
+        "vegan": true,
+        "gluten_free": false
+    },
+    "gi": 70,
+    "nutrients_per_gram": {
+        "protein": ["gram", 0.01],
+        "carbohydrate": ["gram", 0.76],
+        "fat": ["gram", 0.01]
+    }
+}

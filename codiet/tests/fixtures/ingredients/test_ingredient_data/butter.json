@@ -1,0 +1,20 @@
+{
+    "name": "butter",
+    "description": "A dairy product made from churning cream",
+    "unit_conversions": [],
+    "standard_unit": "gram",
+    "quantity_cost": {
+        "quantity": ["gram", 100],
+        "cost": 1.00
+    },
+    "flags": {
+        "vegan": false,
+        "gluten_free": true
+    },
+    "gi": 0,
+    "nutrients_per_gram": {
+        "protein": ["gram", 0.006],
+        "carbohydrate": ["gram", 0.001],
+        "fat": ["gram", 0.81]
+    }
+}

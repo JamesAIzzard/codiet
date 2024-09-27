@@ -1,0 +1,22 @@
+{
+    "name": "sugar",
+    "description": "A sweet crystalline substance obtained from various plants, used in cooking and baking",
+    "unit_conversions": [
+        [["gram", 200], ["cup", 1]]
+    ],
+    "standard_unit": "cup",
+    "quantity_cost": {
+        "quantity": ["kilogram", 1],
+        "cost": 1.50
+    },
+    "flags": {
+        "vegan": true,
+        "gluten_free": true
+    },
+    "gi": 65,
+    "nutrients_per_gram": {
+        "protein": ["gram", 0],
+        "carbohydrate": ["gram", 1],
+        "fat": ["gram", 0]
+    }
+}
