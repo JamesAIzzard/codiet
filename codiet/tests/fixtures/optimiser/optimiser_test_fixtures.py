@@ -1,4 +1,5 @@
-from codiet.tests.fixtures import BaseTestFixture, RecipeTestFixtures
+from codiet.tests.fixtures import BaseTestFixture
+from codiet.tests.fixtures.recipes import RecipeTestFixtures
 from codiet.optimisation.optimiser import Optimiser
 from codiet.optimisation import algorithms
 

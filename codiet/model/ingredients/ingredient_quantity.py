@@ -1,54 +1,33 @@
-from typing import TYPE_CHECKING
-
 from codiet.db.stored_entity import StoredEntity
 from codiet.model.quantities.is_quantified import IsQuantified
-
-if TYPE_CHECKING:
-    from codiet.model.ingredients.ingredient import Ingredient
+from codiet.model.ingredients.ingredient import Ingredient
 
 class IngredientQuantity(IsQuantified, StoredEntity):
-    """Class to represent an ingredient quantity."""
 
     def __init__(
         self,
         ingredient: 'Ingredient',
-        qty_utol: float | None = None,
-        qty_ltol: float | None = None,
         *args,
         **kwargs
     ):
-        """Initialises the class."""
         super().__init__(*args, **kwargs)
 
         self._ingredient = ingredient
 
-        self._upper_tol = qty_utol
-        self._lower_tol = qty_ltol
+    @classmethod
+    def from_ingredient_name(cls, ingredient_name: str) -> 'IngredientQuantity':
+        ingredient = Ingredient(ingredient_name)
+        return cls(ingredient=ingredient)
+    
+    @classmethod
+    def from_ingredient(cls, ingredient: 'Ingredient') -> 'IngredientQuantity':
+        return cls(ingredient=ingredient)
 
     @property
-    def ingredient(self) -> "Ingredient":
-        """Get the ingredient."""
+    def ingredient(self) -> 'Ingredient':
+        if self._ingredient is None:
+            raise TypeError("Ingredient not set.")
         return self._ingredient
-
-    @property
-    def qty_utol(self) -> float | None:
-        """Get the upper tolerance."""
-        return self._upper_tol
-
-    @qty_utol.setter
-    def qty_utol(self, qty_utol: float | None):
-        """Set the upper tolerance."""
-        self._upper_tol = qty_utol
-
-    @property
-    def qty_ltol(self) -> float | None:
-        """Get the lower tolerance."""
-        return self._lower_tol
-
-    @qty_ltol.setter
-    def qty_ltol(self, qty_ltol: float | None):
-        """Set the lower tolerance."""
-        self._lower_tol = qty_ltol
 
     def __eq__(self, other):
         if not isinstance(other, IngredientQuantity):

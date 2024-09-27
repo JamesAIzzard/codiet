@@ -1,24 +1,29 @@
 from typing import TYPE_CHECKING
 
-from codiet.model.domain_service import UsesDomainService
+from codiet.model.domain_service import DomainService
 
 if TYPE_CHECKING:
     from codiet.model.quantities.unit import Unit
 
-class Quantity(UsesDomainService):
+class Quantity():
 
     @classmethod
     def from_unit_name(cls, unit_name: str, value: float|None=None) -> 'Quantity':
-        unit = cls.get_domain_service().get_unit(unit_name)
+        unit = DomainService.get_instance().get_unit(unit_name)
         return cls(unit, value)    
+    
+    @classmethod
+    def from_unit(cls, unit: 'Unit', value: float|None=None) -> 'Quantity':
+        return cls(unit, value)
 
-    def __init__(self, unit: 'Unit|str|None'=None, value: float|None=None):
-        super().__init__()
-        
-        if isinstance(unit, str):
-            unit = self.domain_service.get_unit(unit)
+    def __init__(self,
+            unit: 'Unit|None'=None,
+            value: float|None=None,
+            *args, **kwargs
+    ):
+        super().__init__(*args, **kwargs)
 
-        self._unit = unit or self.domain_service.gram
+        self._unit = unit or DomainService.get_instance().gram
         self._value = value
 
     @property
@@ -26,14 +31,21 @@ class Quantity(UsesDomainService):
         return self._unit
 
     @property
-    def value(self) -> float|None:
+    def value(self) -> float:
+        if self._value is None:
+            raise TypeError("Value not set")
         return self._value
 
-    def set_unit(self, unit: 'Unit|str') -> 'Quantity':
-        if isinstance(unit, str):
-            unit = self.get_domain_service().get_unit(unit)
+    @property
+    def is_defined(self) -> bool:
+        return self._value is not None
 
+    def set_unit(self, unit: 'Unit') -> 'Quantity':
         self._unit = unit
+        return self
+    
+    def set_unit_from_name(self, unit_name: str) -> 'Quantity':
+        self._unit = DomainService.get_instance().get_unit(unit_name)
         return self
     
     def set_value(self, value: float|None) -> 'Quantity':

@@ -1,5 +1,5 @@
 from codiet.tests import BaseCodietTest
-from codiet.tests.fixtures import NutrientTestFixtures
+from codiet.tests.fixtures.nutrients import NutrientTestFixtures
 from codiet.model.nutrients import NutrientQuantity
 
 class BaseNutrientQuantityTest(BaseCodietTest):

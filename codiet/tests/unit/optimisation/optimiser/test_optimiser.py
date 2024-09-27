@@ -2,9 +2,11 @@ from typing import Collection
 from unittest import skip
 
 from codiet.tests import BaseCodietTest
-from codiet.tests.fixtures import ConstraintTestFixtures, RecipeTestFixtures, OptimiserTestFixtures
+from codiet.tests.fixtures.optimiser import OptimiserTestFixtures
+from codiet.tests.fixtures.recipes import RecipeTestFixtures
+from codiet.tests.fixtures.constraints import ConstraintTestFixtures
 from codiet.optimisation.optimiser import Optimiser
-from codiet.optimisation.constraints import FlagConstraint, TagConstraint
+from codiet.optimisation.constraints import FlagConstraint
 from codiet.optimisation.problems import DietProblem
 from codiet.optimisation.solutions import DietSolution
 

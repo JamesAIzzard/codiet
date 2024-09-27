@@ -3,14 +3,14 @@ from collections import UserDict
 
 if TYPE_CHECKING:
     from codiet.optimisation.problems import DietProblem
-    from codiet.model.recipes import Recipe
+    from codiet.model.recipes import RecipeQuantity
 
 class DietSolution(UserDict):
     def __init__(self, problem: 'DietProblem', *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._name = problem.name
-        self._recipe: 'Recipe|None' = None
+        self._recipe: 'RecipeQuantity|None' = None
 
         self.data:dict[str, 'DietSolution'] = {k: DietSolution(v) for k, v in problem.items()}
 
@@ -19,7 +19,7 @@ class DietSolution(UserDict):
         return self._name
 
     @property
-    def recipe(self) -> 'Recipe':
+    def recipe(self) -> 'RecipeQuantity':
         if not self.is_leaf:
             raise AttributeError("Non-leaf nodes of DietSolution do not have recipes")
         elif self._recipe is None:
@@ -27,7 +27,7 @@ class DietSolution(UserDict):
         return self._recipe
 
     @recipe.setter
-    def recipe(self, recipe: 'Recipe'):
+    def recipe(self, recipe: 'RecipeQuantity'):
         if self.is_leaf:
             self._recipe = recipe
         else:

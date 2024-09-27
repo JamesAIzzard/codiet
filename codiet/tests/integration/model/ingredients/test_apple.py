@@ -1,5 +1,5 @@
 from codiet.tests import BaseCodietTest
-from codiet.tests.fixtures import IngredientTestFixtures
+from codiet.tests.fixtures.ingredients import IngredientTestFixtures
 from codiet.model.ingredients import Ingredient
 
 class BaseAppleTest(BaseCodietTest):
@@ -11,5 +11,5 @@ class BaseAppleTest(BaseCodietTest):
 class TestCreateApple(BaseAppleTest):
 
     def test_can_create_apple(self):
-        apple = self.ingredient_fixtures.get_ingredient_by_name("apple")
+        apple = self.ingredient_fixtures.create_test_ingredient("apple")
         self.assertIsInstance(apple, Ingredient)

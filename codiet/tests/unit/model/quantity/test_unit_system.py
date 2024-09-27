@@ -1,5 +1,5 @@
 from codiet.tests import BaseCodietTest
-from codiet.tests.fixtures import QuantitiesTestFixtures
+from codiet.tests.fixtures.quantities import QuantitiesTestFixtures
 from codiet.model.quantities import UnitSystem, UnitConversion, Quantity
 
 class BaseUnitSystemTest(BaseCodietTest):

@@ -1,7 +1,7 @@
 from datetime import time
 
 from codiet.tests import BaseCodietTest
-from codiet.tests.fixtures import IngredientTestFixtures
+from codiet.tests.fixtures.ingredients import IngredientTestFixtures
 from codiet.model.recipes import Recipe
 from codiet.model.ingredients import IngredientQuantity
 from codiet.model.time import TimeWindow
@@ -31,7 +31,7 @@ class TestAddIngredientQuantity(BaseRecipeTest):
         """Check that an ingredient quantity can be added to the recipe."""
         recipe = Recipe(name="Apple Pie")
         self.assertEqual(len(recipe.ingredient_quantities), 0)
-        apple = IngredientQuantity(self.ingredient_fixtures.get_ingredient_by_name("apple"))
+        apple = IngredientQuantity(self.ingredient_fixtures.create_test_ingredient("apple"))
         recipe.add_ingredient_quantity(apple)
         self.assertIn(apple, recipe.ingredient_quantities)
 
@@ -57,7 +57,7 @@ class TestRemoveIngredientQuantity(BaseRecipeTest):
     def test_remove_ingredient_quantity(self):
         """Check that an ingredient quantity can be removed from the recipe."""
         recipe = Recipe(name="Apple Pie")
-        apple = IngredientQuantity(self.ingredient_fixtures.get_ingredient_by_name("apple"))
+        apple = IngredientQuantity(self.ingredient_fixtures.create_test_ingredient("apple"))
         recipe.add_ingredient_quantity(apple)
         recipe.remove_ingredient_quantity(apple)
         self.assertNotIn(apple, recipe.ingredient_quantities)
@@ -65,7 +65,7 @@ class TestRemoveIngredientQuantity(BaseRecipeTest):
     def test_remove_ingredient_quantity_not_found(self):
         """Check that an exception is raised when an ingredient quantity is not found."""
         recipe = Recipe(name="Apple Pie")
-        apple = IngredientQuantity(self.ingredient_fixtures.get_ingredient_by_name("apple"))
+        apple = IngredientQuantity(self.ingredient_fixtures.create_test_ingredient("apple"))
         with self.assertRaises(ValueError):
             recipe.remove_ingredient_quantity(apple)
 

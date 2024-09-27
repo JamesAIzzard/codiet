@@ -1,0 +1,22 @@
+{
+    "name": "apple",
+    "description": "A fruit that is sweet and juicy",
+    "unit_conversions": [
+        [["gram", 200], ["whole", 1]]
+    ],
+    "standard_unit": "whole",
+    "quantity_cost": {
+        "quantity": ["whole", 1],
+        "cost": 0.5
+    },
+    "flags": {
+        "vegan": true,
+        "gluten_free": true
+    },
+    "gi": 38,
+    "nutrients_per_gram": {
+        "protein": ["gram", 0.003],
+        "carbohydrate": ["gram", 0.14],
+        "fat": ["gram", 0.002]
+    }
+}

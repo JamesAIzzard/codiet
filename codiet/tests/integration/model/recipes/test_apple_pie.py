@@ -1,7 +1,7 @@
 from unittest import skip
 
 from codiet.tests import BaseCodietTest
-from codiet.tests.fixtures import RecipeTestFixtures
+from codiet.tests.fixtures.recipes import RecipeTestFixtures
 
 from codiet.model.recipes import Recipe
 

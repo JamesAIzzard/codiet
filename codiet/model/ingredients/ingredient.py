@@ -1,4 +1,4 @@
-from typing import Collection, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from codiet.model.cost.quantity_cost import QuantityCost
 from codiet.utils import IUC, UniqueDict
@@ -70,6 +70,16 @@ class Ingredient(
         self._standard_unit = unit
 
     @property
+    def quantity_cost(self) -> QuantityCost:
+        if self._quantity_cost is None:
+            raise ValueError("Quantity cost has not been set.")
+        return self._quantity_cost
+
+    @quantity_cost.setter
+    def quantity_cost(self, value: QuantityCost) -> None:
+        self.set_quantity_cost(value)
+
+    @property
     def gi(self) -> float | None:
         return self._gi
 
@@ -112,10 +122,15 @@ class Ingredient(
 
     def set_flag(self, name: str, value: bool | None) -> 'Ingredient':
         self.get_flag(name).value = value
+        
         return self
 
     def _add_flag(self, flag: Flag) -> 'Ingredient':
+        if not flag.name in self.domain_service.flag_names:
+            raise ValueError(f"Flag {flag.name} is not known to the system.")
+        
         self._flags[flag.name] = flag
+
         return self
 
     def get_nutrient_quantity(self, nutrient_name: str) -> 'NutrientQuantity':

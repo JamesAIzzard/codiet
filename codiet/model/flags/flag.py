@@ -7,13 +7,14 @@ class Flag(StoredEntity):
     def __init__(
             self, 
             name: str,
+            value: bool|None = None,
             *args, **kwargs
         ):
         """Initialise the flag."""
         super().__init__(*args, **kwargs)
 
         self._name = name
-        self._value:bool|None = None
+        self._value = value
 
     @property
     def name(self) -> str:

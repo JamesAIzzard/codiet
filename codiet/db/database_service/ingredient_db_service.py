@@ -97,7 +97,7 @@ class IngredientDBService(DatabaseServiceBase):
             )
 
             # Add the flag to the ingredient
-            ingredient.add_flag(flag)
+            ingredient._add_flag(flag)
 
         # Fetch and add the nutrients
         nutrient_quantities_data = self._repository.nutrients.read_ingredient_nutrient_quantities(ingredient_id)

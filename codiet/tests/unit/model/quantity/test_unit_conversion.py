@@ -1,5 +1,5 @@
 from codiet.tests import BaseCodietTest
-from codiet.tests.fixtures import QuantitiesTestFixtures
+from codiet.tests.fixtures.quantities import QuantitiesTestFixtures
 from codiet.model.quantities import UnitConversion, Quantity
 
 class BaseUnitConversionTest(BaseCodietTest):
@@ -16,12 +16,10 @@ class TestConstructor(BaseUnitConversionTest):
         unit_conversion = UnitConversion((Quantity(gram), Quantity(kilogram)))
         self.assertIsInstance(unit_conversion, UnitConversion)
 
-    def test_quantities_default_to_none(self) -> None:
+    def test_exception_when_units_are_identical(self) -> None:
         gram = self.quantities_fixtures.gram
-        kilogram = self.quantities_fixtures.get_unit("kilogram")
-        unit_conversion = UnitConversion((Quantity(gram), Quantity(kilogram)))
-        for quantity in unit_conversion.quantities:
-            self.assertIsNone(quantity.value)
+        with self.assertRaises(ValueError):
+            UnitConversion((Quantity(gram), Quantity(gram)))
 
 class TestIsDefined(BaseUnitConversionTest):
     

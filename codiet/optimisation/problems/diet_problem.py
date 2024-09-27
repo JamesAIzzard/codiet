@@ -1,5 +1,4 @@
 from typing import TYPE_CHECKING
-
 from collections import UserDict
 from codiet.utils import IUC, MUC
 
@@ -8,16 +7,17 @@ if TYPE_CHECKING:
     from codiet.optimisation.goals import Goal
 
 class DietProblem(UserDict):
-    def __init__(self, name: str, structure: dict[str, dict] | None = None, *args, **kwargs):
+    def __init__(self, name: str, structure: dict[str, dict] | None = None, parent: 'DietProblem|None' = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
         self._name = name
+        self._parent = parent
         
         self._constraints = MUC['Constraint']()
         self._goals = MUC['Goal']()
         
         if structure:
-            self.data = {k: DietProblem(k, v) if v is not None else DietProblem(k) for k, v in structure.items()}
+            self.data = {k: DietProblem(k, v, parent=self) if v is not None else DietProblem(k, parent=self) for k, v in structure.items()}
 
     @property
     def name(self) -> str:
@@ -32,7 +32,7 @@ class DietProblem(UserDict):
         return self._goals.immutable
 
     def add_subproblem(self, name: str, structure: dict[str, dict] | None = None) -> 'DietProblem':
-        self.data[name] = DietProblem(name, structure)
+        self.data[name] = DietProblem(name, structure, parent=self)
         return self
 
     def add_constraint(self, constraint: 'Constraint') -> 'DietProblem':
@@ -45,3 +45,11 @@ class DietProblem(UserDict):
 
     def is_leaf(self) -> bool:
         return len(self.data) == 0
+
+    def get_all_constraints(self) -> list['Constraint']:
+        all_constraints = list(self.constraints)
+        current = self._parent
+        while current is not None:
+            all_constraints.extend(current.constraints)
+            current = current._parent
+        return all_constraints
