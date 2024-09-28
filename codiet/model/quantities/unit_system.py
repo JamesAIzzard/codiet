@@ -2,13 +2,12 @@ from typing import TYPE_CHECKING, Collection
 from collections import deque
 
 from codiet.utils import MUC, IUC
-from codiet.model.domain_service import UsesDomainService
 from codiet.model.quantities import Quantity
 
 if TYPE_CHECKING:
     from codiet.model.quantities import Unit, UnitConversion
 
-class UnitSystem(UsesDomainService):
+class UnitSystem():
     """Models a system of units and conversions associated with an entity."""
 
     def __init__(

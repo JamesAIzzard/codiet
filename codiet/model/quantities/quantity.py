@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from codiet.model.domain_service import DomainService
+from codiet.model import SingletonRegistry
 
 if TYPE_CHECKING:
     from codiet.model.quantities.unit import Unit
@@ -9,7 +9,7 @@ class Quantity():
 
     @classmethod
     def from_unit_name(cls, unit_name: str, value: float|None=None) -> 'Quantity':
-        unit = DomainService.get_instance().get_unit(unit_name)
+        unit = SingletonRegistry().get_unit(unit_name)
         return cls(unit, value)    
     
     @classmethod
@@ -23,7 +23,7 @@ class Quantity():
     ):
         super().__init__(*args, **kwargs)
 
-        self._unit = unit or DomainService.get_instance().gram
+        self._unit = unit or SingletonRegistry().get_unit("gram")
         self._value = value
 
     @property
@@ -45,7 +45,7 @@ class Quantity():
         return self
     
     def set_unit_from_name(self, unit_name: str) -> 'Quantity':
-        self._unit = DomainService.get_instance().get_unit(unit_name)
+        self._unit = SingletonRegistry().get_unit(unit_name)
         return self
     
     def set_value(self, value: float|None) -> 'Quantity':

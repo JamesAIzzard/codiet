@@ -1,16 +1,24 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Any
 
 from codiet.tests.fixtures import BaseTestFixture
 from codiet.model.ingredients import Ingredient, IngredientQuantity
-from codiet.db_population.ingredients import build_ingredient_from_json
-from .utils import fetch_test_ingredient_data
 
 if TYPE_CHECKING:
     from codiet.model.quantities import Quantity
+    from codiet.db_population.ingredients import JSONIngredientBuilder
 
 INGREDIENT_NAMES = ["apple", "sugar", "butter", "flour"]
 
 class IngredientTestFixtures(BaseTestFixture):
+
+    # def __init__(self,
+    #         json_ingredient_builder: 'JSONIngredientBuilder',
+    #         fetch_test_ingredient_data: Callable[[str], dict[str, Any]]
+    #     ) -> None:
+    #     super().__init__()
+    #     self._test_ingredients: dict[str, Ingredient] = {}
+    #     self._json_ingredient_builder = json_ingredient_builder
+    #     self._fetch_test_ingredient_data = fetch_test_ingredient_data
 
     def __init__(self) -> None:
         super().__init__()
@@ -23,9 +31,12 @@ class IngredientTestFixtures(BaseTestFixture):
                 self._test_ingredients[name] = self.create_test_ingredient(name)
         return self._test_ingredients
 
+    def get_ingredient(self, ingredient_name: str) -> Ingredient:
+        return self.ingredients[ingredient_name]
+
     def create_test_ingredient(self, ingredient_name: str) -> Ingredient:
-        ingredient_data = fetch_test_ingredient_data(ingredient_name)
-        ingredient = build_ingredient_from_json(ingredient_data)
+        ingredient_data = self._fetch_test_ingredient_data(ingredient_name)
+        ingredient = self._json_ingredient_builder.build_ingredient(ingredient_data)
         return ingredient
 
     def create_test_ingredient_quantity(self, ingredient_name: str, quantity: 'Quantity|None' = None) -> IngredientQuantity:

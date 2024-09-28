@@ -2,9 +2,8 @@ from typing import Collection
 
 from codiet.db.stored_entity import StoredEntity
 from codiet.utils import MUC, IUC
-from codiet.model.domain_service import UsesDomainService
 
-class Unit(StoredEntity, UsesDomainService):
+class Unit(StoredEntity):
 
     def __init__(
         self,

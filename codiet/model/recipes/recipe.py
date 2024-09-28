@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING
 
 from codiet.db import StoredEntity
 from codiet.utils import MUC, IUC
-from codiet.model.domain_service import UsesDomainService
 from codiet.model.flags import Flag, HasFlags
 
 if TYPE_CHECKING:
@@ -11,7 +10,7 @@ if TYPE_CHECKING:
     from codiet.model.tags import Tag
 
 
-class Recipe(HasFlags, UsesDomainService, StoredEntity):
+class Recipe(HasFlags, StoredEntity):
 
     def __init__(
         self,

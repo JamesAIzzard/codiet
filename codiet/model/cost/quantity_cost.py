@@ -1,21 +1,18 @@
-from typing import TYPE_CHECKING
+from codiet.model.quantities import IsQuantified
 
-if TYPE_CHECKING:
-    from codiet.model.quantities import Quantity
 
-class QuantityCost:
-    def __init__(self, quantity: 'Quantity', cost:float|None = None):
-        self._quantity = quantity
+class QuantityCost(IsQuantified):
+    def __init__(self, cost: float | None = None, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
         self._cost = cost
 
     @property
-    def quantity(self) -> 'Quantity':
-        return self._quantity
-    
-    @property
-    def cost(self) -> float|None:
+    def cost(self) -> float:
+        if self._cost is None:
+            raise TypeError("Cost not set")
         return self._cost
-    
+
     @cost.setter
     def cost(self, value: float) -> None:
         if value < 0:

@@ -1,1 +1,1 @@
-from .core import build_ingredient_from_json
+from .json_to_ingredient_factory import JSONIngredientBuilder

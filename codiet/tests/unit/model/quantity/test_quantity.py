@@ -5,8 +5,7 @@ from codiet.model.quantities import Quantity
 class BaseQuantityTest(BaseCodietTest):
     def setUp(self) -> None:
         super().setUp()
-
-        self.quantities_fixtures = QuantitiesTestFixtures.get_instance()
+        self.quantities_fixtures = self.fixture_manager.quantities_fixtures
 
 class TestConstructor(BaseQuantityTest):
 
@@ -16,7 +15,7 @@ class TestConstructor(BaseQuantityTest):
 
     def test_unit_defaults_to_grams(self):
         quantity = Quantity()
-        self.assertEqual(quantity.unit, self.quantities_fixtures.gram)
+        self.assertEqual(quantity.unit, self.quantities_fixtures.get_unit("gram"))
 
 class TestValueGetter(BaseQuantityTest):
 

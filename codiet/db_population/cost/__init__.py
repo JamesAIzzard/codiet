@@ -1,1 +1,1 @@
-from .core import build_quantity_cost_from_json
+from .json_to_quantity_cost_factory import JSONToQuantityCostFactory

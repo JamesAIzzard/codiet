@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 from codiet.model.cost.quantity_cost import QuantityCost
 from codiet.utils import IUC, UniqueDict
 from codiet.db.stored_entity import StoredEntity
-from codiet.model.domain_service import UsesDomainService
 from codiet.model.cost import HasSettableQuantityCost
 from codiet.model.quantities import UnitSystem
 from codiet.model.flags import HasSettableFlags, Flag
@@ -17,8 +16,7 @@ class Ingredient(
     HasSettableQuantityCost,
     HasSettableNutrientQuantities,
     HasSettableFlags,
-    StoredEntity,
-    UsesDomainService,
+    StoredEntity
 ):
 
     def __init__(

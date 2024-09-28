@@ -19,12 +19,12 @@ class NutrientTestFixtures(BaseTestFixture):
             self._nutrients = self._create_test_nutrients()
         return self._nutrients
 
-    def get_nutrient_by_name(self, nutrient_name:str) -> Nutrient:
+    def get_nutrient(self, nutrient_name:str) -> Nutrient:
         """Returns a nutrient by name."""
         return self.nutrients[nutrient_name]
 
     def create_nutrient_quantity(self, nutrient_name:str) -> NutrientQuantity:
-        nutrient = self.get_nutrient_by_name(nutrient_name)
+        nutrient = self.get_nutrient(nutrient_name)
         return NutrientQuantity(nutrient)
 
     def setup_database_nutrients(self, db_service:'DatabaseService') -> None:

@@ -1,36 +1,33 @@
+import os
+from typing import TYPE_CHECKING
+
+from codiet.utils.unique_dict import UniqueDict
+from codiet.db_population.flags import FlagDefinitionJSONFetcher, JSONToFlagDefinitionFactory
 from codiet.tests.fixtures import BaseTestFixture
-from codiet.model.flags import FlagDefinition
+
+if TYPE_CHECKING:
+    from codiet.model.flags import FlagDefinition
+
+_current_dir = os.path.dirname(__file__)
+TEST_FLAG_DEFINITIONS_DATA_DIR_PATH = os.path.join(
+    _current_dir, 'test_flag_definition_data'
+)
 
 class FlagTestFixtures(BaseTestFixture):
 
-    def __init__(self) -> None:
-        super().__init__()
-        self._flag_definitions:dict[str, FlagDefinition]|None = None
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
-    @property
-    def flag_definitions(self) -> dict[str, FlagDefinition]:
-        """Returns the test flags."""
-        if self._flag_definitions is None:
-            self._flag_definitions = self._create_flag_definitions()
-        return self._flag_definitions
+        self._flag_definition_json_fetcher = FlagDefinitionJSONFetcher(TEST_FLAG_DEFINITIONS_DATA_DIR_PATH)
+        self._flag_definition_factory = JSONToFlagDefinitionFactory()
 
-    def get_flag_definition(self, flag_name:str) -> FlagDefinition:
-        """Returns a flag by name."""
-        return self.flag_definitions[flag_name]
+        self._flag_definitions = UniqueDict[str, 'FlagDefinition']()
 
-    def _create_flag_definitions(self) -> dict[str, FlagDefinition]:
-        """Instantiates a dictionary of flags for testing purposes."""
-        return {
-            "vegan": FlagDefinition(
-                flag_name="vegan",
-            ),
-            "vegetarian": FlagDefinition(
-                flag_name="vegetarian",
-            ),
-            "gluten_free": FlagDefinition(
-                flag_name="gluten_free",
-            ),
-            "dairy_free": FlagDefinition(
-                flag_name="dairy_free",
-            ),
-        }
+    def get_flag_definition(self, flag_name: str) -> 'FlagDefinition':
+        try:
+            return self._flag_definitions[flag_name]
+        except KeyError:
+            flag_data = self._flag_definition_json_fetcher.fetch_data(flag_name)
+            flag = self._flag_definition_factory.build(flag_name, flag_data)
+            self._flag_definitions[flag_name] = flag
+            return flag
