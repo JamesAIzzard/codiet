@@ -1,12 +1,11 @@
 from codiet.tests import BaseCodietTest
-from codiet.tests.fixtures.quantities import QuantitiesTestFixtures
 from codiet.model.quantities import UnitSystem, UnitConversion, Quantity
 
 class BaseUnitSystemTest(BaseCodietTest):
     
         def setUp(self) -> None:
             super().setUp()
-            self.quantities_fixtures = QuantitiesTestFixtures.get_instance()
+            self.quantities_fixtures = self.fixture_manager.quantities_fixtures
 
 class TestConstructor(BaseUnitSystemTest):
 

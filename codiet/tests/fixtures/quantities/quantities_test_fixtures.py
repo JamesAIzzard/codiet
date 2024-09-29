@@ -1,23 +1,20 @@
-import os
 from typing import TYPE_CHECKING
 
 from codiet.utils.unique_dict import UniqueDict
 from codiet.tests.fixtures import BaseTestFixture
+from codiet.db_population import get_data_dir_path
 from codiet.db_population.quantities import (
     UnitJSONFetcher,
     UnitConversionJSONFetcher,
     JSONToUnitFactory,
-    JSONToUnitConversionFactory,
+    JSONToUnitConversionFactory
 )
 
 if TYPE_CHECKING:
     from codiet.model.quantities import Unit, UnitConversion
 
-_current_dir = os.path.dirname(__file__)
-TEST_UNITS_DATA_DIR_PATH = os.path.join(_current_dir, "test_quantities_data")
-TEST_GLOBAL_UNIT_CONVERSIONS_DATA_DIR_PATH = os.path.join(
-    _current_dir, "test_quantities_data"
-)
+UNIT_JSON_DIR_PATH = get_data_dir_path("units")
+GLOBAL_UNIT_CONVERSIONS_JSON_DIR_PATH = get_data_dir_path("global_unit_conversions")
 
 
 class QuantitiesTestFixtures(BaseTestFixture):
@@ -25,9 +22,9 @@ class QuantitiesTestFixtures(BaseTestFixture):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        self._unit_json_fetcher = UnitJSONFetcher(TEST_UNITS_DATA_DIR_PATH)
+        self._unit_json_fetcher = UnitJSONFetcher(UNIT_JSON_DIR_PATH)
         self._global_unit_conversion_json_fetcher = UnitConversionJSONFetcher(
-            TEST_GLOBAL_UNIT_CONVERSIONS_DATA_DIR_PATH
+            GLOBAL_UNIT_CONVERSIONS_JSON_DIR_PATH
         )
 
         self._unit_factory = JSONToUnitFactory()

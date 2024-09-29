@@ -1,6 +1,7 @@
 from codiet.tests import BaseCodietTest
 from codiet.tests.custom_assertions import assertDictValuesIdentical
 from codiet.model import SingletonRegistry
+from codiet.model.quantities import Unit, UnitConversion
 
 class BaseSingletonRegistryTest(BaseCodietTest):
     
@@ -13,36 +14,20 @@ class TestConstructor(BaseSingletonRegistryTest):
         singleton_registry = SingletonRegistry()
         self.assertIsInstance(singleton_registry, SingletonRegistry)
 
-class TestUnits(BaseSingletonRegistryTest):
-    
-    def test_returns_units(self):
+class TestGetUnit(BaseSingletonRegistryTest):
+
+    def test_can_get_unit(self):
         singleton_registry = SingletonRegistry()
+        singleton_unit = singleton_registry.get_unit("millilitre")
+        fixture_unit = self.fixture_manager.quantities_fixtures.get_unit("millilitre")
+        self.assertIsInstance(singleton_unit, Unit)
+        self.assertIs(singleton_unit, fixture_unit)
 
-        domain_service_units = singleton_registry.units
+class TestGetGlobalUnitConversion(BaseSingletonRegistryTest):
 
-        units = self.fixture_manager.quantities_fixtures.units
-
-        self.assertTrue(len(domain_service_units) > 0)
-        compare_dicts(self, domain_service_units, units)
-
-class TestGram(BaseSingletonRegistryTest):
-    
-    def test_returns_gram(self):
+    def test_can_get_global_unit_conversion(self):
         singleton_registry = SingletonRegistry()
-
-        domain_service_gram = singleton_registry.gram
-
-        gram = self.fixture_manager.quantities_fixtures.gram
-        self.assertIs(domain_service_gram, gram)
-
-class TestGlobalUnitConversions(BaseSingletonRegistryTest):
-        
-    def test_returns_global_unit_conversions(self):
-        singleton_registry = SingletonRegistry()
-
-        domain_service_global_unit_conversions = singleton_registry.global_unit_conversions
-
-        global_unit_conversions = self.fixture_manager.quantities_fixtures.global_unit_conversions
-
-        self.assertTrue(len(domain_service_global_unit_conversions) > 0)
-        compare_dicts(self, domain_service_global_unit_conversions, global_unit_conversions)
+        singleton_unit_conversion = singleton_registry.get_global_unit_conversion(frozenset(["millilitre", "litre"]))
+        fixture_unit_conversion = self.fixture_manager.quantities_fixtures.get_global_unit_conversion(frozenset(["millilitre", "litre"]))
+        self.assertIsInstance(singleton_unit_conversion, UnitConversion)
+        self.assertIs(singleton_unit_conversion, fixture_unit_conversion)

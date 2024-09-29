@@ -2,13 +2,13 @@ from typing import TYPE_CHECKING, Collection
 from collections import deque
 
 from codiet.utils import MUC, IUC
+from codiet.model import SingletonRegistry
 from codiet.model.quantities import Quantity
 
 if TYPE_CHECKING:
     from codiet.model.quantities import Unit, UnitConversion
 
 class UnitSystem():
-    """Models a system of units and conversions associated with an entity."""
 
     def __init__(
         self,
@@ -22,30 +22,24 @@ class UnitSystem():
 
     @property
     def available_units(self) -> IUC['Unit']:
-        """Retrieves all available units."""
         return IUC(self._get_available_units())
 
     @property
     def entity_unit_conversions(self) -> IUC['UnitConversion']:
-        """Retrieves the entity unit conversions."""
         return IUC(self._entity_unit_conversions)
 
     def check_unit_available(self, unit: 'Unit') -> bool:
-        """Checks if a unit is available in the system."""
         return unit in self.available_units
 
     def add_entity_unit_conversion(self, unit_conversion: 'UnitConversion'):
-        """Adds entity unit conversions to the existing list."""
         self._entity_unit_conversions.add(unit_conversion)
         self._update()
 
     def remove_entity_unit_conversion(self, entity_unit_conversion: 'UnitConversion'):
-        """Removes entity unit conversions from the existing list."""
         self._entity_unit_conversions.remove(entity_unit_conversion)
         self._update()
 
     def can_convert_units(self, from_unit: 'Unit', to_unit: 'Unit') -> bool:
-        """Checks if two units can be converted between."""
         try:
             self._find_conversion_path(from_unit, to_unit)
             return True
@@ -53,12 +47,6 @@ class UnitSystem():
             return False
 
     def convert_quantity(self, quantity: Quantity, to_unit: 'Unit') -> Quantity:
-        """
-        Converts a quantity from one unit to another.
-
-        Raises:
-            ValueError: If no conversion path is found between the given units.
-        """
         if quantity.unit == to_unit:
             return quantity
 
@@ -67,13 +55,6 @@ class UnitSystem():
         return Quantity(unit=to_unit, value=converted_value)
 
     def _get_conversion_factor(self, from_unit: 'Unit', to_unit: 'Unit') -> float:
-        """
-        Calculates the conversion factor between two units.
-        To go from 'from_unit' to 'to_unit', we multiply the first unit qty by the factor.
-
-        Raises:
-            ValueError: If no conversion path is found between the given units.
-        """
         path = self._find_conversion_path(from_unit, to_unit)
         factor = 1.0
         for u1, u2 in path:
@@ -81,12 +62,8 @@ class UnitSystem():
         return factor
 
     def _get_available_units(self, root_unit: 'Unit|None' = None) -> IUC['Unit']:
-        """
-        Retrieves all available units starting from a root unit.
-        If the root unit is None, the root unit is assumed to be grams.
-        """
         if root_unit is None:
-            root_unit = self.domain_service.gram
+            root_unit = SingletonRegistry().get_unit("gram")
 
         visited = set()
         queue = deque([root_unit])
@@ -102,13 +79,9 @@ class UnitSystem():
         return IUC(available_units)
 
     def _clear_path_cache(self):
-        """Clears the conversion path cache."""
         self._path_cache.clear()
 
     def _find_conversion_path(self, from_unit: 'Unit', to_unit: 'Unit') -> list[tuple['Unit', 'Unit']]:
-        """
-        Finds a conversion path between two units using BFS.
-        """
         cache_key = (from_unit, to_unit)
         if cache_key in self._path_cache:
             return self._path_cache[cache_key]
@@ -132,7 +105,6 @@ class UnitSystem():
         raise ValueError(f"No conversion path found between {from_unit.name} and {to_unit.name}")
 
     def _update(self):
-        """Updates the object to reflect the latest units and conversions."""
         self._graph.clear()
         self._path_cache.clear()
         all_conversions = list(self.domain_service.global_unit_conversions) + list(self._entity_unit_conversions)

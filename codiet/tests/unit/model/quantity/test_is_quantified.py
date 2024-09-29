@@ -6,7 +6,7 @@ class BaseIsQuantityTest(BaseCodietTest):
     
     def setUp(self) -> None:
         super().setUp()
-        self.quantities_fixtures = QuantitiesTestFixtures.get_instance()
+        self.quantities_fixtures = self.fixture_manager.quantities_fixtures
 
 class TestConstructor(BaseIsQuantityTest):
 
@@ -18,7 +18,7 @@ class TestConstructor(BaseIsQuantityTest):
         is_quantified = IsQuantified(
             quantity=Quantity(
                 value=100,
-                unit=self.quantities_fixtures.gram
+                unit=self.quantities_fixtures.get_unit("millilitre")
             )
         )
         self.assertIsInstance(is_quantified, IsQuantified)
@@ -26,7 +26,7 @@ class TestConstructor(BaseIsQuantityTest):
     def test_quantity_is_set(self):
         quantity = Quantity(
             value=100,
-            unit=self.quantities_fixtures.gram
+            unit=self.quantities_fixtures.get_unit("millilitre")
         )
         is_quantified = IsQuantified(quantity=quantity)
         self.assertIs(is_quantified.quantity, quantity)
