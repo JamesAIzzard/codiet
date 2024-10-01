@@ -1,39 +1,45 @@
-from collections import UserDict
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from codiet.optimisation.problems import DietProblem
-    from codiet.optimisation.solutions import DietSolution
+    from codiet.optimisation.constraints import Constraint
+    from codiet.optimisation.goals import Goal
+    from codiet.model.recipes import RecipeQuantity
 
-class DietStructure(UserDict):
-    def __init__(self, name: str, parent: 'DietProblem|DietSolution|None' = None, *args, **kwargs):
+class Node:
+    def __init__(self):
+        self.constraints = []
+        self.goals = []
+        self.solutions = {}
+        self.children = {}
+
+class DietStructure:
+    def __init__(self, structure: dict[str, dict] | None = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._name = name
-        self._parent = parent
+        self.root = Node()
+        if structure:
+            self._build_tree(self.root, structure)
 
-    @property
-    def name(self) -> str:
-        return self._name
+    def _build_tree(self, node: Node, structure_dict: dict):
+        for key, sub_dict in structure_dict.items():
+            child_node = Node()
+            node.children[key] = child_node
+            if isinstance(sub_dict, dict):
+                self._build_tree(child_node, sub_dict)
 
-    @property
-    def is_leaf(self) -> bool:
-        return len(self.data) == 0
+    def __call__(self, path: list[str]):
+        node = self.root
+        for key in path:
+            node = node.children[key]
+        return node
 
-    @property
-    def address(self) -> list[str]:
-        address = []
-        current = self
-        while current is not None:
-            address.insert(0, current.name)
-            current = current._parent
-        return address
+    def add_constraint(self, constraint: 'Constraint', path: list[str]):
+        node = self(path)
+        node.constraints.append(constraint)
 
-    @property
-    def leaf_addresses(self) -> list[list[str]]:
-        if self.is_leaf:
-            return [self.address]
-        
-        addresses = []
-        for subnode in self.data.values():
-            addresses.extend(subnode.leaf_addresses)
-        return addresses
+    def add_goal(self, goal: 'Goal', path: list[str]):
+        node = self(path)
+        node.goals.append(goal)
+
+    def add_solution(self, solution:'RecipeQuantity', solution_set_id:int, path: list[str]):
+        node = self(path)
+        node.solutions[solution_set_id] = solution
