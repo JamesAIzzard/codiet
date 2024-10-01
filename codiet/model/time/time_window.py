@@ -1,6 +1,6 @@
 from datetime import time
 
-from codiet.db.stored_entity import StoredEntity
+from codiet.model.stored_entity import StoredEntity
 
 class TimeWindow(StoredEntity):
     def __init__(

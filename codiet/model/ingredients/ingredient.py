@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from codiet.model.cost.quantity_cost import QuantityCost
 from codiet.utils import IUC, UniqueDict
-from codiet.db.stored_entity import StoredEntity
+from codiet.model.stored_entity import StoredEntity
 from codiet.model.cost import HasSettableQuantityCost
 from codiet.model.quantities import UnitSystem
 from codiet.model.flags import HasSettableFlags, Flag

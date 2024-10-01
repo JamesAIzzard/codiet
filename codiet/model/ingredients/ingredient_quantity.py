@@ -1,4 +1,4 @@
-from codiet.db.stored_entity import StoredEntity
+from codiet.model.stored_entity import StoredEntity
 from codiet.model.quantities.is_quantified import IsQuantified
 from codiet.model.ingredients.ingredient import Ingredient
 

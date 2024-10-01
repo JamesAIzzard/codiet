@@ -68,3 +68,44 @@ class TestAddConstraint(BaseDietProblemTest):
 
         self.assertEqual(len(breakfast.constraints), 1)
         self.assertEqual(len(breakfast["Drink"].constraints), 1)
+
+class TestSubproblemAddresses(BaseDietProblemTest):
+
+    def test_can_get_subproblem_addresses_with_nested_subproblems(self):
+        monday = DietProblem("Monday", {
+            "Breakfast": {
+                "Drink": {},
+                "Main": {}
+            },
+            "Lunch": {
+                "Drink": {},
+                "Main": {}
+            }
+        })
+
+        self.assertEqual(monday.leaf_addresses,
+            [["Monday", "Breakfast", "Drink"],
+            ["Monday", "Breakfast", "Main"],
+            ["Monday", "Lunch", "Drink"],
+            ["Monday", "Lunch", "Main"]]                
+        )
+
+class TestAddress(BaseDietProblemTest):
+
+    def test_can_get_address(self):
+        monday = DietProblem("Monday", {
+            "Breakfast": {
+                "Drink": {},
+                "Main": {}
+            },
+            "Lunch": {
+                "Drink": {},
+                "Main": {}
+            }
+        })
+
+        self.assertEqual(monday.address, ["Monday"])
+
+        self.assertEqual(monday["Breakfast"].address, ["Monday", "Breakfast"])
+
+        self.assertEqual(monday["Breakfast"]["Drink"].address, ["Monday", "Breakfast", "Drink"])

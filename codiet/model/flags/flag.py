@@ -1,6 +1,4 @@
-"""Defines the Flag class."""
-
-from codiet.db.stored_entity import StoredEntity
+from codiet.model.stored_entity import StoredEntity
 
 class Flag(StoredEntity):
 

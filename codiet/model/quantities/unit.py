@@ -1,7 +1,14 @@
-from typing import Collection
+from typing import Collection, TypedDict
 
-from codiet.db.stored_entity import StoredEntity
+from codiet.model.stored_entity import StoredEntity
 from codiet.utils import MUC, IUC
+
+class UnitDTO(TypedDict):
+    name: str
+    type: str
+    singular_abbreviation: str
+    plural_abbreviation: str
+    aliases: Collection[str]
 
 class Unit(StoredEntity):
 
@@ -22,6 +29,16 @@ class Unit(StoredEntity):
         self._plural_abbreviation = plural_abbreviation or name
 
         self._aliases = MUC(aliases) or MUC[str]()
+
+    @classmethod
+    def from_dto(cls, dto: UnitDTO) -> 'Unit':
+        return cls(
+            name=dto["name"],
+            type=dto["type"],
+            singular_abbreviation=dto["singular_abbreviation"],
+            plural_abbreviation=dto["plural_abbreviation"],
+            aliases=dto["aliases"],
+        )
 
     @property
     def name(self) -> str:

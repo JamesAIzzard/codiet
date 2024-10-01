@@ -1,5 +1,4 @@
 from codiet.tests import BaseCodietTest
-from codiet.tests.fixtures.quantities import QuantitiesTestFixtures
 from codiet.model.quantities import Quantity
 
 class BaseQuantityTest(BaseCodietTest):

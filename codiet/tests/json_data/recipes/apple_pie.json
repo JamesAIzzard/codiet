@@ -1,0 +1,36 @@
+{
+    "name": "apple_pie",
+    "description": "A delicious pie made with apples",
+    "use_as_ingredient": true,
+    "instructions": [
+        "Peel, core, and slice the apples.",
+        "In a bowl, mix the apple slices with half of the sugar.",
+        "In another bowl, combine the flour and the remaining sugar.",
+        "Cut the butter into small pieces and blend it into the flour mixture until it forms a crumbly dough.",
+        "Divide the dough into two portions.",
+        "Press one portion into a pie dish to form the base crust.",
+        "Add the apple mixture over the base crust.",
+        "Crumble the remaining dough over the top of the apples.",
+        "Bake the pie in a preheated oven at 375°F (190°C) for 50-60 minutes or until golden brown."
+    ],
+    "ingredients": [
+        {
+            "name": "apple",
+            "quantity": ["whole", 4]
+        },
+        {
+            "name": "sugar",
+            "quantity": ["gram", 150]
+        },
+        {
+            "name": "butter",
+            "quantity": ["gram", 200]
+        },
+        {
+            "name": "flour",
+            "quantity": ["gram", 300]
+        }
+    ],
+    "serve_time_windows": ["16:00","23:59"],
+    "tags": ["dessert", "baked", "pie"]
+}

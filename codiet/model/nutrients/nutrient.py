@@ -1,92 +1,100 @@
-from typing import Collection
+from typing import Collection, TypedDict
 
+from codiet.utils.unique_dict import FrozenUniqueDict
 from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
-from codiet.db.stored_entity import StoredEntity
+from codiet.utils.unique_collection import MutableUniqueCollection as MUC
+from codiet.model.stored_entity import StoredEntity
+
+class NutrientDTO(TypedDict):
+    name: str
+    aliases: Collection[str]
+    parent_name: str|None
+    child_names: Collection[str]
 
 class Nutrient(StoredEntity):
-    """Class to represent a nutrient.
-    Note:
-        Parent and child nutrients are only settable by private methods.
-        These operations should never be needed by consumers of the Nutrient class.
-        The nutrient tree is constructed at application startup.
-    """
 
     def __init__(
         self,
-        nutrient_name: str,
+        name: str,
         aliases: Collection[str]|None = None,
-        parent: 'Nutrient | None' = None,
-        children: Collection['Nutrient'] | None = None,
+        parent_name: str | None = None,
+        child_names: Collection[str] | None = None,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self._nutrient_name = nutrient_name
+        self._name = name
 
-        # Check supplied aliases are unique, or init empty list if not supplied
-        if aliases is not None:
-            if len(aliases) != len(set(aliases)):
-                raise ValueError("Aliases must be unique.")
-        else:
-            aliases = []
+        self._aliases = MUC(aliases) or MUC()
+        self._parent_name = parent_name
+        self._parent: 'Nutrient | None' = None
+        self._child_names = MUC(child_names) or MUC()
+        self._children = FrozenUniqueDict[str, 'Nutrient']()
 
-        self._aliases = aliases
-        self._parent = parent
-        self._children = IUC(children) if children is not None else IUC['Nutrient']()
+    @classmethod
+    def from_dto(cls, dto: NutrientDTO) -> 'Nutrient':
+        return cls(
+            name=dto['name'],
+            aliases=dto['aliases'],
+            parent_name=dto['parent_name'],
+            child_names=dto['child_names']
+        )
 
     @property
     def name(self) -> str:
-        """Get the name of the nutrient."""
-        return self._nutrient_name
+        return self._name
 
     @property
-    def aliases(self) -> frozenset[str]:
-        """Get the aliases of the nutrient."""
-        return frozenset(self._aliases)
+    def aliases(self) -> IUC[str]:
+        return IUC(self._aliases)
 
     @property
-    def parent(self) -> 'Nutrient|None':
-        """Get the parent of the nutrient."""
-        return self._parent
+    def parent_name(self) -> str | None:
+        return self._parent_name
 
     @property
-    def children(self) -> frozenset['Nutrient']:
-        """Get the children of the nutrient."""
-        return frozenset(self._children)
+    def parent(self) -> 'Nutrient':
+        if not self.is_child:
+            raise ValueError(f"{self.name} is not a child nutrient")
+        else:
+            from codiet.data import DatabaseService
+            self._parent = DatabaseService().read_nutrient(self.parent_name) # type: ignore
+            return self._parent
+        
+    @property
+    def child_names(self) -> IUC[str]:
+        return self._child_names.immutable
+
+    @property
+    def children(self) -> FrozenUniqueDict[str, 'Nutrient']:
+        if not self.is_parent:
+            return FrozenUniqueDict()
+        else:
+            from codiet.data import DatabaseService
+            self._children = FrozenUniqueDict({child_name: DatabaseService().read_nutrient(child_name) for child_name in self.child_names})
+            return self._children
 
     @property
     def is_parent(self) -> bool:
-        """Returns True if the nutrient is a parent."""
-        return len(self.children) > 0
+        return len(self.child_names) > 0
     
     @property
     def is_child(self) -> bool:
-        """Returns True if the nutrient is a child."""
-        return self.parent is not None
+        return self.parent_name is not None
 
-    def is_parent_of(self, nutrient: 'Nutrient') -> bool:
-        """Returns True if the nutrient is a parent of the given nutrient, including children of children."""
-        if nutrient in self.children:
+    def is_parent_of(self, nutrient_name:str) -> bool:
+        if nutrient_name in self.child_names:
             return True
-        for child in self.children:
-            if child.is_parent_of(nutrient):
+        for child in self.children.values():
+            if child.is_parent_of(nutrient_name):
                 return True
         return False
     
     def is_child_of(self, nutrient: 'Nutrient') -> bool:
-        """Returns True if the nutrient is a child of the given nutrient, including parents of parents."""
         if self.parent == nutrient:
             return True
         if self.parent is not None:
             return self.parent.is_child_of(nutrient)
         return False
-
-    def _set_parent(self, parent:'Nutrient') -> None:
-        """Sets the instance's parent nutrient."""
-        self._parent = parent
-
-    def _set_children(self, children: Collection['Nutrient']) -> None:
-        """Add children to the nutrient."""
-        self._children = IUC(children)
 
     def __eq__(self, other):
         if isinstance(other, Nutrient):

@@ -1,69 +1,68 @@
-from unittest import TestCase
+from codiet.tests import BaseCodietTest
+from codiet.model.nutrients.nutrient import Nutrient, NutrientDTO
 
-from codiet.utils.map import Map
-from codiet.db_population.nutrients import read_global_nutrients_from_json
-from codiet.model.nutrients.nutrient import Nutrient
+class BaseNutrientTest(BaseCodietTest):
+    pass
 
-class TestNutrient(TestCase):
+class TestConstructor(BaseNutrientTest):
 
-    def setUp(self) -> None:
-        # Grab all the global nutrients
-        self.global_nutrients = read_global_nutrients_from_json()
+    def test_can_create_instance(self):
+        nutrient = Nutrient("protein")
+        self.assertIsInstance(nutrient, Nutrient)
 
-        # Map them to their names
-        self.named_global_nutrients = Map[str, Nutrient]()
-        for global_nutrient in self.global_nutrients:
-            self.named_global_nutrients.add_mapping(global_nutrient.name, global_nutrient)
+    def test_can_create_instance_with_aliases(self):
+        nutrient = Nutrient("protein", aliases=["prot"])
+        self.assertIn("prot", nutrient.aliases)
 
-    def test_init(self):
-        """Test the minimal initialisation of Nutrient class."""
-        # Create a Nutrient object with 'test' as the nutrient name
-        nutrient = Nutrient(
-            nutrient_name='test',
-            aliases=set(["test_alias", "test_alias2"])
-        )
+    def test_raises_value_error_for_duplicate_aliases(self):
+        with self.assertRaises(ValueError):
+            Nutrient("protein", aliases=["prot", "prot"])
 
-        # Check if the nutrient name is set correctly
-        self.assertEqual(nutrient.name, 'test')
+    def test_can_create_instance_with_parent(self):
+        nutrient = Nutrient("sugar", parent_name="carbohydrate")
+        self.assertEqual("carbohydrate", nutrient.parent_name)
 
-        # Check if the aliases list is set correctly
-        self.assertEqual(nutrient.aliases, frozenset(["test_alias", "test_alias2"]))
+    def test_can_create_instance_with_children(self):
+        nutrient = Nutrient("carbohydrate", child_names=["sugar", "fibre"])
+        self.assertIn("sugar", nutrient.child_names)
+        self.assertIn("fibre", nutrient.child_names)
 
-        # Check if the parent attribute is None
-        self.assertIsNone(nutrient.parent)
+class TestFromDTO(BaseNutrientTest):
 
-        # Check if the children list is empty
-        self.assertEqual(nutrient.children, frozenset())
+    def test_can_create_instance_from_dto(self):
+        dto:'NutrientDTO' = {
+            "name": "sugar",
+            "aliases": ["sugars"],
+            "parent_name": "carbohydrate",
+            "child_names": ["simple sugar"]
+        }
+        nutrient = Nutrient.from_dto(dto)
+        self.assertEqual("sugar", nutrient.name)
+        self.assertIn("sugars", nutrient.aliases)
+        self.assertEqual("carbohydrate", nutrient.parent_name)
+        self.assertIn("simple sugar", nutrient.child_names)
+        
+class TestParent(BaseNutrientTest):
 
-    def test_is_parent(self):
-        """Test the is_parent property of Nutrient class."""
-        # Fetch protein
-        protein = self.named_global_nutrients.get_value('protein')
-        # Check protein is a parent
-        self.assertTrue(protein.is_parent)
+    def test_can_get_parent(self):
+        nutrient = Nutrient("simple sugar", parent_name="carbohydrate")
+        parent = nutrient.parent
+        self.assertIsInstance(parent, Nutrient)
+        self.assertEqual("carbohydrate", parent.name)
 
+    def test_raises_value_error_for_non_child_nutrient(self):
+        nutrient = Nutrient("carbohydrate")
+        with self.assertRaises(ValueError):
+            nutrient.parent
 
-    def test_is_child(self):
-        """Test the is_child property of Nutrient class."""
-        # Fetch glucose
-        glucose = self.named_global_nutrients.get_value('glucose')
-        # Check glucose is a child
-        self.assertTrue(glucose.is_child)
-
-    def test_is_parent_of(self):
-        """Test the is_parent_of method of Nutrient class."""
-        # Fetch protein
-        protein = self.named_global_nutrients.get_value('protein')
-        # Fetch histadine
-        histidine = self.named_global_nutrients.get_value('histidine')
-        # Check protein is a parent of histadine
-        self.assertTrue(protein.is_parent_of(histidine))
-
-    def test_is_child_of(self):
-        """Test the is_child_of method of Nutrient class."""
-        # Fetch histidine
-        histidine = self.named_global_nutrients.get_value('histidine')
-        # Fetch protein
-        protein = self.named_global_nutrients.get_value('protein')
-        # Check histidine is a child of protein
-        self.assertTrue(histidine.is_child_of(protein))
+class TestChildren(BaseNutrientTest):
+    
+        def test_can_get_children(self):
+            nutrient = Nutrient("carbohydrate", child_names=["simple sugar"])
+            children = nutrient.children
+            self.assertIn("simple sugar", children)
+    
+        def test_returns_empty_dict_for_non_parent_nutrient(self):
+            nutrient = Nutrient("simple sugar")
+            children = nutrient.children
+            self.assertTrue(len(children) == 0)

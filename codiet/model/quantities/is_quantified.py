@@ -5,7 +5,7 @@ class IsQuantified:
     def __init__(self, quantity: 'Quantity|None'=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._quantity = quantity or Quantity()
+        self._quantity = quantity or Quantity("gram")
 
     @property
     def quantity(self) -> 'Quantity':

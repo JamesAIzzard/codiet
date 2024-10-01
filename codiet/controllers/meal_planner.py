@@ -1,4 +1,4 @@
-from codiet.db.database_service import DatabaseService
+from codiet.sqlite_db.database_service import DatabaseService
 from codiet.views.meal_planner_view import MealPlannerView
 
 class MealPlanner:

@@ -1,6 +1,5 @@
 from codiet.tests import BaseCodietTest
 from codiet.tests.custom_assertions import assertDictValuesIdentical
-from codiet.model import SingletonRegistry
 from codiet.model.quantities import Unit, UnitConversion
 
 class BaseSingletonRegistryTest(BaseCodietTest):

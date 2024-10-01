@@ -1,1 +1,0 @@
-from .optimiser_test_fixtures import OptimiserTestFixtures

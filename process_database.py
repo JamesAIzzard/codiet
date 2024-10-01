@@ -6,13 +6,13 @@ Top level module for data sourcing and database population.
 
 import os
 
-from codiet.db import DB_PATH
-from codiet.db.database import Database
-from codiet.db.repository import Repository
-from codiet.db.database_service import DatabaseService
-from codiet.db_population import populate_db_from_json
-from codiet.db_population.ingredients import ingredient_datafile_utils
-from codiet.db_population.ingredients.ingredient_datafile_utils import apply_to_each_ingredient_datafile as for_all_ingredients
+from codiet.sqlite_db import DB_PATH
+from codiet.sqlite_db.database import Database
+from codiet.sqlite_db.repository import Repository
+from codiet.sqlite_db.database_service import DatabaseService
+from codiet.json_db import populate_db_from_json
+from codiet.json_db.ingredients import ingredient_datafile_utils
+from codiet.json_db.ingredients.ingredient_datafile_utils import apply_to_each_ingredient_datafile as for_all_ingredients
 
 # Create the database objects
 database = Database(DB_PATH)

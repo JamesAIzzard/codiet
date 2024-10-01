@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from codiet.db import StoredEntity
+from codiet.model import StoredEntity
 from codiet.utils import MUC, IUC
 from codiet.model.flags import Flag, HasFlags
 

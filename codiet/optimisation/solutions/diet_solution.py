@@ -1,45 +1,52 @@
 from typing import TYPE_CHECKING
-from collections import UserDict
+from codiet.optimisation.diet_structure import DietStructure
 
 if TYPE_CHECKING:
     from codiet.optimisation.problems import DietProblem
     from codiet.model.recipes import RecipeQuantity
 
-class DietSolution(UserDict):
+class DietSolution(DietStructure):
     def __init__(self, problem: 'DietProblem', *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(problem.name, *args, **kwargs)
 
-        self._name = problem.name
         self._recipe: 'RecipeQuantity|None' = None
 
-        self.data:dict[str, 'DietSolution'] = {k: DietSolution(v) for k, v in problem.items()}
+        self.data = {k: DietSolution(v) for k, v in problem.items()}
 
     @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def recipe(self) -> 'RecipeQuantity':
+    def recipe_quantity(self) -> 'RecipeQuantity':
         if not self.is_leaf:
             raise AttributeError("Non-leaf nodes of DietSolution do not have recipes")
         elif self._recipe is None:
             raise AttributeError("No recipe set for this node")
         return self._recipe
 
-    @recipe.setter
-    def recipe(self, recipe: 'RecipeQuantity'):
+    @recipe_quantity.setter
+    def recipe_quantity(self, recipe: 'RecipeQuantity'):
         if self.is_leaf:
             self._recipe = recipe
         else:
             raise AttributeError("Non-leaf nodes of DietSolution do not have recipes")
 
-    @property
-    def is_leaf(self) -> bool:
-        return len(self.data) == 0
+    def add_recipe_quantity_to_address(self, address: list[str], recipe: 'RecipeQuantity') -> 'DietSolution':
+        if not address:
+            raise ValueError("Address cannot be empty")
+        
+        current_node = self
+        for node_name in address[1:]:  # Skip the first name as it's the root node name
+            if node_name not in current_node.data:
+                raise KeyError(f"Invalid address: {address}")
+            current_node = current_node.data[node_name]
+        
+        if not current_node.is_leaf:
+            raise ValueError(f"Cannot add recipe to non-leaf node: {address}")
+        
+        current_node.recipe_quantity = recipe
+        return self
 
     def __setitem__(self, key:str, value: 'DietSolution'):
-        if not self[key].is_leaf:
-            raise AttributeError("Non-leaf nodes of DietSolution are immutable")
+        if key not in self.data:
+            raise KeyError(f"Key '{key}' not found in DietSolution")
         self.data[key] = value
 
     def __getitem__(self, key: str) -> 'DietSolution':

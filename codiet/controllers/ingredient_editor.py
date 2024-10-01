@@ -2,7 +2,7 @@ from typing import Tuple
 
 from PyQt6.QtWidgets import QLabel
 
-from codiet.db.database_service import DatabaseService
+from codiet.sqlite_db.database_service import DatabaseService
 from codiet.model.ingredients.ingredient import Ingredient
 from codiet.model.nutrients import filter_leaf_nutrients
 from codiet.model.nutrients.nutrient_quantity import NutrientQuantity

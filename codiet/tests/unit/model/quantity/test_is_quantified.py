@@ -1,6 +1,5 @@
 from codiet.model.quantities import IsQuantified, Quantity
 from codiet.tests import BaseCodietTest
-from codiet.tests.fixtures.quantities import QuantitiesTestFixtures
 
 class BaseIsQuantityTest(BaseCodietTest):
     

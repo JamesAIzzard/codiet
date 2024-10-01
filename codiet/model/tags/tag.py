@@ -1,4 +1,4 @@
-from codiet.db.stored_entity import StoredEntity
+from codiet.model.stored_entity import StoredEntity
 
 class Tag(StoredEntity):
     """Models a tag."""

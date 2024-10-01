@@ -1,1 +1,1 @@
-from .singleton_registry import SingletonRegistry
+from .stored_entity import StoredEntity

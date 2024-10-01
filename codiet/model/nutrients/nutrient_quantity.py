@@ -1,21 +1,16 @@
-"""Models a nutrient quantity."""
-
 from typing import TYPE_CHECKING
 
-from codiet.db.stored_entity import StoredEntity
-from codiet.model.quantities.is_quantified import IsQuantified
-from codiet.model.nutrients.nutrient import Nutrient
+from codiet.model import StoredEntity
+from codiet.model.quantities import IsQuantified
 
 if TYPE_CHECKING:
-    from codiet.model.ingredients.ingredient import Ingredient
-
+    from codiet.model.nutrients import Nutrient
 
 class NutrientQuantity(IsQuantified, StoredEntity):
-    """Class to represent the nutrient quantity associated with an entity."""
 
     def __init__(
         self,
-        nutrient: Nutrient,
+        nutrient: 'Nutrient',
         ingredient_grams_value: float | None = None,
         *args,
         **kwargs,
@@ -26,25 +21,22 @@ class NutrientQuantity(IsQuantified, StoredEntity):
         self._ingredient_grams_value = ingredient_grams_value
 
     @property
-    def nutrient(self) -> Nutrient:
-        """Return the nutrient."""
+    def nutrient(self) -> 'Nutrient':
         return self._nutrient
 
     @property
     def ingredient_grams_qty(self) -> float | None:
-        """Return the entity grams quantity."""
         return self._ingredient_grams_value
 
     @ingredient_grams_qty.setter
     def ingredient_grams_qty(self, value: float | None):
-        """Set the entity grams quantity."""
         self._ingredient_grams_value = value
 
     def __hash__(self):
         return hash((self.nutrient.name))
 
     def __eq__(self, other):
-        if not isinstance(other, NutrientQuantity):
+        if not isinstance(other, 'NutrientQuantity'):
             return False
 
         if self.nutrient.name != other.nutrient.name:

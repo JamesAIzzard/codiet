@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (
     QListWidgetItem,
 )
 
-from codiet.db.database_service import DatabaseService
+from codiet.sqlite_db.database_service import DatabaseService
 from codiet.utils.time import (
     convert_datetime_interval_to_time_string_interval,
     convert_time_string_interval_to_datetime_interval,

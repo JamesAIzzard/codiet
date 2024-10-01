@@ -1,0 +1,152 @@
+{
+    "gram": {
+        "type": "mass",
+        "singular_abbreviation": "g",
+        "plural_abbreviation": "g",
+        "aliases": ["gram", "grams"]
+    },
+    "kilogram": {
+        "type": "mass",
+        "singular_abbreviation": "kg",
+        "plural_abbreviation": "kg",
+        "aliases": ["kilogram", "kilograms"]
+    },
+    "milligram": {
+        "type": "mass",
+        "singular_abbreviation": "mg",
+        "plural_abbreviation": "mg",
+        "aliases": ["milligram", "milligrams"]
+    },
+    "microgram": {
+        "type": "mass",
+        "singular_abbreviation": "μg",
+        "plural_abbreviation": "ug",
+        "aliases": ["microgram", "micrograms", "mcg", "ug"]
+    },
+    "ounce": {
+        "type": "mass",
+        "singular_abbreviation": "oz",
+        "plural_abbreviation": "oz",
+        "aliases": ["ounce", "ounces"]
+    },
+    "pound": {
+        "type": "mass",
+        "singular_abbreviation": "lb",
+        "plural_abbreviation": "lbs",
+        "aliases": ["pound", "pounds"]
+    },
+    "litre": {
+        "type": "volume",
+        "singular_abbreviation": "L",
+        "plural_abbreviation": "L",
+        "aliases": ["litre", "litres", "l"]
+    },
+    "millilitre": {
+        "type": "volume",
+        "singular_abbreviation": "mL",
+        "plural_abbreviation": "mL",
+        "aliases": ["millilitre", "millilitres", "ml"]
+    },
+    "fluid ounce": {
+        "type": "volume",
+        "singular_abbreviation": "fl oz",
+        "plural_abbreviation": "fl oz",
+        "aliases": ["fluid ounce", "fluid ounces", "fl. oz."]
+    },
+    "pint": {
+        "type": "volume",
+        "singular_abbreviation": "pt",
+        "plural_abbreviation": "pt",
+        "aliases": ["pint", "pints", "p"]
+    },
+    "quart": {
+        "type": "volume",
+        "singular_abbreviation": "qt",
+        "plural_abbreviation": "qt",
+        "aliases": ["quart", "quarts", "q"]
+    },
+    "gallon": {
+        "type": "volume",
+        "singular_abbreviation": "gal",
+        "plural_abbreviation": "gal",
+        "aliases": ["gallon", "gallons"]
+    },
+    "cup": {
+        "type": "volume",
+        "singular_abbreviation": "cup",
+        "plural_abbreviation": "cups",
+        "aliases": ["c"]
+    },
+    "tbsp": {
+        "type": "volume",
+        "singular_abbreviation": "tbsp",
+        "plural_abbreviation": "tbsp",
+        "aliases": ["tablespoon", "tablespoons"]
+    },
+    "tsp": {
+        "type": "volume",
+        "singular_abbreviation": "tsp",
+        "plural_abbreviation": "tsp",
+        "aliases": ["teaspoon", "teaspoons"]
+    },
+    "pinch": {
+        "type": "volume",
+        "singular_abbreviation": "pinch",
+        "plural_abbreviation": "pinches",
+        "aliases": []
+    },
+    "dash": {
+        "type": "volume",
+        "singular_abbreviation": "dash",
+        "plural_abbreviation": "dashes",
+        "aliases": []
+    },
+    "whole": {
+        "type": "grouping",
+        "singular_abbreviation": "whole",
+        "plural_abbreviation": "whole",
+        "aliases": []
+    },
+    "slice": {
+        "type": "grouping",
+        "singular_abbreviation": "slice",
+        "plural_abbreviation": "slices",
+        "aliases": []
+    },
+    "piece": {
+        "type": "grouping",
+        "singular_abbreviation": "piece",
+        "plural_abbreviation": "pieces",
+        "aliases": []
+    },
+    "clove": {
+        "type": "grouping",
+        "singular_abbreviation": "clove",
+        "plural_abbreviation": "cloves",
+        "aliases": []
+    },
+    "head": {
+        "type": "grouping",
+        "singular_abbreviation": "head",
+        "plural_abbreviation": "heads",
+        "aliases": []
+    },
+    "stalk": {
+        "type": "grouping",
+        "singular_abbreviation": "stalk",
+        "plural_abbreviation": "stalks",
+        "aliases": []
+    },
+    "bunch": {
+        "type": "grouping",
+        "singular_abbreviation": "bunch",
+        "plural_abbreviation": "bunches",
+        "aliases": []
+    },
+    "sprig": {
+        "type": "grouping",
+        "singular_abbreviation": "sprig",
+        "plural_abbreviation": "sprigs",
+        "aliases": []
+    }
+}

@@ -1,5 +1,5 @@
 
-from codiet.db.database_service import DatabaseService
+from codiet.sqlite_db.database_service import DatabaseService
 from codiet.views.main_window_view import MainWindowView
 from codiet.views.ingredients.ingredient_editor_view import IngredientEditorView
 from codiet.views.recipe_editor_view import RecipeEditorView

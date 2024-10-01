@@ -1,5 +1,4 @@
 from codiet.tests import BaseCodietTest
-from codiet.tests.fixtures.ingredients import IngredientTestFixtures
 from codiet.model.ingredients import Ingredient
 
 class BaseAppleTest(BaseCodietTest):

@@ -2,7 +2,7 @@ from typing import Callable
 
 from PyQt6.QtWidgets import QListWidgetItem
 
-from codiet.db.database_service import DatabaseService
+from codiet.sqlite_db.database_service import DatabaseService
 from codiet.views.tags import RecipeTagEditorView, RecipeTagSelectorPopup
 from codiet.controllers.search.search_column import SearchColumn
 

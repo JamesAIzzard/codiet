@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Collection
 from collections import deque
 
 from codiet.utils import MUC, IUC
-from codiet.model import SingletonRegistry
+from codiet.data import DatabaseService
 from codiet.model.quantities import Quantity
 
 if TYPE_CHECKING:
@@ -63,7 +63,7 @@ class UnitSystem():
 
     def _get_available_units(self, root_unit: 'Unit|None' = None) -> IUC['Unit']:
         if root_unit is None:
-            root_unit = SingletonRegistry().get_unit("gram")
+            root_unit = DatabaseService().read_unit("gram")
 
         visited = set()
         queue = deque([root_unit])
@@ -107,8 +107,11 @@ class UnitSystem():
     def _update(self):
         self._graph.clear()
         self._path_cache.clear()
-        all_conversions = list(self.domain_service.global_unit_conversions) + list(self._entity_unit_conversions)
-
+        global_unit_conversion_names = DatabaseService().read_all_global_unit_conversion_names()
+        global_unit_conversions = []
+        for conversion_name in global_unit_conversion_names:
+            global_unit_conversions.append(DatabaseService().read_global_unit_conversion(conversion_name))
+        all_conversions = global_unit_conversions + list(self._entity_unit_conversions)
         for conv in all_conversions:
             if conv.is_defined:
                 from_unit, to_unit = conv.quantities[0].unit, conv.quantities[1].unit
