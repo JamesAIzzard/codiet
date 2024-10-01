@@ -12,6 +12,9 @@ class Node:
         self.solutions = {}
         self.children = {}
 
+    def is_leaf(self):
+        return not self.children
+
 class DietStructure:
     def __init__(self, structure: dict[str, dict] | None = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -42,4 +45,8 @@ class DietStructure:
 
     def add_solution(self, solution:'RecipeQuantity', solution_set_id:int, path: list[str]):
         node = self(path)
+
+        if not node.is_leaf():
+            raise ValueError("Cannot add solution to a non-leaf node")
+
         node.solutions[solution_set_id] = solution

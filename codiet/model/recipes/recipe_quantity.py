@@ -2,10 +2,12 @@ from codiet.model.quantities.is_quantified import IsQuantified
 
 class RecipeQuantity(IsQuantified):
 
-    def __init__(self, recipe:str , *args, **kwargs):
+    def __init__(self, quantity:float, unit:str, recipe:str, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._recipe = recipe
+        self._quantity = quantity
+        self._unit = unit
+        self._name = recipe
 
     @property
     def recipe(self) -> str:
