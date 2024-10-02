@@ -60,28 +60,41 @@ class TestAddGoal(BaseDietStructureTest):
 
 class TestAddSolution(BaseDietStructureTest):
     
-        def test_exception_if_node_is_not_leaf(self):
-            structure = DietStructure(self.monday_outline)
+    def test_exception_if_node_is_not_leaf(self):
+        structure = DietStructure(self.monday_outline)
 
-            with self.assertRaises(ValueError):
-                mug_of_coffee = RecipeQuantity(0.5, "L", "coffee")
-                structure.add_solution(
-                    solution=mug_of_coffee,
-                    solution_set_id=1,
-                    path=["Monday"]
-                )
-    
-        def test_can_add_solution_to_node(self):
-            structure = DietStructure(self.monday_outline)
+        with self.assertRaises(ValueError):
             mug_of_coffee = RecipeQuantity(0.5, "L", "coffee")
             structure.add_solution(
                 solution=mug_of_coffee,
                 solution_set_id=1,
-                path=["Monday", "Breakfast", "Drink"]
+                path=["Monday"]
             )
 
-            self.assertEqual(
-                structure(["Monday", "Breakfast", "Drink"]).solutions[1],
-                mug_of_coffee
-            )
+    def test_can_add_solution_to_node(self):
+        structure = DietStructure(self.monday_outline)
+        mug_of_coffee = RecipeQuantity(0.5, "L", "coffee")
+        structure.add_solution(
+            solution=mug_of_coffee,
+            solution_set_id=1,
+            path=["Monday", "Breakfast", "Drink"]
+        )
 
+        self.assertEqual(
+            structure(["Monday", "Breakfast", "Drink"]).solutions[1],
+            mug_of_coffee
+        )
+
+class TestRecipeNodes(BaseDietStructureTest):
+    
+    def test_can_get_recipe_nodes(self):
+        structure = DietStructure(self.monday_outline)
+
+        self.assertTrue(len(structure.recipe_nodes) == 6)
+
+        self.assertTrue(("Breakfast", "Drink") in structure.recipe_nodes.keys())
+        self.assertTrue(("Breakfast", "Main") in structure.recipe_nodes.keys())
+        self.assertTrue(("Lunch", "Drink") in structure.recipe_nodes.keys())
+        self.assertTrue(("Lunch", "Main") in structure.recipe_nodes.keys())
+        self.assertTrue(("Dinner", "Drink") in structure.recipe_nodes.keys())
+        self.assertTrue(("Dinner", "Main") in structure.recipe_nodes.keys())

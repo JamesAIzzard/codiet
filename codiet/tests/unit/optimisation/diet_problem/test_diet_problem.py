@@ -1,5 +1,4 @@
 from codiet.tests import BaseCodietTest
-from codiet.optimisation.problems import DietProblem
 from codiet.optimisation.constraints import FlagConstraint
 
 class BaseDietProblemTest(BaseCodietTest):

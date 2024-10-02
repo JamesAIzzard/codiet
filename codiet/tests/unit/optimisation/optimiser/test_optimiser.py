@@ -3,9 +3,8 @@ from typing import Collection
 from codiet.tests import BaseCodietTest
 from codiet.data import DatabaseService
 from codiet.optimisation import Optimiser
+from codiet.optimisation import DietStructure
 from codiet.optimisation.constraints import FlagConstraint
-from codiet.optimisation.problems import DietProblem
-from codiet.optimisation.solutions import DietSolution
 from codiet.model.recipes import RecipeQuantity
 
 class BaseOptimiserTest(BaseCodietTest):
@@ -20,10 +19,10 @@ class TestConstructor(BaseOptimiserTest):
 
 class TestSolve(BaseOptimiserTest):
     
-    def test_returns_collection_of_solutions(self):
+    def test_single_problem_gets_collection_of_solutions(self):
         optimiser = Optimiser()
 
-        breakfast = DietProblem("Breakfast")
+        breakfast = DietStructure({"Breakfast": {}})
 
         results = optimiser.solve(breakfast)
 

@@ -1,14 +1,11 @@
 from typing import Collection, TYPE_CHECKING
 
-from codiet.utils import IUC
-from codiet.optimisation.problems import DietProblem
-from codiet.optimisation.solutions import DietSolution
-from codiet.optimisation.algorithms import Algorithm
 from codiet.model.recipes import RecipeQuantity
 
 if TYPE_CHECKING:
     from codiet.model.recipes import Recipe
     from codiet.optimisation.algorithms import Algorithm
+    from codiet.optimisation import DietStructure
 
 class Optimiser:
     def __init__(self, *args, **kwargs) -> None:
@@ -16,15 +13,14 @@ class Optimiser:
         self._recipe_source: Collection['Recipe']|None = None
         self._algorithm: 'Algorithm|None' = None
 
-    def solve(self, problem: 'DietProblem') -> IUC['DietSolution']:
-        solution = DietSolution(problem)
+    def solve(self, diet_structure: 'DietStructure') -> 'DietStructure':
+        i = 5
+        for problem in diet_structure.problems:
+            for i in range(5):
+                solution = RecipeQuantity(1, "kg", "Porridge")
+                problem.add_solution(solution, i)
 
-        for leaf_address in solution.leaf_addresses:
-            recipe_quantity = RecipeQuantity("dummy_recipe")
-            
-            solution.add_recipe_quantity_to_address(leaf_address, recipe_quantity)
-
-        return IUC([solution])
+        return problem
 
     def set_recipe_source(self, recipes: Collection['Recipe']) -> 'Optimiser':
         self._recipe_source = recipes

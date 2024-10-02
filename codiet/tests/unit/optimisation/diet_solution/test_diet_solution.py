@@ -1,7 +1,6 @@
 from codiet.tests import BaseCodietTest
 
 from codiet.optimisation.solutions import DietSolution
-from codiet.optimisation.problems import DietProblem
 from codiet.model.recipes import RecipeQuantity
 from codiet.model.quantities import Quantity
 
