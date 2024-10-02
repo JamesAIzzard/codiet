@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Collection
 
 if TYPE_CHECKING:
     from codiet.optimisation.constraints import Constraint
@@ -53,7 +53,7 @@ class DietStructure:
             if isinstance(sub_dict, dict) and sub_dict:
                 self._build_tree(child_node, sub_dict)
 
-    def __call__(self, path: list[str]) -> DietStructureNode:
+    def __call__(self, path: Collection[str]) -> DietStructureNode:
         if path == []:
             return self.root
         else:
@@ -80,9 +80,9 @@ class DietStructure:
         node.solutions[solution_set_id] = solution
 
     @property
-    def recipe_nodes(self) -> dict[tuple[str, ...], DietStructureNode]:
-        return {
-            path: node
-            for path, node in self.nodes_by_path.items()
-            if node.is_recipe_node()
-        }
+    def recipe_node_addresses(self) -> list[tuple[str, ...]]:
+        addresses = []
+        for node in self.nodes_by_path.values():
+            if node.is_recipe_node():
+                addresses.append(node.get_path())
+        return addresses

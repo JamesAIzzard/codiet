@@ -85,16 +85,16 @@ class TestAddSolution(BaseDietStructureTest):
             mug_of_coffee
         )
 
-class TestRecipeNodes(BaseDietStructureTest):
+class TestRecipeAddresses(BaseDietStructureTest):
     
-    def test_can_get_recipe_nodes(self):
+    def test_returns_recipe_node_addresses(self):
         structure = DietStructure(self.monday_outline)
 
-        self.assertTrue(len(structure.recipe_nodes) == 6)
+        self.assertTrue(len(structure.recipe_node_addresses) == 6)
 
-        self.assertTrue(("Breakfast", "Drink") in structure.recipe_nodes.keys())
-        self.assertTrue(("Breakfast", "Main") in structure.recipe_nodes.keys())
-        self.assertTrue(("Lunch", "Drink") in structure.recipe_nodes.keys())
-        self.assertTrue(("Lunch", "Main") in structure.recipe_nodes.keys())
-        self.assertTrue(("Dinner", "Drink") in structure.recipe_nodes.keys())
-        self.assertTrue(("Dinner", "Main") in structure.recipe_nodes.keys())
+        self.assertTrue(("Monday", "Breakfast", "Drink") in structure.recipe_node_addresses)
+        self.assertTrue(("Monday", "Breakfast", "Main") in structure.recipe_node_addresses)
+        self.assertTrue(("Monday", "Lunch", "Drink") in structure.recipe_node_addresses)
+        self.assertTrue(("Monday", "Lunch", "Main") in structure.recipe_node_addresses)
+        self.assertTrue(("Monday", "Dinner", "Drink") in structure.recipe_node_addresses)
+        self.assertTrue(("Monday", "Dinner", "Main") in structure.recipe_node_addresses)
