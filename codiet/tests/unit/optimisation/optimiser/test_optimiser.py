@@ -1,6 +1,5 @@
-from typing import Collection
-
 from codiet.tests import BaseCodietTest
+from codiet.tests.fixtures import OptimiserFixtures
 from codiet.data import DatabaseService
 from codiet.optimisation import Optimiser
 from codiet.optimisation import DietStructure
@@ -19,15 +18,18 @@ class TestConstructor(BaseOptimiserTest):
 
 class TestSolve(BaseOptimiserTest):
     
-    def test_single_problem_gets_collection_of_solutions(self):
+    def test_structure_gets_collection_of_solutions(self):
         optimiser = Optimiser()
 
-        breakfast = DietStructure({"Breakfast": {}})
+        monday = DietStructure(OptimiserFixtures().monday_structure)
 
-        results = optimiser.solve(breakfast)
+        for node in monday.recipe_nodes:
+            self.assertFalse(node.has_recipe_solutions())
 
-        self.assertIsInstance(results, Collection)
-        self.assertTrue(all(isinstance(result, DietSolution) for result in results))
+        optimiser.solve(monday)
+
+        for node in monday.recipe_nodes:
+            self.assertTrue(node.has_recipe_solutions())
 
     def test_each_diet_solution_is_populated_with_recipes(self):
         optimiser = Optimiser()

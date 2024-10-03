@@ -23,12 +23,16 @@ class DietStructureNode:
     def is_recipe_node(self):
         return not self.children
 
+    def has_recipe_solutions(self):
+        return len(self.solutions) > 0
+
     def add_child(self, name: str) -> 'DietStructureNode':
         child_node = DietStructureNode(name, self.structure, parent=self)
         self.children[name] = child_node
         return child_node
 
-    def get_path(self) -> tuple[str, ...]:
+    @property
+    def address(self) -> tuple[str, ...]:
         path = []
         node = self
         while node.parent is not None:
@@ -48,7 +52,7 @@ class DietStructure:
     def _build_tree(self, parent_node: DietStructureNode, structure_dict: dict):
         for key, sub_dict in structure_dict.items():
             child_node = parent_node.add_child(key)
-            path = child_node.get_path()
+            path = child_node.address
             self.nodes_by_path[tuple(path)] = child_node
             if isinstance(sub_dict, dict) and sub_dict:
                 self._build_tree(child_node, sub_dict)
@@ -71,7 +75,7 @@ class DietStructure:
             raise ValueError(f"No node found at path: {path}")
         node.goals.append(goal)
 
-    def add_solution(self, solution: 'RecipeQuantity', solution_set_id: int, path: list[str]):
+    def add_solution(self, solution: 'RecipeQuantity', solution_set_id: int, path: tuple[str, ...]):
         node = self(path)
         if node is None:
             raise ValueError(f"No node found at path: {path}")
@@ -84,5 +88,12 @@ class DietStructure:
         addresses = []
         for node in self.nodes_by_path.values():
             if node.is_recipe_node():
-                addresses.append(node.get_path())
+                addresses.append(node.address)
         return addresses
+    
+    @property
+    def recipe_nodes(self) -> list[DietStructureNode]:
+        nodes = []
+        for address in self.recipe_node_addresses:
+            nodes.append(self(address))
+        return nodes

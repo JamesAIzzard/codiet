@@ -8,4 +8,5 @@ class SingletonMeta(type):
         return cls._instances[cls]
     
     def reset(cls):
-        cls._instances = {}
+        if cls in cls._instances:
+            del cls._instances[cls]
