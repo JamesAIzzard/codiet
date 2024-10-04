@@ -1,5 +1,5 @@
 from codiet.tests import BaseCodietTest
-from codiet.optimisation import DietStructure
+from codiet.optimisation import DietStructure, DietStructureNode
 from codiet.optimisation.constraints import FlagConstraint
 from codiet.optimisation.goals import MinimiseNutrientGoal
 from codiet.model.recipes import RecipeQuantity
@@ -26,64 +26,14 @@ class TestConstructor(BaseDietStructureTest):
 
         self.assertIsInstance(structure, DietStructure)
 
-class TestAddConstraint(BaseDietStructureTest):
+class TestGetNode(BaseDietStructureTest):
 
-    def test_can_add_constraint_to_root(self):
+    def test_can_get_node(self):
         structure = DietStructure(self.monday_outline)
-        constraint = FlagConstraint("vegan", True)
-        structure.add_constraint(constraint, [])
+        node = structure.get_node(("Monday", "Breakfast", "Main"))
 
-        self.assertIn(constraint, structure([]).constraints)
-
-    def test_can_add_constraint_to_node(self):
-        structure = DietStructure(self.monday_outline)
-        constraint = FlagConstraint("vegan", True)
-        structure.add_constraint(constraint, ["Monday", "Breakfast"])
-
-        self.assertIn(constraint, structure(["Monday", "Breakfast"]).constraints)
-
-class TestAddGoal(BaseDietStructureTest):
-
-    def test_can_add_goal_to_root(self):
-        structure = DietStructure(self.monday_outline)
-        goal = MinimiseNutrientGoal("carbohydrate")
-        structure.add_goal(goal, [])
-
-        self.assertIn(goal, structure([]).goals)
-
-    def test_can_add_goal_to_node(self):
-        structure = DietStructure(self.monday_outline)
-        goal = goal = MinimiseNutrientGoal("carbohydrate")
-        structure.add_goal(goal, ["Monday", "Breakfast"])
-
-        self.assertIn(goal, structure(["Monday", "Breakfast"]).goals)
-
-class TestAddSolution(BaseDietStructureTest):
-    
-    def test_exception_if_node_is_not_leaf(self):
-        structure = DietStructure(self.monday_outline)
-
-        with self.assertRaises(ValueError):
-            mug_of_coffee = RecipeQuantity(0.5, "L", "coffee")
-            structure.add_solution(
-                solution=mug_of_coffee,
-                solution_set_id=1,
-                path=["Monday"]
-            )
-
-    def test_can_add_solution_to_node(self):
-        structure = DietStructure(self.monday_outline)
-        mug_of_coffee = RecipeQuantity(0.5, "L", "coffee")
-        structure.add_solution(
-            solution=mug_of_coffee,
-            solution_set_id=1,
-            path=["Monday", "Breakfast", "Drink"]
-        )
-
-        self.assertEqual(
-            structure(["Monday", "Breakfast", "Drink"]).solutions[1],
-            mug_of_coffee
-        )
+        self.assertIsInstance(node, DietStructureNode)
+        self.assertEqual(node.name, "Main")
 
 class TestRecipeAddresses(BaseDietStructureTest):
     
@@ -98,3 +48,12 @@ class TestRecipeAddresses(BaseDietStructureTest):
         self.assertTrue(("Monday", "Lunch", "Main") in structure.recipe_node_addresses)
         self.assertTrue(("Monday", "Dinner", "Drink") in structure.recipe_node_addresses)
         self.assertTrue(("Monday", "Dinner", "Main") in structure.recipe_node_addresses)
+
+class TestGetRecipeNode(BaseDietStructureTest):
+
+    def test_can_get_recipe_node(self):
+        structure = DietStructure(self.monday_outline)
+        
+        self.assertEqual(len(structure.recipe_nodes), 6)
+        for node in structure.recipe_nodes:
+            self.assertTrue(node.is_recipe_node)

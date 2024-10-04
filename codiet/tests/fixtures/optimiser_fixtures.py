@@ -4,18 +4,11 @@ class OptimiserFixtures(metaclass=SingletonMeta):
 
     def __init__(self):
         self._monday_structure = {
-            "Breakfast": {
-                "Drink": {},
-                "Main": {}
+            "Monday": {
+                "Breakfast": {"Drink": {}, "Main": {}},
+                "Lunch": {"Main": {}, "Side": {}},
+                "Dinner": {"Main": {}, "Side": {}}
             },
-            "Lunch": {
-                "Main": {},
-                "Side": {}
-            },
-            "Dinner": {
-                "Main": {},
-                "Side": {}
-            }
         }
 
     @property

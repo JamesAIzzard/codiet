@@ -15,10 +15,10 @@ class Optimiser:
 
     def solve(self, diet_structure: 'DietStructure') -> 'DietStructure':
         i = 5
-        for recipe_node_address in diet_structure.recipe_node_addresses:
+        for recipe_node in diet_structure.recipe_nodes:
             for i in range(5):
                 solution = RecipeQuantity(1, "kg", "Porridge")
-                diet_structure.add_solution(solution, i, recipe_node_address)
+                recipe_node.add_solution(solution, i)
         return diet_structure
 
     def set_recipe_source(self, recipes: Collection['Recipe']) -> 'Optimiser':

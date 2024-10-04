@@ -24,38 +24,23 @@ class TestSolve(BaseOptimiserTest):
         monday = DietStructure(OptimiserFixtures().monday_structure)
 
         for node in monday.recipe_nodes:
-            self.assertFalse(node.has_recipe_solutions())
+            self.assertFalse(node.has_recipe_solutions)
 
         optimiser.solve(monday)
 
         for node in monday.recipe_nodes:
-            self.assertTrue(node.has_recipe_solutions())
-
-    def test_each_diet_solution_is_populated_with_recipes(self):
-        optimiser = Optimiser()
-
-        breakfast_problem = DietProblem("Breakfast", {
-            "Drink": {},
-            "Main": {}
-        })
-
-        results = optimiser.solve(breakfast_problem)
-
-        for breakfast_solution in results:
-            self.assertIsInstance(breakfast_solution["Breakfast"]["Drink"].recipe_quantity, RecipeQuantity)
-            self.assertIsInstance(breakfast_solution["Breakfast"]["Main"].recipe_quantity, RecipeQuantity)
+            self.assertTrue(node.has_recipe_solutions)
 
     
-    def test_all_diet_plans_satisfy_recipe_problem_flag_constraints(self):
+    def test_all_diet_plans_satisfy_flag_constraints(self):
         optimiser = Optimiser()
 
-        breakfast_problem = DietProblem("Breakfast")
-        breakfast_problem.add_constraint(FlagConstraint("vegan", True))
-        breakfast_problem.add_constraint(FlagConstraint("gluten_free", True))
+        monday = DietStructure(OptimiserFixtures().monday_structure)
 
-        results = optimiser.solve(breakfast_problem)
+        vegan_constraint = FlagConstraint("vegan", True)
 
-        for breakfast_solution in results:
-            solution_recipe = breakfast_solution.recipe_quantity.recipe
-            self.assertEqual(DatabaseService.read_recipe_flag(solution_recipe, "vegan"), True)
-            self.assertEqual(DatabaseService.read_recipe_flag(solution_recipe, "gluten_free"), True)
+        monday = optimiser.solve(monday)
+
+        for recipe_node in monday.recipe_nodes:
+            for recipe_quantity in recipe_node.solutions.values():
+                self.assertTrue(recipe_quantity.get_flag_value("vegan"))
