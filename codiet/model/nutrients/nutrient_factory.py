@@ -26,6 +26,11 @@ class NutrientFactory:
             children=children
         )
 
+        # We need to add the nutrient to the singleton register before populating
+        # the parent nutrient, so we can access it
+        if nutrient.name not in self._singleton_register._nutrients:
+            self._singleton_register._nutrients[nutrient.name] = nutrient
+
         # Set the parent nutrient
         if nutrient_dto["parent_name"]:
             nutrient._parent = self._singleton_register.get_nutrient(nutrient_dto["parent_name"])
@@ -35,6 +40,6 @@ class NutrientFactory:
     def create_nutrient_quantity_from_dto(self, nutrient_quantity_dto: "NutrientQuantityDTO") -> NutrientQuantity:
         nutrient_quantity = NutrientQuantity(
             nutrient=self._singleton_register.get_nutrient(nutrient_quantity_dto["nutrient_name"]),
-            quantity=self._quantities_factory.create_quantity_from_dto(nutrient_quantity_dto["nutrient_quantity"]),
+            quantity=self._quantities_factory.create_quantity_from_dto(nutrient_quantity_dto["quantity"]),
         )
         return nutrient_quantity

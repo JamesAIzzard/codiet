@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Collection
+from typing import TYPE_CHECKING, Collection, Callable
 from collections import deque
 
 from codiet.utils import MUC, IUC
@@ -12,9 +12,13 @@ class UnitSystem():
 
     def __init__(
         self,
+        get_global_unit_conversions: Callable[[], Collection['UnitConversion']],
         entity_unit_conversions: Collection['UnitConversion']|None = None
     ):
         super().__init__()
+
+        self._get_global_unit_conversions = get_global_unit_conversions
+
         self._entity_unit_conversions = MUC(entity_unit_conversions) or MUC['UnitConversion']()
         self._graph: dict['Unit', dict['Unit', float]] = {}
         self._path_cache: dict[tuple['Unit', 'Unit'], list[tuple['Unit', 'Unit']]] = {}
@@ -107,11 +111,8 @@ class UnitSystem():
     def _update(self):
         self._graph.clear()
         self._path_cache.clear()
-        global_unit_conversion_names = DatabaseService().read_all_global_unit_conversion_names()
-        global_unit_conversions = []
-        for conversion_name in global_unit_conversion_names:
-            global_unit_conversions.append(DatabaseService().read_global_unit_conversion(conversion_name))
-        all_conversions = global_unit_conversions + list(self._entity_unit_conversions)
+        global_unit_conversions = self._get_global_unit_conversions()
+        all_conversions = list(global_unit_conversions) + list(self._entity_unit_conversions)
         for conv in all_conversions:
             if conv.is_defined:
                 from_unit, to_unit = conv.quantities[0].unit, conv.quantities[1].unit

@@ -5,7 +5,7 @@ from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 from codiet.data.json_reader import JSONReader
 
 if TYPE_CHECKING:
-    from codiet.model.quantities import UnitDTO
+    from codiet.model.quantities import UnitDTO, UnitConversionDTO
     from codiet.model.nutrients import NutrientDTO
     from codiet.model.ingredients import IngredientDTO
     from codiet.model.recipes import RecipeDTO
@@ -15,6 +15,12 @@ class JSONRepository:
     def __init__(self, data_dir: str):
         self._data_dir = data_dir
         self._json_reader = JSONReader()
+
+    def read_all_unit_names(self) -> IUC[str]:
+        entire_file_data = self._json_reader.read_file(
+            os.path.join(self._data_dir, "units.json")
+        )
+        return IUC(entire_file_data.keys())
 
     def read_unit_dto(self, name: str) -> "UnitDTO":
         entire_file_data = self._json_reader.read_file(
@@ -29,8 +35,35 @@ class JSONRepository:
             "aliases": unit_data["aliases"],
         }
 
-    def read_all_global_unit_conversion_names(self) -> IUC[str]:
-        raise NotImplementedError
+    def read_all_global_unit_conversion_names(self) -> IUC[tuple[str, str]]:
+        entire_file_data = self._json_reader.read_file(
+            os.path.join(self._data_dir, "global_unit_conversions.json")
+        )
+
+        conversion_names:list[tuple[str, str]] = []
+
+        for conversion_name in entire_file_data.keys():
+            names = conversion_name.split("-")
+            conversion_names.append((names[0], names[1]))
+        
+        return IUC(conversion_names)
+
+    def read_global_unit_conversion_dto(self, names: tuple[str, str]) -> "UnitConversionDTO":
+        entire_file_data = self._json_reader.read_file(
+            os.path.join(self._data_dir, "global_unit_conversions.json")
+        )
+        conversion_name = f"{names[0]}-{names[1]}"
+        conversion_data = entire_file_data[conversion_name]
+        return {
+            "from_quantity": {
+                "unit_name": conversion_data["from_unit"],
+                "value": conversion_data["from_quantity"],
+            },
+            "to_quantity": {
+                "unit_name": conversion_data["to_unit"],
+                "value": conversion_data["to_quantity"],
+            },
+        }
 
     def read_nutrient_dto(self, name: str) -> "NutrientDTO":
         all_nutrient_data = self._json_reader.read_file(

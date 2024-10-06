@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 class NutrientQuantityDTO(TypedDict):
     nutrient_name: str
-    nutrient_quantity: "QuantityDTO"
+    quantity: "QuantityDTO"
 
 
 class NutrientQuantity(IsQuantified):

@@ -13,7 +13,11 @@ class UnitConversionDTO(TypedDict):
 
 class UnitConversion:
 
-    def __init__(self, from_quantity: Quantity, to_quantity: Quantity, *args, **kwargs):
+    def __init__(self, 
+            from_quantity: Quantity, 
+            to_quantity: Quantity,
+            *args, **kwargs
+        ):
         super().__init__(*args, **kwargs)
 
         if from_quantity == to_quantity:

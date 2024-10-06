@@ -4,7 +4,6 @@ from codiet.tests.fixtures import OptimiserFixtures
 from codiet.optimisation import DietStructure
 from codiet.optimisation.constraints import FlagConstraint
 from codiet.optimisation.goals import MinimiseNutrientGoal
-from codiet.model.recipes import RecipeFactory
 
 class BaseDietStructureNodeTest(BaseCodietTest):
     def setUp(self) -> None:

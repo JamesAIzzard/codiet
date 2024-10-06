@@ -43,10 +43,12 @@ class BaseCodietTest(TestCase):
         self.singleton_register._tag_factory = self.tag_factory
 
         self.quantities_factory._singleton_register = self.singleton_register
+        self.quantities_factory._database_service = self.database_service
 
         self.cost_factory._quantities_factory = self.quantities_factory
 
         self.nutrient_factory._singleton_register = self.singleton_register
+        self.nutrient_factory._quantities_factory = self.quantities_factory
 
         self.ingredient_factory._singleton_register = self.singleton_register
         self.ingredient_factory._quantities_factory = self.quantities_factory
