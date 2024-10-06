@@ -1,6 +1,5 @@
 from typing import Collection, TypedDict
 
-from codiet.model.stored_entity import StoredEntity
 from codiet.utils import MUC, IUC
 
 class UnitDTO(TypedDict):
@@ -10,7 +9,7 @@ class UnitDTO(TypedDict):
     plural_abbreviation: str
     aliases: Collection[str]
 
-class Unit(StoredEntity):
+class Unit:
 
     def __init__(
         self,

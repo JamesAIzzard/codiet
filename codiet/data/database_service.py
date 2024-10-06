@@ -1,54 +1,58 @@
 from typing import TYPE_CHECKING
 
-from codiet.utils import SingletonMeta
-from codiet.utils.unique_dict import FrozenUniqueDict
-from codiet.model.nutrients import Nutrient
-from .singleton_registry import SingletonRegistry
+from codiet.model.recipes import Recipe
 
 if TYPE_CHECKING:
     from .repository import Repository
-    from codiet.model.quantities import Unit, UnitConversion
+    from codiet.model.quantities import Unit, QuantitiesFactory
+    from codiet.model.nutrients import Nutrient, NutrientFactory
+    from codiet.model.ingredients import Ingredient, IngredientFactory
+    from codiet.model.recipes import RecipeFactory
 
-class DatabaseService(metaclass=SingletonMeta):
 
-    def __init__(self, repository: 'Repository|None'=None) -> None:
+class DatabaseService:
 
+    def __init__(self) -> None:
+
+        self._repository: "Repository"
+
+        self._quantities_factory: "QuantitiesFactory"
+        self._nutrients_factory: "NutrientFactory"
+        self._ingredient_factory: "IngredientFactory"
+        self._recipe_factory: "RecipeFactory"
+
+    def set_repository(self, repository: "Repository") -> "DatabaseService":
         self._repository = repository
+        return self
 
-    @property
-    def repository(self) -> 'Repository':
-        if self._repository is None:
-            raise RuntimeError("Repository not set.")
-        return self._repository
-
-    def set_repository(self, repository: 'Repository') -> None:
-        self._repository = repository
-
-    def read_unit(self, name:str) -> 'Unit':
-        return self._singleton_registry.get_unit(name)
+    def set_quantity_factory(self, unit_factory: "QuantitiesFactory") -> "DatabaseService":
+        self._quantities_factory = unit_factory
+        return self
     
-    def _build_unit(self, name:str) -> 'Unit':
-        from codiet.model.quantities import Unit
-        unit_dto = self.repository.read_unit_data(name)
-        return Unit.from_dto(unit_dto)
+    def set_ingredient_factory(self, ingredient_factory: "IngredientFactory") -> "DatabaseService":
+        self._ingredient_factory = ingredient_factory
+        return self
 
-    def read_all_global_unit_conversion_names(self) -> list[set[str]]:
-        return self.repository.read_all_global_unit_conversion_names()
+    def set_recipe_factory(self, recipe_factory: "RecipeFactory") -> "DatabaseService":
+        self._recipe_factory = recipe_factory
+        return self
 
-    def read_global_unit_conversion(self) -> 'UnitConversion':
-        global_unit_conversion_names = self.repository.read_all_global_unit_conversion_names()
-        global_unit_conversions = {}
-        for unit_conversion_name in global_unit_conversion_names:
-            unit_conversion = self.read_global_unit_conversion(unit_conversion_name)
-            global_unit_conversions[unit_conversion_name] = unit_conversion
-        return FrozenUniqueDict(global_unit_conversions)
-    
-    def read_nutrient(self, name:str) -> 'Nutrient':
-        return self._singleton_registry.get_nutrient(name)
-    
-    def _build_nutrient(self, name:str) -> 'Nutrient':
-        nutrient_dto = self.repository.read_nutrient_data(name)
-        return Nutrient.from_dto(nutrient_dto)
+    def read_unit(self, unit_name: str) -> "Unit":
+        unit_dto = self._repository.read_unit_dto(unit_name)
+        unit = self._quantities_factory.create_unit_from_dto(unit_dto)
+        return unit
 
-    
+    def read_nutrient(self, nutrient_name: str) -> "Nutrient":
+        nutrient_dto = self._repository.read_nutrient_dto(nutrient_name)
+        nutrient = self._nutrients_factory.create_nutrient_from_dto(nutrient_dto)
+        return nutrient
 
+    def read_ingredient(self, ingredient_name: str) -> "Ingredient":
+        ingredient_dto = self._repository.read_ingredient_dto(ingredient_name)
+        ingredient = self._ingredient_factory.create_ingredient_from_dto(ingredient_dto)
+        return ingredient
+
+    def read_recipe(self, recipe_name: str) -> "Recipe":
+        recipe_dto = self._repository.read_recipe_dto(recipe_name)
+        recipe = self._recipe_factory.create_recipe_from_dto(recipe_dto)
+        return recipe

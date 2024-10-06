@@ -1,31 +1,52 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict, Collection
 
-from codiet.model import StoredEntity
-from codiet.utils import MUC, IUC
-from codiet.model.flags import Flag, HasFlags
+from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
+from codiet.utils.unique_collection import MutableUniqueCollection as MUC
+from codiet.utils.unique_dict import UniqueDict
+from codiet.model.flags import HasFlags
 
 if TYPE_CHECKING:
-    from codiet.model.ingredients import IngredientQuantity
-    from codiet.model.time import TimeWindow
-    from codiet.model.tags import Tag
+    from codiet.model.flags import Flag
+    from codiet.model.time import TimeWindow, TimeWindowDTO
+    from codiet.model.tags import Tag, TagDTO
+    from codiet.model.ingredients import IngredientQuantity, IngredientQuantityDTO
 
 
-class Recipe(HasFlags, StoredEntity):
+class RecipeDTO(TypedDict):
+    name: str
+    use_as_ingredient: bool
+    description: str | None
+    instructions: list[str]
+    ingredient_quantities: dict[str, "IngredientQuantityDTO"]
+    serve_time_windows: Collection["TimeWindowDTO"]
+    tags: Collection["TagDTO"]
+
+
+class Recipe(HasFlags):
 
     def __init__(
         self,
         name: str,
+        use_as_ingredient: bool,
+        description: str | None,
+        instructions: list[str],
+        ingredient_quantities: dict[str, "IngredientQuantity"],
+        serve_time_windows: Collection["TimeWindow"],
+        tags: Collection["Tag"],
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
+
         self._name = name
-        self._use_as_ingredient: bool = False
-        self._description: str | None = None
-        self._instruction: str | None = None
-        self._ingredient_quantities = MUC["IngredientQuantity"]()
-        self._serve_time_windows = MUC["TimeWindow"]()
-        self._tags = MUC["Tag"]()
+        self._use_as_ingredient = use_as_ingredient
+        self._description = description
+        self._instructions = instructions
+        self._ingredient_quantities = UniqueDict[str, "IngredientQuantity"](
+            ingredient_quantities
+        )
+        self._serve_time_windows = MUC["TimeWindow"](serve_time_windows)
+        self._tags = MUC["Tag"](tags)
 
     @property
     def name(self) -> str:
@@ -33,11 +54,6 @@ class Recipe(HasFlags, StoredEntity):
 
     @name.setter
     def name(self, name: str) -> None:
-        """Note:
-            We don't do any uniqueness checks here. This is the responsibility of the
-            database, and happens when we go to save the recipe.
-        """
-        # Raise an exception if the name is None or just whitespace
         if name is None or name.strip() == "":
             raise ValueError("Name cannot be None or empty.")
         self._name = name
@@ -59,11 +75,11 @@ class Recipe(HasFlags, StoredEntity):
         self._description = description
 
     @property
-    def instructions(self) -> str | None:
+    def instructions(self) -> list[str]:
         return self._instructions
 
     @instructions.setter
-    def instructions(self, instructions: str | None) -> None:
+    def instructions(self, instructions: list[str]) -> None:
         self._instructions = instructions
 
     @property
@@ -78,7 +94,7 @@ class Recipe(HasFlags, StoredEntity):
     def tags(self) -> IUC["Tag"]:
         return IUC(self._tags)
 
-    def get_flag(self, name: str) -> Flag:
+    def get_flag(self, name: str) -> "Flag":
         flag = Flag(name)
 
         if self.is_flag_none_on_any_ingredient(name):
@@ -93,7 +109,7 @@ class Recipe(HasFlags, StoredEntity):
             if ingredient_quantity.ingredient.get_flag(name).value is None:
                 return True
         return False
-    
+
     def is_flag_false_on_any_ingredient(self, name: str) -> bool:
         for ingredient_quantity in self._ingredient_quantities:
             if ingredient_quantity.ingredient.get_flag(name).value is False:
@@ -135,11 +151,7 @@ class Recipe(HasFlags, StoredEntity):
     def __eq__(self, other):
         if not isinstance(other, Recipe):
             return False
-        if self.id is None and self.name is None:
-            raise ValueError("Recipe must have an ID or a name for comparison.")
-        if self.id is None or other.id is None:
-            return self.name == other.name
-        return self.id == other.id
+        return self.name == other.name
 
     def __hash__(self):
-        return hash((self.id, self.name))
+        return hash(self.name)

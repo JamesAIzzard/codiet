@@ -1,6 +1,9 @@
-from codiet.model.stored_entity import StoredEntity
+from typing import TypedDict
 
-class Tag(StoredEntity):
+class TagDTO(TypedDict):
+    name: str
+
+class Tag:
     """Models a tag."""
     
     def __init__(self, name: str, *args, **kwargs):

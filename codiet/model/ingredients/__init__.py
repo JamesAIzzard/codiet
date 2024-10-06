@@ -1,2 +1,3 @@
-from .ingredient import Ingredient
-from .ingredient_quantity import IngredientQuantity
+from .ingredient import Ingredient, IngredientDTO
+from .ingredient_quantity import IngredientQuantity, IngredientQuantityDTO
+from .ingredient_factory import IngredientFactory

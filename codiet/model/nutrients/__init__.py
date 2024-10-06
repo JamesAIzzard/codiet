@@ -1,4 +1,5 @@
 from .nutrient import Nutrient, NutrientDTO
-from .nutrient_quantity import NutrientQuantity
+from .nutrient_quantity import NutrientQuantity, NutrientQuantityDTO
 from .has_nutrient_quantities import HasNutrientQuantities
 from .has_settable_nutrient_quantities import HasSettableNutrientQuantities
+from .nutrient_factory import NutrientFactory

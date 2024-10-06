@@ -4,10 +4,12 @@ from codiet.tests.fixtures import OptimiserFixtures
 from codiet.optimisation import DietStructure
 from codiet.optimisation.constraints import FlagConstraint
 from codiet.optimisation.goals import MinimiseNutrientGoal
-from codiet.model.recipes import RecipeQuantity
+from codiet.model.recipes import RecipeFactory
 
 class BaseDietStructureNodeTest(BaseCodietTest):
     def setUp(self) -> None:
+        super().setUp()
+
         self.diet_structure = DietStructure(OptimiserFixtures().monday_structure)
 
 class TestAddressProperty(BaseDietStructureNodeTest):
@@ -32,14 +34,28 @@ class TestIsRecipeNodeProperty(BaseDietStructureNodeTest):
 
 class TestHasRecipeSolutionsProperty(BaseDietStructureNodeTest):
     
-        def test_has_recipe_solutions_when_no_solutions(self):
-            node = self.diet_structure.get_node(("Monday", "Breakfast", "Main"))
-            self.assertFalse(node.has_recipe_solutions)
-    
-        def test_has_recipe_solutions_when_solutions(self):
-            node = self.diet_structure.get_node(("Monday", "Breakfast", "Main"))
-            node.add_solution(RecipeQuantity(1, "whole", "sandwich"), 1)
-            self.assertTrue(node.has_recipe_solutions)
+    def test_has_recipe_solutions_when_no_solutions(self):
+        node = self.diet_structure.get_node(("Monday", "Breakfast", "Main"))
+        self.assertFalse(node.has_recipe_solutions)
+
+    def test_has_recipe_solutions_when_has_solutions(self):
+        node = self.diet_structure.get_node(("Monday", "Breakfast", "Main"))
+
+        recipe_quantity = self.recipe_factory.create_recipe_quantity_from_dto(
+            {
+                "recipe_name": "porridge", 
+                "quantity": {
+                    "unit_name": "gram", 
+                    "value": 400
+                }
+            }
+        )
+        node.add_solution(
+            solution=recipe_quantity,
+            solution_set_id=1
+        )
+
+        self.assertTrue(node.has_recipe_solutions)
 
 class TestAddConstraint(BaseDietStructureNodeTest):
 

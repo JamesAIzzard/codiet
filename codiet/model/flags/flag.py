@@ -1,6 +1,10 @@
-from codiet.model.stored_entity import StoredEntity
+from typing import TypedDict
 
-class Flag(StoredEntity):
+class FlagDTO(TypedDict):
+    name: str
+    value: bool | None
+
+class Flag:
 
     def __init__(
             self, 
@@ -8,7 +12,6 @@ class Flag(StoredEntity):
             value: bool|None = None,
             *args, **kwargs
         ):
-        """Initialise the flag."""
         super().__init__(*args, **kwargs)
 
         self._name = name

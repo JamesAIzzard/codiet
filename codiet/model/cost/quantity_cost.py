@@ -1,5 +1,13 @@
+from typing import TypedDict, TYPE_CHECKING
+
 from codiet.model.quantities import IsQuantified
 
+if TYPE_CHECKING:
+    from codiet.model.quantities import QuantityDTO
+
+class QuantityCostDTO(TypedDict):
+    cost: float | None
+    quantity: "QuantityDTO"
 
 class QuantityCost(IsQuantified):
     def __init__(self, cost: float | None = None, *args, **kwargs) -> None:

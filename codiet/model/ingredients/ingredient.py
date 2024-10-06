@@ -1,39 +1,52 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict
 
-from codiet.model.cost.quantity_cost import QuantityCost
-from codiet.utils import IUC, UniqueDict
-from codiet.model.stored_entity import StoredEntity
-from codiet.model.cost import HasSettableQuantityCost
-from codiet.model.quantities import UnitSystem
-from codiet.model.flags import HasSettableFlags, Flag
-from codiet.model.nutrients import HasSettableNutrientQuantities, NutrientQuantity
+from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
+from codiet.utils.unique_dict import UniqueDict, FrozenUniqueDict
 
 if TYPE_CHECKING:
-    from codiet.model.quantities import Unit, UnitConversion, Quantity
+    from codiet.model.quantities import Unit, UnitConversion, UnitSystem, UnitConversionDTO
+    from codiet.model.cost import QuantityCost, QuantityCostDTO
+    from codiet.model.flags import Flag, FlagDTO
+    from codiet.model.nutrients import NutrientQuantity, NutrientQuantityDTO
+    from codiet.model.tags import TagDTO
 
 
-class Ingredient(
-    HasSettableQuantityCost,
-    HasSettableNutrientQuantities,
-    HasSettableFlags,
-    StoredEntity
-):
+class IngredientDTO(TypedDict):
+    name: str
+    description: str | None
+    unit_conversions: list["UnitConversionDTO"]
+    standard_unit: str
+    quantity_cost: "QuantityCostDTO"
+    gi: float | None
+    flags: dict[str, "FlagDTO"]
+    nutrient_quantities_per_gram: dict[str, "NutrientQuantityDTO"]
+
+
+class Ingredient:
 
     def __init__(
         self,
         name: str,
+        description: str | None,
+        unit_system: "UnitSystem",
+        standard_unit: "Unit",
+        quantity_cost: "QuantityCost",
+        gi: float | None,
+        flags: dict[str, "Flag"],
+        nutrient_quantities_per_gram: dict[str, "NutrientQuantity"],
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
 
         self._name = name
-        self._description: str | None = None
-        self._unit_system = UnitSystem()
-        self._standard_unit = self.domain_service.gram
-        self._gi: float | None = None
-        self._flags = UniqueDict[str, 'Flag']()
-        self._nutrient_quantities = UniqueDict[str, 'NutrientQuantity']()
+        self._description = description
+        self._unit_system = unit_system
+        self._standard_unit = standard_unit
+        self._quantity_cost = quantity_cost
+        self._gi = gi
+        self._flags = UniqueDict(flags)
+        self._nutrient_quantities_per_gram = UniqueDict(nutrient_quantities_per_gram)
 
     @property
     def name(self) -> str:
@@ -58,24 +71,16 @@ class Ingredient(
         return self._standard_unit
 
     @standard_unit.setter
-    def standard_unit(self, unit: "Unit|str") -> None:
-        if isinstance(unit, str):
-            unit = self.domain_service.get_unit(unit)
-
-        if not self._unit_system.check_unit_available(unit):
-            raise ValueError(f"Unit {unit} is not available on {self.name}.")
-
+    def standard_unit(self, unit: "Unit") -> None:
         self._standard_unit = unit
 
     @property
-    def quantity_cost(self) -> QuantityCost:
-        if self._quantity_cost is None:
-            raise ValueError("Quantity cost has not been set.")
+    def quantity_cost(self) -> "QuantityCost":
         return self._quantity_cost
 
     @quantity_cost.setter
-    def quantity_cost(self, value: QuantityCost) -> None:
-        self.set_quantity_cost(value)
+    def quantity_cost(self, quantity_cost: "QuantityCost") -> None:
+        self._quantity_cost = quantity_cost
 
     @property
     def gi(self) -> float | None:
@@ -88,79 +93,26 @@ class Ingredient(
         self._gi = value
 
     @property
-    def flags(self) -> IUC["Flag"]:
-        return IUC(self._flags.values())
+    def flags(self) -> FrozenUniqueDict[str, "Flag"]:
+        return FrozenUniqueDict(self._flags)
 
     @property
-    def nutrient_quantities(self) -> IUC["NutrientQuantity"]:
-        return IUC(self._nutrient_quantities.values())
+    def nutrient_quantities_per_gram(self) -> FrozenUniqueDict[str, "NutrientQuantity"]:
+        return FrozenUniqueDict(self._nutrient_quantities_per_gram)
 
     def add_unit_conversion(self, unit_conversion: "UnitConversion") -> None:
         self._unit_system.add_entity_unit_conversion(unit_conversion)
 
-    def set_quantity_cost(self, quantity_cost: QuantityCost) -> "Ingredient":
-        if not self._unit_system.check_unit_available(quantity_cost.quantity.unit):
-            raise ValueError(
-                f"Unit {quantity_cost.quantity.unit} is not available on {self.name}."
-            )
+    def get_flag(self, name: str) -> "Flag":
+        return self._flags[name]
 
-        self._quantity_cost = quantity_cost
-
-        return self
-
-    def get_flag(self, name: str) -> 'Flag':
-        if not name in self.domain_service.flag_names:
-            raise ValueError(f"Flag {name} is not known to the system.")
-        
-        try:
-            return self._flags[name]
-        except KeyError:
-            self._add_flag(Flag(name))
-            return self._flags[name]
-
-    def set_flag(self, name: str, value: bool | None) -> 'Ingredient':
-        self.get_flag(name).value = value
-        
-        return self
-
-    def _add_flag(self, flag: Flag) -> 'Ingredient':
-        if not flag.name in self.domain_service.flag_names:
-            raise ValueError(f"Flag {flag.name} is not known to the system.")
-        
-        self._flags[flag.name] = flag
-
-        return self
-
-    def get_nutrient_quantity(self, nutrient_name: str) -> 'NutrientQuantity':
-        try:
-            return self._nutrient_quantities[nutrient_name]
-        except KeyError:
-            nutrient = self.domain_service.get_nutrient(nutrient_name)
-            nutrient_quantity = NutrientQuantity(nutrient)
-            self._add_nutrient_quantity(nutrient_quantity)
-            return nutrient_quantity
-
-    def set_nutrient_quantity(self, nutrient_name: str, quantity: 'Quantity') -> 'Ingredient':
-        nutrient_quantity = self.get_nutrient_quantity(nutrient_name)
-        nutrient_quantity.quantity = quantity
-        return self
-
-    def _add_nutrient_quantity(self, nutrient_quantity: "NutrientQuantity") -> "Ingredient":
-        # TODO: Install any validation on the nutrient quantity
-        self._nutrient_quantities[nutrient_quantity.nutrient.name] = nutrient_quantity
-        return self
+    def get_nutrient_quantity_per_gram(self, nutrient_name: str) -> "NutrientQuantity":
+        return self._nutrient_quantities_per_gram[nutrient_name]
 
     def __eq__(self, other):
         if not isinstance(other, Ingredient):
             return False
-        # If on either instance, the name and ID is None, raise exception
-        if self.id is None and self.name is None:
-            raise ValueError("Ingredient must have an ID or a name for comparison.")
-        # If either ID is None, match on  names
-        if self.id is None or other.id is None:
-            return self.name == other.name
-        # If both IDs are set, match on IDs
-        return self.id == other.id
+        return self.name == other.name
 
     def __hash__(self):
-        return hash((self.id, self.name))
+        return hash(self.name)

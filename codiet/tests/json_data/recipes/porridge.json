@@ -1,0 +1,32 @@
+{
+    "name": "porridge",
+    "description": "A simple and hearty breakfast made from oats",
+    "use_as_ingredient": false,
+    "instructions": [
+        "In a pot, combine the oats and milk or water.",
+        "Bring the mixture to a boil over medium heat.",
+        "Reduce the heat to low and simmer, stirring occasionally, for 5-7 minutes until the oats have softened and the porridge has thickened.",
+        "Remove from heat and allow it to rest for a minute before serving.",
+        "Optionally, add toppings like fruits, nuts, or sweeteners as desired."
+    ],
+    "ingredient_quantities": {
+        "oats": {
+            "unit": "gram",
+            "value": 80
+        },
+        "milk": {
+            "unit": "millilitre",
+            "value": 300
+        },
+        "water": {
+            "unit": "millilitre",
+            "value": 100
+        },
+        "salt": {
+            "unit": "pinch",
+            "value": 1
+        }
+    },
+    "serve_time_windows": ["06:00","11:00"],
+    "tags": ["breakfast", "cereal"]
+}

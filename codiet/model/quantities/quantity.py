@@ -1,24 +1,30 @@
+from typing import TypedDict, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from codiet.model.quantities import Unit
+
+class QuantityDTO(TypedDict):
+    unit_name: str
+    value: float | None
+
 class Quantity:
 
     def __init__(self,
-            unit: str,
+            unit: "Unit",
             value: float|None=None,
             *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
 
-        self._unit:str
-        self._value:float|None
+        self._unit = unit
+        self._value = value
 
     @property
-    def unit(self) -> str:
+    def unit(self) -> "Unit":
         return self._unit
     
     @unit.setter
-    def unit(self, unit:str):
-        from codiet.data import DatabaseService
-        if unit not in DatabaseService.get_units():
-            raise ValueError(f"Unit {unit} not found in database")
+    def unit(self, unit:"Unit") -> None:
         self._unit = unit
 
     @property

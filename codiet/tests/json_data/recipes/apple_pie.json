@@ -13,24 +13,24 @@
         "Crumble the remaining dough over the top of the apples.",
         "Bake the pie in a preheated oven at 375°F (190°C) for 50-60 minutes or until golden brown."
     ],
-    "ingredients": [
-        {
-            "name": "apple",
-            "quantity": ["whole", 4]
+    "ingredient_quantities": {
+        "apple": {
+            "unit": "whole",
+            "value": 4
         },
-        {
-            "name": "sugar",
-            "quantity": ["gram", 150]
+        "sugar": {
+            "unit": "gram",
+            "value": 150
         },
-        {
-            "name": "butter",
-            "quantity": ["gram", 200]
+        "butter": {
+            "unit": "gram",
+            "value": 200
         },
-        {
-            "name": "flour",
-            "quantity": ["gram", 300]
+        "flour": {
+            "unit": "gram",
+            "value": 200
         }
-    ],
+    },
     "serve_time_windows": ["16:00","23:59"],
     "tags": ["dessert", "baked", "pie"]
 }

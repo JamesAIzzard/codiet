@@ -418,7 +418,7 @@ class IngredientEditor(BaseController[IngredientEditorView]):
     def _on_nutrient_qty_removed(self, nutrient_id: int):
         """Handler for removing a nutrient quantity from the ingredient."""
         # Raise an exception if the nutrient is not in the ingredient
-        if nutrient_id not in self.ingredient.nutrient_quantities:
+        if nutrient_id not in self.ingredient.nutrient_quantities_per_gram:
             raise KeyError(f"Nutrient ID '{nutrient_id}' not in ingredient.")
         # Remove the nutrient quantity from the ingredient
         self.ingredient.remove_nutrient_quantity(nutrient_id)

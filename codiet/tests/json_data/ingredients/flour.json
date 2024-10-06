@@ -14,7 +14,7 @@
         "gluten_free": false
     },
     "gi": 70,
-    "nutrients_per_gram": {
+    "nutrient_quantities_per_gram": {
         "protein": ["gram", 0.01],
         "carbohydrate": ["gram", 0.76],
         "fat": ["gram", 0.01]

@@ -1,18 +1,27 @@
-from codiet.model.quantities.is_quantified import IsQuantified
+from typing import TYPE_CHECKING, TypedDict
 
-class RecipeQuantity(IsQuantified):
+from codiet.model.quantities import IsQuantified
+from codiet.model.flags import HasFlags
 
-    def __init__(self, quantity:float, unit:str, recipe:str, *args, **kwargs):
+if TYPE_CHECKING:
+    from codiet.model.quantities import QuantityDTO
+    from codiet.model.flags import Flag
+    from codiet.model.recipes.recipe import Recipe
+
+class RecipeQuantityDTO(TypedDict):
+    recipe_name: str
+    quantity: 'QuantityDTO'
+
+class RecipeQuantity(HasFlags, IsQuantified):
+
+    def __init__(self, recipe:'Recipe', *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._quantity = quantity
-        self._unit = unit
-        self._name = recipe
-
-    @property
-    def recipe(self) -> str:
-        return self._recipe
-    
-    @recipe.setter
-    def recipe(self, recipe:str):
         self._recipe = recipe
+    
+    @property
+    def recipe(self) -> 'Recipe':
+        return self._recipe
+
+    def get_flag(self, flag_name: str) -> "Flag":
+        return self.recipe.get_flag(flag_name)
