@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING, Collection, Callable
 from collections import deque
 
 from codiet.utils import MUC, IUC
-from codiet.data import DatabaseService
 from codiet.model.quantities import Quantity
 
 if TYPE_CHECKING:
@@ -12,12 +11,14 @@ class UnitSystem():
 
     def __init__(
         self,
+        get_unit: Callable[[str], "Unit"],
         get_global_unit_conversions: Callable[[], Collection['UnitConversion']],
         entity_unit_conversions: Collection['UnitConversion']|None = None
     ):
         super().__init__()
 
         self._get_global_unit_conversions = get_global_unit_conversions
+        self._get_unit = get_unit
 
         self._entity_unit_conversions = MUC(entity_unit_conversions) or MUC['UnitConversion']()
         self._graph: dict['Unit', dict['Unit', float]] = {}
@@ -32,7 +33,8 @@ class UnitSystem():
     def entity_unit_conversions(self) -> IUC['UnitConversion']:
         return IUC(self._entity_unit_conversions)
 
-    def check_unit_available(self, unit: 'Unit') -> bool:
+    def check_unit_available(self, unit_name:str) -> bool:
+        unit = self._get_unit(unit_name)
         return unit in self.available_units
 
     def add_entity_unit_conversion(self, unit_conversion: 'UnitConversion'):
@@ -67,7 +69,7 @@ class UnitSystem():
 
     def _get_available_units(self, root_unit: 'Unit|None' = None) -> IUC['Unit']:
         if root_unit is None:
-            root_unit = DatabaseService().read_unit("gram")
+            root_unit = self._get_unit("gram")
 
         visited = set()
         queue = deque([root_unit])
