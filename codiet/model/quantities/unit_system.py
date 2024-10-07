@@ -45,7 +45,9 @@ class UnitSystem():
         self._entity_unit_conversions.remove(entity_unit_conversion)
         self._update()
 
-    def can_convert_units(self, from_unit: 'Unit', to_unit: 'Unit') -> bool:
+    def can_convert_units(self, from_unit_name: str, to_unit_name: str) -> bool:
+        from_unit = self._get_unit(from_unit_name)
+        to_unit = self._get_unit(to_unit_name)
         try:
             self._find_conversion_path(from_unit, to_unit)
             return True

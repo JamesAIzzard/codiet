@@ -74,10 +74,100 @@ class TestCheckUnitAvailable(BaseUnitSystemTest):
 
 class TestCanConvertUnits(BaseUnitSystemTest):
     
-        def test_gram_to_kilogram(self):
-            unit_system = self.quantities_factory.create_unit_system()
-    
-            self.assertTrue(unit_system.can_convert_units(
-                self.singleton_register.get_unit("gram"),
-                self.singleton_register.get_unit("kilogram"),
-            ))
+    def test_can_convert_gram_to_kg_by_default(self):
+        unit_system = self.quantities_factory.create_unit_system()
+
+        self.assertTrue(unit_system.can_convert_units(
+            from_unit_name="gram",
+            to_unit_name="kilogram",
+        ))
+
+    def test_can_only_convert_gram_to_ml_with_conversion(self):
+        unit_system = self.quantities_factory.create_unit_system()
+
+        self.assertFalse(unit_system.can_convert_units(
+            from_unit_name="gram",
+            to_unit_name="millilitre",
+        ))
+
+        unit_system.add_entity_unit_conversion(
+            self.quantities_factory.create_unit_conversion(
+                from_unit_name="gram",
+                from_unit_quantity=1000,
+                to_unit_name="millilitre",
+                to_unit_quantity=1100,
+            )
+        )
+
+        self.assertTrue(unit_system.can_convert_units(
+            from_unit_name="gram",
+            to_unit_name="millilitre",
+        ))
+
+    def test_loose_access_to_conversion_if_removed(self):
+        unit_system = self.quantities_factory.create_unit_system()
+
+        unit_conversion = self.quantities_factory.create_unit_conversion(
+            from_unit_name="gram",
+            from_unit_quantity=1000,
+            to_unit_name="millilitre",
+            to_unit_quantity=1100,
+        )
+
+        unit_system.add_entity_unit_conversion(unit_conversion)
+
+        self.assertTrue(unit_system.can_convert_units(
+            from_unit_name="gram",
+            to_unit_name="millilitre",
+        ))
+
+        unit_system.remove_entity_unit_conversion(unit_conversion)
+
+        self.assertFalse(unit_system.can_convert_units(
+            from_unit_name="gram",
+            to_unit_name="millilitre",
+        ))
+
+class TestConvertQuantity(BaseUnitSystemTest):
+
+    def test_can_convert_g_to_kg_by_default(self):
+        unit_system = self.quantities_factory.create_unit_system()
+
+        quantity = self.quantities_factory.create_quantity(
+            unit_name="gram",
+            value=1000,
+        )
+
+        converted_quantity = unit_system.convert_quantity(
+            quantity=quantity,
+            to_unit=self.singleton_register.get_unit("kilogram"),
+        )
+
+        self.assertEqual(converted_quantity.value, 1)
+
+    def test_can_convert_g_to_ml_with_conversion(self):
+        unit_system = self.quantities_factory.create_unit_system()
+
+        unit_system.add_entity_unit_conversion(
+            self.quantities_factory.create_unit_conversion(
+                from_unit_name="gram",
+                from_unit_quantity=1000,
+                to_unit_name="millilitre",
+                to_unit_quantity=1100,
+            )
+        )
+
+        quantity = self.quantities_factory.create_quantity(
+            unit_name="gram",
+            value=1000,
+        )
+
+        converted_quantity = unit_system.convert_quantity(
+            quantity=quantity,
+            to_unit=self.singleton_register.get_unit("millilitre"),
+        )
+
+        self.assertEqual(converted_quantity.value, 1100)
+
+
+        
