@@ -1,5 +1,6 @@
 from codiet.tests import BaseCodietTest
 
+from codiet.model.quantities import ConversionUnavailableError
 
 class BaseUnitSystemTest(BaseCodietTest):
 
@@ -170,6 +171,20 @@ class TestConvertQuantity(BaseUnitSystemTest):
         )
 
         self.assertEqual(converted_quantity.value, 1100)
+
+    def test_raises_conversion_unavailable_error_if_conversion_is_unavailable(self):
+        unit_system = self.quantities_factory.create_unit_system()
+
+        quantity = self.quantities_factory.create_quantity(
+            unit_name="gram",
+            value=1000,
+        )
+
+        with self.assertRaises(ConversionUnavailableError):
+            unit_system.convert_quantity(
+                quantity=quantity,
+                to_unit_name="millilitre",
+            )
 
 
         

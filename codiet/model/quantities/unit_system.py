@@ -54,22 +54,27 @@ class UnitSystem:
         to_unit = self._get_unit(to_unit_name)
         return self._find_conversion_path(from_unit, to_unit) is not None
 
-    def convert_quantity(self, quantity: Quantity, to_unit: "Unit") -> Quantity:
+    def convert_quantity(self, quantity: Quantity, to_unit: "Unit|None"=None, to_unit_name:str|None=None) -> Quantity:
+        if to_unit_name is not None:
+            to_unit = self._get_unit(to_unit_name)
+        if to_unit is None:
+            raise TypeError("Target unit not specified.")
+        
         if quantity.unit == to_unit:
             return quantity
 
         conversion_factor = self._calculate_conversion_factor(quantity.unit, to_unit)
+        
         converted_value = (
-            quantity.value * conversion_factor if quantity.value is not None else None
+            quantity.value * conversion_factor
         )
+
         return Quantity(unit=to_unit, value=converted_value)
 
-    def _calculate_conversion_factor(self, from_unit: "Unit", to_unit: "Unit") -> float:
+    def _calculate_conversion_factor(self, from_unit: 'Unit', to_unit: 'Unit') -> float:
         path = self._find_conversion_path(from_unit, to_unit)
         if path is None:
-            raise ValueError(
-                f"No conversion path found between {from_unit.name} and {to_unit.name}"
-            )
+            raise ConversionUnavailableError(from_unit.name, to_unit.name)
 
         factor = 1.0
         for u1, u2 in path:
@@ -143,3 +148,7 @@ class UnitSystem:
 
         self._conversion_graph.setdefault(from_unit, {})[to_unit] = ratio
         self._conversion_graph.setdefault(to_unit, {})[from_unit] = 1 / ratio
+
+class ConversionUnavailableError(ValueError):
+    def __init__(self, from_unit_name: str, to_unit_name: str):
+        super().__init__(f"No conversion available from {from_unit_name} to {to_unit_name}")
