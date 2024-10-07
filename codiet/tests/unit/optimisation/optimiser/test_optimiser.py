@@ -1,36 +1,26 @@
 from codiet.tests import BaseCodietTest
 from codiet.tests.fixtures import OptimiserFixtures
-from codiet.data import DatabaseService
-from codiet.optimisation import Optimiser
 from codiet.optimisation import DietStructure
 from codiet.optimisation.constraints import FlagConstraint
-from codiet.model.recipes import RecipeQuantity
 
 class BaseOptimiserTest(BaseCodietTest):
     
     def setUp(self) -> None:
         super().setUp()
 
-        self.optimiser = Optimiser()
-        self.optimiser._recipe_factory = self.recipe_factory
-
-class TestConstructor(BaseOptimiserTest):
-    
-    def test_can_create_optimiser(self):
-        optimiser = Optimiser()
-
-        self.assertIsInstance(optimiser, Optimiser)
+        self.optimiser_fixtures = OptimiserFixtures()
 
 class TestSolve(BaseOptimiserTest):
     
     def test_structure_gets_collection_of_solutions(self):
 
-        monday = DietStructure(OptimiserFixtures().monday_structure)
+        monday = DietStructure(self.optimiser_fixtures.monday_structure)
 
         for node in monday.recipe_nodes:
             self.assertFalse(node.has_recipe_solutions)
 
-        self.optimiser.solve(monday)
+        optimiser = self.optimiser_factory.create_optimiser()
+        optimiser.solve(monday)
 
         for node in monday.recipe_nodes:
             self.assertTrue(node.has_recipe_solutions)

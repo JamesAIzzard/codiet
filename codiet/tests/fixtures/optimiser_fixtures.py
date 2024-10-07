@@ -1,16 +1,10 @@
-from codiet.utils import SingletonMeta
+class OptimiserFixtures:
 
-class OptimiserFixtures(metaclass=SingletonMeta):
-
-    def __init__(self):
-        self._monday_structure = {
-            "Monday": {
+    @property
+    def monday_structure(self):
+        return {"Monday": {
                 "Breakfast": {"Drink": {}, "Main": {}},
                 "Lunch": {"Main": {}, "Side": {}},
                 "Dinner": {"Main": {}, "Side": {}}
             },
         }
-
-    @property
-    def monday_structure(self):
-        return self._monday_structure
