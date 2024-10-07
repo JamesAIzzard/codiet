@@ -46,17 +46,17 @@ class TestAvailableUnits(BaseUnitSystemTest):
             self.singleton_register.get_unit("millilitre"), unit_system.available_units
         )
 
-class TestCheckUnitAvailable(BaseUnitSystemTest):
+class TestIsUnitAvailable(BaseUnitSystemTest):
 
     def test_gram_immediately_available(self):
         unit_system = self.quantities_factory.create_unit_system()
 
-        self.assertTrue(unit_system.check_unit_available("gram"))
+        self.assertTrue(unit_system.is_unit_available(unit_name="gram"))
 
     def test_millilitre_not_immediately_available(self):
         unit_system = self.quantities_factory.create_unit_system()
 
-        self.assertFalse(unit_system.check_unit_available("millilitre"))
+        self.assertFalse(unit_system.is_unit_available(unit_name="millilitre"))
 
     def test_millilitre_available_with_correct_conversion(self):
         unit_system = self.quantities_factory.create_unit_system()
@@ -70,7 +70,9 @@ class TestCheckUnitAvailable(BaseUnitSystemTest):
             )
         )
 
-        self.assertTrue(unit_system.check_unit_available("millilitre"))
+        self.assertTrue(unit_system.is_unit_available(unit_name="millilitre"))
+
+
 
 class TestCanConvertUnits(BaseUnitSystemTest):
     
