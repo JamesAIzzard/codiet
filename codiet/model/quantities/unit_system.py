@@ -7,6 +7,9 @@ from codiet.model.quantities import Quantity
 if TYPE_CHECKING:
     from codiet.model.quantities import Unit, UnitConversion
 
+class ConversionUnavailableError(ValueError):
+    def __init__(self, from_unit_name: str, to_unit_name: str):
+        super().__init__(f"No conversion available from {from_unit_name} to {to_unit_name}")
 
 class UnitSystem:
     def __init__(
@@ -65,9 +68,7 @@ class UnitSystem:
 
         conversion_factor = self._calculate_conversion_factor(quantity.unit, to_unit)
         
-        converted_value = (
-            quantity.value * conversion_factor
-        )
+        converted_value = quantity.value * conversion_factor if quantity.value is not None else None
 
         return Quantity(unit=to_unit, value=converted_value)
 
@@ -84,9 +85,12 @@ class UnitSystem:
     def _find_available_units(self, root_unit: "Unit | None" = None) -> IUC["Unit"]:
         if root_unit is None:
             root_unit = self._get_unit("gram")
+        
+        return IUC(self._breadth_first_search(root_unit))
 
+    def _breadth_first_search(self, start_unit: "Unit") -> list["Unit"]:
         visited = set()
-        queue = deque([root_unit])
+        queue = deque([start_unit])
         available_units = []
 
         while queue:
@@ -94,61 +98,71 @@ class UnitSystem:
             if unit not in visited:
                 visited.add(unit)
                 available_units.append(unit)
-                queue.extend(set(self._conversion_graph.get(unit, {}).keys()) - visited)
+                self._enqueue_unvisited_neighbors(unit, visited, queue)
 
-        return IUC(available_units)
+        return available_units
 
-    def _find_conversion_path(
-        self, from_unit: "Unit", to_unit: "Unit"
-    ) -> list[tuple["Unit", "Unit"]] | None:
+    def _enqueue_unvisited_neighbors(self, unit: "Unit", visited: set["Unit"], queue: deque["Unit"]):
+        neighbors = set(self._conversion_graph.get(unit, {}).keys()) - visited
+        queue.extend(neighbors)
+
+    def _find_conversion_path(self, from_unit: "Unit", to_unit: "Unit") -> list[tuple["Unit", "Unit"]] | None:
         cache_key = (from_unit, to_unit)
         if cache_key in self._conversion_path_cache:
             return self._conversion_path_cache[cache_key]
 
-        queue = deque([(from_unit, [])])
+        path = self._breadth_first_search_path(from_unit, to_unit)
+        self._conversion_path_cache[cache_key] = path # type: ignore
+        return path
+
+    def _breadth_first_search_path(self, start: "Unit", end: "Unit") -> list[tuple["Unit", "Unit"]] | None:
+        queue = deque([(start, [])])
         visited = set()
 
         while queue:
             current_unit, path = queue.popleft()
-            if current_unit == to_unit:
-                self._conversion_path_cache[cache_key] = path
+            if current_unit == end:
                 return path
 
             if current_unit not in visited:
                 visited.add(current_unit)
-                for next_unit in self._conversion_graph.get(current_unit, {}):
-                    if next_unit not in visited:
-                        new_path = path + [(current_unit, next_unit)]
-                        queue.append((next_unit, new_path))
+                self._enqueue_unvisited_paths(current_unit, path, visited, queue)
 
-        self._conversion_path_cache[cache_key] = None  # type: ignore
         return None
 
+    def _enqueue_unvisited_paths(self, unit: "Unit", path: list[tuple["Unit", "Unit"]], 
+                                 visited: set["Unit"], queue: deque[tuple["Unit", list[tuple["Unit", "Unit"]]]]):
+        for next_unit in self._conversion_graph.get(unit, {}):
+            if next_unit not in visited:
+                new_path = path + [(unit, next_unit)]
+                queue.append((next_unit, new_path))
+
     def _rebuild_conversion_graph(self):
+        self._clear_graph_and_cache()
+        all_conversions = self._get_all_conversions()
+        self._add_conversions_to_graph(all_conversions)
+
+    def _clear_graph_and_cache(self):
         self._conversion_graph.clear()
         self._conversion_path_cache.clear()
-        all_conversions = list(self._get_global_unit_conversions()) + list(
-            self._entity_unit_conversions
-        )
 
-        for conv in all_conversions:
+    def _get_all_conversions(self) -> list["UnitConversion"]:
+        return list(self._get_global_unit_conversions()) + list(self._entity_unit_conversions)
+
+    def _add_conversions_to_graph(self, conversions: list["UnitConversion"]):
+        for conv in conversions:
             if conv.is_defined:
                 self._add_conversion_to_graph(conv)
 
     def _add_conversion_to_graph(self, conversion: "UnitConversion"):
-        from_unit, to_unit = (
-            conversion.quantities[0].unit,
-            conversion.quantities[1].unit,
-        )
-        ratio = (
-            conversion.quantities[1].value / conversion.quantities[0].value
-            if conversion.quantities[0].value
-            else 0
-        )
+        from_unit, to_unit = conversion.quantities[0].unit, conversion.quantities[1].unit
+        ratio = self._calculate_conversion_ratio(conversion)
+        self._add_bidirectional_conversion(from_unit, to_unit, ratio)
 
+    def _calculate_conversion_ratio(self, conversion: "UnitConversion") -> float:
+        return (conversion.quantities[1].value / conversion.quantities[0].value
+                if conversion.quantities[0].value else 0)
+
+    def _add_bidirectional_conversion(self, from_unit: "Unit", to_unit: "Unit", ratio: float):
         self._conversion_graph.setdefault(from_unit, {})[to_unit] = ratio
         self._conversion_graph.setdefault(to_unit, {})[from_unit] = 1 / ratio
-
-class ConversionUnavailableError(ValueError):
-    def __init__(self, from_unit_name: str, to_unit_name: str):
-        super().__init__(f"No conversion available from {from_unit_name} to {to_unit_name}")
