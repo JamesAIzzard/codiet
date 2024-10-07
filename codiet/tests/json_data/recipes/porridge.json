@@ -14,7 +14,7 @@
             "unit": "gram",
             "value": 80
         },
-        "milk": {
+        "skimmed milk": {
             "unit": "millilitre",
             "value": 300
         },
@@ -27,6 +27,6 @@
             "value": 1
         }
     },
-    "serve_time_windows": ["06:00","11:00"],
+    "serve_time_windows": ["06:00-11:00"],
     "tags": ["breakfast", "cereal"]
 }

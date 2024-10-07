@@ -1,0 +1,22 @@
+{
+    "name": "water",
+    "description": "A transparent and tasteless liquid, essential for most forms of life",
+    "unit_conversions": [
+        [["gram", 240], ["cup", 1]]
+    ],
+    "standard_unit": "gram",
+    "quantity_cost": {
+        "quantity": ["gram", 100],
+        "cost": 0.0
+    },
+    "flags": {
+        "vegan": true,
+        "gluten_free": true
+    },
+    "gi": 0,
+    "nutrient_quantities_per_gram": {
+        "protein": ["gram", 0.0],
+        "carbohydrate": ["gram", 0.0],
+        "fat": ["gram", 0.0]
+    }
+}

@@ -35,26 +35,32 @@ class SingletonRegister:
         except KeyError:
             self._units[unit_name] = self._database_service.read_unit(unit_name)
             return self._units[unit_name]
-        
-    def get_unit_conversion(self, unit_conversion_name: tuple[str, str]) -> "UnitConversion":
+
+    def get_unit_conversion(
+        self, unit_conversion_name: tuple[str, str]
+    ) -> "UnitConversion":
         try:
             return self._unit_conversions[unit_conversion_name]
         except KeyError:
-            self._unit_conversions[unit_conversion_name] = self._database_service.read_global_unit_conversion(unit_conversion_name)
+            self._unit_conversions[unit_conversion_name] = (
+                self._database_service.read_global_unit_conversion(unit_conversion_name)
+            )
             return self._unit_conversions[unit_conversion_name]
 
     def get_nutrient(self, nutrient_name: str) -> "Nutrient":
         try:
             return self._nutrients[nutrient_name]
         except KeyError:
-            self._nutrients[nutrient_name] = self._database_service.read_nutrient(nutrient_name)
+            self._nutrients[nutrient_name] = self._database_service.read_nutrient(
+                nutrient_name
+            )
             return self._nutrients[nutrient_name]
 
     def get_tag(self, tag_name: str) -> "Tag":
         try:
             return self._tags[tag_name]
         except KeyError:
-            tag_dto = TagDTO(name=tag_name)
+            tag_dto = {"name": tag_name}
             self._tags[tag_name] = self._tag_factory.create_tag_from_dto(tag_dto)
             return self._tags[tag_name]
 
@@ -62,7 +68,9 @@ class SingletonRegister:
         try:
             return self._ingredients[ingredient_name]
         except KeyError:
-            self._ingredients[ingredient_name] = self._database_service.read_ingredient(ingredient_name)
+            self._ingredients[ingredient_name] = self._database_service.read_ingredient(
+                ingredient_name
+            )
             return self._ingredients[ingredient_name]
 
     def get_recipe(self, recipe_name: str) -> "Recipe":

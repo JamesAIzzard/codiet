@@ -167,14 +167,32 @@ class JSONRepository:
                 },
             }
 
+        serve_time_windows = []
+        for time_window in recipe_file_data["serve_time_windows"]:
+            start_time, end_time = time_window.split("-")
+            serve_time_windows.append(
+                {
+                    "start_hh_mm": start_time,
+                    "end_hh_mm": end_time,
+                }
+            )
+
+        tags = []
+        for tag_name in recipe_file_data["tags"]:
+            tags.append(
+                {
+                    "name": tag_name,
+                }
+            )
+
         recipe_data = {
             "name": recipe_name,
             "use_as_ingredient": recipe_file_data["use_as_ingredient"],
             "description": recipe_file_data["description"],
             "instructions": recipe_file_data["instructions"],
             "ingredient_quantities": ingredient_quantities,
-            "serve_time_windows": recipe_file_data["serve_time_windows"],
-            "tags": recipe_file_data["tags"],
+            "serve_time_windows": serve_time_windows,
+            "tags": tags,
         }
 
         return recipe_data
