@@ -7,7 +7,12 @@ from codiet.optimisation.constraints import FlagConstraint
 from codiet.model.recipes import RecipeQuantity
 
 class BaseOptimiserTest(BaseCodietTest):
-    pass
+    
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.optimiser = Optimiser()
+        self.optimiser._recipe_factory = self.recipe_factory
 
 class TestConstructor(BaseOptimiserTest):
     
@@ -19,27 +24,25 @@ class TestConstructor(BaseOptimiserTest):
 class TestSolve(BaseOptimiserTest):
     
     def test_structure_gets_collection_of_solutions(self):
-        optimiser = Optimiser()
 
         monday = DietStructure(OptimiserFixtures().monday_structure)
 
         for node in monday.recipe_nodes:
             self.assertFalse(node.has_recipe_solutions)
 
-        optimiser.solve(monday)
+        self.optimiser.solve(monday)
 
         for node in monday.recipe_nodes:
             self.assertTrue(node.has_recipe_solutions)
 
     
     def test_all_diet_plans_satisfy_flag_constraints(self):
-        optimiser = Optimiser()
 
         monday = DietStructure(OptimiserFixtures().monday_structure)
 
         vegan_constraint = FlagConstraint("vegan", True)
 
-        monday = optimiser.solve(monday)
+        monday = self.optimiser.solve(monday)
 
         for recipe_node in monday.recipe_nodes:
             for recipe_quantity in recipe_node.solutions.values():

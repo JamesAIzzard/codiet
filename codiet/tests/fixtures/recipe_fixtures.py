@@ -1,6 +1,18 @@
-from codiet.utils import SingletonMeta
+from typing import TYPE_CHECKING
 
-class RecipeFixtures(metaclass=SingletonMeta):
+if TYPE_CHECKING:
+    from codiet.model.recipes import RecipeQuantity, RecipeFactory
+
+class RecipeFixtures:
 
     def __init__(self):
-        pass
+        
+        self._recipe_factory: "RecipeFactory"
+
+    @property
+    def porridge_500g(self) -> "RecipeQuantity":
+        return self._recipe_factory.create_recipe_quantity(
+            recipe_name="porridge",
+            quantity_unit_name="gram",
+            quantity_value=500
+        )

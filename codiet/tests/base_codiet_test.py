@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase
 
-from .fixtures import OptimiserFixtures
+from .fixtures import OptimiserFixtures, RecipeFixtures
 from codiet.data import DatabaseService, JSONRepository
 from codiet.model import SingletonRegister
 from codiet.model.quantities import QuantitiesFactory
@@ -64,5 +64,8 @@ class BaseCodietTest(TestCase):
         self.recipe_factory._ingredient_factory = self.ingredient_factory
 
         self.optimiser_fixtures = OptimiserFixtures()
+        self.recipe_fixtures = RecipeFixtures()
+
+        self.recipe_fixtures._recipe_factory = self.recipe_factory
 
 

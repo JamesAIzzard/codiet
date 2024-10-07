@@ -1,1 +1,2 @@
 from .optimiser_fixtures import OptimiserFixtures
+from .recipe_fixtures import RecipeFixtures

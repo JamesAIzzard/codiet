@@ -4,7 +4,7 @@ from codiet.model.recipes import RecipeQuantity, Recipe
 
 if TYPE_CHECKING:
     from codiet.model import SingletonRegister
-    from codiet.model.quantities import QuantitiesFactory
+    from codiet.model.quantities import QuantitiesFactory, Quantity
     from codiet.model.ingredients import IngredientFactory
     from codiet.model.recipes import RecipeDTO, RecipeQuantityDTO
     from codiet.model.time import TimeFactory
@@ -60,3 +60,14 @@ class RecipeFactory:
         )
         recipe_quantity = RecipeQuantity(recipe, quantity)
         return recipe_quantity
+    
+    def create_recipe_quantity(self, recipe_name:str, quantity_unit_name:str, quantity_value: float) -> "RecipeQuantity":
+        recipe = self._singleton_register.get_recipe(recipe_name=recipe_name)
+        quantity = self._quantities_factory.create_quantity(
+            unit_name=quantity_unit_name, 
+            value=quantity_value
+        )
+        return RecipeQuantity(
+            recipe=recipe,
+            quantity=quantity
+        )

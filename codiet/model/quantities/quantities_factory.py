@@ -49,3 +49,9 @@ class QuantitiesFactory:
             value=quantity_dto["value"],
         )
         return quantity
+    
+    def create_quantity(self, unit_name:str, value:float) -> Quantity:
+        return Quantity(
+            unit=self._singleton_register.get_unit(unit_name=unit_name),
+            value=value
+        )

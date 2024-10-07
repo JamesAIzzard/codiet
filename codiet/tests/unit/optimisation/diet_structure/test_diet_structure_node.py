@@ -100,14 +100,16 @@ class TestAddSolution(BaseDietStructureNodeTest):
     
     def test_cannot_add_solution_to_non_recipe_node(self):
         node = self.diet_structure.get_node(("Monday", "Breakfast"))
+        
         with self.assertRaises(ValueError):
-            node.add_solution(RecipeQuantity(1, "whole", "sandwich"), 1)
+            node.add_solution(self.recipe_fixtures.porridge_500g, 1)
 
     def test_can_add_solution_to_recipe_node(self):
         node = self.diet_structure.get_node(("Monday", "Breakfast", "Main"))
         self.assertEqual(len(node.solutions), 0)
 
-        solution = RecipeQuantity(1, "whole", "sandwich")
+        solution = self.recipe_fixtures.porridge_500g
+
         node.add_solution(solution, 1)
 
         self.assertEqual(node.solutions[1], solution)      
