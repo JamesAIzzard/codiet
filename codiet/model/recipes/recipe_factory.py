@@ -54,6 +54,21 @@ class RecipeFactory:
 
         return recipe
 
+    def create_recipe(self,
+            name:str
+        ) -> Recipe:
+        recipe = Recipe(
+            name=name,
+            use_as_ingredient=False,
+            description=None,
+            instructions=[],
+            ingredient_quantities={},
+            serve_time_windows=[],
+            tags=[],
+            flag_factory=self._flag_factory
+        )
+        return recipe
+
     def create_recipe_quantity_from_dto(
         self, recipe_quantity_dto: "RecipeQuantityDTO"
     ) -> "RecipeQuantity":

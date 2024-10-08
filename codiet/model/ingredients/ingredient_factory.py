@@ -46,3 +46,9 @@ class IngredientFactory:
         quantity = self._quantities_factory.create_quantity_from_dto(ingredient_quantity_dto["quantity"])
         ingredient_quantity = IngredientQuantity(ingredient, quantity)
         return ingredient_quantity
+    
+    def create_ingredient_quantity(self, ingredient_name:str, quantity_unit_name:str, quantity_value:float) -> "IngredientQuantity":
+        ingredient = self._singleton_register.get_ingredient(ingredient_name)
+        quantity = self._quantities_factory.create_quantity(unit_name=quantity_unit_name, value=quantity_value)
+        ingredient_quantity = IngredientQuantity(ingredient, quantity)
+        return ingredient_quantity

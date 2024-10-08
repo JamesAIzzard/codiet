@@ -30,7 +30,7 @@ class Recipe(HasFlags):
         use_as_ingredient: bool,
         description: str | None,
         instructions: list[str],
-        ingredient_quantities: dict[str, "IngredientQuantity"],
+        ingredient_quantities: UniqueDict[str, "IngredientQuantity"],
         serve_time_windows: Collection["TimeWindow"],
         tags: Collection["Tag"],
         flag_factory: "FlagFactory",
@@ -121,8 +121,11 @@ class Recipe(HasFlags):
 
     def add_ingredient_quantity(
         self, ingredient_quantity: "IngredientQuantity"
-    ) -> None:
-        self._ingredient_quantities.add(ingredient_quantity)
+    ) -> "Recipe":
+        
+        self._ingredient_quantities[ingredient_quantity.ingredient.name] = ingredient_quantity
+
+        return self
 
     def get_ingredient_quantity_by_name(
         self, ingredient_name: str
