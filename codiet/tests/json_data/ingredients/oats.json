@@ -15,8 +15,11 @@
     ],
     "standard_unit": "gram",
     "quantity_cost": {
-        "quantity": ["gram", 100],
-        "cost": 0.3
+        "quantity": {
+            "unit_name": "kilogram",
+            "value": 1
+        },
+        "cost": 1.50
     },
     "flags": {
         "vegan": true,

@@ -96,10 +96,7 @@ class JSONRepository:
 
         quantity_cost = {
             "cost": ingredient_file_data["quantity_cost"]["cost"],
-            "quantity": {
-                "unit_name": ingredient_file_data["quantity_cost"]["quantity"][0],
-                "value": ingredient_file_data["quantity_cost"]["quantity"][1],
-            }
+            "quantity": ingredient_file_data["quantity_cost"]["quantity"],
         }
 
         flags = {}

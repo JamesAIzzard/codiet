@@ -15,7 +15,10 @@
     ],
     "standard_unit": "gram",
     "quantity_cost": {
-        "quantity": ["gram", 100],
+        "quantity": {
+            "unit_name": "gram",
+            "value": 100
+        },
         "cost": 0.1
     },
     "flags": {

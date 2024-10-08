@@ -15,7 +15,10 @@
     ],
     "standard_unit": "whole",
     "quantity_cost": {
-        "quantity": ["whole", 1],
+        "quantity": {
+            "unit_name": "whole",
+            "value": 1
+        },
         "cost": 0.5
     },
     "flags": {

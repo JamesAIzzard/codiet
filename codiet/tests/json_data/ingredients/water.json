@@ -15,7 +15,10 @@
     ],
     "standard_unit": "gram",
     "quantity_cost": {
-        "quantity": ["gram", 100],
+        "quantity": {
+            "unit_name": "litre",
+            "value": 1
+        },
         "cost": 0.0
     },
     "flags": {

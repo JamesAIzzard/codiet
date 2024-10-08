@@ -15,7 +15,10 @@
     ],
     "standard_unit": "cup",
     "quantity_cost": {
-        "quantity": ["kilogram", 1],
+        "quantity": {
+            "unit_name": "kilogram",
+            "value": 1
+        },
         "cost": 1.50
     },
     "flags": {
