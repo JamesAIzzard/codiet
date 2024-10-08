@@ -110,10 +110,7 @@ class JSONRepository:
         for nutrient_name, nutrient_qty_data in ingredient_file_data["nutrient_quantities_per_gram"].items():
             nutrient_quantities[nutrient_name] = {
                 "nutrient_name": nutrient_name,
-                "quantity": {
-                    "unit_name": nutrient_qty_data[0],
-                    "value": nutrient_qty_data[1],
-                },
+                "quantity": nutrient_qty_data,
             }
 
         return {

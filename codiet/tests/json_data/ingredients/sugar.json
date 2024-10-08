@@ -27,8 +27,17 @@
     },
     "gi": 65,
     "nutrient_quantities_per_gram": {
-        "protein": ["gram", 0],
-        "carbohydrate": ["gram", 1],
-        "fat": ["gram", 0]
+        "protein": {
+            "unit_name": "gram",
+            "value": 0
+        },
+        "carbohydrate": {
+            "unit_name": "gram",
+            "value": 1
+        },
+        "fat": {
+            "unit_name": "gram",
+            "value": 0
+        }
     }
 }
