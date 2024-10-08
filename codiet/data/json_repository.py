@@ -56,12 +56,12 @@ class JSONRepository:
         conversion_data = entire_file_data[conversion_name]
         return {
             "from_quantity": {
-                "unit_name": conversion_data["from_unit"],
-                "value": conversion_data["from_quantity"],
+                "unit_name": conversion_data["from_quantity"]["unit_name"],
+                "value": conversion_data["from_quantity"]["value"],
             },
             "to_quantity": {
-                "unit_name": conversion_data["to_unit"],
-                "value": conversion_data["to_quantity"],
+                "unit_name": conversion_data["to_quantity"]["unit_name"],
+                "value": conversion_data["to_quantity"]["value"],
             },
         }
 

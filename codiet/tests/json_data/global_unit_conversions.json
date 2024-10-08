@@ -1,92 +1,142 @@
 {
     "gram-kilogram": {
-        "from_unit": "gram",
-        "to_unit": "kilogram",
-        "from_quantity": 1,
-        "to_quantity": 0.001
+        "from_quantity": {
+            "unit_name": "gram",
+            "value": 1
+        },
+        "to_quantity": {
+            "unit_name": "kilogram",
+            "value": 0.001
+        }
     },
     "gram-milligram": {
-        "from_unit": "gram",
-        "to_unit": "milligram",
-        "from_quantity": 1,
-        "to_quantity": 1000
+        "from_quantity": {
+            "unit_name": "gram",
+            "value": 1
+        },
+        "to_quantity": {
+            "unit_name": "milligram",
+            "value": 1000
+        }
     },
     "gram-microgram": {
-        "from_unit": "gram",
-        "to_unit": "microgram",
-        "from_quantity": 1,
-        "to_quantity": 1000000
+        "from_quantity": {
+            "unit_name": "gram",
+            "value": 1
+        },
+        "to_quantity": {
+            "unit_name": "microgram",
+            "value": 1000000
+        }
     },
     "gram-ounce": {
-        "from_unit": "gram",
-        "to_unit": "ounce",
-        "from_quantity": 1,
-        "to_quantity": 0.03527396
+        "from_quantity": {
+            "unit_name": "gram",
+            "value": 1
+        },
+        "to_quantity": {
+            "unit_name": "ounce",
+            "value": 0.03527396
+        }
     },
     "gram-pound": {
-        "from_unit": "gram",
-        "to_unit": "pound",
-        "from_quantity": 1,
-        "to_quantity": 0.00220462
+        "from_quantity": {
+            "unit_name": "gram",
+            "value": 1
+        },
+        "to_quantity": {
+            "unit_name": "pound",
+            "value": 0.00220462
+        }
     },
     "millilitre-litre": {
-        "from_unit": "millilitre",
-        "to_unit": "litre",
-        "from_quantity": 1,
-        "to_quantity": 0.001
+        "from_quantity": {
+            "unit_name": "millilitre",
+            "value": 1
+        },
+        "to_quantity": {
+            "unit_name": "litre",
+            "value": 0.001
+        }
     },
     "millilitre-fluid ounce": {
-        "from_unit": "millilitre",
-        "to_unit": "fluid ounce",
-        "from_quantity": 1,
-        "to_quantity": 0.033814
+        "from_quantity": {
+            "unit_name": "millilitre",
+            "value": 1
+        },
+        "to_quantity": {
+            "unit_name": "fluid ounce",
+            "value": 0.033814
+        }
     },
     "millilitre-pint": {
-        "from_unit": "millilitre",
-        "to_unit": "pint",
-        "from_quantity": 1,
-        "to_quantity": 0.00211338
+        "from_quantity": {
+            "unit_name": "millilitre",
+            "value": 1
+        },
+        "to_quantity": {
+            "unit_name": "pint",
+            "value": 0.00211338
+        }
     },
     "millilitre-quart": {
-        "from_unit": "millilitre",
-        "to_unit": "quart",
-        "from_quantity": 1,
-        "to_quantity": 0.00105669
+        "from_quantity": {
+            "unit_name": "millilitre",
+            "value": 1
+        },
+        "to_quantity": {
+            "unit_name": "quart",
+            "value": 0.00105669
+        }
     },
     "millilitre-gallon": {
-        "from_unit": "millilitre",
-        "to_unit": "gallon",
-        "from_quantity": 1,
-        "to_quantity": 0.000264172
+        "from_quantity": {
+            "unit_name": "millilitre",
+            "value": 1
+        },
+        "to_quantity": {
+            "unit_name": "gallon",
+            "value": 0.000264172
+        }
     },
     "millilitre-cup": {
-        "from_unit": "millilitre",
-        "to_unit": "cup",
-        "from_quantity": 1,
-        "to_quantity": 0.00422675
+        "from_quantity": {
+            "unit_name": "millilitre",
+            "value": 1
+        },
+        "to_quantity": {
+            "unit_name": "cup",
+            "value": 0.00422675
+        }
     },
     "millilitre-tbsp": {
-        "from_unit": "millilitre",
-        "to_unit": "tbsp",
-        "from_quantity": 1,
-        "to_quantity": 0.067628
+        "from_quantity": {
+            "unit_name": "millilitre",
+            "value": 1
+        },
+        "to_quantity": {
+            "unit_name": "tbsp",
+            "value": 0.067628
+        }
     },
     "millilitre-tsp": {
-        "from_unit": "millilitre",
-        "to_unit": "tsp",
-        "from_quantity": 1,
-        "to_quantity": 0.202884
-    },
-    "millilitre-pinch": {
-        "from_unit": "millilitre",
-        "to_unit": "pinch",
-        "from_quantity": 1,
-        "to_quantity": 1.62305
+        "from_quantity": {
+            "unit_name": "millilitre",
+            "value": 1
+        },
+        "to_quantity": {
+            "unit_name": "tsp",
+            "value": 0.202884
+        }
     },
     "millilitre-dash": {
-        "from_unit": "millilitre",
-        "to_unit": "dash",
-        "from_quantity": 1,
-        "to_quantity": 0.811525
+        "from_quantity": {
+            "unit_name": "millilitre",
+            "value": 1
+        },
+        "to_quantity": {
+            "unit_name": "dash",
+            "value": 0.811525
+        }
     }
 }
