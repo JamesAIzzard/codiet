@@ -15,7 +15,6 @@ class TestImmutableUniqueCollection(unittest.TestCase):
         self.simples = [self.simple_1, self.simple_2, self.simple_3]
 
     def test_init(self):
-        """Checks we can initialise the class with a variety of collection types."""
 
         # Check with no args
         self.empty_list = ImmutableUniqueCollection()
@@ -37,12 +36,10 @@ class TestImmutableUniqueCollection(unittest.TestCase):
         self.assertEqual(list(self.list_set), self.sample_list)
 
     def test_value_error_if_non_unique_init(self):
-        """Check we get an error if we try to initialise with non-unique items."""
         with self.assertRaises(ValueError):
             ImmutableUniqueCollection([1, 1, 2, 3, 4, 5])
 
     def test_in(self):
-        """Check the in and not in operators work as expected."""
         self.uc = ImmutableUniqueCollection(self.sample_list)
 
         # Check that in works
