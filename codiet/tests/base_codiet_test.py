@@ -21,13 +21,21 @@ class BaseCodietTest(TestCase):
 
     def setUp(self) -> None:
         super().setUp()
+        self.initialise_database_service()
+        self.initialise_singleton_register()
+        self.initialise_factories()
+        self.initialise_fixtures()
 
+    def initialise_database_service(self):
         self.database_service = DatabaseService()
         repository = JSONRepository(TEST_DATA_DIR)
         self.database_service._repository = repository
 
+    def initialise_singleton_register(self):
         self.singleton_register = SingletonRegister()
+        self.singleton_register._database_service = self.database_service
 
+    def initialise_factories(self):
         self.quantities_factory = QuantitiesFactory()
         self.cost_factory = CostFactory()
         self.flag_factory = FlagFactory()
@@ -43,7 +51,6 @@ class BaseCodietTest(TestCase):
         self.database_service._ingredient_factory = self.ingredient_factory
         self.database_service._recipe_factory = self.recipe_factory
 
-        self.singleton_register._database_service = self.database_service
         self.singleton_register._tag_factory = self.tag_factory
 
         self.quantities_factory._singleton_register = self.singleton_register
@@ -68,9 +75,7 @@ class BaseCodietTest(TestCase):
 
         self.optimiser_factory._recipe_factory = self.recipe_factory
 
+    def initialise_fixtures(self):
         self.optimiser_fixtures = OptimiserFixtures()
         self.recipe_fixtures = RecipeFixtures()
-
         self.recipe_fixtures._recipe_factory = self.recipe_factory
-
-
