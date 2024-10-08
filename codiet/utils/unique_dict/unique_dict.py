@@ -4,9 +4,10 @@ from typing import TypeVar
 K = TypeVar('K')
 V = TypeVar('V')
 
-from .base_unique_dict import BaseUniqueDict
+from .base_unique_dict import UniqueDictBase
+from .utils import check_values_are_unique
 
-class UniqueDict(BaseUniqueDict[K, V], MutableMapping):
+class UniqueDict(UniqueDictBase[K, V], MutableMapping):
     def __setitem__(self, key: K, value: V) -> None:
         if key in self._data:
             old_value = self._data[key]
@@ -24,5 +25,10 @@ class UniqueDict(BaseUniqueDict[K, V], MutableMapping):
 
     def update(self, *args, **kwargs) -> None:
         items = dict(*args, **kwargs)
+        check_values_are_unique(items)
         for key, value in items.items():
             self[key] = value
+
+    def clear(self) -> None:
+        self._data.clear()
+        self._values_set.clear()

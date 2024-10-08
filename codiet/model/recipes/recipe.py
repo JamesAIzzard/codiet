@@ -122,6 +122,10 @@ class Recipe(HasFlags):
     def add_ingredient_quantity(
         self, ingredient_quantity: "IngredientQuantity"
     ) -> "Recipe":
+        if ingredient_quantity.ingredient.name in self._ingredient_quantities:
+            raise ValueError(
+                f"Ingredient quantity with name '{ingredient_quantity.ingredient.name}' already exists."
+            )
         
         self._ingredient_quantities[ingredient_quantity.ingredient.name] = ingredient_quantity
 

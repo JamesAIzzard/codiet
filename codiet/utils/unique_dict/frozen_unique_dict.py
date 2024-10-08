@@ -4,9 +4,9 @@ from typing import TypeVar
 K = TypeVar('K')
 V = TypeVar('V')
 
-from .base_unique_dict import BaseUniqueDict
+from .base_unique_dict import UniqueDictBase
 
-class FrozenUniqueDict(BaseUniqueDict[K, V], Mapping):
+class FrozenUniqueDict(UniqueDictBase[K, V], Mapping):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._hash = None

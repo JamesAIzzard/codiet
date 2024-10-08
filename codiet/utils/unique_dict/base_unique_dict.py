@@ -1,18 +1,15 @@
-from typing import TypeVar, Generic, Iterator, Dict
+from typing import TypeVar, Generic, Iterator
 
 from .utils import check_values_are_unique
 
 K = TypeVar('K')
 V = TypeVar('V')
 
-class BaseUniqueDict(Generic[K, V]):
+class UniqueDictBase(Generic[K, V]):
     def __init__(self, *args, **kwargs):
-
         items = dict(*args, **kwargs)
-
         check_values_are_unique(items)
-        
-        self._data: Dict[K, V] = items
+        self._data: dict[K, V] = items
         self._values_set = set(items.values())
 
     def __contains__(self, key: K) -> bool:
