@@ -4,10 +4,11 @@ from codiet.model.recipes import RecipeQuantity, Recipe
 
 if TYPE_CHECKING:
     from codiet.model import SingletonRegister
-    from codiet.model.quantities import QuantitiesFactory, Quantity
+    from codiet.model.quantities import QuantitiesFactory
+    from codiet.model.flags import FlagFactory
+    from codiet.model.time import TimeFactory
     from codiet.model.ingredients import IngredientFactory
     from codiet.model.recipes import RecipeDTO, RecipeQuantityDTO
-    from codiet.model.time import TimeFactory
 
 
 class RecipeFactory:
@@ -15,6 +16,7 @@ class RecipeFactory:
         self._singleton_register: "SingletonRegister"
         self._quantities_factory: "QuantitiesFactory"
         self._time_factory: "TimeFactory"
+        self._flag_factory: "FlagFactory"
         self._ingredient_factory: "IngredientFactory"
 
     def create_recipe_from_dto(self, recipe_dto: "RecipeDTO") -> "Recipe":
@@ -46,7 +48,8 @@ class RecipeFactory:
             instructions=recipe_dto["instructions"],
             ingredient_quantities=ingredient_quantities,
             serve_time_windows=serve_time_windows,
-            tags=tags
+            tags=tags,
+            flag_factory=self._flag_factory
         )
 
         return recipe

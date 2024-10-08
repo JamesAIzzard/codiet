@@ -29,11 +29,16 @@ class TestSolve(BaseOptimiserTest):
     def test_all_diet_plans_satisfy_flag_constraints(self):
 
         monday = DietStructure(OptimiserFixtures().monday_structure)
+        optimiser = self.optimiser_factory.create_optimiser()
 
         vegan_constraint = FlagConstraint("vegan", True)
 
-        monday = self.optimiser.solve(monday)
+        monday.get_node(()).add_constraint(vegan_constraint)
+
+        monday = optimiser.solve(monday)
 
         for recipe_node in monday.recipe_nodes:
             for recipe_quantity in recipe_node.solutions.values():
-                self.assertTrue(recipe_quantity.get_flag_value("vegan"))
+                self.assertTrue(recipe_quantity.get_flag("vegetarian").value)
+                self.assertFalse(recipe_quantity.get_flag("vegan").value)
+                self.assertFalse(recipe_quantity.get_flag("gluten_free").value)

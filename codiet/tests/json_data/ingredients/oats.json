@@ -11,6 +11,7 @@
     },
     "flags": {
         "vegan": true,
+        "vegetarian": true,
         "gluten_free": false
     },
     "gi": 55,

@@ -6,7 +6,7 @@ from codiet.utils.unique_dict import UniqueDict
 from codiet.model.flags import HasFlags
 
 if TYPE_CHECKING:
-    from codiet.model.flags import Flag
+    from codiet.model.flags import Flag, FlagFactory
     from codiet.model.time import TimeWindow, TimeWindowDTO
     from codiet.model.tags import Tag, TagDTO
     from codiet.model.ingredients import IngredientQuantity, IngredientQuantityDTO
@@ -33,10 +33,13 @@ class Recipe(HasFlags):
         ingredient_quantities: dict[str, "IngredientQuantity"],
         serve_time_windows: Collection["TimeWindow"],
         tags: Collection["Tag"],
+        flag_factory: "FlagFactory",
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
+
+        self._flag_factory = flag_factory
 
         self._name = name
         self._use_as_ingredient = use_as_ingredient
@@ -84,7 +87,7 @@ class Recipe(HasFlags):
 
     @property
     def ingredient_quantities(self) -> IUC["IngredientQuantity"]:
-        return IUC(self._ingredient_quantities)
+        return IUC(self._ingredient_quantities.values())
 
     @property
     def serve_time_windows(self) -> IUC["TimeWindow"]:
@@ -95,7 +98,7 @@ class Recipe(HasFlags):
         return IUC(self._tags)
 
     def get_flag(self, name: str) -> "Flag":
-        flag = Flag(name)
+        flag = self._flag_factory.create_flag(name)
 
         if self.is_flag_none_on_any_ingredient(name):
             return flag.set_value(None)
@@ -105,13 +108,13 @@ class Recipe(HasFlags):
             return flag.set_value(True)
 
     def is_flag_none_on_any_ingredient(self, name: str) -> bool:
-        for ingredient_quantity in self._ingredient_quantities:
+        for ingredient_quantity in self.ingredient_quantities:
             if ingredient_quantity.ingredient.get_flag(name).value is None:
                 return True
         return False
 
     def is_flag_false_on_any_ingredient(self, name: str) -> bool:
-        for ingredient_quantity in self._ingredient_quantities:
+        for ingredient_quantity in self.ingredient_quantities:
             if ingredient_quantity.ingredient.get_flag(name).value is False:
                 return True
         return False

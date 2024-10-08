@@ -62,6 +62,7 @@ class BaseCodietTest(TestCase):
 
         self.recipe_factory._singleton_register = self.singleton_register
         self.recipe_factory._quantities_factory = self.quantities_factory
+        self.recipe_factory._flag_factory = self.flag_factory
         self.recipe_factory._time_factory = self.time_factory
         self.recipe_factory._ingredient_factory = self.ingredient_factory
 

@@ -13,3 +13,10 @@ class FlagFactory:
             value=flag_dto["value"],
         )
         return flag
+    
+    def create_flag(self, name: str, value: bool|None=None) -> Flag:
+        flag = Flag(
+            name=name,
+            value=value,
+        )
+        return flag
