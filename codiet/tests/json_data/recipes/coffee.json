@@ -12,11 +12,11 @@
     ],
     "ingredient_quantites": {
         "espresso": {
-            "unit": "millilitre",
+            "unit_name": "millilitre",
             "value": 30
         },
         "skimmed milk": {
-            "unit": "millilitre",
+            "unit_name": "millilitre",
             "value": 200
         }
     },

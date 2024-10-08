@@ -135,10 +135,7 @@ class JSONRepository:
         ].items():
             ingredient_quantities[ingredient_name] = {
                 "ingredient_name": ingredient_name,
-                "quantity": {
-                    "unit_name": quantity_data["unit"],
-                    "value": quantity_data["value"],
-                },
+                "quantity": quantity_data,
             }
 
         serve_time_windows = []

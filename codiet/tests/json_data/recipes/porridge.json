@@ -11,19 +11,19 @@
     ],
     "ingredient_quantities": {
         "oats": {
-            "unit": "gram",
+            "unit_name": "gram",
             "value": 80
         },
         "skimmed milk": {
-            "unit": "millilitre",
+            "unit_name": "millilitre",
             "value": 300
         },
         "water": {
-            "unit": "millilitre",
+            "unit_name": "millilitre",
             "value": 100
         },
         "salt": {
-            "unit": "pinch",
+            "unit_name": "pinch",
             "value": 1
         }
     },

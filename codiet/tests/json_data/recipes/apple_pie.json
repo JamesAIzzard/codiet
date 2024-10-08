@@ -15,19 +15,19 @@
     ],
     "ingredient_quantities": {
         "apple": {
-            "unit": "whole",
+            "unit_name": "whole",
             "value": 4
         },
         "sugar": {
-            "unit": "gram",
+            "unit_name": "gram",
             "value": 150
         },
         "butter": {
-            "unit": "gram",
+            "unit_name": "gram",
             "value": 200
         },
         "flour": {
-            "unit": "gram",
+            "unit_name": "gram",
             "value": 200
         }
     },
