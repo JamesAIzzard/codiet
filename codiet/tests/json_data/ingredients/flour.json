@@ -2,7 +2,16 @@
     "name": "flour",
     "description": "A powder made by grinding raw grains, used in baking and cooking",
     "unit_conversions": [
-        [["gram", 120], ["cup", 1]]
+        {
+            "from_quantity": {
+                "unit_name": "gram",
+                "value": 120
+            },
+            "to_quantity": {
+                "unit_name": "cup",
+                "value": 1
+            }
+        }
     ],
     "standard_unit": "cup",
     "quantity_cost": {

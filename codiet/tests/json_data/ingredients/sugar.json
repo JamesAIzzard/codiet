@@ -2,7 +2,16 @@
     "name": "sugar",
     "description": "A sweet crystalline substance obtained from various plants, used in cooking and baking",
     "unit_conversions": [
-        [["gram", 200], ["cup", 1]]
+        {
+            "from_quantity": {
+                "unit_name": "gram",
+                "value": 200
+            },
+            "to_quantity": {
+                "unit_name": "cup",
+                "value": 1
+            }
+        }
     ],
     "standard_unit": "cup",
     "quantity_cost": {

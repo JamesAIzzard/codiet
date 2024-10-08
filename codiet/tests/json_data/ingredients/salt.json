@@ -2,7 +2,16 @@
     "name": "salt",
     "description": "A common mineral used as a seasoning and preservative",
     "unit_conversions": [
-        [["gram", 5.69], ["teaspoon", 1]]
+        {
+            "from_quantity": {
+                "unit_name": "gram",
+                "value": 5.69
+            },
+            "to_quantity": {
+                "unit_name": "teaspoon",
+                "value": 1
+            }
+        }
     ],
     "standard_unit": "gram",
     "quantity_cost": {

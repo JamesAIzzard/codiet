@@ -2,7 +2,16 @@
     "name": "oats",
     "description": "A type of whole grain used for porridge and baking",
     "unit_conversions": [
-        [["gram", 100], ["cup", 1]]
+        {
+            "from_quantity": {
+                "unit_name": "gram",
+                "value": 100
+            },
+            "to_quantity": {
+                "unit_name": "cup",
+                "value": 1
+            }
+        }
     ],
     "standard_unit": "gram",
     "quantity_cost": {

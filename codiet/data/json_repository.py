@@ -54,16 +54,7 @@ class JSONRepository:
         )
         conversion_name = f"{names[0]}-{names[1]}"
         conversion_data = entire_file_data[conversion_name]
-        return {
-            "from_quantity": {
-                "unit_name": conversion_data["from_quantity"]["unit_name"],
-                "value": conversion_data["from_quantity"]["value"],
-            },
-            "to_quantity": {
-                "unit_name": conversion_data["to_quantity"]["unit_name"],
-                "value": conversion_data["to_quantity"]["value"],
-            },
-        }
+        return conversion_data
 
     def read_nutrient_dto(self, name: str) -> "NutrientDTO":
         all_nutrient_data = self._json_reader.read_file(
@@ -101,18 +92,7 @@ class JSONRepository:
 
         unit_conversions = []
         for unit_conversion_data in ingredient_file_data["unit_conversions"]:
-            unit_conversions.append(
-                {
-                    "from_quantity": {
-                        "unit_name": unit_conversion_data[0][0],
-                        "value": unit_conversion_data[0][1],
-                    },
-                    "to_quantity": {
-                        "unit_name": unit_conversion_data[1][0],
-                        "value": unit_conversion_data[1][1],
-                    },
-                }
-            )
+            unit_conversions.append(unit_conversion_data)
 
         quantity_cost = {
             "cost": ingredient_file_data["quantity_cost"]["cost"],
