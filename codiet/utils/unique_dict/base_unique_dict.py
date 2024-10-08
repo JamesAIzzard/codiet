@@ -1,13 +1,17 @@
 from typing import TypeVar, Generic, Iterator, Dict
 
+from .utils import check_values_are_unique
+
 K = TypeVar('K')
 V = TypeVar('V')
 
 class BaseUniqueDict(Generic[K, V]):
     def __init__(self, *args, **kwargs):
+
         items = dict(*args, **kwargs)
-        if len(set(items.values())) != len(items.values()):
-            raise ValueError("Values must be unique")
+
+        check_values_are_unique(items)
+        
         self._data: Dict[K, V] = items
         self._values_set = set(items.values())
 
