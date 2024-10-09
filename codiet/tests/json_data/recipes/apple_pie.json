@@ -31,6 +31,15 @@
             "value": 200
         }
     },
-    "serve_time_windows": ["16:00-23:59"],
-    "tags": ["dessert", "baked", "pie"]
+    "serve_time_windows": [
+        {
+            "start_hh_mm": "16:00",
+            "end_hh_mm": "23:59"
+        }
+    ],
+    "tags": [
+        "dessert",
+        "baked",
+        "pie"
+    ]
 }

@@ -20,6 +20,11 @@
             "value": 200
         }
     },
-    "serve_time_windows": ["06:00-18:00"],
+    "serve_time_windows": [
+        {
+            "start_hh_mm": "02:00",
+            "end_hh_mm": "14:00"
+        }
+    ],
     "tags": ["hot", "drink"]
 }

@@ -140,13 +140,7 @@ class JSONRepository:
 
         serve_time_windows = []
         for time_window in recipe_file_data["serve_time_windows"]:
-            start_time, end_time = time_window.split("-")
-            serve_time_windows.append(
-                {
-                    "start_hh_mm": start_time,
-                    "end_hh_mm": end_time,
-                }
-            )
+            serve_time_windows.append(time_window)
 
         tags = []
         for tag_name in recipe_file_data["tags"]:
