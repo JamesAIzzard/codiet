@@ -8,6 +8,7 @@ from codiet.model.stored_entity import StoredEntity
 
 class NutrientDTO(TypedDict):
     name: str
+    cals_per_gram: float
     aliases: Collection[str]
     parent_name: str | None
     child_names: Collection[str]
@@ -18,6 +19,7 @@ class Nutrient(StoredEntity):
     def __init__(
         self,
         name: str,
+        cals_per_gram: float,        
         aliases: Collection[str] | None = None,
         parent: "Nutrient|None" = None,
         children: dict[str, "Nutrient"] | None = None,
@@ -26,7 +28,7 @@ class Nutrient(StoredEntity):
     ):
         super().__init__(*args, **kwargs)
         self._name = name
-
+        self._cals_per_gram = cals_per_gram
         self._aliases = MUC(aliases) or MUC()
         self._parent = parent
         self._children = (

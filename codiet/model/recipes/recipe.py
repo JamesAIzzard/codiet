@@ -97,6 +97,12 @@ class Recipe(HasFlags):
     def tags(self) -> IUC["Tag"]:
         return IUC(self._tags)
 
+    @property
+    def calories_per_gram(self) -> int:
+        for ingredient in self.ingredients:
+            if ingredient.calories_per_gram is not None:
+                return ingredient.calories_per_gram
+
     def get_flag(self, name: str) -> "Flag":
         flag = self._flag_factory.create_flag(name)
 

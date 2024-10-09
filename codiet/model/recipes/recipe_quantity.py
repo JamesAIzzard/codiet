@@ -23,5 +23,9 @@ class RecipeQuantity(HasFlags, IsQuantified):
     def recipe(self) -> 'Recipe':
         return self._recipe
 
+    @property
+    def calories(self) -> int:
+        return self.recipe.calories_per_gram * convert(self.quantity, "gram")
+
     def get_flag(self, flag_name: str) -> "Flag":
         return self.recipe.get_flag(flag_name)

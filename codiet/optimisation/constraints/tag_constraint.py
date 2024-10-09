@@ -9,5 +9,5 @@ class TagConstraint(Constraint):
     def __init__(self, tag_name:str):
         self._tag_name = tag_name
 
-    def is_satisfied(self, recipe:'Recipe') -> bool:
+    def is_satisfied_by(self, recipe:'Recipe') -> bool:
         return self._tag_name in recipe.tags

@@ -22,6 +22,7 @@ class NutrientFactory:
 
         nutrient = Nutrient(
             name=nutrient_dto["name"],
+            cals_per_gram=nutrient_dto["cals_per_gram"],
             aliases=nutrient_dto.get("aliases", []),
             children=children
         )

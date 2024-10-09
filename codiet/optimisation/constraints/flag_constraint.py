@@ -10,5 +10,5 @@ class FlagConstraint(Constraint):
         self.flag_name = flag_name
         self.value = value
 
-    def is_satisfied(self, recipe:'Recipe') -> bool:
+    def is_satisfied_by(self, recipe:'Recipe') -> bool:
         return recipe.get_flag(self.flag_name).value == self.value

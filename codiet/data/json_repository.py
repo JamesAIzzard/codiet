@@ -62,19 +62,27 @@ class JSONRepository:
         )
 
         def find_nutrient(data, target_name, parent_name=None) -> "NutrientDTO|None":
-            if target_name in data:
-                return {
-                    "name": target_name,
-                    "aliases": data[target_name].get("aliases", []),
-                    "parent_name": parent_name,
-                    "child_names": list(data[target_name].get("children", {}).keys()),
-                }
             
-            for key, value in data.items():
-                if "children" in value:
-                    result = find_nutrient(value["children"], target_name, key)
-                    if result:
-                        return result
+            if target_name not in data:
+                for key, value in data.items():
+                    if "children" in value:
+                        result = find_nutrient(value["children"], target_name, key)
+                        if result:
+                            return result
+            else:
+                if "cals_per_gram" in data[target_name].keys():
+                    cals_per_gram = data[target_name]["cals_per_gram"]
+                else:
+                    cals_per_gram = 0
+
+                if target_name in data:
+                    return {
+                        "name": target_name,
+                        "cals_per_gram": cals_per_gram,
+                        "aliases": data[target_name].get("aliases", []),
+                        "parent_name": parent_name,
+                        "child_names": list(data[target_name].get("children", {}).keys()),
+                    }
             
             return None
 

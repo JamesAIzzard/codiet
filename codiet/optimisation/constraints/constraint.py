@@ -7,5 +7,5 @@ if TYPE_CHECKING:
 class Constraint(ABC):
     
     @abstractmethod
-    def is_satisfied(self, recipe:'Recipe') -> bool:
+    def is_satisfied_by(self, recipe:'Recipe') -> bool:
         raise NotImplementedError

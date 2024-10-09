@@ -28,8 +28,8 @@ class BaseCodietTest(TestCase):
 
     def initialise_database_service(self):
         self.database_service = DatabaseService()
-        repository = JSONRepository(TEST_DATA_DIR)
-        self.database_service._repository = repository
+        self.json_repository = JSONRepository(TEST_DATA_DIR)
+        self.database_service._repository = self.json_repository
 
     def initialise_singleton_register(self):
         self.singleton_register = SingletonRegister()
