@@ -5,7 +5,7 @@ from codiet.model.quantities import Unit, Quantity, UnitConversion
 if TYPE_CHECKING:
     from codiet.data import DatabaseService
     from codiet.model.singleton_register import SingletonRegister
-    from codiet.model.quantities import UnitDTO, QuantityDTO, UnitConversionDTO
+    from codiet.model.quantities import UnitDTO, QuantityDTO, UnitConversionDTO, UnitConversionService
 
 
 class QuantitiesFactory:
@@ -19,9 +19,14 @@ class QuantitiesFactory:
         self,
         singleton_register: "SingletonRegister",
         database_service: "DatabaseService",
+        unit_conversion_service: "UnitConversionService",
     ) -> "QuantitiesFactory":
         self._singleton_register = singleton_register
         self._database_service = database_service
+        self._unit_conversion_service = unit_conversion_service
+
+        Quantity.initialise(unit_conversion_service=self._unit_conversion_service)
+
         return self
 
     def create_unit_from_dto(self, unit_dto: "UnitDTO") -> Unit:

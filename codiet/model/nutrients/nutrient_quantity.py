@@ -17,26 +17,20 @@ class NutrientQuantity(IsQuantified):
     def __init__(
         self,
         nutrient: "Nutrient",
-        ingredient_grams_value: float | None = None,
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
 
         self._nutrient = nutrient
-        self._ingredient_grams_value = ingredient_grams_value
 
     @property
     def nutrient(self) -> "Nutrient":
         return self._nutrient
 
     @property
-    def ingredient_grams_value(self) -> float | None:
-        return self._ingredient_grams_value
-
-    @ingredient_grams_value.setter
-    def ingredient_grams_value(self, value: float | None):
-        self._ingredient_grams_value = value
+    def calories(self) -> float:
+        return self.nutrient.calories_per_gram * self.mass_in_grams
 
     def __hash__(self):
         return hash((self.nutrient.name))

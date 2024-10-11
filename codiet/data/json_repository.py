@@ -7,6 +7,7 @@ from codiet.data.json_reader import JSONReader
 if TYPE_CHECKING:
     from codiet.model.quantities import UnitDTO, UnitConversionDTO
     from codiet.model.nutrients import NutrientDTO
+    from codiet.model.cost import QuantityCostDTO
     from codiet.model.ingredients import IngredientDTO
     from codiet.model.recipes import RecipeDTO
 
@@ -65,6 +66,22 @@ class JSONRepository:
         conversion_data = entire_file_data[conversion_name]
         return conversion_data
 
+    def read_all_nutrient_names(self) -> IUC[str]:
+        all_nutrient_data = self._json_reader.read_file(
+            os.path.join(self._data_dir, "nutrients.json")
+        )
+
+        def find_all_nutrients(data) -> list[str]:
+            nutrient_names = []
+            for key, value in data.items():
+                if "cals_per_gram" in value.keys():
+                    nutrient_names.append(key)
+                if "children" in value:
+                    nutrient_names.extend(find_all_nutrients(value["children"]))
+            return nutrient_names
+
+        return IUC(find_all_nutrients(all_nutrient_data))
+
     def read_nutrient_dto(self, name: str) -> "NutrientDTO":
         all_nutrient_data = self._json_reader.read_file(
             os.path.join(self._data_dir, "nutrients.json")
@@ -104,6 +121,11 @@ class JSONRepository:
 
         return nutrient_dto
 
+    def read_all_ingredient_names(self) -> IUC[str]:
+        ingredient_files = os.listdir(os.path.join(self._data_dir, "ingredients"))
+        ingredient_names = [name.split(".")[0] for name in ingredient_files]
+        return IUC(ingredient_names)
+
     def read_ingredient_dto(self, name: str) -> "IngredientDTO":
         ingredient_file_data = self._json_reader.read_file(
             os.path.join(self._data_dir, "ingredients", name + ".json")
@@ -119,7 +141,7 @@ class JSONRepository:
             )
             unit_conversions[key] = conversion_data
 
-        quantity_cost = {
+        quantity_cost:"QuantityCostDTO" = {
             "cost": ingredient_file_data["quantity_cost"]["cost"],
             "quantity": ingredient_file_data["quantity_cost"]["quantity"],
         }
@@ -151,9 +173,14 @@ class JSONRepository:
             "nutrient_quantities_per_gram": nutrient_quantities,
         }
 
-    def read_recipe_dto(self, recipe_name: str) -> "RecipeDTO":
+    def read_all_recipe_names(self) -> IUC[str]:
+        recipe_files = os.listdir(os.path.join(self._data_dir, "recipes"))
+        recipe_names = [name.split(".")[0] for name in recipe_files]
+        return IUC(recipe_names)
+
+    def read_recipe_dto(self, name: str) -> "RecipeDTO":
         recipe_file_data = self._json_reader.read_file(
-            os.path.join(self._data_dir, "recipes", recipe_name + ".json")
+            os.path.join(self._data_dir, "recipes", name + ".json")
         )
 
         ingredient_quantities = {}
@@ -177,8 +204,8 @@ class JSONRepository:
                 }
             )
 
-        recipe_data = {
-            "name": recipe_name,
+        recipe_data:"RecipeDTO" = {
+            "name": name,
             "use_as_ingredient": recipe_file_data["use_as_ingredient"],
             "description": recipe_file_data["description"],
             "instructions": recipe_file_data["instructions"],
