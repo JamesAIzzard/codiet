@@ -1,12 +1,10 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from codiet.model.quantities import Quantity, UnitConversionService
+    from codiet.model.quantities import Quantity
 
 
 class IsQuantified:
-
-    unit_conversion_service: "UnitConversionService"
 
     def __init__(self, quantity: "Quantity", *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -23,6 +21,4 @@ class IsQuantified:
 
     @property
     def mass_in_grams(self) -> float:
-        return self.unit_conversion_service.convert_quantity(
-            quantity=self.quantity, to_unit_name="gram"
-        ).value
+        return self.quantity.value_in_grams

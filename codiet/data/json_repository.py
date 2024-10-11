@@ -7,6 +7,7 @@ from codiet.data.json_reader import JSONReader
 if TYPE_CHECKING:
     from codiet.model.quantities import UnitDTO, UnitConversionDTO
     from codiet.model.nutrients import NutrientDTO
+    from codiet.model.cost import QuantityCostDTO
     from codiet.model.ingredients import IngredientDTO
     from codiet.model.recipes import RecipeDTO
 
@@ -140,7 +141,7 @@ class JSONRepository:
             )
             unit_conversions[key] = conversion_data
 
-        quantity_cost = {
+        quantity_cost:"QuantityCostDTO" = {
             "cost": ingredient_file_data["quantity_cost"]["cost"],
             "quantity": ingredient_file_data["quantity_cost"]["quantity"],
         }
@@ -203,7 +204,7 @@ class JSONRepository:
                 }
             )
 
-        recipe_data = {
+        recipe_data:"RecipeDTO" = {
             "name": name,
             "use_as_ingredient": recipe_file_data["use_as_ingredient"],
             "description": recipe_file_data["description"],

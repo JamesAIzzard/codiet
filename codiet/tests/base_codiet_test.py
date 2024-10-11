@@ -62,7 +62,8 @@ class BaseCodietTest(TestCase):
 
         self.quantities_factory.initialise(
             singleton_register=self.singleton_register,
-            database_service=self.database_service
+            database_service=self.database_service,
+            unit_conversion_service=self.unit_conversion_service
         )
 
         self.cost_factory.initialise(
