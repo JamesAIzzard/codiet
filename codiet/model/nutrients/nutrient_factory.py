@@ -14,6 +14,15 @@ class NutrientFactory:
         self._singleton_register: "SingletonRegister"
         self._quantities_factory: "QuantitiesFactory"
     
+    def initialise(
+        self,
+        singleton_register: "SingletonRegister",
+        quantities_factory: "QuantitiesFactory",
+    ) -> "NutrientFactory":
+        self._singleton_register = singleton_register
+        self._quantities_factory = quantities_factory
+        return self
+
     def create_nutrient_from_dto(self, nutrient_dto: "NutrientDTO") -> Nutrient:
         # Create the nutrient with children only (so working down the tree)
         children = {}
@@ -22,7 +31,7 @@ class NutrientFactory:
 
         nutrient = Nutrient(
             name=nutrient_dto["name"],
-            cals_per_gram=nutrient_dto["cals_per_gram"],
+            calories_per_gram=nutrient_dto["cals_per_gram"],
             aliases=nutrient_dto.get("aliases", []),
             children=children
         )

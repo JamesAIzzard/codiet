@@ -21,22 +21,12 @@ class BaseCodietTest(TestCase):
 
     def setUp(self) -> None:
         super().setUp()
-        self.initialise_database_service()
-        self.initialise_singleton_register()
-        self.initialise_factories()
-        self.initialise_unit_conversion_service()        
-        self.initialise_fixtures()
-
-    def initialise_database_service(self):
         self.database_service = DatabaseService()
-        self.json_repository = JSONRepository(TEST_DATA_DIR)
-        self.database_service._repository = self.json_repository
-
-    def initialise_singleton_register(self):
+        self.json_repository = JSONRepository(TEST_DATA_DIR)        
+        
         self.singleton_register = SingletonRegister()
-        self.singleton_register._database_service = self.database_service
+        self.unit_conversion_service = UnitConversionService()
 
-    def initialise_factories(self):
         self.quantities_factory = QuantitiesFactory()
         self.cost_factory = CostFactory()
         self.flag_factory = FlagFactory()
@@ -47,47 +37,64 @@ class BaseCodietTest(TestCase):
         self.recipe_factory = RecipeFactory()
         self.optimiser_factory = OptimiserFactory()
 
-        self.database_service._quantities_factory = self.quantities_factory
-        self.database_service._nutrients_factory = self.nutrient_factory
-        self.database_service._ingredient_factory = self.ingredient_factory
-        self.database_service._recipe_factory = self.recipe_factory
+        self.optimiser_fixtures = OptimiserFixtures()
+        self.recipe_fixtures = RecipeFixtures()
 
-        self.singleton_register._tag_factory = self.tag_factory
-        self.singleton_register._quantities_factory = self.quantities_factory
-
-        self.quantities_factory._singleton_register = self.singleton_register
-        self.quantities_factory._database_service = self.database_service
-
-        self.cost_factory._quantities_factory = self.quantities_factory
-
-        self.nutrient_factory._singleton_register = self.singleton_register
-        self.nutrient_factory._quantities_factory = self.quantities_factory
-
-        self.ingredient_factory._singleton_register = self.singleton_register
-        self.ingredient_factory._quantities_factory = self.quantities_factory
-        self.ingredient_factory._cost_factory = self.cost_factory
-        self.ingredient_factory._flag_factory = self.flag_factory
-        self.ingredient_factory._nutrients_factory = self.nutrient_factory
-
-        self.recipe_factory.initialise(
-            singleton_register=self.singleton_register,
+        self.database_service.initialise(
+            repository=self.json_repository,
             quantities_factory=self.quantities_factory,
-            time_factory=self.time_factory,
-            flag_factory=self.flag_factory,
-            ingredient_factory=self.ingredient_factory
+            nutrients_factory=self.nutrient_factory,
+            ingredient_factory=self.ingredient_factory,
+            recipe_factory=self.recipe_factory
         )
 
-        self.optimiser_factory._recipe_factory = self.recipe_factory
+        self.singleton_register.initialise(
+            database_service=self.database_service,
+            quantities_factory=self.quantities_factory,
+            tag_factory=self.tag_factory
+        )
 
-    def initialise_unit_conversion_service(self):
-        self.unit_conversion_service = UnitConversionService()
         self.unit_conversion_service.initialise(
             create_quantity=self.quantities_factory.create_quantity,
             get_unit=self.singleton_register.get_unit,
             get_global_unit_conversions=self.singleton_register.get_global_unit_conversions
         )
 
-    def initialise_fixtures(self):
-        self.optimiser_fixtures = OptimiserFixtures()
-        self.recipe_fixtures = RecipeFixtures()
-        self.recipe_fixtures._recipe_factory = self.recipe_factory
+        self.quantities_factory.initialise(
+            singleton_register=self.singleton_register,
+            database_service=self.database_service
+        )
+
+        self.cost_factory.initialise(
+            quantities_factory=self.quantities_factory
+        )
+
+        self.nutrient_factory.initialise(
+            singleton_register=self.singleton_register,
+            quantities_factory=self.quantities_factory
+        )
+
+        self.ingredient_factory.initialise(
+            singleton_register=self.singleton_register,
+            quantities_factory=self.quantities_factory,
+            cost_factory=self.cost_factory,
+            flag_factory=self.flag_factory,
+            nutrient_factory=self.nutrient_factory
+        )
+
+        self.recipe_factory.initialise(
+            singleton_register=self.singleton_register,
+            unit_conversion_service=self.unit_conversion_service,
+            quantities_factory=self.quantities_factory,
+            time_factory=self.time_factory,
+            flag_factory=self.flag_factory,
+            ingredient_factory=self.ingredient_factory
+        )
+
+        self.optimiser_factory.initialise(
+            recipe_factory=self.recipe_factory
+        )
+
+        self.recipe_fixtures.initialise(
+            recipe_factory=self.recipe_factory,
+        )

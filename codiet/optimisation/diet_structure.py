@@ -61,8 +61,9 @@ class DietStructureNode:
         self._children[name] = child_node
         return child_node
 
-    def add_constraint(self, constraint: 'Constraint'):
+    def add_constraint(self, constraint: 'Constraint') -> "DietStructureNode":
         self._constraints.append(constraint)    
+        return self
 
     def add_goal(self, goal: 'Goal'):
         self._goals.append(goal)

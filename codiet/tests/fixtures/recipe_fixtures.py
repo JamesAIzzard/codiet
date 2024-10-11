@@ -6,8 +6,11 @@ if TYPE_CHECKING:
 class RecipeFixtures:
 
     def __init__(self):
-        
         self._recipe_factory: "RecipeFactory"
+
+    def initialise(self, recipe_factory: "RecipeFactory") -> "RecipeFixtures":
+        self._recipe_factory = recipe_factory
+        return self
 
     @property
     def porridge_500g(self) -> "RecipeQuantity":

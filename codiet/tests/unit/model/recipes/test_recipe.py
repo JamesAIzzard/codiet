@@ -7,7 +7,7 @@ class TestTotalGramsInDefinition(BaseTestRecipe):
     def test_returns_correct_value(self):
         recipe = self.singleton_register.get_recipe("apple_pie")
 
-        self.assertEqual(recipe.total_grams_in_definition, (4*128)+150+200+200)
+        self.assertEqual(recipe.total_grams_in_definition, (4*182)+150+200+200)
 
 class TestAddIngredientQuantity(BaseTestRecipe):
     def test_can_add_ingredient_quantity(self):

@@ -19,6 +19,21 @@ class IngredientFactory:
         self._flag_factory: "FlagFactory"
         self._nutrients_factory: "NutrientFactory"
 
+    def initialise(
+        self,
+        singleton_register: "SingletonRegister",
+        quantities_factory: "QuantitiesFactory",
+        cost_factory: "CostFactory",
+        flag_factory: "FlagFactory",
+        nutrient_factory: "NutrientFactory",
+    ) -> "IngredientFactory":
+        self._singleton_register = singleton_register
+        self._quantities_factory = quantities_factory
+        self._cost_factory = cost_factory
+        self._flag_factory = flag_factory
+        self._nutrients_factory = nutrient_factory
+        return self
+
     def create_ingredient_from_dto(self, ingredient_dto: "IngredientDTO") -> Ingredient:
         unit_conversions = {}
         for key, unit_conversion_dto in ingredient_dto["unit_conversions"].items():

@@ -4,7 +4,12 @@ from codiet.utils.unique_dict import UniqueDict as UD
 
 if TYPE_CHECKING:
     from codiet.data.database_service import DatabaseService
-    from codiet.model.quantities import Unit, UnitConversion, UnitSystem, QuantitiesFactory
+    from codiet.model.quantities import (
+        Unit,
+        UnitConversion,
+        UnitSystem,
+        QuantitiesFactory,
+    )
     from codiet.model.nutrients import Nutrient
     from codiet.model.tags import Tag, TagFactory
     from codiet.model.ingredients import Ingredient
@@ -25,6 +30,17 @@ class SingletonRegister:
         self._ingredients = UD[str, "Ingredient"]()
         self._recipes = UD[str, "Recipe"]()
 
+    def initialise(
+        self,
+        database_service: "DatabaseService",
+        quantities_factory: "QuantitiesFactory",
+        tag_factory: "TagFactory",
+    ) -> "SingletonRegister":
+        self._database_service = database_service
+        self._quantities_factory = quantities_factory
+        self._tag_factory = tag_factory
+        return self
+
     def get_unit(self, unit_name: str) -> "Unit":
         if unit_name not in self._units:
             self._units[unit_name] = self._database_service.read_unit(unit_name)
@@ -34,12 +50,14 @@ class SingletonRegister:
         self, unit_conversion_key: frozenset[str]
     ) -> "UnitConversion":
         if unit_conversion_key not in self._unit_conversions:
-            self._unit_conversions[unit_conversion_key] = self._database_service.read_global_unit_conversion(unit_conversion_key)
+            self._unit_conversions[unit_conversion_key] = (
+                self._database_service.read_global_unit_conversion(unit_conversion_key)
+            )
         return self._unit_conversions[unit_conversion_key]
-        
+
     def get_global_unit_conversions(self) -> dict[frozenset[str], "UnitConversion"]:
         conversion_keys = self._database_service.read_all_global_unit_conversion_names()
-        
+
         conversions = {}
         for key in conversion_keys:
             conversions[key] = self.get_unit_conversion(key)

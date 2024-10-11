@@ -22,6 +22,21 @@ class DatabaseService:
         self._ingredient_factory: "IngredientFactory"
         self._recipe_factory: "RecipeFactory"
 
+    def initialise(
+        self,
+        repository: "Repository",
+        quantities_factory: "QuantitiesFactory",
+        nutrients_factory: "NutrientFactory",
+        ingredient_factory: "IngredientFactory",
+        recipe_factory: "RecipeFactory",
+    ) -> "DatabaseService":
+        self._repository = repository
+        self._quantities_factory = quantities_factory
+        self._nutrients_factory = nutrients_factory
+        self._ingredient_factory = ingredient_factory
+        self._recipe_factory = recipe_factory
+        return self
+
     def read_unit_names(self) -> IUC[str]:
         unit_names = self._repository.read_unit_names()
         return IUC(unit_names)
@@ -35,9 +50,15 @@ class DatabaseService:
         unit_conversion_names = self._repository.read_all_global_unit_conversion_names()
         return IUC(unit_conversion_names)
 
-    def read_global_unit_conversion(self, unit_conversion_key: frozenset[str]) -> "UnitConversion":
-        unit_conversion_dto = self._repository.read_global_unit_conversion_dto(unit_conversion_key)
-        unit_conversion = self._quantities_factory.create_unit_conversion_from_dto(unit_conversion_dto)
+    def read_global_unit_conversion(
+        self, unit_conversion_key: frozenset[str]
+    ) -> "UnitConversion":
+        unit_conversion_dto = self._repository.read_global_unit_conversion_dto(
+            unit_conversion_key
+        )
+        unit_conversion = self._quantities_factory.create_unit_conversion_from_dto(
+            unit_conversion_dto
+        )
         return unit_conversion
 
     def read_all_utrient_names(self) -> IUC[str]:

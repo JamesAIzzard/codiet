@@ -26,6 +26,9 @@ class IngredientQuantity(IsQuantified):
     def ingredient(self) -> 'Ingredient':
         return self._ingredient
 
+    def calories(self) -> float:
+        return self.ingredient.calories_per_gram * self.mass_in_grams
+
     def __eq__(self, other):
         if not isinstance(other, IngredientQuantity):
             return False

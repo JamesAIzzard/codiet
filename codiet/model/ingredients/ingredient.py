@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING, TypedDict
 
 from codiet.utils.unique_dict import UniqueDict, FrozenUniqueDict
-from codiet.model.quantities import IsWeighable, UnitConversion
+from codiet.model.quantities import IsWeighable
 
 if TYPE_CHECKING:
-    from codiet.model.quantities import Unit, UnitConversion, UnitConversionDTO
+    from codiet.model.quantities import Unit, UnitConversion, UnitConversionDTO, UnitConversionService
     from codiet.model.cost import QuantityCost, QuantityCostDTO
     from codiet.model.flags import Flag, FlagDTO
     from codiet.model.nutrients import NutrientQuantity, NutrientQuantityDTO
@@ -22,6 +22,8 @@ class IngredientDTO(TypedDict):
 
 
 class Ingredient(IsWeighable):
+
+    unit_conversion_service: "UnitConversionService"
 
     def __init__(
         self,
@@ -103,11 +105,18 @@ class Ingredient(IsWeighable):
     def nutrient_quantities_per_gram(self) -> FrozenUniqueDict[str, "NutrientQuantity"]:
         return FrozenUniqueDict(self._nutrient_quantities_per_gram)
 
+    @property
+    def calories_per_gram(self) -> float:
+        total = 0
+        for nutrient_quantity in self.nutrient_quantities_per_gram.values():
+            total += nutrient_quantity.nutrient.calories_per_gram * nutrient_quantity.mass_in_grams
+        return total
+
     def add_unit_conversion(self, unit_conversion: "UnitConversion") -> "Ingredient":
         self._unit_conversions[unit_conversion.unit_names] = unit_conversion
         return self
 
-    def remove_unit_conversion(self, unit_conversion: UnitConversion) -> "Ingredient":
+    def remove_unit_conversion(self, unit_conversion: "UnitConversion") -> "Ingredient":
         del self._unit_conversions[unit_conversion.unit_names]
         return self
 
