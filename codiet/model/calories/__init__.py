@@ -1,0 +1,1 @@
+from .has_calories import HasCalories
