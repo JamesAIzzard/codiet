@@ -19,6 +19,21 @@ class RecipeFactory:
         self._flag_factory: "FlagFactory"
         self._ingredient_factory: "IngredientFactory"
 
+    def initialise(self,
+            singleton_register: "SingletonRegister",
+            quantities_factory: "QuantitiesFactory",
+            time_factory: "TimeFactory",
+            flag_factory: "FlagFactory",
+            ingredient_factory: "IngredientFactory"           
+        ) -> "RecipeFactory":
+        self._singleton_register = singleton_register
+        self._quantities_factory = quantities_factory
+        self._time_factory = time_factory
+        self._flag_factory = flag_factory
+        self._ingredient_factory = ingredient_factory
+
+        return self
+
     def create_recipe_from_dto(self, recipe_dto: "RecipeDTO") -> "Recipe":
         ingredient_quantities = {}
         for ingredient_name, ingredient_quantity_dto in recipe_dto[

@@ -2,7 +2,7 @@
     "name": "apple",
     "description": "A fruit that is sweet and juicy",
     "unit_conversions": [
-        [{
+        {
             "from_quantity": {
                 "unit_name": "whole",
                 "value": 1
@@ -11,7 +11,7 @@
                 "unit_name": "gram",
                 "value": 182
             }
-        }]
+        }
     ],
     "standard_unit": "whole",
     "quantity_cost": {

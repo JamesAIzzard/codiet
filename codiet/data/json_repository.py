@@ -35,24 +35,31 @@ class JSONRepository:
             "aliases": unit_data["aliases"],
         }
 
-    def read_all_global_unit_conversion_names(self) -> IUC[tuple[str, str]]:
+    def read_all_global_unit_conversion_names(self) -> IUC[frozenset[str]]:
         entire_file_data = self._json_reader.read_file(
             os.path.join(self._data_dir, "global_unit_conversions.json")
         )
 
-        conversion_names:list[tuple[str, str]] = []
+        conversion_names:list[frozenset[str]] = []
 
         for conversion_name in entire_file_data.keys():
             names = conversion_name.split("-")
-            conversion_names.append((names[0], names[1]))
+            conversion_names.append(frozenset((names[0], names[1])))
         
         return IUC(conversion_names)
 
-    def read_global_unit_conversion_dto(self, names: tuple[str, str]) -> "UnitConversionDTO":
+    def read_global_unit_conversion_dto(self, names: frozenset[str]) -> "UnitConversionDTO":
         entire_file_data = self._json_reader.read_file(
             os.path.join(self._data_dir, "global_unit_conversions.json")
         )
-        conversion_name = f"{names[0]}-{names[1]}"
+        names_forward = "-".join(tuple(names))
+        names_backward = "-".join(tuple(names)[::-1])
+        if names_forward in entire_file_data:
+            conversion_name = names_forward
+        elif names_backward in entire_file_data:
+            conversion_name = names_backward
+        else:
+            raise ValueError(f"Unit conversion '{names}' not found in the data.")
         conversion_data = entire_file_data[conversion_name]
         return conversion_data
 

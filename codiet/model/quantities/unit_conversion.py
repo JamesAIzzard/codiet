@@ -31,6 +31,13 @@ class UnitConversion:
         return (self._from_quantity, self._to_quantity)
 
     @property
+    def unit_names(self) -> tuple[str, str]:
+        return (
+            self.quantities[0].unit.name,
+            self.quantities[1].unit.name
+        )
+
+    @property
     def is_defined(self) -> bool:
         return self.quantities[0].is_defined and self.quantities[1].is_defined
 

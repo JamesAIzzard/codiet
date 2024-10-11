@@ -31,11 +31,11 @@ class DatabaseService:
         unit = self._quantities_factory.create_unit_from_dto(unit_dto)
         return unit
 
-    def read_all_global_unit_conversion_names(self) -> IUC[tuple[str, str]]:
+    def read_all_global_unit_conversion_names(self) -> IUC[frozenset[str]]:
         unit_conversion_names = self._repository.read_all_global_unit_conversion_names()
         return IUC(unit_conversion_names)
 
-    def read_global_unit_conversion(self, unit_names: tuple[str, str]) -> "UnitConversion":
+    def read_global_unit_conversion(self, unit_names: frozenset[str]) -> "UnitConversion":
         unit_conversion_dto = self._repository.read_global_unit_conversion_dto(unit_names)
         unit_conversion = self._quantities_factory.create_unit_conversion_from_dto(unit_conversion_dto)
         return unit_conversion

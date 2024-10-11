@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from codiet.model.quantities import Unit, Quantity, UnitSystem, UnitConversion
+from codiet.model.quantities import Unit, Quantity, UnitConversion
 
 if TYPE_CHECKING:
     from codiet.data import DatabaseService

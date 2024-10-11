@@ -7,10 +7,6 @@ from codiet.model.quantities import Quantity
 if TYPE_CHECKING:
     from codiet.model.quantities import Unit, UnitConversion
 
-class ConversionUnavailableError(ValueError):
-    def __init__(self, from_unit_name: str, to_unit_name: str):
-        super().__init__(f"No conversion available from {from_unit_name} to {to_unit_name}")
-
 class UnitSystem:
     def __init__(
         self,

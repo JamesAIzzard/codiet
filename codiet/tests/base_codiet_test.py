@@ -4,7 +4,7 @@ from unittest import TestCase
 from .fixtures import OptimiserFixtures, RecipeFixtures
 from codiet.data import DatabaseService, JSONRepository
 from codiet.model import SingletonRegister
-from codiet.model.quantities import QuantitiesFactory
+from codiet.model.quantities import QuantitiesFactory, UnitConversionService
 from codiet.model.cost import CostFactory
 from codiet.model.flags import FlagFactory
 from codiet.model.nutrients import NutrientFactory
@@ -24,6 +24,7 @@ class BaseCodietTest(TestCase):
         self.initialise_database_service()
         self.initialise_singleton_register()
         self.initialise_factories()
+        self.initialise_unit_conversion_service()        
         self.initialise_fixtures()
 
     def initialise_database_service(self):
@@ -52,6 +53,7 @@ class BaseCodietTest(TestCase):
         self.database_service._recipe_factory = self.recipe_factory
 
         self.singleton_register._tag_factory = self.tag_factory
+        self.singleton_register._quantities_factory = self.quantities_factory
 
         self.quantities_factory._singleton_register = self.singleton_register
         self.quantities_factory._database_service = self.database_service
@@ -67,13 +69,23 @@ class BaseCodietTest(TestCase):
         self.ingredient_factory._flag_factory = self.flag_factory
         self.ingredient_factory._nutrients_factory = self.nutrient_factory
 
-        self.recipe_factory._singleton_register = self.singleton_register
-        self.recipe_factory._quantities_factory = self.quantities_factory
-        self.recipe_factory._flag_factory = self.flag_factory
-        self.recipe_factory._time_factory = self.time_factory
-        self.recipe_factory._ingredient_factory = self.ingredient_factory
+        self.recipe_factory.initialise(
+            singleton_register=self.singleton_register,
+            quantities_factory=self.quantities_factory,
+            time_factory=self.time_factory,
+            flag_factory=self.flag_factory,
+            ingredient_factory=self.ingredient_factory
+        )
 
         self.optimiser_factory._recipe_factory = self.recipe_factory
+
+    def initialise_unit_conversion_service(self):
+        self.unit_conversion_service = UnitConversionService()
+        self.unit_conversion_service.initialise(
+            create_quantity=self.quantities_factory.create_quantity,
+            get_unit=self.singleton_register.get_unit,
+            get_global_unit_conversions=self.singleton_register.get_global_unit_conversions
+        )
 
     def initialise_fixtures(self):
         self.optimiser_fixtures = OptimiserFixtures()

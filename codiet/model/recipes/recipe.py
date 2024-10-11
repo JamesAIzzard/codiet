@@ -6,6 +6,7 @@ from codiet.utils.unique_dict import UniqueDict
 from codiet.model.flags import HasFlags
 
 if TYPE_CHECKING:
+    from codiet.model.quantities import UnitSystem
     from codiet.model.flags import Flag, FlagFactory
     from codiet.model.time import TimeWindow, TimeWindowDTO
     from codiet.model.tags import Tag, TagDTO
@@ -23,6 +24,8 @@ class RecipeDTO(TypedDict):
 
 
 class Recipe(HasFlags):
+
+    global_unit_system: "UnitSystem"
 
     def __init__(
         self,
@@ -99,9 +102,25 @@ class Recipe(HasFlags):
 
     @property
     def calories_per_gram(self) -> int:
-        for ingredient in self.ingredients:
-            if ingredient.calories_per_gram is not None:
-                return ingredient.calories_per_gram
+        return self.total_calories_in_definition / self.total_grams_in_definition
+
+    @property
+    def total_calories_in_definition(self) -> int:
+        return sum(
+            [
+                ingredient_quantity.calories
+                for ingredient_quantity in self.ingredient_quantities
+            ]
+        )
+    
+    @property
+    def total_grams_in_definition(self) -> int:
+        total_grams = 0
+
+        for ingredient_quantity in self.ingredient_quantities:
+            total_grams += ingredient_quantity.convert_to(unit_name="gram").value
+        
+        return int(total_grams)
 
     def get_flag(self, name: str) -> "Flag":
         flag = self._flag_factory.create_flag(name)
