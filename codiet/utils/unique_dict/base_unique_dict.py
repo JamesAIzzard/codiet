@@ -7,10 +7,9 @@ V = TypeVar('V')
 
 class UniqueDictBase(Generic[K, V]):
     def __init__(self, *args, **kwargs):
-        items = dict(*args, **kwargs)
-        check_values_are_unique(items)
-        self._data: dict[K, V] = items
-        self._values_set = set(items.values())
+        self._data: dict[K, V] = dict(*args, **kwargs)
+        if len(self._data) != len(set(self._data.values())):
+            raise ValueError("Values must be unique")
 
     def __contains__(self, key: K) -> bool:
         return key in self._data
