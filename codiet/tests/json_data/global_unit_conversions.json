@@ -109,23 +109,23 @@
             "value": 0.00422675
         }
     },
-    "millilitre-tbsp": {
+    "millilitre-tablespoon": {
         "from_quantity": {
             "unit_name": "millilitre",
             "value": 1
         },
         "to_quantity": {
-            "unit_name": "tbsp",
+            "unit_name": "tablespoon",
             "value": 0.067628
         }
     },
-    "millilitre-tsp": {
+    "millilitre-teaspoon": {
         "from_quantity": {
             "unit_name": "millilitre",
             "value": 1
         },
         "to_quantity": {
-            "unit_name": "tsp",
+            "unit_name": "teaspoon",
             "value": 0.202884
         }
     },

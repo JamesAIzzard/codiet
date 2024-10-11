@@ -4,9 +4,14 @@ from codiet.utils.unique_dict import UniqueDict as UD
 
 if TYPE_CHECKING:
     from codiet.data.database_service import DatabaseService
-    from codiet.model.quantities import Unit, UnitConversion
+    from codiet.model.quantities import (
+        Unit,
+        UnitConversion,
+        UnitSystem,
+        QuantitiesFactory,
+    )
     from codiet.model.nutrients import Nutrient
-    from codiet.model.tags import Tag, TagFactory, TagDTO
+    from codiet.model.tags import Tag, TagFactory
     from codiet.model.ingredients import Ingredient
     from codiet.model.recipes import Recipe
 
@@ -14,38 +19,55 @@ if TYPE_CHECKING:
 class SingletonRegister:
     def __init__(self):
         self._database_service: "DatabaseService"
+        self._quantities_factory: "QuantitiesFactory"
         self._tag_factory: "TagFactory"
 
         self._units = UD[str, "Unit"]()
-        self._unit_conversions = UD[tuple[str, str], "UnitConversion"]()
+        self._unit_conversions = UD[frozenset[str], "UnitConversion"]()
+        self._global_unit_system: "UnitSystem|None" = None
         self._nutrients = UD[str, "Nutrient"]()
         self._tags = UD[str, "Tag"]()
         self._ingredients = UD[str, "Ingredient"]()
         self._recipes = UD[str, "Recipe"]()
 
-    def set_database_service(
-        self, database_service: "DatabaseService"
+    def initialise(
+        self,
+        database_service: "DatabaseService",
+        quantities_factory: "QuantitiesFactory",
+        tag_factory: "TagFactory",
     ) -> "SingletonRegister":
         self._database_service = database_service
+        self._quantities_factory = quantities_factory
+        self._tag_factory = tag_factory
         return self
 
     def get_unit(self, unit_name: str) -> "Unit":
-        try:
-            return self._units[unit_name]
-        except KeyError:
+        if unit_name not in self._units:
             self._units[unit_name] = self._database_service.read_unit(unit_name)
-            return self._units[unit_name]
+        return self._units[unit_name]
 
     def get_unit_conversion(
-        self, unit_conversion_name: tuple[str, str]
+        self, unit_conversion_key: frozenset[str]
     ) -> "UnitConversion":
-        try:
-            return self._unit_conversions[unit_conversion_name]
-        except KeyError:
-            self._unit_conversions[unit_conversion_name] = (
-                self._database_service.read_global_unit_conversion(unit_conversion_name)
+        if unit_conversion_key not in self._unit_conversions:
+            self._unit_conversions[unit_conversion_key] = (
+                self._database_service.read_global_unit_conversion(unit_conversion_key)
             )
-            return self._unit_conversions[unit_conversion_name]
+        return self._unit_conversions[unit_conversion_key]
+
+    def get_global_unit_conversions(self) -> dict[frozenset[str], "UnitConversion"]:
+        conversion_keys = self._database_service.read_all_global_unit_conversion_names()
+
+        conversions = {}
+        for key in conversion_keys:
+            conversions[key] = self.get_unit_conversion(key)
+
+        return conversions
+
+    def get_global_unit_system(self) -> "UnitSystem":
+        if self._global_unit_system is None:
+            self._global_unit_system = self._quantities_factory.create_unit_system()
+        return self._global_unit_system
 
     def get_nutrient(self, nutrient_name: str) -> "Nutrient":
         try:
@@ -74,8 +96,6 @@ class SingletonRegister:
             return self._ingredients[ingredient_name]
 
     def get_recipe(self, recipe_name: str) -> "Recipe":
-        try:
-            return self._recipes[recipe_name]
-        except KeyError:
+        if not recipe_name in self._recipes:
             self._recipes[recipe_name] = self._database_service.read_recipe(recipe_name)
-            return self._recipes[recipe_name]
+        return self._recipes[recipe_name]

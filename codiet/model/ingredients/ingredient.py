@@ -1,20 +1,19 @@
 from typing import TYPE_CHECKING, TypedDict
 
-from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 from codiet.utils.unique_dict import UniqueDict, FrozenUniqueDict
+from codiet.model.quantities import IsWeighable
 
 if TYPE_CHECKING:
-    from codiet.model.quantities import Unit, UnitConversion, UnitSystem, UnitConversionDTO
+    from codiet.model.quantities import Unit, UnitConversion, UnitConversionDTO, UnitConversionService
     from codiet.model.cost import QuantityCost, QuantityCostDTO
     from codiet.model.flags import Flag, FlagDTO
     from codiet.model.nutrients import NutrientQuantity, NutrientQuantityDTO
-    from codiet.model.tags import TagDTO
 
 
 class IngredientDTO(TypedDict):
     name: str
     description: str | None
-    unit_conversions: list["UnitConversionDTO"]
+    unit_conversions: dict[frozenset[str], "UnitConversionDTO"]
     standard_unit: str
     quantity_cost: "QuantityCostDTO"
     gi: float | None
@@ -22,13 +21,15 @@ class IngredientDTO(TypedDict):
     nutrient_quantities_per_gram: dict[str, "NutrientQuantityDTO"]
 
 
-class Ingredient:
+class Ingredient(IsWeighable):
+
+    unit_conversion_service: "UnitConversionService"
 
     def __init__(
         self,
         name: str,
         description: str | None,
-        unit_system: "UnitSystem",
+        unit_conversions: dict[frozenset[str], "UnitConversion"],
         standard_unit: "Unit",
         quantity_cost: "QuantityCost",
         gi: float | None,
@@ -41,7 +42,7 @@ class Ingredient:
 
         self._name = name
         self._description = description
-        self._unit_system = unit_system
+        self._unit_conversions = UniqueDict(unit_conversions)
         self._standard_unit = standard_unit
         self._quantity_cost = quantity_cost
         self._gi = gi
@@ -65,6 +66,10 @@ class Ingredient:
     @description.setter
     def description(self, value: str | None) -> None:
         self._description = value
+
+    @property
+    def unit_conversions(self) -> FrozenUniqueDict[frozenset[str], "UnitConversion"]:
+        return FrozenUniqueDict(self._unit_conversions)
 
     @property
     def standard_unit(self) -> "Unit":
@@ -100,8 +105,20 @@ class Ingredient:
     def nutrient_quantities_per_gram(self) -> FrozenUniqueDict[str, "NutrientQuantity"]:
         return FrozenUniqueDict(self._nutrient_quantities_per_gram)
 
-    def add_unit_conversion(self, unit_conversion: "UnitConversion") -> None:
-        self._unit_system.add_entity_unit_conversion(unit_conversion)
+    @property
+    def calories_per_gram(self) -> float:
+        total = 0
+        for nutrient_quantity in self.nutrient_quantities_per_gram.values():
+            total += nutrient_quantity.nutrient.calories_per_gram * nutrient_quantity.mass_in_grams
+        return total
+
+    def add_unit_conversion(self, unit_conversion: "UnitConversion") -> "Ingredient":
+        self._unit_conversions[unit_conversion.unit_names] = unit_conversion
+        return self
+
+    def remove_unit_conversion(self, unit_conversion: "UnitConversion") -> "Ingredient":
+        del self._unit_conversions[unit_conversion.unit_names]
+        return self
 
     def get_flag(self, name: str) -> "Flag":
         return self._flags[name]

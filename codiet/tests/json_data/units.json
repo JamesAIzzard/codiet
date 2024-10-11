@@ -77,17 +77,17 @@
         "plural_abbreviation": "cups",
         "aliases": ["c"]
     },
-    "tbsp": {
+    "tablespoon": {
         "type": "volume",
         "singular_abbreviation": "tbsp",
         "plural_abbreviation": "tbsp",
-        "aliases": ["tablespoon", "tablespoons"]
+        "aliases": ["tbsp", "tablespoons"]
     },
-    "tsp": {
+    "teaspoon": {
         "type": "volume",
         "singular_abbreviation": "tsp",
         "plural_abbreviation": "tsp",
-        "aliases": ["teaspoon", "teaspoons"]
+        "aliases": ["tsp", "teaspoons"]
     },
     "pinch": {
         "type": "volume",

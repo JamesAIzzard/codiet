@@ -1,11 +1,10 @@
 from typing import TYPE_CHECKING, TypedDict
 
-from codiet.model.stored_entity import StoredEntity
 from codiet.model.quantities.is_quantified import IsQuantified
 from codiet.model.ingredients.ingredient import Ingredient
 
 if TYPE_CHECKING:
-    from codiet.model.quantities import QuantityDTO
+    from codiet.model.quantities import QuantityDTO, Quantity
 
 class IngredientQuantityDTO(TypedDict):
     ingredient_name: str
@@ -26,6 +25,9 @@ class IngredientQuantity(IsQuantified):
     @property
     def ingredient(self) -> 'Ingredient':
         return self._ingredient
+
+    def calories(self) -> float:
+        return self.ingredient.calories_per_gram * self.mass_in_grams
 
     def __eq__(self, other):
         if not isinstance(other, IngredientQuantity):

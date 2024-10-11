@@ -1,4 +1,4 @@
-from collections.abc import Mapping
+from collections.abc import Mapping, ValuesView
 from typing import TypeVar
 
 K = TypeVar('K')
@@ -21,3 +21,6 @@ class FrozenUniqueDict(UniqueDictBase[K, V], Mapping):
         if isinstance(other, FrozenUniqueDict):
             return self._data == other._data
         return False
+
+    def values(self) -> ValuesView[V]:
+        return super().values()

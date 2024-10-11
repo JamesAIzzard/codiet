@@ -11,6 +11,10 @@ class CostFactory:
     def __init__(self) -> None:
         self._quantities_factory: "QuantitiesFactory"
 
+    def initialise(self, quantities_factory: "QuantitiesFactory") -> "CostFactory":
+        self._quantities_factory = quantities_factory
+        return self
+
     def create_quantity_cost_from_dto(self, quantity_cost_dto: "QuantityCostDTO") -> QuantityCost:
         quantity_cost = QuantityCost(
             cost=quantity_cost_dto["cost"],

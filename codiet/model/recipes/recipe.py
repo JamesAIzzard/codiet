@@ -6,6 +6,7 @@ from codiet.utils.unique_dict import UniqueDict
 from codiet.model.flags import HasFlags
 
 if TYPE_CHECKING:
+    from codiet.model.quantities import UnitConversionService
     from codiet.model.flags import Flag, FlagFactory
     from codiet.model.time import TimeWindow, TimeWindowDTO
     from codiet.model.tags import Tag, TagDTO
@@ -23,6 +24,8 @@ class RecipeDTO(TypedDict):
 
 
 class Recipe(HasFlags):
+
+    unit_conversion_service: "UnitConversionService"
 
     def __init__(
         self,
@@ -96,6 +99,30 @@ class Recipe(HasFlags):
     @property
     def tags(self) -> IUC["Tag"]:
         return IUC(self._tags)
+
+    @property
+    def calories_per_gram(self) -> float:
+        return self.total_calories_in_definition / self.total_grams_in_definition
+
+    @property
+    def total_calories_in_definition(self) -> float:
+        total_calories = 0
+        for ingredient_quantity in self.ingredient_quantities:
+            total_calories += ingredient_quantity.calories()
+        return total_calories
+    
+    @property
+    def total_grams_in_definition(self) -> float:
+        total_grams = 0
+
+        for ingredient_quantity in self.ingredient_quantities:
+            total_grams += self.unit_conversion_service.convert_quantity(
+                quantity=ingredient_quantity.quantity,
+                to_unit_name="gram",
+                instance_unit_conversons=dict(ingredient_quantity.ingredient.unit_conversions)
+            ).value
+        
+        return total_grams
 
     def get_flag(self, name: str) -> "Flag":
         flag = self._flag_factory.create_flag(name)
