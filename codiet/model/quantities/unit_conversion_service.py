@@ -79,33 +79,39 @@ class UnitConversionService:
         self,
         quantity: "Quantity",
         to_unit_name: str,
-        instance_unit_conversons: dict[frozenset[str], "UnitConversion"] | None = None,
+        instance_unit_conversions: dict[frozenset[str], "UnitConversion"] | None = None,
     ) -> "Quantity":
         from_unit_name = quantity.unit.name
 
         # Combine global and instance unit conversions
         combined_conversions = self.global_unit_conversions.copy()
-        if instance_unit_conversons:
-            for key, conversion in instance_unit_conversons.items():
-                combined_conversions[key] = conversion
+        if instance_unit_conversions:
+            combined_conversions.update(instance_unit_conversions)
 
         # BFS to find the shortest path of conversions
-        queue: Deque["Quantity"] = deque([quantity])
-        paths: Dict[str, "Quantity"] = {from_unit_name: quantity}
+        queue: Deque[tuple["Quantity", float]] = deque([(quantity, 1.0)])
+        visited: Dict[str, float] = {from_unit_name: 1.0}
 
         while queue:
-            current_quantity = queue.popleft()
+            current_quantity, cumulative_ratio = queue.popleft()
             current_unit_name = current_quantity.unit.name
 
             if current_unit_name == to_unit_name:
-                return current_quantity
+                return self._create_quantity(to_unit_name, quantity.value * cumulative_ratio)
 
             for conversion_key, conversion in combined_conversions.items():
                 if current_unit_name in conversion_key:
                     next_unit_name = next(iter(conversion_key - {current_unit_name}))
-                    if next_unit_name not in paths:
-                        next_quantity = conversion.convert_from(current_quantity)
-                        paths[next_unit_name] = next_quantity
-                        queue.append(next_quantity)
+                    if next_unit_name not in visited:
+                        next_ratio = cumulative_ratio * self._get_conversion_ratio(conversion, current_unit_name)
+                        visited[next_unit_name] = next_ratio
+                        next_quantity = self._create_quantity(next_unit_name, quantity.value * next_ratio)
+                        queue.append((next_quantity, next_ratio))
 
         raise ConversionUnavailableError(from_unit_name, to_unit_name)
+
+    def _get_conversion_ratio(self, conversion: "UnitConversion", from_unit_name: str) -> float:
+        if conversion.quantities[0].unit.name == from_unit_name:
+            return conversion._forwards_ratio
+        else:
+            return conversion._reverse_ratio

@@ -43,7 +43,7 @@ class TestConvertQuantity(BaseUnitConversionServiceTest):
         converted_qty = self.unit_conversion_service.convert_quantity(
             quantity=grams_100, 
             to_unit_name="millilitre",
-            instance_unit_conversons={frozenset(["gram", "litre"]): gram_litre_conversion}
+            instance_unit_conversions={frozenset(["gram", "litre"]): gram_litre_conversion}
         )
         
         self.assertEqual(converted_qty.unit.name, "millilitre")

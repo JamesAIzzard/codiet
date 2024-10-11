@@ -254,7 +254,6 @@ class IngredientEditor(BaseController[IngredientEditorView]):
 
     def _on_confirm_delete_ingredient_clicked(self) -> None:
         """Handler for confirming the deletion of an ingredient."""
-        # HERE: Keep working down removing errors.
         ingredient_id = self.ingredient_search.selected_item_data
         assert ingredient_id is not None and type(ingredient_id) == int
         # Grab the selected ingredient name from the search widget

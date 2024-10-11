@@ -125,7 +125,7 @@ class Recipe(HasCalories, HasNutrientQuantities, HasFlags):
             total_grams += self.unit_conversion_service.convert_quantity(
                 quantity=ingredient_quantity.quantity,
                 to_unit_name="gram",
-                instance_unit_conversons=dict(ingredient_quantity.ingredient.unit_conversions)
+                instance_unit_conversions=dict(ingredient_quantity.ingredient.unit_conversions)
             ).value
         
         return total_grams
@@ -163,11 +163,6 @@ class Recipe(HasCalories, HasNutrientQuantities, HasFlags):
         self._ingredient_quantities[ingredient_quantity.ingredient.name] = ingredient_quantity
 
         return self
-
-    def get_ingredient_quantity_by_name(
-        self, ingredient_name: str
-    ) -> "IngredientQuantity":
-        return self._ingredient_quantities[ingredient_name]
 
     def remove_ingredient_quantity(
         self, ingredient_quantity: "IngredientQuantity"
