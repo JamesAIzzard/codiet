@@ -26,22 +26,16 @@ class SingletonRegister:
         self._recipes = UD[str, "Recipe"]()
 
     def get_unit(self, unit_name: str) -> "Unit":
-        try:
-            return self._units[unit_name]
-        except KeyError:
+        if unit_name not in self._units:
             self._units[unit_name] = self._database_service.read_unit(unit_name)
-            return self._units[unit_name]
+        return self._units[unit_name]
 
     def get_unit_conversion(
         self, unit_conversion_key: frozenset[str]
     ) -> "UnitConversion":
-        try:
-            return self._unit_conversions[unit_conversion_key]
-        except KeyError:
-            self._unit_conversions[unit_conversion_key] = (
-                self._database_service.read_global_unit_conversion(unit_conversion_key)
-            )
-            return self._unit_conversions[unit_conversion_key]
+        if unit_conversion_key not in self._unit_conversions:
+            self._unit_conversions[unit_conversion_key] = self._database_service.read_global_unit_conversion(unit_conversion_key)
+        return self._unit_conversions[unit_conversion_key]
         
     def get_global_unit_conversions(self) -> dict[frozenset[str], "UnitConversion"]:
         conversion_keys = self._database_service.read_all_global_unit_conversion_names()
@@ -84,8 +78,6 @@ class SingletonRegister:
             return self._ingredients[ingredient_name]
 
     def get_recipe(self, recipe_name: str) -> "Recipe":
-        try:
-            return self._recipes[recipe_name]
-        except KeyError:
+        if not recipe_name in self._recipes:
             self._recipes[recipe_name] = self._database_service.read_recipe(recipe_name)
-            return self._recipes[recipe_name]
+        return self._recipes[recipe_name]

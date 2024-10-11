@@ -51,9 +51,20 @@ class UnitConversion:
     def _reverse_ratio(self) -> float:
         return 1 / self._forwards_ratio
 
+    def get_definition_value(self, unit_name: str) -> float:
+        if not self.is_defined:
+            raise ValueError("The quantities are not defined.")
+        if unit_name == self.quantities[0].unit.name:
+            return self.quantities[0].value
+        elif unit_name == self.quantities[1].unit.name:
+            return self.quantities[1].value
+        else:
+            raise ValueError("The unit name is not in the quantities.")
+
     def has_unit(self, unit) -> bool:
         return unit in [qty.unit for qty in self.quantities]
 
+    # TODO: Are these methods necessary? Doesn't UnitConversionService handle this?
     def convert_from(self, quantity: Quantity) -> Quantity:
         # The conversion must be defined to do any converting
         if not self.is_defined:

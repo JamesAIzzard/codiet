@@ -35,8 +35,8 @@ class DatabaseService:
         unit_conversion_names = self._repository.read_all_global_unit_conversion_names()
         return IUC(unit_conversion_names)
 
-    def read_global_unit_conversion(self, unit_names: frozenset[str]) -> "UnitConversion":
-        unit_conversion_dto = self._repository.read_global_unit_conversion_dto(unit_names)
+    def read_global_unit_conversion(self, unit_conversion_key: frozenset[str]) -> "UnitConversion":
+        unit_conversion_dto = self._repository.read_global_unit_conversion_dto(unit_conversion_key)
         unit_conversion = self._quantities_factory.create_unit_conversion_from_dto(unit_conversion_dto)
         return unit_conversion
 

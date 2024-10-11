@@ -4,7 +4,7 @@ from codiet.model.ingredients import Ingredient, IngredientQuantity
 
 if TYPE_CHECKING:
     from codiet.model import SingletonRegister
-    from codiet.model.quantities import Quantity, QuantitiesFactory, QuantityDTO
+    from codiet.model.quantities import QuantitiesFactory
     from codiet.model.cost import CostFactory
     from codiet.model.flags import FlagFactory
     from codiet.model.nutrients import NutrientFactory
@@ -20,6 +20,11 @@ class IngredientFactory:
         self._nutrients_factory: "NutrientFactory"
 
     def create_ingredient_from_dto(self, ingredient_dto: "IngredientDTO") -> Ingredient:
+        unit_conversions = {}
+        for key, unit_conversion_dto in ingredient_dto["unit_conversions"].items():
+            unit_conversion = self._quantities_factory.create_unit_conversion_from_dto(unit_conversion_dto)
+            unit_conversions[key] = unit_conversion
+
         flags = {}
         for flag_name, flag_dto in ingredient_dto["flags"].items():
             flags[flag_name] = self._flag_factory.create_flag_from_dto(flag_dto)
@@ -32,7 +37,7 @@ class IngredientFactory:
         ingredient = Ingredient(
             name=ingredient_dto["name"],
             description=ingredient_dto["description"],
-            unit_system=self._quantities_factory.create_unit_system(),
+            unit_conversions=unit_conversions,
             standard_unit=self._singleton_register.get_unit(ingredient_dto["standard_unit"]),
             quantity_cost=self._cost_factory.create_quantity_cost_from_dto(ingredient_dto["quantity_cost"]),
             gi=ingredient_dto["gi"],

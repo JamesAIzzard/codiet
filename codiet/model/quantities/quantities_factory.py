@@ -36,20 +36,6 @@ class QuantitiesFactory:
             to_quantity=self.create_quantity(unit_name=to_unit_name, value=to_unit_quantity)
         )
 
-    def create_unit_system(self) -> "UnitSystem":
-
-        def get_global_unit_conversions() -> list["UnitConversion"]:
-            conversions_names = self._database_service.read_all_global_unit_conversion_names()
-            conversions = []
-            for conversion_name in conversions_names:
-                conversions.append(self._singleton_register.get_unit_conversion(conversion_name))
-            return conversions
-        
-        return UnitSystem(
-            get_unit=self._singleton_register.get_unit,
-            get_global_unit_conversions=get_global_unit_conversions,
-        )
-
     def create_quantity_from_dto(self, quantity_dto: "QuantityDTO") -> Quantity:
         quantity = Quantity(
             unit=self._singleton_register.get_unit(quantity_dto["unit_name"]),

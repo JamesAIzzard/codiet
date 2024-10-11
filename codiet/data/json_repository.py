@@ -40,15 +40,17 @@ class JSONRepository:
             os.path.join(self._data_dir, "global_unit_conversions.json")
         )
 
-        conversion_names:list[frozenset[str]] = []
+        conversion_names: list[frozenset[str]] = []
 
         for conversion_name in entire_file_data.keys():
             names = conversion_name.split("-")
             conversion_names.append(frozenset((names[0], names[1])))
-        
+
         return IUC(conversion_names)
 
-    def read_global_unit_conversion_dto(self, names: frozenset[str]) -> "UnitConversionDTO":
+    def read_global_unit_conversion_dto(
+        self, names: frozenset[str]
+    ) -> "UnitConversionDTO":
         entire_file_data = self._json_reader.read_file(
             os.path.join(self._data_dir, "global_unit_conversions.json")
         )
@@ -69,7 +71,7 @@ class JSONRepository:
         )
 
         def find_nutrient(data, target_name, parent_name=None) -> "NutrientDTO|None":
-            
+
             if target_name not in data:
                 for key, value in data.items():
                     if "children" in value:
@@ -88,13 +90,15 @@ class JSONRepository:
                         "cals_per_gram": cals_per_gram,
                         "aliases": data[target_name].get("aliases", []),
                         "parent_name": parent_name,
-                        "child_names": list(data[target_name].get("children", {}).keys()),
+                        "child_names": list(
+                            data[target_name].get("children", {}).keys()
+                        ),
                     }
-            
+
             return None
 
         nutrient_dto = find_nutrient(all_nutrient_data, name)
-        
+
         if nutrient_dto is None:
             raise ValueError(f"Nutrient '{name}' not found in the data.")
 
@@ -105,9 +109,15 @@ class JSONRepository:
             os.path.join(self._data_dir, "ingredients", name + ".json")
         )
 
-        unit_conversions = []
-        for unit_conversion_data in ingredient_file_data["unit_conversions"]:
-            unit_conversions.append(unit_conversion_data)
+        unit_conversions = {}
+        for conversion_data in ingredient_file_data["unit_conversions"]:
+            key = frozenset(
+                (
+                    conversion_data["from_quantity"]["unit_name"],
+                    conversion_data["to_quantity"]["unit_name"],
+                )
+            )
+            unit_conversions[key] = conversion_data
 
         quantity_cost = {
             "cost": ingredient_file_data["quantity_cost"]["cost"],
@@ -122,7 +132,9 @@ class JSONRepository:
             }
 
         nutrient_quantities = {}
-        for nutrient_name, nutrient_qty_data in ingredient_file_data["nutrient_quantities_per_gram"].items():
+        for nutrient_name, nutrient_qty_data in ingredient_file_data[
+            "nutrient_quantities_per_gram"
+        ].items():
             nutrient_quantities[nutrient_name] = {
                 "nutrient_name": nutrient_name,
                 "quantity": nutrient_qty_data,

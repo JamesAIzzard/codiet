@@ -4,7 +4,7 @@ from codiet.utils.unique_dict import UniqueDict, FrozenUniqueDict
 from codiet.model.quantities import IsWeighable, UnitConversion
 
 if TYPE_CHECKING:
-    from codiet.model.quantities import Unit, UnitConversion, UnitSystem, UnitConversionDTO
+    from codiet.model.quantities import Unit, UnitConversion, UnitConversionDTO
     from codiet.model.cost import QuantityCost, QuantityCostDTO
     from codiet.model.flags import Flag, FlagDTO
     from codiet.model.nutrients import NutrientQuantity, NutrientQuantityDTO
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class IngredientDTO(TypedDict):
     name: str
     description: str | None
-    unit_conversions: list["UnitConversionDTO"]
+    unit_conversions: dict[frozenset[str], "UnitConversionDTO"]
     standard_unit: str
     quantity_cost: "QuantityCostDTO"
     gi: float | None
@@ -27,7 +27,7 @@ class Ingredient(IsWeighable):
         self,
         name: str,
         description: str | None,
-        unit_conversions: dict[tuple[str, str], "UnitConversion"],
+        unit_conversions: dict[frozenset[str], "UnitConversion"],
         standard_unit: "Unit",
         quantity_cost: "QuantityCost",
         gi: float | None,
@@ -66,7 +66,7 @@ class Ingredient(IsWeighable):
         self._description = value
 
     @property
-    def unit_conversions(self) -> FrozenUniqueDict[tuple[str, str], "UnitConversion"]:
+    def unit_conversions(self) -> FrozenUniqueDict[frozenset[str], "UnitConversion"]:
         return FrozenUniqueDict(self._unit_conversions)
 
     @property

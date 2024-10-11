@@ -22,8 +22,11 @@ class TestCreateIngredientFromDTO(BaseCodietTest):
         ingredient = self.ingredient_factory.create_ingredient_from_dto(ingredient_dto)
 
         self.assertEqual(len(ingredient.unit_conversions), 1)
-        self.assertEqual(ingredient.unit_conversions[0].from_quantity, (1, "whole"))
-        self.assertEqual(ingredient.unit_conversions[0].to_quantity, (182, "gram"))
+        self.assertIn(frozenset(("gram", "whole")), ingredient.unit_conversions)
+        gram_whole_conversion = ingredient.unit_conversions[frozenset(("gram", "whole"))]
+        self.assertEqual(gram_whole_conversion.get_definition_value("gram"), 182)
+        self.assertEqual(gram_whole_conversion.get_definition_value("whole"), 1)
+
 
     def test_gi_is_correct(self):
         ingredient_dto = self.json_repository.read_ingredient_dto("apple")

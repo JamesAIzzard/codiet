@@ -41,57 +41,42 @@ class TestReadIngredientDTO(BaseJSONRepositoryTest):
 
         self.assertEqual(apple_dto["name"], "apple")
         self.assertEqual(apple_dto["description"], "A fruit that is sweet and juicy")
-        self.assertEqual(apple_dto["unit_conversions"], [
+        self.assertEqual(
+            apple_dto["unit_conversions"],
             {
-                "from_quantity": {
-                    "unit_name": "whole",
-                    "value": 1
-                },
-                "to_quantity": {
-                    "unit_name": "gram",
-                    "value": 182
+                frozenset(("whole", "gram")): {
+                    "from_quantity": {"unit_name": "whole", "value": 1},
+                    "to_quantity": {"unit_name": "gram", "value": 182},
                 }
-            }            
-        ])
+            },
+        )
         self.assertEqual(apple_dto["standard_unit"], "whole")
-        self.assertEqual(apple_dto["quantity_cost"], {
-            "quantity": {
-                "unit_name": "whole",
-                "value": 1
+        self.assertEqual(
+            apple_dto["quantity_cost"],
+            {"quantity": {"unit_name": "whole", "value": 1}, "cost": 0.5},
+        )
+        self.assertEqual(
+            apple_dto["flags"],
+            {
+                "vegan": {"name": "vegan", "value": True},
+                "gluten_free": {"name": "gluten_free", "value": True},
             },
-            "cost": 0.5
-        })
-        self.assertEqual(apple_dto["flags"], {
-            "vegan": {
-                "name": "vegan",
-                "value": True
-            },
-            "gluten_free": {
-                "name": "gluten_free",
-                "value": True
-            }
-        })
+        )
         self.assertEqual(apple_dto["gi"], 38)
-        self.assertEqual(apple_dto["nutrient_quantities_per_gram"], {
-            "protein": {
-                "nutrient_name": "protein",
-                "quantity": {
-                    "unit_name": "gram",
-                    "value": 0.003
-                }
+        self.assertEqual(
+            apple_dto["nutrient_quantities_per_gram"],
+            {
+                "protein": {
+                    "nutrient_name": "protein",
+                    "quantity": {"unit_name": "gram", "value": 0.003},
+                },
+                "carbohydrate": {
+                    "nutrient_name": "carbohydrate",
+                    "quantity": {"unit_name": "gram", "value": 0.14},
+                },
+                "fat": {
+                    "nutrient_name": "fat",
+                    "quantity": {"unit_name": "gram", "value": 0.002},
+                },
             },
-            "carbohydrate": {
-                "nutrient_name": "carbohydrate",
-                "quantity": {
-                    "unit_name": "gram",
-                    "value": 0.14
-                }
-            },            
-            "fat": {
-                "nutrient_name": "fat",
-                "quantity": {
-                    "unit_name": "gram",
-                    "value": 0.002
-                }
-            },
-        })
+        )

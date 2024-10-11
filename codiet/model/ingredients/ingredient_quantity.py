@@ -26,9 +26,6 @@ class IngredientQuantity(IsQuantified):
     def ingredient(self) -> 'Ingredient':
         return self._ingredient
 
-    def convert_to(self, unit_name: str) -> 'Quantity':
-        return self.ingredient._unit_system.convert_quantity(self.quantity, to_unit_name=unit_name)
-
     def __eq__(self, other):
         if not isinstance(other, IngredientQuantity):
             return False
