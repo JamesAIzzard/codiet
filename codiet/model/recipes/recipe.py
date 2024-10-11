@@ -167,17 +167,12 @@ class Recipe(HasCalories, HasNutrientQuantities, HasFlags):
     def get_ingredient_quantity_by_name(
         self, ingredient_name: str
     ) -> "IngredientQuantity":
-        for ingredient_qty in self._ingredient_quantities:
-            if ingredient_qty.ingredient.name.lower() == ingredient_name.lower():
-                return ingredient_qty
-        raise ValueError(
-            f"Ingredient quantity with name '{ingredient_name}' not found."
-        )
+        return self._ingredient_quantities[ingredient_name]
 
     def remove_ingredient_quantity(
         self, ingredient_quantity: "IngredientQuantity"
     ) -> None:
-        self._ingredient_quantities.remove(ingredient_quantity)
+        del self._ingredient_quantities[ingredient_quantity.ingredient.name]
 
     def add_serve_time_window(self, serve_time_window: "TimeWindow") -> None:
         self._serve_time_windows.add(serve_time_window)
