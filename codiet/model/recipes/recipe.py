@@ -125,7 +125,7 @@ class Recipe(HasCalories, HasNutrientQuantities, HasFlags):
             total_grams += self.unit_conversion_service.convert_quantity(
                 quantity=ingredient_quantity.quantity,
                 to_unit_name="gram",
-                instance_unit_conversons=dict(ingredient_quantity.ingredient.unit_conversions)
+                instance_unit_conversions=dict(ingredient_quantity.ingredient.unit_conversions)
             ).value
         
         return total_grams
@@ -164,20 +164,10 @@ class Recipe(HasCalories, HasNutrientQuantities, HasFlags):
 
         return self
 
-    def get_ingredient_quantity_by_name(
-        self, ingredient_name: str
-    ) -> "IngredientQuantity":
-        for ingredient_qty in self._ingredient_quantities:
-            if ingredient_qty.ingredient.name.lower() == ingredient_name.lower():
-                return ingredient_qty
-        raise ValueError(
-            f"Ingredient quantity with name '{ingredient_name}' not found."
-        )
-
     def remove_ingredient_quantity(
         self, ingredient_quantity: "IngredientQuantity"
     ) -> None:
-        self._ingredient_quantities.remove(ingredient_quantity)
+        del self._ingredient_quantities[ingredient_quantity.ingredient.name]
 
     def add_serve_time_window(self, serve_time_window: "TimeWindow") -> None:
         self._serve_time_windows.add(serve_time_window)
