@@ -2,11 +2,15 @@ from typing import TYPE_CHECKING, TypedDict, Collection
 
 from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 from codiet.utils.unique_collection import MutableUniqueCollection as MUC
-from codiet.utils.unique_dict import UniqueDict
+from codiet.utils.unique_dict import UniqueDict as UD
+from codiet.utils.unique_dict import FrozenUniqueDict as FUD
 from codiet.model.flags import HasFlags
+from codiet.model.nutrients import HasNutrientQuantities
+from codiet.model.calories import HasCalories
 
 if TYPE_CHECKING:
     from codiet.model.quantities import UnitConversionService
+    from codiet.model.nutrients import NutrientQuantity
     from codiet.model.flags import Flag, FlagFactory
     from codiet.model.time import TimeWindow, TimeWindowDTO
     from codiet.model.tags import Tag, TagDTO
@@ -23,7 +27,7 @@ class RecipeDTO(TypedDict):
     tags: Collection["TagDTO"]
 
 
-class Recipe(HasFlags):
+class Recipe(HasCalories, HasNutrientQuantities, HasFlags):
 
     unit_conversion_service: "UnitConversionService"
 
@@ -33,7 +37,7 @@ class Recipe(HasFlags):
         use_as_ingredient: bool,
         description: str | None,
         instructions: list[str],
-        ingredient_quantities: UniqueDict[str, "IngredientQuantity"],
+        ingredient_quantities: UD[str, "IngredientQuantity"],
         serve_time_windows: Collection["TimeWindow"],
         tags: Collection["Tag"],
         flag_factory: "FlagFactory",
@@ -48,7 +52,7 @@ class Recipe(HasFlags):
         self._use_as_ingredient = use_as_ingredient
         self._description = description
         self._instructions = instructions
-        self._ingredient_quantities = UniqueDict[str, "IngredientQuantity"](
+        self._ingredient_quantities = UD[str, "IngredientQuantity"](
             ingredient_quantities
         )
         self._serve_time_windows = MUC["TimeWindow"](serve_time_windows)
@@ -99,18 +103,20 @@ class Recipe(HasFlags):
     @property
     def tags(self) -> IUC["Tag"]:
         return IUC(self._tags)
-
-    @property
-    def calories_per_gram(self) -> float:
-        return self.total_calories_in_definition / self.total_grams_in_definition
-
-    @property
-    def total_calories_in_definition(self) -> float:
-        total_calories = 0
-        for ingredient_quantity in self.ingredient_quantities:
-            total_calories += ingredient_quantity.calories()
-        return total_calories
     
+    @property
+    def nutrient_quantities(self) -> FUD[str, "NutrientQuantity"]:
+        nutrient_quantities = UD[str, "NutrientQuantity"]()
+
+        for ingredient_quantity in self.ingredient_quantities:
+            for nutrient_name, nutrient_quantity in ingredient_quantity.nutrient_quantities.items():
+                if nutrient_name in nutrient_quantities:
+                    nutrient_quantities[nutrient_name].quantity += nutrient_quantity.quantity
+                else:
+                    nutrient_quantities[nutrient_name] = nutrient_quantity
+
+        return FUD(nutrient_quantities)
+
     @property
     def total_grams_in_definition(self) -> float:
         total_grams = 0
