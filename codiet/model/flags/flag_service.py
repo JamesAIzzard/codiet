@@ -17,41 +17,31 @@ class FlagService:
         self._singleton_register = singleton_register
         return self
 
-    def merge_flag_lists(
-        self, flag_lists: list[dict[str, "Flag"]]
-    ) -> dict[str, "Flag"]:
+    def merge_flag_lists(self, flag_lists: list[dict[str, "Flag"]]) -> dict[str, "Flag"]:
         merged_flags = {}
 
-        first_flag_set = True
-
-        for flag_set in flag_lists:
+        for index, flag_set in enumerate(flag_lists):
             for flag_name, flag in flag_set.items():
-                # If the flag isn't present, but we are on the first set, just add it with
-                # the value it has, otherise, add it with a value of None
                 if flag_name not in merged_flags:
-                    if first_flag_set:
-                        merged_flags[flag_name] = flag
-                    else:
-                        merged_flags[flag_name] = self._flag_factory.create_flag(
-                            flag_name, None
-                        )
+                    merged_flags[flag_name] = self._initialise_merged_flag(flag, index == 0)
                 else:
-                    current_merged_flag = merged_flags[flag_name]
-
-                    if current_merged_flag.value is None:
-                        continue  # Skip to next flag, it's already indeterminate
-                    elif flag.value is None:
-                        current_merged_flag.value = None  # Set to indeterminate
-                    elif current_merged_flag.value is False and flag.value is True:
-                        current_merged_flag.value = (
-                            False  # Existing False flags prevent the merge being True
-                        )
-                    elif current_merged_flag.value is True and flag.value is False:
-                        current_merged_flag.value = False
-                    # If they match, leave as is
-            first_flag_set = False
+                    self._update_merged_flag(merged_flags[flag_name], flag)
 
         return merged_flags
+
+    def _initialise_merged_flag(self, flag: "Flag", is_first_set: bool) -> "Flag":
+        if is_first_set:
+            return flag
+        return self._flag_factory.create_flag(flag.name, None)
+
+    def _update_merged_flag(self, merged_flag: "Flag", new_flag: "Flag") -> None:
+        if merged_flag.value is None:
+            return
+        elif new_flag.value is None:
+            merged_flag.value = None
+        elif merged_flag.value is True and new_flag.value is False:
+            merged_flag.value = False
+        # If they match or merged_flag is False, leave as is
 
     def infer_undefined_flag_values(
         self, merged_flags: dict[str, "Flag"]
