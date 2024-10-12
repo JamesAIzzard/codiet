@@ -51,6 +51,7 @@ class BaseCodietTest(TestCase):
             repository=self.json_repository,
             quantities_factory=self.quantities_factory,
             nutrients_factory=self.nutrient_factory,
+            flag_factory=self.flag_factory,
             ingredient_factory=self.ingredient_factory,
             recipe_factory=self.recipe_factory
         )

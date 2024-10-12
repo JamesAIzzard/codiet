@@ -1,7 +1,13 @@
-from typing import Collection
+from typing import Collection, TypedDict
 
 from codiet.utils.unique_collection import MutableUniqueCollection as MUC
 from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
+
+class FlagDefinitionDTO(TypedDict):
+    flag_name: str
+    must_contain: Collection[str]
+    cannot_contain: Collection[str]
+    implies: Collection[str]
 
 class FlagDefinition:
 

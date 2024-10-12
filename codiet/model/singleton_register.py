@@ -13,7 +13,6 @@ if TYPE_CHECKING:
     from codiet.model.flags import FlagDefinition
     from codiet.model.tags import Tag, TagFactory, TagDTO
     from codiet.model.ingredients import Ingredient
-    from codiet.model.recipes import Recipe
 
 
 class SingletonRegister:
@@ -28,9 +27,6 @@ class SingletonRegister:
         self._tags = UD[str, "Tag"]()
         self._flag_definitions = UD[str, "FlagDefinition"]()
         self._ingredients = UD[str, "Ingredient"]()
-        # TODO: Recipes are no longer singletons, because in future 
-        # they will have independent quantities
-        self._recipes = UD[str, "Recipe"]()
 
     def initialise(
         self,
@@ -98,8 +94,3 @@ class SingletonRegister:
                 ingredient_name
             )
             return self._ingredients[ingredient_name]
-
-    def get_recipe(self, recipe_name: str) -> "Recipe":
-        if not recipe_name in self._recipes:
-            self._recipes[recipe_name] = self._database_service.read_recipe(recipe_name)
-        return self._recipes[recipe_name]

@@ -5,7 +5,7 @@ class BaseTestRecipe(BaseCodietTest):
 
 class TestFlags(BaseTestRecipe):
     def test_flags_are_correct(self):
-        recipe = self.singleton_register.get_recipe("apple_pie")
+        recipe = self.database_service.read_recipe("apple_pie")
 
         self.assertFalse(recipe.get_flag("vegan").value)
         self.assertTrue(recipe.get_flag("vegetarian").value)
@@ -13,7 +13,7 @@ class TestFlags(BaseTestRecipe):
 
 class TestTotalGramsInDefinition(BaseTestRecipe):
     def test_returns_correct_value(self):
-        recipe = self.singleton_register.get_recipe("apple_pie")
+        recipe = self.database_service.read_recipe("apple_pie")
 
         self.assertEqual(recipe.total_grams_in_definition, (4*182)+150+200+200)
 

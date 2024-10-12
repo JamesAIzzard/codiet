@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from codiet.model.quantities import UnitDTO, UnitConversionDTO
     from codiet.model.nutrients import NutrientDTO
     from codiet.model.cost import QuantityCostDTO
+    from codiet.model.flags import FlagDefinitionDTO
     from codiet.model.ingredients import IngredientDTO
     from codiet.model.recipes import RecipeDTO
 
@@ -65,6 +66,24 @@ class JSONRepository:
             raise ValueError(f"Unit conversion '{names}' not found in the data.")
         conversion_data = entire_file_data[conversion_name]
         return conversion_data
+
+    def read_all_flag_names(self) -> IUC[str]:
+        entire_file_data = self._json_reader.read_file(
+            os.path.join(self._data_dir, "flags.json")
+        )
+        return IUC(entire_file_data.keys())
+    
+    def read_flag_definition_dto(self, name: str) -> "FlagDefinitionDTO":
+        entire_file_data = self._json_reader.read_file(
+            os.path.join(self._data_dir, "flags.json")
+        )
+        flag_data = entire_file_data[name]
+        return {
+            "flag_name": name,
+            "must_contain": flag_data["must_contain"],
+            "cannot_contain": flag_data["cannot_contain"],
+            "implies": flag_data["implies"],
+        }
 
     def read_all_nutrient_names(self) -> IUC[str]:
         all_nutrient_data = self._json_reader.read_file(

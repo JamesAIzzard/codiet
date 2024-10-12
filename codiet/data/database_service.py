@@ -7,6 +7,7 @@ if TYPE_CHECKING:
     from .repository import Repository
     from codiet.model.quantities import Unit, QuantitiesFactory, UnitConversion
     from codiet.model.nutrients import Nutrient, NutrientFactory
+    from codiet.model.flags import FlagDefinition, FlagFactory
     from codiet.model.ingredients import Ingredient, IngredientFactory
     from codiet.model.recipes import RecipeFactory
 
@@ -19,6 +20,7 @@ class DatabaseService:
 
         self._quantities_factory: "QuantitiesFactory"
         self._nutrients_factory: "NutrientFactory"
+        self._flag_factory: "FlagFactory"
         self._ingredient_factory: "IngredientFactory"
         self._recipe_factory: "RecipeFactory"
 
@@ -27,12 +29,14 @@ class DatabaseService:
         repository: "Repository",
         quantities_factory: "QuantitiesFactory",
         nutrients_factory: "NutrientFactory",
+        flag_factory: "FlagFactory",
         ingredient_factory: "IngredientFactory",
         recipe_factory: "RecipeFactory",
     ) -> "DatabaseService":
         self._repository = repository
         self._quantities_factory = quantities_factory
         self._nutrients_factory = nutrients_factory
+        self._flag_factory = flag_factory
         self._ingredient_factory = ingredient_factory
         self._recipe_factory = recipe_factory
         return self
