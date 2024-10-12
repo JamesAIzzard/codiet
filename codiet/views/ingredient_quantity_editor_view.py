@@ -107,7 +107,6 @@ class IngredientQuantityEditorView(QWidget):
         self.cmb_ingredient_qty_units = QComboBox()
         # Add some units to the dropdown
         # These will utimately get pulled from a config
-        # TODO - pull units from config
         self.cmb_ingredient_qty_units.addItems(["g", "kg", "lb"])
         layout.addWidget(self.cmb_ingredient_qty_units)
         # Emit a signal when the text changes

@@ -1,9 +1,3 @@
-"""
-Top level module for data sourcing and database population.
-"""
-# TODO: Consider splitting into two modules, one for data sourcing
-# and one for database population.
-
 import os
 
 from codiet.sqlite_db import DB_PATH

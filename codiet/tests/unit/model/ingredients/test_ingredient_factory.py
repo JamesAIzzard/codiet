@@ -24,10 +24,8 @@ class TestCreateIngredientFromDTO(BaseCodietTest):
         self.assertEqual(len(ingredient.unit_conversions), 1)
         self.assertIn(frozenset(("gram", "whole")), ingredient.unit_conversions)
         gram_whole_conversion = ingredient.unit_conversions[frozenset(("gram", "whole"))]
-        # TODO: Add assertions for the conversion values. This will probably mean adding
-        # a method to the UnitConversion class to return the quantities, perhaps changing the
-        # way they are stored to a dict against the unit name.
-
+        self.assertEqual(gram_whole_conversion.quantities["gram"].value, 182)
+        self.assertEqual(gram_whole_conversion.quantities["whole"].value, 1)
 
     def test_gi_is_correct(self):
         ingredient_dto = self.json_repository.read_ingredient_dto("apple")
