@@ -6,12 +6,12 @@ from codiet.data import DatabaseService, JSONRepository
 from codiet.model import SingletonRegister
 from codiet.model.quantities import QuantitiesFactory, UnitConversionService
 from codiet.model.cost import CostFactory
-from codiet.model.flags import FlagFactory
+from codiet.model.flags import FlagFactory, FlagService
 from codiet.model.nutrients import NutrientFactory
 from codiet.model.tags import TagFactory
 from codiet.model.time import TimeFactory
 from codiet.model.ingredients import IngredientFactory
-from codiet.model.recipes import RecipeFactory
+from codiet.model.recipes import RecipeFactory, Recipe
 from codiet.optimisation import OptimiserFactory
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -26,6 +26,7 @@ class BaseCodietTest(TestCase):
         
         self.singleton_register = SingletonRegister()
         self.unit_conversion_service = UnitConversionService()
+        self.flag_service = FlagService()
 
         self.quantities_factory = QuantitiesFactory()
         self.cost_factory = CostFactory()
@@ -39,6 +40,12 @@ class BaseCodietTest(TestCase):
 
         self.optimiser_fixtures = OptimiserFixtures()
         self.recipe_fixtures = RecipeFixtures()
+
+        Recipe.initialise(
+            unit_conversion_service=self.unit_conversion_service,
+            flag_factory=self.flag_factory,
+            flag_service=self.flag_service
+        )
 
         self.database_service.initialise(
             repository=self.json_repository,
@@ -58,6 +65,11 @@ class BaseCodietTest(TestCase):
             create_quantity=self.quantities_factory.create_quantity,
             get_unit=self.singleton_register.get_unit,
             get_global_unit_conversions=self.singleton_register.get_global_unit_conversions
+        )
+
+        self.flag_service.initialise(
+            flag_factory=self.flag_factory,
+            singleton_register=self.singleton_register
         )
 
         self.quantities_factory.initialise(

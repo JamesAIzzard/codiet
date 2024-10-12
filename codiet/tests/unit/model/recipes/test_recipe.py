@@ -3,6 +3,14 @@ from codiet.tests import BaseCodietTest
 class BaseTestRecipe(BaseCodietTest):
     pass
 
+class TestFlags(BaseTestRecipe):
+    def test_flags_are_correct(self):
+        recipe = self.singleton_register.get_recipe("apple_pie")
+
+        self.assertFalse(recipe.get_flag("vegan").value)
+        self.assertTrue(recipe.get_flag("vegetarian").value)
+        self.assertFalse(recipe.get_flag("gluten_free").value)
+
 class TestTotalGramsInDefinition(BaseTestRecipe):
     def test_returns_correct_value(self):
         recipe = self.singleton_register.get_recipe("apple_pie")

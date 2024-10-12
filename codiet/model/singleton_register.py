@@ -7,11 +7,10 @@ if TYPE_CHECKING:
     from codiet.model.quantities import (
         Unit,
         UnitConversion,
-        UnitSystem,
         QuantitiesFactory,
     )
     from codiet.model.nutrients import Nutrient
-    from codiet.model.tags import Tag, TagFactory
+    from codiet.model.tags import Tag, TagFactory, TagDTO
     from codiet.model.ingredients import Ingredient
     from codiet.model.recipes import Recipe
 
@@ -24,10 +23,11 @@ class SingletonRegister:
 
         self._units = UD[str, "Unit"]()
         self._unit_conversions = UD[frozenset[str], "UnitConversion"]()
-        self._global_unit_system: "UnitSystem|None" = None
         self._nutrients = UD[str, "Nutrient"]()
         self._tags = UD[str, "Tag"]()
         self._ingredients = UD[str, "Ingredient"]()
+        # TODO: Recipes are no longer singletons, because in future 
+        # they will have independent quantities
         self._recipes = UD[str, "Recipe"]()
 
     def initialise(
@@ -64,11 +64,6 @@ class SingletonRegister:
 
         return conversions
 
-    def get_global_unit_system(self) -> "UnitSystem":
-        if self._global_unit_system is None:
-            self._global_unit_system = self._quantities_factory.create_unit_system()
-        return self._global_unit_system
-
     def get_nutrient(self, nutrient_name: str) -> "Nutrient":
         try:
             return self._nutrients[nutrient_name]
@@ -82,7 +77,7 @@ class SingletonRegister:
         try:
             return self._tags[tag_name]
         except KeyError:
-            tag_dto = {"name": tag_name}
+            tag_dto:"TagDTO" = {"name": tag_name}
             self._tags[tag_name] = self._tag_factory.create_tag_from_dto(tag_dto)
             return self._tags[tag_name]
 

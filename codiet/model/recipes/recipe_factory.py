@@ -35,8 +35,6 @@ class RecipeFactory:
         self._flag_factory = flag_factory
         self._ingredient_factory = ingredient_factory
 
-        Recipe.unit_conversion_service = unit_conversion_service
-
         return self
 
     def create_recipe_from_dto(self, recipe_dto: "RecipeDTO") -> "Recipe":

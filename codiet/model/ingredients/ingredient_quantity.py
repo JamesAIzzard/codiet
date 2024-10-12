@@ -10,6 +10,7 @@ from codiet.model.ingredients import Ingredient
 if TYPE_CHECKING:
     from codiet.model.quantities import QuantityDTO
     from codiet.model.nutrients import NutrientQuantity
+    from codiet.model.flags import Flag
 
 
 class IngredientQuantityDTO(TypedDict):
@@ -27,6 +28,10 @@ class IngredientQuantity(HasCalories, HasNutrientQuantities, IsQuantified):
     @property
     def ingredient(self) -> "Ingredient":
         return self._ingredient
+
+    @property
+    def flags(self) -> "FUD[str, Flag]":
+        return self.ingredient.flags
 
     @property
     def nutrient_quantities(self) -> "FUD[str, NutrientQuantity]":
