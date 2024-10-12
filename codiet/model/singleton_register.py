@@ -10,6 +10,7 @@ if TYPE_CHECKING:
         QuantitiesFactory,
     )
     from codiet.model.nutrients import Nutrient
+    from codiet.model.flags import FlagDefinition
     from codiet.model.tags import Tag, TagFactory, TagDTO
     from codiet.model.ingredients import Ingredient
     from codiet.model.recipes import Recipe
@@ -25,6 +26,7 @@ class SingletonRegister:
         self._unit_conversions = UD[frozenset[str], "UnitConversion"]()
         self._nutrients = UD[str, "Nutrient"]()
         self._tags = UD[str, "Tag"]()
+        self._flag_definitions = UD[str, "FlagDefinition"]()
         self._ingredients = UD[str, "Ingredient"]()
         # TODO: Recipes are no longer singletons, because in future 
         # they will have independent quantities
@@ -63,6 +65,13 @@ class SingletonRegister:
             conversions[key] = self.get_unit_conversion(key)
 
         return conversions
+
+    def get_flag_definition(self, flag_name: str) -> "FlagDefinition":
+        if flag_name not in self._flag_definitions:
+            self._flag_definitions[flag_name] = self._database_service.read_flag_definition(
+                flag_name
+            )
+        return self._flag_definitions[flag_name]
 
     def get_nutrient(self, nutrient_name: str) -> "Nutrient":
         try:

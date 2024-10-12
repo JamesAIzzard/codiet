@@ -1,20 +1,24 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Optional, Collection
 
 if TYPE_CHECKING:
-    from codiet.model import SingletonRegister
-    from codiet.model.flags import Flag, FlagFactory
+    from codiet.model.flags import Flag, FlagDefinition
 
 
 class FlagService:
 
-    _flag_factory: "FlagFactory"
-    _singleton_register: "SingletonRegister"
+    _create_flag: Callable[[str, Optional[bool]], "Flag"]
+    _get_flag_definition: Callable[[str], "FlagDefinition"]
+    _get_all_flag_names: Callable[[], Collection[str]]
 
     def initialise(
-        self, flag_factory: "FlagFactory", singleton_register: "SingletonRegister"
+        self,
+        create_flag: Callable[[str, Optional[bool]], "Flag"],
+        get_flag_definition: Callable[[str], "FlagDefinition"],
+        get_all_flag_names: Callable[[], Collection[str]],
     ) -> "FlagService":
-        self._flag_factory = flag_factory
-        self._singleton_register = singleton_register
+        self._create_flag = create_flag
+        self._get_flag_definition = get_flag_definition
+        self._get_all_flag_names = get_all_flag_names
         return self
 
     def merge_flag_lists(self, flag_lists: list[dict[str, "Flag"]]) -> dict[str, "Flag"]:
@@ -32,7 +36,7 @@ class FlagService:
     def _initialise_merged_flag(self, flag: "Flag", is_first_set: bool) -> "Flag":
         if is_first_set:
             return flag
-        return self._flag_factory.create_flag(flag.name, None)
+        return self._create_flag(flag.name, None)
 
     def _update_merged_flag(self, merged_flag: "Flag", new_flag: "Flag") -> None:
         if merged_flag.value is None:

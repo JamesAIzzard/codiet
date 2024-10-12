@@ -68,8 +68,9 @@ class BaseCodietTest(TestCase):
         )
 
         self.flag_service.initialise(
-            flag_factory=self.flag_factory,
-            singleton_register=self.singleton_register
+            create_flag=self.flag_factory.create_flag,
+            get_flag_definition=self.singleton_register.get_flag_definition,
+            get_all_flag_names=self.database_service.read_all_flag_names
         )
 
         self.quantities_factory.initialise(
