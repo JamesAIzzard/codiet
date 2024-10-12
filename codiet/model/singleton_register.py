@@ -44,7 +44,7 @@ class SingletonRegister:
             self._units[unit_name] = self._database_service.read_unit(unit_name)
         return self._units[unit_name]
 
-    def get_unit_conversion(
+    def get_global_unit_conversion(
         self, unit_conversion_key: frozenset[str]
     ) -> "UnitConversion":
         if unit_conversion_key not in self._unit_conversions:
@@ -58,7 +58,7 @@ class SingletonRegister:
 
         conversions = {}
         for key in conversion_keys:
-            conversions[key] = self.get_unit_conversion(key)
+            conversions[key] = self.get_global_unit_conversion(key)
 
         return conversions
 
@@ -68,6 +68,15 @@ class SingletonRegister:
                 flag_name
             )
         return self._flag_definitions[flag_name]
+
+    def get_all_flag_definitions(self) -> dict[str, "FlagDefinition"]:
+        flag_names = self._database_service.read_all_flag_names()
+
+        flag_definitions = {}
+        for flag_name in flag_names:
+            flag_definitions[flag_name] = self.get_flag_definition(flag_name)
+
+        return flag_definitions
 
     def get_nutrient(self, nutrient_name: str) -> "Nutrient":
         try:

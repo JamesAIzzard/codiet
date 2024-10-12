@@ -122,7 +122,7 @@ class Recipe(HasCalories):
             flag_list.append(ingredient_quantity.flags)
         
         merged_flags = self._flag_service.merge_flag_lists(flag_list)
-        inferred_flags = self._flag_service.infer_undefined_flag_values(merged_flags)
+        inferred_flags = self._flag_service.populate_implied_flags(merged_flags)
 
         return FUD(inferred_flags)
 

@@ -7,7 +7,7 @@ class FlagDefinitionDTO(TypedDict):
     flag_name: str
     must_contain: Collection[str]
     cannot_contain: Collection[str]
-    implies: Collection[str]
+    implies: Collection[str] # TODO: Change to implies_true and add implies_false
 
 class FlagDefinition:
 

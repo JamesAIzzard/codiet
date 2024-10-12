@@ -69,20 +69,20 @@ class JSONRepository:
 
     def read_all_flag_names(self) -> IUC[str]:
         entire_file_data = self._json_reader.read_file(
-            os.path.join(self._data_dir, "flags.json")
+            os.path.join(self._data_dir, "flag_definitions.json")
         )
         return IUC(entire_file_data.keys())
     
     def read_flag_definition_dto(self, name: str) -> "FlagDefinitionDTO":
         entire_file_data = self._json_reader.read_file(
-            os.path.join(self._data_dir, "flags.json")
+            os.path.join(self._data_dir, "flag_definitions.json")
         )
-        flag_data = entire_file_data[name]
+        flag_defintion_data = entire_file_data[name]
         return {
             "flag_name": name,
-            "must_contain": flag_data["must_contain"],
-            "cannot_contain": flag_data["cannot_contain"],
-            "implies": flag_data["implies"],
+            "must_contain": flag_defintion_data["must_contain"],
+            "cannot_contain": flag_defintion_data["cannot_contain"],
+            "implies": flag_defintion_data["implies"],
         }
 
     def read_all_nutrient_names(self) -> IUC[str]:
