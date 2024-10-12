@@ -1,5 +1,5 @@
 {
-    "alcohol free": {
+    "alchohol_free": {
         "if_true": {
             "must_contain": [],
             "cannot_contain": ["alcohol"],
@@ -13,7 +13,7 @@
             "implies_false": []
         }
     },
-    "caffeine free": {
+    "caffeine_free": {
         "if_true": {
             "must_contain": [],
             "cannot_contain": ["caffeine"],
@@ -27,7 +27,7 @@
             "implies_false": []
         }
     },
-    "gluten free": {
+    "gluten_free": {
         "if_true": {
             "must_contain": [],
             "cannot_contain": ["gluten"],
@@ -41,7 +41,7 @@
             "implies_false": []
         }
     },
-    "lactose free": {
+    "lactose_free": {
         "if_true": {
             "must_contain": [],
             "cannot_contain": ["lactose"],
@@ -55,7 +55,7 @@
             "implies_false": []
         }
     },
-    "nut free": {
+    "nut_free": {
         "if_true": {
             "must_contain": [],
             "cannot_contain": [],
@@ -73,7 +73,7 @@
         "if_true": {
             "must_contain": [],
             "cannot_contain": [],
-            "implies_true": ["vegetarian", "pescatarian", "dairy free"],
+            "implies_true": ["vegetarian", "pescatarian", "dairy_free"],
             "implies_false": []
         },
         "if_false": {
@@ -125,11 +125,11 @@
             "implies_false": []
         }
     },
-    "dairy free": {
+    "dairy_free": {
         "if_true": {
             "must_contain": [],
             "cannot_contain": ["lactose"],
-            "implies_true": ["lactose free"],
+            "implies_true": ["lactose_free"],
             "implies_false": []
         },
         "if_false": {

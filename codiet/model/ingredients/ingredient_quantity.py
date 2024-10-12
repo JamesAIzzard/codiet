@@ -35,7 +35,7 @@ class IngredientQuantity(HasCalories, HasNutrientQuantities, IsQuantified):
 
     @property
     def nutrient_quantities(self) -> "FUD[str, NutrientQuantity]":
-        nutrient_quantities_totals = UD[str, NutrientQuantity]()
+        nutrient_quantities_totals = UD[str, "NutrientQuantity"]()
 
         self_mass_grams = self.mass_in_grams
 

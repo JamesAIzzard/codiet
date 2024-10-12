@@ -60,12 +60,12 @@ class TestInferUndefinedFlags(BaseFlagServiceTest):
         )
 
         self.assertTrue(flags["vegetarian"].value)
-        self.assertTrue(flags["dairy free"].value)
+        self.assertTrue(flags["dairy_free"].value)
         self.assertTrue(flags["pescatarian"].value)
 
     def test_infer_false_flags_from_false_value(self):
         flags = {
-            "dairy free": self.flag_factory.create_flag("dairy free", False),
+            "dairy_free": self.flag_factory.create_flag("dairy_free", False),
             "pescatarian": self.flag_factory.create_flag("pescatarian", False),
         }
 

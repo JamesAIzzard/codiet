@@ -14,4 +14,4 @@ class TestGetImplications(TestFlagDefinitionBase):
 
         self.assertIn("vegetarian", implied_true)
         self.assertIn("pescatarian", implied_true)
-        self.assertIn("dairy free", implied_true)
+        self.assertIn("dairy_free", implied_true)
