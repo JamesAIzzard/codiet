@@ -37,7 +37,7 @@ class Recipe(HasCalories, HasNutrientQuantities, HasFlags):
         use_as_ingredient: bool,
         description: str | None,
         instructions: list[str],
-        ingredient_quantities: UD[str, "IngredientQuantity"],
+        ingredient_quantities: dict[str, "IngredientQuantity"],
         serve_time_windows: Collection["TimeWindow"],
         tags: Collection["Tag"],
         flag_factory: "FlagFactory",
