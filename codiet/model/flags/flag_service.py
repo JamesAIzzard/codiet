@@ -37,21 +37,32 @@ class FlagService:
 
         return merged_flags
 
-    def populate_implied_flags(
-        self, defined_flags: dict[str, "Flag"]
+    def infer_undefined_flags(
+        self,
+        starting_flags: dict[str, "Flag"],
+        is_nutrient_present: Callable[[str], bool],
     ) -> dict[str, "Flag"]:
+        all_flags = self.add_undefined_flags(starting_flags)
 
-        undefined_flags = self.get_undefined_flags(defined_flags)
+        defined_flags = self.remove_undefined_flags(all_flags)
 
-        for defined_flag_name, defined_flag in defined_flags.items():
-            flag_definition = self._get_flag_definition(defined_flag_name)
-            if defined_flag.value is True:
-                for implied_flag_name in flag_definition.implies:
-                    if implied_flag_name in undefined_flags:
-                        undefined_flags[implied_flag_name].value = True
+        for flag_name, flag in defined_flags.items():
+            definition = self._get_flag_definition(flag_name)
 
-        defined_flags.update(undefined_flags)
-        return defined_flags
+            implied_true = definition.get_names_implied_true(
+                flag.value, is_nutrient_present # type: ignore
+            )
+            implied_false = definition.get_names_implied_false(
+                flag.value, is_nutrient_present # type: ignore
+            )
+
+            for implied_flag_name in implied_true:
+                all_flags[implied_flag_name].value = True
+
+            for implied_flag_name in implied_false:
+                all_flags[implied_flag_name].value = False
+
+        return all_flags
 
     def _initialise_merged_flag(self, flag: "Flag", is_first_set: bool) -> "Flag":
         if is_first_set:
@@ -67,13 +78,16 @@ class FlagService:
             merged_flag.value = False
         # If they match or merged_flag is False, leave as is
     
-    def get_undefined_flags(self, flags: dict[str, "Flag"]) -> dict[str, "Flag"]:
-        global_flag_names = self._get_all_global_flag_names()
+    def add_undefined_flags(self, flags: dict[str, "Flag"]) -> dict[str, "Flag"]:
+        all_flags = dict(flags)
 
-        undefined_flags = {}
+        for flag_name in self._get_all_global_flag_names():
+            if flag_name not in all_flags:
+                all_flags[flag_name] = self._create_flag(flag_name, None)
 
-        for global_flag_name in global_flag_names:
-            if global_flag_name not in flags:
-                undefined_flags[global_flag_name] = self._create_flag(global_flag_name, None)
-
-        return undefined_flags
+        return all_flags
+    
+    def remove_undefined_flags(
+        self, flags: dict[str, "Flag"]
+    ) -> dict[str, "Flag"]:
+        return {name: flag for name, flag in flags.items() if flag.value is not None}

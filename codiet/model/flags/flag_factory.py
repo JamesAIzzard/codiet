@@ -10,9 +10,14 @@ class FlagFactory:
     def create_flag_definition_from_dto(self, flag_definition_dto: "FlagDefinitionDTO") -> FlagDefinition:
         flag_definition = FlagDefinition(
             flag_name=flag_definition_dto["flag_name"],
-            must_contain=flag_definition_dto["must_contain"],
-            cannot_contain=flag_definition_dto["cannot_contain"],
-            implies=flag_definition_dto["implies"],
+            if_true_must_contain=flag_definition_dto["if_true_must_contain"],
+            if_true_cannot_contain=flag_definition_dto["if_true_cannot_contain"],
+            if_true_implies_true=flag_definition_dto["if_true_implies_true"],
+            if_true_implies_false=flag_definition_dto["if_true_implies_false"],
+            if_false_must_contain=flag_definition_dto["if_false_must_contain"],
+            if_false_cannot_contain=flag_definition_dto["if_false_cannot_contain"],
+            if_false_implies_true=flag_definition_dto["if_false_implies_true"],
+            if_false_implies_false=flag_definition_dto["if_false_implies_false"],
         )
         return flag_definition
 

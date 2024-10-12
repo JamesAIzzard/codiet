@@ -77,12 +77,17 @@ class JSONRepository:
         entire_file_data = self._json_reader.read_file(
             os.path.join(self._data_dir, "flag_definitions.json")
         )
-        flag_defintion_data = entire_file_data[name]
+        flag_definition_data = entire_file_data[name]
         return {
             "flag_name": name,
-            "must_contain": flag_defintion_data["must_contain"],
-            "cannot_contain": flag_defintion_data["cannot_contain"],
-            "implies": flag_defintion_data["implies"],
+            "if_true_must_contain": flag_definition_data["if_true"]["must_contain"],
+            "if_true_cannot_contain": flag_definition_data["if_true"]["cannot_contain"],
+            "if_true_implies_true": flag_definition_data["if_true"]["implies_true"],
+            "if_true_implies_false": flag_definition_data["if_true"]["implies_false"],
+            "if_false_must_contain": flag_definition_data["if_false"]["must_contain"],
+            "if_false_cannot_contain": flag_definition_data["if_false"]["cannot_contain"],
+            "if_false_implies_true": flag_definition_data["if_false"]["implies_true"],
+            "if_false_implies_false": flag_definition_data["if_false"]["implies_false"],
         }
 
     def read_all_nutrient_names(self) -> IUC[str]:

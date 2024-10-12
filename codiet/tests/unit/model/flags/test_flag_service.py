@@ -49,25 +49,30 @@ class TestMergeFlagLists(BaseFlagServiceTest):
         self.assertFalse(merged_flags["vegan"].value)
 
 
-class TestPopulateImpliedFlags(BaseFlagServiceTest):
-    def test_implied_true_flags_are_populated_from_true_value(self):
+class TestInferUndefinedFlags(BaseFlagServiceTest):
+    def test_infer_true_flags_from_true_value(self):
         flags = {
             "vegan": self.flag_factory.create_flag("vegan", True),
         }
 
-        updated_flags = self.flag_service.populate_implied_flags(flags)
+        flags = self.flag_service.infer_undefined_flags(
+            flags, lambda _: False
+        )
 
-        self.assertTrue(updated_flags["vegan"].value)
-        self.assertTrue(updated_flags["vegetarian"].value)
-        self.assertTrue(updated_flags["pescatarian"].value)
+        self.assertTrue(flags["vegetarian"].value)
+        self.assertTrue(flags["dairy free"].value)
+        self.assertTrue(flags["pescatarian"].value)
 
-    def test_implied_true_flags_are_not_populated_from_none_value(self):
+    def test_infer_false_flags_from_false_value(self):
         flags = {
-            "vegan": self.flag_factory.create_flag("vegan", None),
+            "dairy free": self.flag_factory.create_flag("dairy free", False),
+            "pescatarian": self.flag_factory.create_flag("pescatarian", False),
         }
 
-        updated_flags = self.flag_service.populate_implied_flags(flags)
+        flags = self.flag_service.infer_undefined_flags(
+            flags, lambda _: False
+        )
 
-        self.assertIsNone(updated_flags["vegan"].value)
-        self.assertIsNone(updated_flags["vegetarian"].value)
-        self.assertIsNone(updated_flags["pescatarian"].value)
+        self.assertFalse(flags["vegan"].value)
+        self.assertFalse(flags["vegetarian"].value)
+        

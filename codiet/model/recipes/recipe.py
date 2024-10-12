@@ -122,9 +122,13 @@ class Recipe(HasCalories):
             flag_list.append(ingredient_quantity.flags)
         
         merged_flags = self._flag_service.merge_flag_lists(flag_list)
-        inferred_flags = self._flag_service.populate_implied_flags(merged_flags)
 
-        return FUD(inferred_flags)
+        merged_and_inferred_flags = self._flag_service.infer_undefined_flags(
+            starting_flags=merged_flags,
+            is_nutrient_present=self.is_nutrient_present,
+        )
+
+        return FUD(merged_and_inferred_flags)
 
     @property
     def nutrient_quantities(self) -> FUD[str, "NutrientQuantity"]:
