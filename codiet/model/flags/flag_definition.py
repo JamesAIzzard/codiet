@@ -1,37 +1,67 @@
-from typing import Collection
-
+from typing import TYPE_CHECKING, Collection, TypedDict, Callable
 from codiet.utils.unique_collection import MutableUniqueCollection as MUC
-from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
+
+if TYPE_CHECKING:
+    from codiet.model.flags import Flag
+
+
+class FlagDefinitionDTO(TypedDict):
+    flag_name: str
+    if_true_must_contain: Collection[str]
+    if_true_cannot_contain: Collection[str]
+    if_true_implies_true: Collection[str]
+    if_true_implies_false: Collection[str]
+    if_false_must_contain: Collection[str]
+    if_false_cannot_contain: Collection[str]
+    if_false_implies_true: Collection[str]
+    if_false_implies_false: Collection[str]
+
 
 class FlagDefinition:
-
     def __init__(
         self,
         flag_name: str,
-        must_contain: Collection[str]|None=None,
-        cannot_contain: Collection[str]|None=None,
-        implies: Collection[str]|None=None,
-        *args,
-        **kwargs
+        if_true_must_contain: Collection[str] | None = None,
+        if_true_cannot_contain: Collection[str] | None = None,
+        if_true_implies_true: Collection[str] | None = None,
+        if_true_implies_false: Collection[str] | None = None,
+        if_false_must_contain: Collection[str] | None = None,
+        if_false_cannot_contain: Collection[str] | None = None,
+        if_false_implies_true: Collection[str] | None = None,
+        if_false_implies_false: Collection[str] | None = None,
     ) -> None:
-        super().__init__(*args, **kwargs)
         self._flag_name = flag_name
-        self._must_contain = MUC(must_contain) or MUC[str]()
-        self._cannot_contain = MUC(cannot_contain) or MUC[str]()
-        self._implies = MUC(implies) or MUC[str]()
+        self.if_true_must_contain = if_true_must_contain or []
+        self.if_true_cannot_contain = if_true_cannot_contain or []
+        self.if_true_implies_true = if_true_implies_true or []
+        self.if_true_implies_false = if_true_implies_false or []
+        self.if_false_must_contain = if_false_must_contain or []
+        self.if_false_cannot_contain = if_false_cannot_contain or []
+        self.if_false_implies_true = if_false_implies_true or []
+        self.if_false_implies_false = if_false_implies_false or []
 
     @property
     def flag_name(self) -> str:
         return self._flag_name
-    
-    @property
-    def must_contain(self) -> IUC[str]:
-        return self._must_contain.immutable
-    
-    @property
-    def cannot_contain(self) -> IUC[str]:
-        return self._cannot_contain.immutable
-    
-    @property
-    def implies(self) -> IUC[str]:
-        return self._implies.immutable
+
+    def get_names_implied_true(
+        self, self_value: bool, is_nutrient_present: Callable[[str], bool]
+    ) -> Collection[str]:
+        implied_true = set()
+        if self_value is True:
+            implied_true.update(self.if_true_implies_true)
+        elif self_value is False:
+            implied_true.update(self.if_false_implies_true)
+        
+        return implied_true
+
+    def get_names_implied_false(
+        self, self_value: bool, is_nutrient_present: Callable[[str], bool]
+    ) -> Collection[str]:
+        implied_false = set()
+        if self_value is True:
+            implied_false.update(self.if_true_implies_false)
+        elif self_value is False:
+            implied_false.update(self.if_false_implies_false)
+        
+        return implied_false

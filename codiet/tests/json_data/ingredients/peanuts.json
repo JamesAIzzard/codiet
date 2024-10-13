@@ -1,48 +1,44 @@
 {
-    "name": "apple",
-    "description": "A fruit that is sweet and juicy",
+    "name": "peanuts",
+    "description": "A type of legume that is often used as a snack or in cooking",
     "unit_conversions": [
         {
             "from_quantity": {
-                "unit_name": "whole",
-                "value": 1
+                "unit_name": "gram",
+                "value": 145
             },
             "to_quantity": {
-                "unit_name": "gram",
-                "value": 182
+                "unit_name": "cup",
+                "value": 1
             }
         }
     ],
-    "standard_unit": "whole",
+    "standard_unit": "gram",
     "quantity_cost": {
         "quantity": {
-            "unit_name": "whole",
+            "unit_name": "kilogram",
             "value": 1
         },
-        "cost": 0.5
+        "cost": 3.00
     },
     "flags": {
         "vegan": true,
         "vegetarian": true,
         "gluten_free": true
     },
-    "gi": 38,
+    "gi": 14,
     "nutrient_quantities_per_gram": {
         "protein": {
             "unit_name": "gram",
-            "value": 0.003
+            "value": 0.26
         },
         "carbohydrate": {
             "unit_name": "gram",
-            "value": 0.14
+            "value": 0.16
         },
         "fat": {
             "unit_name": "gram",
-            "value": 0.002
-        },
-        "water": {
-            "unit_name": "gram",
-            "value": 0.85
+            "value": 0.49
         }
     }
 }

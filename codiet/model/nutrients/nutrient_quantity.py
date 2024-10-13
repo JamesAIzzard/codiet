@@ -36,7 +36,7 @@ class NutrientQuantity(IsQuantified):
         return hash((self.nutrient.name))
 
     def __eq__(self, other):
-        if not isinstance(other, "NutrientQuantity"):
+        if not isinstance(other, NutrientQuantity):
             return False
 
         if self.nutrient.name != other.nutrient.name:

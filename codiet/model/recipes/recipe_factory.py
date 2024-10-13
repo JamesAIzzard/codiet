@@ -1,14 +1,14 @@
 from typing import TYPE_CHECKING
 
-from codiet.model.recipes import RecipeQuantity, Recipe
+from codiet.model.recipes import Recipe
 
 if TYPE_CHECKING:
     from codiet.model import SingletonRegister
     from codiet.model.quantities import QuantitiesFactory, UnitConversionService
     from codiet.model.flags import FlagFactory
     from codiet.model.time import TimeFactory
-    from codiet.model.ingredients import IngredientFactory
-    from codiet.model.recipes import RecipeDTO, RecipeQuantityDTO
+    from codiet.model.ingredients import IngredientFactory, IngredientQuantity
+    from codiet.model.recipes import RecipeDTO
 
 
 class RecipeFactory:
@@ -35,12 +35,10 @@ class RecipeFactory:
         self._flag_factory = flag_factory
         self._ingredient_factory = ingredient_factory
 
-        Recipe.unit_conversion_service = unit_conversion_service
-
         return self
 
     def create_recipe_from_dto(self, recipe_dto: "RecipeDTO") -> "Recipe":
-        ingredient_quantities = {}
+        ingredient_quantities:dict[str, "IngredientQuantity"] = {}
         for ingredient_name, ingredient_quantity_dto in recipe_dto[
             "ingredient_quantities"
         ].items():
@@ -69,7 +67,6 @@ class RecipeFactory:
             ingredient_quantities=ingredient_quantities,
             serve_time_windows=serve_time_windows,
             tags=tags,
-            flag_factory=self._flag_factory
         )
 
         return recipe
@@ -85,27 +82,5 @@ class RecipeFactory:
             ingredient_quantities={},
             serve_time_windows=[],
             tags=[],
-            flag_factory=self._flag_factory
         )
         return recipe
-
-    def create_recipe_quantity_from_dto(
-        self, recipe_quantity_dto: "RecipeQuantityDTO"
-    ) -> "RecipeQuantity":
-        recipe = self._singleton_register.get_recipe(recipe_quantity_dto["recipe_name"])
-        quantity = self._quantities_factory.create_quantity_from_dto(
-            recipe_quantity_dto["quantity"]
-        )
-        recipe_quantity = RecipeQuantity(recipe, quantity)
-        return recipe_quantity
-    
-    def create_recipe_quantity(self, recipe_name:str, quantity_unit_name:str, quantity_value: float) -> "RecipeQuantity":
-        recipe = self._singleton_register.get_recipe(recipe_name=recipe_name)
-        quantity = self._quantities_factory.create_quantity(
-            unit_name=quantity_unit_name, 
-            value=quantity_value
-        )
-        return RecipeQuantity(
-            recipe=recipe,
-            quantity=quantity
-        )

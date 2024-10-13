@@ -8,8 +8,9 @@ from codiet.model.calories import HasCalories
 from codiet.model.ingredients import Ingredient
 
 if TYPE_CHECKING:
-    from codiet.model.quantities import QuantityDTO
-    from codiet.model.nutrients import NutrientQuantity
+    from codiet.model.quantities import QuantityDTO, UnitConversionService
+    from codiet.model.nutrients import NutrientQuantity, NutrientFactory
+    from codiet.model.flags import Flag
 
 
 class IngredientQuantityDTO(TypedDict):
@@ -19,26 +20,49 @@ class IngredientQuantityDTO(TypedDict):
 
 class IngredientQuantity(HasCalories, HasNutrientQuantities, IsQuantified):
 
+    unit_conversion_service: "UnitConversionService"
+    nutrient_factory: "NutrientFactory"
+
     def __init__(self, ingredient: "Ingredient", *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._ingredient = ingredient
+
+    @classmethod
+    def initialise(
+        cls, 
+        unit_conversion_service: "UnitConversionService",
+        nutrient_factory: "NutrientFactory"
+    ) -> None:
+        cls.unit_conversion_service = unit_conversion_service
+        cls.nutrient_factory = nutrient_factory
 
     @property
     def ingredient(self) -> "Ingredient":
         return self._ingredient
 
     @property
+    def flags(self) -> "FUD[str, Flag]":
+        return self.ingredient.flags
+
+    @property
+    def mass_in_grams(self) -> float:
+        return self.unit_conversion_service.convert_quantity(
+            self.quantity,
+            to_unit_name="gram",
+            instance_unit_conversions=dict(self.ingredient.unit_conversions),
+        ).value
+
+    @property
     def nutrient_quantities(self) -> "FUD[str, NutrientQuantity]":
-        nutrient_quantities_totals = UD[str, NutrientQuantity]()
+        nutrient_quantities_totals = UD[str, "NutrientQuantity"]()
 
-        self_mass_grams = self.mass_in_grams
-
-        for nutrient_name, nutrient_quantity in self.ingredient.nutrient_quantities_per_gram.items():
-            if nutrient_name in nutrient_quantities_totals:
-                nutrient_quantities_totals[nutrient_name] += nutrient_quantity.mass_in_grams * self_mass_grams
-            else:
-                nutrient_quantities_totals = nutrient_quantity.mass_in_grams * self_mass_grams
+        for nutrient_name in self.ingredient.nutrient_quantities_per_gram.keys():
+            nutrient_quantities_totals[nutrient_name] = self.nutrient_factory.create_nutrient_quantity(
+                nutrient_name=nutrient_name,
+                quantity_value=self.ingredient.nutrient_quantities_per_gram[nutrient_name].mass_in_grams * self.mass_in_grams,
+                quantity_unit_name="gram",
+            )
 
         return FUD(nutrient_quantities_totals)
 

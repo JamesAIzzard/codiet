@@ -40,17 +40,9 @@ class TestHasRecipeSolutionsProperty(BaseDietStructureNodeTest):
     def test_has_recipe_solutions_when_has_solutions(self):
         node = self.diet_structure.get_node(("Monday", "Breakfast", "Main"))
 
-        recipe_quantity = self.recipe_factory.create_recipe_quantity_from_dto(
-            {
-                "recipe_name": "porridge", 
-                "quantity": {
-                    "unit_name": "gram", 
-                    "value": 400
-                }
-            }
-        )
+        porridge = self.recipe_factory.create_recipe(name="porridge")
         node.add_solution(
-            solution=recipe_quantity,
+            solution=porridge,
             solution_set_id=1
         )
 
@@ -102,14 +94,14 @@ class TestAddSolution(BaseDietStructureNodeTest):
         node = self.diet_structure.get_node(("Monday", "Breakfast"))
         
         with self.assertRaises(ValueError):
-            node.add_solution(self.recipe_fixtures.porridge_500g, 1)
+            node.add_solution(self.recipe_factory.create_recipe("porridge"), 1)
 
     def test_can_add_solution_to_recipe_node(self):
         node = self.diet_structure.get_node(("Monday", "Breakfast", "Main"))
         self.assertEqual(len(node.solutions), 0)
 
-        solution = self.recipe_fixtures.porridge_500g
+        porridge = self.recipe_factory.create_recipe("porridge")
 
-        node.add_solution(solution, 1)
+        node.add_solution(porridge, 1)
 
-        self.assertEqual(node.solutions[1], solution)      
+        self.assertEqual(node.solutions[1], porridge)      

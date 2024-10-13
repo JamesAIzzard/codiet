@@ -17,3 +17,6 @@ class FrozenUniqueDict(UniqueDictBase[K, V], Mapping):
 
     def values(self) -> ValuesView[V]:
         return super().values()
+    
+    def copy(self) -> 'FrozenUniqueDict[K, V]':
+        return FrozenUniqueDict(self._data.copy())    

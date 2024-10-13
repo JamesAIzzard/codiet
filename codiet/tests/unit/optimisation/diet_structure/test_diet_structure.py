@@ -1,8 +1,5 @@
 from codiet.tests import BaseCodietTest
 from codiet.optimisation import DietStructure, DietStructureNode
-from codiet.optimisation.constraints import FlagConstraint
-from codiet.optimisation.goals import MinimiseNutrientGoal
-from codiet.model.recipes import RecipeQuantity
 
 class BaseDietStructureTest(BaseCodietTest):
     def setUp(self) -> None:

@@ -17,10 +17,8 @@ class Optimiser:
         i = 5
         for recipe_node in diet_structure.recipe_nodes:
             for i in range(5):
-                solution = self._recipe_factory.create_recipe_quantity(
-                    recipe_name="porridge",
-                    quantity_unit_name="gram",
-                    quantity_value=100,
+                solution = self._recipe_factory.create_recipe(
+                    name="porridge"
                 )
                 recipe_node.add_solution(solution, i)
         return diet_structure

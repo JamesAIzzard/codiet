@@ -53,3 +53,18 @@ class NutrientFactory:
             quantity=self._quantities_factory.create_quantity_from_dto(nutrient_quantity_dto["quantity"]),
         )
         return nutrient_quantity
+    
+    def create_nutrient_quantity(
+        self,
+        nutrient_name: str,
+        quantity_value: float,
+        quantity_unit_name: str
+    ) -> NutrientQuantity:
+        nutrient_quantity = NutrientQuantity(
+            nutrient=self._singleton_register.get_nutrient(nutrient_name),
+            quantity=self._quantities_factory.create_quantity(
+                value=quantity_value,
+                unit_name=quantity_unit_name
+            )
+        )
+        return nutrient_quantity

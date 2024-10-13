@@ -22,3 +22,6 @@ class UniqueDict(UniqueDictBase[K, V], MutableMapping):
         new_data = dict(*args, **kwargs)
         for key, value in new_data.items():
             self[key] = value
+
+    def copy(self) -> 'UniqueDict[K, V]':
+        return UniqueDict(self._data.copy())            

@@ -120,9 +120,6 @@ class Ingredient(IsWeighable):
         del self._unit_conversions[unit_conversion.unit_names]
         return self
 
-    def get_flag(self, name: str) -> "Flag":
-        return self._flags[name]
-
     def get_nutrient_quantity_per_gram(self, nutrient_name: str) -> "NutrientQuantity":
         return self._nutrient_quantities_per_gram[nutrient_name]
 

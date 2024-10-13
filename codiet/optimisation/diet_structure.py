@@ -6,7 +6,7 @@ from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 if TYPE_CHECKING:
     from codiet.optimisation.constraints import Constraint
     from codiet.optimisation.goals import Goal
-    from codiet.model.recipes import RecipeQuantity
+    from codiet.model.recipes import Recipe
 
 class DietStructureNode:
     def __init__(
@@ -36,7 +36,7 @@ class DietStructureNode:
         return self._goals
 
     @property
-    def solutions(self) -> dict[int, 'RecipeQuantity']:
+    def solutions(self) -> dict[int, 'Recipe']:
         return self._solutions
 
     @property
@@ -68,7 +68,7 @@ class DietStructureNode:
     def add_goal(self, goal: 'Goal'):
         self._goals.append(goal)
 
-    def add_solution(self, solution: 'RecipeQuantity', solution_set_id: int):
+    def add_solution(self, solution: 'Recipe', solution_set_id: int):
         if not self.is_recipe_node:
             raise ValueError("Cannot add solution to a non-recipe node")
         self._solutions[solution_set_id] = solution

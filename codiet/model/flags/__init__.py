@@ -1,5 +1,6 @@
 from .flag_definition import FlagDefinition
 from .flag import Flag, FlagDTO
-from .has_flags import HasFlags
-from .has_settable_flags import HasSettableFlags
+from .flag_definition import FlagDefinitionDTO
 from .flag_factory import FlagFactory
+from .flag_service import FlagService
+from .exceptions import FlagNotDefinedError

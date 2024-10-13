@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from codiet.model.quantities import UnitDTO, UnitConversionDTO
     from codiet.model.nutrients import NutrientDTO
     from codiet.model.cost import QuantityCostDTO
+    from codiet.model.flags import FlagDefinitionDTO
     from codiet.model.ingredients import IngredientDTO
     from codiet.model.recipes import RecipeDTO
 
@@ -65,6 +66,29 @@ class JSONRepository:
             raise ValueError(f"Unit conversion '{names}' not found in the data.")
         conversion_data = entire_file_data[conversion_name]
         return conversion_data
+
+    def read_all_flag_names(self) -> IUC[str]:
+        entire_file_data = self._json_reader.read_file(
+            os.path.join(self._data_dir, "flag_definitions.json")
+        )
+        return IUC(entire_file_data.keys())
+    
+    def read_flag_definition_dto(self, name: str) -> "FlagDefinitionDTO":
+        entire_file_data = self._json_reader.read_file(
+            os.path.join(self._data_dir, "flag_definitions.json")
+        )
+        flag_definition_data = entire_file_data[name]
+        return {
+            "flag_name": name,
+            "if_true_must_contain": flag_definition_data["if_true"]["must_contain"],
+            "if_true_cannot_contain": flag_definition_data["if_true"]["cannot_contain"],
+            "if_true_implies_true": flag_definition_data["if_true"]["implies_true"],
+            "if_true_implies_false": flag_definition_data["if_true"]["implies_false"],
+            "if_false_must_contain": flag_definition_data["if_false"]["must_contain"],
+            "if_false_cannot_contain": flag_definition_data["if_false"]["cannot_contain"],
+            "if_false_implies_true": flag_definition_data["if_false"]["implies_true"],
+            "if_false_implies_false": flag_definition_data["if_false"]["implies_false"],
+        }
 
     def read_all_nutrient_names(self) -> IUC[str]:
         all_nutrient_data = self._json_reader.read_file(
