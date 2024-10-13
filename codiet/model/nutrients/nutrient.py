@@ -48,20 +48,32 @@ class Nutrient(StoredEntity):
         return IUC(self._aliases)
 
     @property
-    def parent(self) -> "Nutrient|None":
-        return self._parent
+    def is_child(self) -> bool:
+        return self._parent is not None
+
+    @property
+    def parent(self) -> "Nutrient":
+        if not self.is_child:
+            raise ValueError(f"{self.name} has no parent nutrient.")
+        return self._parent # type: ignore
+
+    @property
+    def parent_name(self) -> str:
+        if not self.is_child:
+            raise ValueError(f"{self.name} has no parent nutrient.")
+        return self.parent.name
 
     @property
     def children(self) -> FrozenUniqueDict[str, "Nutrient"]:
         return self._children
+    
+    @property
+    def child_names(self) -> IUC[str]:
+        return IUC(self.children.keys())
 
     @property
     def is_parent(self) -> bool:
         return len(self.children) > 0
-
-    @property
-    def is_child(self) -> bool:
-        return self.parent is not None
 
     def is_parent_of(self, nutrient_name: str) -> bool:
         if nutrient_name in self.children.keys():
@@ -71,16 +83,16 @@ class Nutrient(StoredEntity):
                 return True
         return False
 
-    def is_child_of(self, nutrient: "Nutrient") -> bool:
-        if self.parent == nutrient:
+    def is_child_of(self, nutrient_name:str) -> bool:
+        if self.parent_name == nutrient_name:
             return True
         if self.parent is not None:
-            return self.parent.is_child_of(nutrient)
+            return self.parent.is_child_of(nutrient_name)
         return False
 
     def __eq__(self, other):
         if isinstance(other, Nutrient):
-            return self.id == other.id and self.name == other.name
+            return self.name == other.name
         return False
 
     def __hash__(self):

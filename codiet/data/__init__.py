@@ -4,6 +4,7 @@ from .json_repository import JSONRepository
 from .repository import Repository
 from .json_reader import JSONReader
 from .exceptions import (
+    NutrientNotFoundError,
     IngredientNotFoundError,
     RecipeNotFoundError
 )   
