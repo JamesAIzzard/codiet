@@ -49,7 +49,10 @@ class TestNutrientsDefinedOnAllIngredients(BaseTestRecipe):
     def test_returns_correct_nutrients(self):
         recipe = self.database_service.read_recipe("apple_pie")
 
-        self.assertEqual(recipe.nutrients_defined_on_all_ingredients, ["protein", "carbohydrate", "fat"])
+        self.assertEqual(len(recipe.nutrients_defined_on_all_ingredients), 3)
+        self.assertIn("protein", recipe.nutrients_defined_on_all_ingredients)
+        self.assertIn("carbohydrate", recipe.nutrients_defined_on_all_ingredients)
+        self.assertIn("fat", recipe.nutrients_defined_on_all_ingredients)
 
 class TestNutrientQuantities(BaseTestRecipe):
     def test_returns_correct_nutrient_quantities(self):
