@@ -119,31 +119,22 @@ class Recipe(HasCalories):
 
     @property
     def nutrient_quantities(self) -> FUD[str, "NutrientQuantity"]:
-
-        # REFACTOR: This is a mess. Refactor to make it more readable.
-
-        merged_nutrient_quantities_grams:dict[str, float] = {}
-        for nutrient_name in self.nutrients_defined_on_all_ingredients:
-            merged_nutrient_quantities_grams[nutrient_name] = 0
-
-        for nutrient_name in merged_nutrient_quantities_grams.keys():
-            for ingredient_quantity in self.ingredient_quantities.values():
-
-                nutrient_quantity_grams = ingredient_quantity.nutrient_quantities[
-                    nutrient_name
-                ].quantity.value_in_grams
-
-                merged_nutrient_quantities_grams[nutrient_name] += nutrient_quantity_grams
-
+        common_nutrient_names = self.nutrients_defined_on_all_ingredients
         merged_nutrient_quantities = {}
-        for nutrient_name, nutrient_quantity_grams_value in merged_nutrient_quantities_grams.items():
+
+        for nutrient_name in common_nutrient_names:
+            total_grams = sum(
+                iq.nutrient_quantities[nutrient_name].quantity.value_in_grams
+                for iq in self.ingredient_quantities.values()
+            )
             merged_nutrient_quantities[nutrient_name] = self._nutrient_factory.create_nutrient_quantity(
                 nutrient_name=nutrient_name,
-                quantity_value=nutrient_quantity_grams_value,
+                quantity_value=total_grams,
                 quantity_unit_name="gram",
             )
 
         return FUD(merged_nutrient_quantities)
+
 
     @property
     def nutrients_defined_on_all_ingredients(self) -> list[str]:
