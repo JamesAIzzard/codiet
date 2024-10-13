@@ -129,15 +129,11 @@ class Recipe(HasCalories):
         for nutrient_name in merged_nutrient_quantities_grams.keys():
             for ingredient_quantity in self.ingredient_quantities.values():
 
-                ingredient_quantity_grams_value = self._unit_conversion_service.convert_quantity(
-                    quantity=ingredient_quantity.quantity,
-                    to_unit_name="gram",
-                    instance_unit_conversions=dict(
-                        ingredient_quantity.ingredient.unit_conversions
-                    )
-                ).value
+                nutrient_quantity_grams = ingredient_quantity.nutrient_quantities[
+                    nutrient_name
+                ].quantity.value_in_grams
 
-                merged_nutrient_quantities_grams[nutrient_name] += ingredient_quantity_grams_value
+                merged_nutrient_quantities_grams[nutrient_name] += nutrient_quantity_grams
 
         merged_nutrient_quantities = {}
         for nutrient_name, nutrient_quantity_grams_value in merged_nutrient_quantities_grams.items():

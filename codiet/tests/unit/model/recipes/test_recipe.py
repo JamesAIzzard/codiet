@@ -68,5 +68,9 @@ class TestNutrientQuantities(BaseTestRecipe):
 
         # Sum protein in trail mix
         trail_mix_protein = (100*0.15)+(100*0.26)+(100*0.15)
+        trail_mix_carbohydrate = (100*0.06)+(100*0.16)+(100*0.07)
+        trail_mix_fat = (100*0.62)+(100*0.49)+(100*0.65)
 
-        self.assertEqual(trail_mix.nutrient_quantities["protein"].quantity, trail_mix_protein)
+        self.assertEqual(trail_mix.nutrient_quantities["protein"].quantity.value_in_grams, trail_mix_protein)
+        self.assertEqual(trail_mix.nutrient_quantities["carbohydrate"].quantity.value_in_grams, trail_mix_carbohydrate)
+        self.assertEqual(trail_mix.nutrient_quantities["fat"].quantity.value_in_grams, trail_mix_fat)
