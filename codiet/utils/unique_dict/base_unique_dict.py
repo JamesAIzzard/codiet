@@ -1,7 +1,5 @@
 from typing import TypeVar, Generic, Iterator
 
-from .utils import check_values_are_unique
-
 K = TypeVar('K')
 V = TypeVar('V')
 

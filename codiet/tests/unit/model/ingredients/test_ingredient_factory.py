@@ -37,9 +37,10 @@ class TestCreateIngredientFromDTO(BaseCodietTest):
         ingredient_dto = self.json_repository.read_ingredient_dto("apple")
         ingredient = self.ingredient_factory.create_ingredient_from_dto(ingredient_dto)
 
-        self.assertEqual(len(ingredient.flags), 2)
+        self.assertEqual(len(ingredient.flags), 3)
         self.assertIn("vegan", ingredient.flags)
         self.assertIn("gluten_free", ingredient.flags)
+        self.assertIn("vegetarian", ingredient.flags)
 
     def test_nutrient_quantities_are_correct(self):
         ingredient_dto = self.json_repository.read_ingredient_dto("apple")

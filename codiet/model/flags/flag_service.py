@@ -61,6 +61,9 @@ class FlagService:
                 self.get_inferred_from_flag(flag, is_nutrient_present)
             )
 
+        inferred_flags.update(defined_flags)
+        inferred_flags = self.add_undefined_flags(inferred_flags)
+
         return FUD(inferred_flags)
 
     def get_inferred_from_flag(

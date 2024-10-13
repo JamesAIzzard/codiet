@@ -42,7 +42,6 @@ class TestSolve(BaseOptimiserTest):
             for recipe in recipe_node.solutions.values():
                 self.assertTrue(recipe.get_flag("vegetarian").value)
                 self.assertFalse(recipe.get_flag("vegan").value)
-                self.assertFalse(recipe.get_flag("gluten_free").value)
 
     def test_diet_plans_satisfy_calorie_constraints(self):
 

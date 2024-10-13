@@ -56,6 +56,7 @@ class Recipe(HasCalories):
             ingredient_quantities
         )
         self._flag_cache = UD[str, "Flag"]()
+        self._flags_cached = False
         self._serve_time_windows = MUC["TimeWindow"](serve_time_windows)
         self._tags = MUC["Tag"](tags)
 
@@ -106,6 +107,7 @@ class Recipe(HasCalories):
 
     @property
     def ingredient_quantities(self) -> IUC["IngredientQuantity"]:
+        # TODO: This should be a FUD, to make debugging easier
         return IUC(self._ingredient_quantities.values())
 
     @property
@@ -151,16 +153,15 @@ class Recipe(HasCalories):
 
     @property
     def flags(self) -> FUD[str, "Flag"]:
-        if self._flags_inferred is False:
+        if self._flags_cached is False:
             inferred_flags = self._flag_service.get_inferred_from_flags(
                 self._merged_ingredient_flags, self.is_nutrient_present
             )
             self._flag_cache.update(inferred_flags)
-            self._flags_inferred = True
+            self._flags_cached = True
         return FUD(self._flag_cache)
 
     def get_flag(self, flag_name: str) -> "Flag":
-        
         return self.flags[flag_name]
 
     @property
