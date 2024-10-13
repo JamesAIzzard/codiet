@@ -106,9 +106,8 @@ class Recipe(HasCalories):
         self._instructions = instructions
 
     @property
-    def ingredient_quantities(self) -> IUC["IngredientQuantity"]:
-        # TODO: This should be a FUD, to make debugging easier
-        return IUC(self._ingredient_quantities.values())
+    def ingredient_quantities(self) -> FUD[str, "IngredientQuantity"]:
+        return FUD(self._ingredient_quantities)
 
     @property
     def serve_time_windows(self) -> IUC["TimeWindow"]:
@@ -140,7 +139,7 @@ class Recipe(HasCalories):
     def total_grams_in_definition(self) -> float:
         total_grams = 0
 
-        for ingredient_quantity in self.ingredient_quantities:
+        for ingredient_quantity in self.ingredient_quantities.values():
             total_grams += self._unit_conversion_service.convert_quantity(
                 quantity=ingredient_quantity.quantity,
                 to_unit_name="gram",
@@ -167,7 +166,7 @@ class Recipe(HasCalories):
     @property
     def _merged_ingredient_flags(self) -> dict[str, "Flag"]:
         flag_list = []
-        for ingredient_quantity in self.ingredient_quantities:
+        for ingredient_quantity in self.ingredient_quantities.values():
             flag_list.append(ingredient_quantity.flags)
 
         return self._flag_service.merge_flag_lists(flag_list)

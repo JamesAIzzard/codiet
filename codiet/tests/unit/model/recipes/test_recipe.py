@@ -30,7 +30,7 @@ class TestAddIngredientQuantity(BaseTestRecipe):
 
         recipe.add_ingredient_quantity(oats)
 
-        self.assertIn(oats, recipe.ingredient_quantities)
+        self.assertIn(oats, recipe.ingredient_quantities.values())
 
     def test_exception_if_ingredient_quantity_already_added(self):
         recipe = self.recipe_factory.create_recipe(name="Oatmeal")
