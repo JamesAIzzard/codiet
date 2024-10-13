@@ -49,30 +49,24 @@ class TestMergeFlagLists(BaseFlagServiceTest):
         self.assertFalse(merged_flags["vegan"].value)
 
 
-class TestInferUndefinedFlags(BaseFlagServiceTest):
-    def test_infer_true_flags_from_true_value(self):
-        flags = {
-            "vegan": self.flag_factory.create_flag("vegan", True),
-        }
+class TestGetInferredFromFlag(BaseFlagServiceTest):
+    def test_correctly_infers_flags_from_true_flag(self):
+        vegan = self.flag_factory.create_flag("vegan", True)
 
-        flags = self.flag_service.infer_undefined_flags(
-            flags, lambda _: False
+        inferred_flags = self.flag_service.get_inferred_from_flag(
+            vegan, lambda _: False
         )
 
-        self.assertTrue(flags["vegetarian"].value)
-        self.assertTrue(flags["dairy_free"].value)
-        self.assertTrue(flags["pescatarian"].value)
+        self.assertTrue(inferred_flags["vegetarian"].value)
+        self.assertTrue(inferred_flags["dairy_free"].value)
+        self.assertTrue(inferred_flags["pescatarian"].value)
 
     def test_infer_false_flags_from_false_value(self):
-        flags = {
-            "dairy_free": self.flag_factory.create_flag("dairy_free", False),
-            "pescatarian": self.flag_factory.create_flag("pescatarian", False),
-        }
+        vegetarian = self.flag_factory.create_flag("vegetarian", False)
 
-        flags = self.flag_service.infer_undefined_flags(
-            flags, lambda _: False
+        inferred_flags = self.flag_service.get_inferred_from_flag(
+            vegetarian, lambda _: False
         )
 
-        self.assertFalse(flags["vegan"].value)
-        self.assertFalse(flags["vegetarian"].value)
+        self.assertFalse(inferred_flags["vegan"].value)
         

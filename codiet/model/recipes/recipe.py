@@ -28,7 +28,7 @@ class RecipeDTO(TypedDict):
 class Recipe(HasCalories):
 
     _unit_conversion_service: "UnitConversionService"
-    _descriptionflag_factory: "FlagFactory"
+    _flag_factory: "FlagFactory"
     _flag_service: "FlagService"
 
     def __init__(
@@ -55,6 +55,7 @@ class Recipe(HasCalories):
         self._ingredient_quantities = UD[str, "IngredientQuantity"](
             ingredient_quantities
         )
+        self._flag_cache = UD[str, "Flag"]()
         self._serve_time_windows = MUC["TimeWindow"](serve_time_windows)
         self._tags = MUC["Tag"](tags)
 
@@ -66,7 +67,7 @@ class Recipe(HasCalories):
         flag_service: "FlagService",
     ):
         cls._unit_conversion_service = unit_conversion_service
-        cls.flag_factory = flag_factory
+        cls._flag_factory = flag_factory
         cls._flag_service = flag_service
 
     @property
@@ -116,21 +117,6 @@ class Recipe(HasCalories):
         return IUC(self._tags)
 
     @property
-    def flags(self) -> FUD[str, "Flag"]:
-        flag_list = []
-        for ingredient_quantity in self.ingredient_quantities:
-            flag_list.append(ingredient_quantity.flags)
-        
-        merged_flags = self._flag_service.merge_flag_lists(flag_list)
-
-        merged_and_inferred_flags = self._flag_service.infer_undefined_flags(
-            starting_flags=merged_flags,
-            is_nutrient_present=self.is_nutrient_present,
-        )
-
-        return FUD(merged_and_inferred_flags)
-
-    @property
     def nutrient_quantities(self) -> FUD[str, "NutrientQuantity"]:
         nutrient_quantities = UD[str, "NutrientQuantity"]()
 
@@ -163,14 +149,27 @@ class Recipe(HasCalories):
 
         return total_grams
 
-    def get_flag(self, flag_name: str) -> "Flag":
-        if flag_name not in self.flags:
-            return self._flag_factory.create_flag(
-                name=flag_name,
-                value=False,
+    @property
+    def flags(self) -> FUD[str, "Flag"]:
+        if self._flags_inferred is False:
+            inferred_flags = self._flag_service.get_inferred_from_flags(
+                self._merged_ingredient_flags, self.is_nutrient_present
             )
-        else:
-            return self.flags[flag_name]
+            self._flag_cache.update(inferred_flags)
+            self._flags_inferred = True
+        return FUD(self._flag_cache)
+
+    def get_flag(self, flag_name: str) -> "Flag":
+        
+        return self.flags[flag_name]
+
+    @property
+    def _merged_ingredient_flags(self) -> dict[str, "Flag"]:
+        flag_list = []
+        for ingredient_quantity in self.ingredient_quantities:
+            flag_list.append(ingredient_quantity.flags)
+
+        return self._flag_service.merge_flag_lists(flag_list)
 
     def add_ingredient_quantity(
         self, ingredient_quantity: "IngredientQuantity"

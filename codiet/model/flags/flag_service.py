@@ -1,11 +1,12 @@
 from typing import TYPE_CHECKING, Callable, Optional, Collection
 
+from codiet.utils.unique_dict import FrozenUniqueDict as FUD
+
 if TYPE_CHECKING:
     from codiet.model.flags import Flag, FlagDefinition
 
 
 class FlagService:
-
     _create_flag: Callable[[str, Optional[bool]], "Flag"]
     _get_flag_definition: Callable[[str], "FlagDefinition"]
     _get_all_global_flag_names: Callable[[], Collection[str]]
@@ -24,69 +25,81 @@ class FlagService:
     def merge_flag_lists(
         self, flag_lists: list[dict[str, "Flag"]]
     ) -> dict[str, "Flag"]:
-        merged_flags = {}
+        if not flag_lists:
+            return {}
 
-        for index, flag_set in enumerate(flag_lists):
+        merged_flags = flag_lists[0].copy() # Start with the first list of flags
+
+        for flag_set in flag_lists[1:]:
             for flag_name, flag in flag_set.items():
                 if flag_name not in merged_flags:
-                    merged_flags[flag_name] = self._initialise_merged_flag(
-                        flag, index == 0
-                    )
+                    merged_flags[flag_name] = self._create_flag(flag_name, None)
                 else:
-                    self._update_merged_flag(merged_flags[flag_name], flag)
+                    self.merge_flag_values(merged_flags[flag_name], flag)
 
         return merged_flags
 
-    def infer_undefined_flags(
+    def merge_flag_values(self, primary_flag: "Flag", update_flag: "Flag") -> None:
+        if primary_flag.value is None:
+            return
+        if update_flag.value is None:
+            primary_flag.value = None
+        elif primary_flag.value is True and update_flag.value is False:
+            primary_flag.value = False
+
+    def get_inferred_from_flags(
         self,
         starting_flags: dict[str, "Flag"],
         is_nutrient_present: Callable[[str], bool],
+    ) -> FUD[str, "Flag"]:
+        inferred_flags: dict[str, "Flag"] = {}
+
+        defined_flags = self.remove_undefined_flags(starting_flags)
+
+        for flag in defined_flags.values():
+            inferred_flags.update(
+                self.get_inferred_from_flag(flag, is_nutrient_present)
+            )
+
+        return FUD(inferred_flags)
+
+    def get_inferred_from_flag(
+        self,
+        flag: "Flag",
+        is_nutrient_present: Callable[[str], bool],
     ) -> dict[str, "Flag"]:
-        all_flags = self.add_undefined_flags(starting_flags)
+        inferred_flags: dict[str, "Flag"] = {}
 
-        defined_flags = self.remove_undefined_flags(all_flags)
+        definition = self._get_flag_definition(flag.name)
 
-        for flag_name, flag in defined_flags.items():
-            definition = self._get_flag_definition(flag_name)
+        if flag.value is True:
+            for flag_name in definition.if_true_implies_true:
+                inferred_flags[flag_name] = self._create_flag(flag_name, True)
 
-            implied_true = definition.get_names_implied_true(
-                flag.value, is_nutrient_present # type: ignore
-            )
-            implied_false = definition.get_names_implied_false(
-                flag.value, is_nutrient_present # type: ignore
-            )
+            for flag_name in definition.if_true_implies_false:
+                inferred_flags[flag_name] = self._create_flag(flag_name, False)
 
-            for implied_flag_name in implied_true:
-                all_flags[implied_flag_name].value = True
+        elif flag.value is False:
+            for flag_name in definition.if_false_implies_true:
+                inferred_flags[flag_name] = self._create_flag(flag_name, True)
 
-            for implied_flag_name in implied_false:
-                all_flags[implied_flag_name].value = False
+            for flag_name in definition.if_false_implies_false:
+                inferred_flags[flag_name] = self._create_flag(flag_name, False)
 
-        return all_flags
+        return inferred_flags
 
-    def _initialise_merged_flag(self, flag: "Flag", is_first_set: bool) -> "Flag":
-        if is_first_set:
-            return flag
-        return self._create_flag(flag.name, None)
+    def is_flag_defined(self, flags: dict[str, "Flag"], flag_name: str) -> bool:
+        return flag_name in flags and flags[flag_name].value is not None
 
-    def _update_merged_flag(self, merged_flag: "Flag", new_flag: "Flag") -> None:
-        if merged_flag.value is None:
-            return
-        elif new_flag.value is None:
-            merged_flag.value = None
-        elif merged_flag.value is True and new_flag.value is False:
-            merged_flag.value = False
-        # If they match or merged_flag is False, leave as is
-    
     def add_undefined_flags(self, flags: dict[str, "Flag"]) -> dict[str, "Flag"]:
-        all_flags = dict(flags)
+        all_flags = flags.copy()
 
         for flag_name in self._get_all_global_flag_names():
             if flag_name not in all_flags:
                 all_flags[flag_name] = self._create_flag(flag_name, None)
 
         return all_flags
-    
+
     def remove_undefined_flags(
         self, flags: dict[str, "Flag"]
     ) -> dict[str, "Flag"]:
