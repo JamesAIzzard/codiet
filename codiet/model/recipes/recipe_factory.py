@@ -67,7 +67,6 @@ class RecipeFactory:
             ingredient_quantities=ingredient_quantities,
             serve_time_windows=serve_time_windows,
             tags=tags,
-            flag_factory=self._flag_factory
         )
 
         return recipe
@@ -83,6 +82,5 @@ class RecipeFactory:
             ingredient_quantities={},
             serve_time_windows=[],
             tags=[],
-            flag_factory=self._flag_factory
         )
         return recipe

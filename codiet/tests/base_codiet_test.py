@@ -43,7 +43,7 @@ class BaseCodietTest(TestCase):
 
         Recipe.initialise(
             unit_conversion_service=self.unit_conversion_service,
-            quantities_factory=self.quantities_factory,
+            nutrient_factory=self.nutrient_factory,
             flag_factory=self.flag_factory,
             flag_service=self.flag_service
         )

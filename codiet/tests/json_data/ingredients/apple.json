@@ -39,6 +39,10 @@
         "fat": {
             "unit_name": "gram",
             "value": 0.002
+        },
+        "water": {
+            "unit_name": "gram",
+            "value": 0.85
         }
     }
 }

@@ -46,10 +46,11 @@ class TestCreateIngredientFromDTO(BaseCodietTest):
         ingredient_dto = self.json_repository.read_ingredient_dto("apple")
         ingredient = self.ingredient_factory.create_ingredient_from_dto(ingredient_dto)
 
-        self.assertEqual(len(ingredient.nutrient_quantities_per_gram), 3)
+        self.assertEqual(len(ingredient.nutrient_quantities_per_gram), 4)
         self.assertIn("protein", ingredient.nutrient_quantities_per_gram)
         self.assertIn("carbohydrate", ingredient.nutrient_quantities_per_gram)
         self.assertIn("fat", ingredient.nutrient_quantities_per_gram)
+        self.assertIn("water", ingredient.nutrient_quantities_per_gram)
 
     def test_creates_ingredient_with_no_description(self):
         ingredient_dto = self.json_repository.read_ingredient_dto("apple")

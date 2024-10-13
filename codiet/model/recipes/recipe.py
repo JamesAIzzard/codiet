@@ -7,8 +7,8 @@ from codiet.utils.unique_dict import FrozenUniqueDict as FUD
 from codiet.model.calories import HasCalories
 
 if TYPE_CHECKING:
-    from codiet.model.quantities import UnitConversionService, QuantitiesFactory
-    from codiet.model.nutrients import NutrientQuantity
+    from codiet.model.quantities import UnitConversionService
+    from codiet.model.nutrients import NutrientQuantity, NutrientFactory
     from codiet.model.flags import Flag, FlagFactory, FlagService
     from codiet.model.time import TimeWindow, TimeWindowDTO
     from codiet.model.tags import Tag, TagDTO
@@ -30,6 +30,7 @@ class Recipe(HasCalories):
     _unit_conversion_service: "UnitConversionService"
     _flag_factory: "FlagFactory"
     _flag_service: "FlagService"
+    _nutrient_factory: "NutrientFactory"
 
     def __init__(
         self,
@@ -40,13 +41,10 @@ class Recipe(HasCalories):
         ingredient_quantities: dict[str, "IngredientQuantity"],
         serve_time_windows: Collection["TimeWindow"],
         tags: Collection["Tag"],
-        flag_factory: "FlagFactory",
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
-
-        self._flag_factory = flag_factory
 
         self._name = name
         self._use_as_ingredient = use_as_ingredient
@@ -64,12 +62,12 @@ class Recipe(HasCalories):
     def initialise(
         cls,
         unit_conversion_service: "UnitConversionService",
-        quantities_factory: "QuantitiesFactory",
+        nutrient_factory: "NutrientFactory",
         flag_factory: "FlagFactory",
         flag_service: "FlagService",
     ):
         cls._unit_conversion_service = unit_conversion_service
-        cls._quantity_factory = quantities_factory
+        cls._nutrient_factory = nutrient_factory
         cls._flag_factory = flag_factory
         cls._flag_service = flag_service
 
@@ -124,26 +122,29 @@ class Recipe(HasCalories):
 
         # REFACTOR: This is a mess. Refactor to make it more readable.
 
-        common_nutrients = self.nutrients_defined_on_all_ingredients
-
-        merged_nutrient_quantities_grams = {}
-        for nutrient_name in common_nutrients:
+        merged_nutrient_quantities_grams:dict[str, float] = {}
+        for nutrient_name in self.nutrients_defined_on_all_ingredients:
             merged_nutrient_quantities_grams[nutrient_name] = 0
 
-        for nutrient_name in common_nutrients:
+        for nutrient_name in merged_nutrient_quantities_grams.keys():
             for ingredient_quantity in self.ingredient_quantities.values():
-                merged_nutrient_quantities_grams[
-                    nutrient_name
-                ] += ingredient_quantity.nutrient_quantities[
-                    nutrient_name
-                ].quantity.value_in_grams
+
+                ingredient_quantity_grams_value = self._unit_conversion_service.convert_quantity(
+                    quantity=ingredient_quantity.quantity,
+                    to_unit_name="gram",
+                    instance_unit_conversions=dict(
+                        ingredient_quantity.ingredient.unit_conversions
+                    )
+                ).value
+
+                merged_nutrient_quantities_grams[nutrient_name] += ingredient_quantity_grams_value
 
         merged_nutrient_quantities = {}
-        for nutrient_name, grams_value in merged_nutrient_quantities_grams.items():
-            merged_nutrient_quantities[nutrient_name] = (
-                self._quantity_factory.create_quantity(
-                    value=grams_value, unit_name="gram"
-                )
+        for nutrient_name, nutrient_quantity_grams_value in merged_nutrient_quantities_grams.items():
+            merged_nutrient_quantities[nutrient_name] = self._nutrient_factory.create_nutrient_quantity(
+                nutrient_name=nutrient_name,
+                quantity_value=nutrient_quantity_grams_value,
+                quantity_unit_name="gram",
             )
 
         return FUD(merged_nutrient_quantities)

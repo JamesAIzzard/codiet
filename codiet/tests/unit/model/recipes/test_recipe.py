@@ -1,4 +1,5 @@
 from codiet.tests import BaseCodietTest
+from codiet.model.nutrients import NutrientQuantity
 
 class BaseTestRecipe(BaseCodietTest):
     pass
@@ -55,6 +56,13 @@ class TestNutrientsDefinedOnAllIngredients(BaseTestRecipe):
         self.assertIn("fat", recipe.nutrients_defined_on_all_ingredients)
 
 class TestNutrientQuantities(BaseTestRecipe):
+
+    def test_returns_nutrient_quantities(self):
+        recipe = self.database_service.read_recipe("apple_pie")
+
+        for nutrient_quantity in recipe.nutrient_quantities.values():
+            self.assertIsInstance(nutrient_quantity, NutrientQuantity)
+
     def test_returns_correct_nutrient_quantities(self):
         trail_mix = self.database_service.read_recipe("trail_mix")
 
