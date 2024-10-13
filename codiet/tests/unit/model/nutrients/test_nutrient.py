@@ -21,7 +21,13 @@ class TestParent(NutrientBaseTest):
         protein = self.singleton_register.get_nutrient("protein")
 
         with self.assertRaises(ValueError):
-            protein.parent
+            protein.direct_parent
+
+    def test_returns_parent_correctly(self):
+        alanine = self.singleton_register.get_nutrient("alanine")
+        non_essential_amino_acid = self.singleton_register.get_nutrient("non_essential_amino_acid")
+
+        self.assertEqual(alanine.direct_parent, non_essential_amino_acid)
 
 class TestIsParentOf(NutrientBaseTest):
     
@@ -34,6 +40,25 @@ class TestIsParentOf(NutrientBaseTest):
         protein = self.singleton_register.get_nutrient("protein")
 
         self.assertFalse(protein.is_parent_of("protein"))
+
+class TestDirectChildren(NutrientBaseTest):
+    
+        def test_returns_children_correctly(self):
+            fat = self.singleton_register.get_nutrient("fat")
+            children = fat.direct_children
+            self.assertEqual(len(children), 3)
+            self.assertIn("saturated_fat", children)
+            self.assertIn("unsaturated_fat", children)
+            self.assertIn("trans_fat", children)
+    
+        def test_cannot_set_children(self):
+            non_essential_amino_acid = self.singleton_register.get_nutrient("non_essential_amino_acid")
+    
+            with self.assertRaises(AttributeError):
+                non_essential_amino_acid.direct_children = {} # type: ignore
+
+            with self.assertRaises(TypeError):
+                non_essential_amino_acid.direct_children["new_child"] = "new_child" # type: ignore
 
 class TestIsChildOf(NutrientBaseTest):
 

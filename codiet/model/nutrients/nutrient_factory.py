@@ -33,7 +33,7 @@ class NutrientFactory:
             name=nutrient_dto["name"],
             calories_per_gram=nutrient_dto["cals_per_gram"],
             aliases=nutrient_dto.get("aliases", []),
-            children=children
+            direct_children=children
         )
 
         # We need to add the nutrient to the singleton register before populating
@@ -43,7 +43,7 @@ class NutrientFactory:
 
         # Set the parent nutrient
         if nutrient_dto["parent_name"]:
-            nutrient._parent = self._singleton_register.get_nutrient(nutrient_dto["parent_name"])
+            nutrient._direct_parent = self._singleton_register.get_nutrient(nutrient_dto["parent_name"])
 
         return nutrient
 
