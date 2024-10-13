@@ -3,18 +3,22 @@ from typing import TYPE_CHECKING
 from codiet.optimisation import Optimiser
 
 if TYPE_CHECKING:
-    from codiet.model.recipes import RecipeFactory
+    from codiet.data import DatabaseService
 
 class OptimiserFactory:
-    
-    def __init__(self) -> None:
-        self._recipe_factory: "RecipeFactory"
 
-    def initialise(self, recipe_factory: "RecipeFactory") -> "OptimiserFactory":
-        self._recipe_factory = recipe_factory
+    def __init__(self) -> None:
+        self._database_service: "DatabaseService"
+
+    def initialise(self, database_service:"DatabaseService") -> "OptimiserFactory":
+        self._database_service = database_service
+
+        Optimiser.initialise(
+            database_service=self._database_service
+        )
+
         return self
 
     def create_optimiser(self) -> Optimiser:
         optimiser = Optimiser()
-        optimiser._recipe_factory = self._recipe_factory
         return optimiser

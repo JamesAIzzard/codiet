@@ -18,9 +18,13 @@ class TestTotalGramsInDefinition(BaseTestRecipe):
 
         self.assertEqual(recipe.total_grams_in_definition, (4*182)+150+200+200)
 
+        trail_mix = self.database_service.read_recipe("trail_mix")
+
+        self.assertEqual(trail_mix.total_grams_in_definition, 100+100+100)
+
 class TestAddIngredientQuantity(BaseTestRecipe):
     def test_can_add_ingredient_quantity(self):
-        recipe = self.recipe_factory.create_recipe(name="Oatmeal")
+        recipe = self.recipe_factory.create_new_recipe(name="Oatmeal")
         oats = self.ingredient_factory.create_ingredient_quantity(
             ingredient_name="oats",
             quantity_unit_name="gram",
@@ -34,7 +38,7 @@ class TestAddIngredientQuantity(BaseTestRecipe):
         self.assertIn(oats, recipe.ingredient_quantities.values())
 
     def test_exception_if_ingredient_quantity_already_added(self):
-        recipe = self.recipe_factory.create_recipe(name="Oatmeal")
+        recipe = self.recipe_factory.create_new_recipe(name="Oatmeal")
         oats = self.ingredient_factory.create_ingredient_quantity(
             ingredient_name="oats",
             quantity_unit_name="gram",

@@ -109,7 +109,7 @@ class BaseCodietTest(TestCase):
         )
 
         self.optimiser_factory.initialise(
-            recipe_factory=self.recipe_factory
+            database_service=self.database_service,
         )
 
         self.recipe_fixtures.initialise(

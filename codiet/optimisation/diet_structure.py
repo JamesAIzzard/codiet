@@ -89,6 +89,11 @@ class DietStructure:
             if isinstance(sub_dict, dict) and sub_dict:
                 self._build_tree(child_node, sub_dict)
 
+    def add_constraint(self, address: tuple[str, ...], constraint: 'Constraint') -> "DietStructure":
+        node = self.get_node(address)
+        node.add_constraint(constraint)
+        return self
+
     def get_node(self, path: tuple[str, ...]) -> DietStructureNode:
         if path == ():
             return self._root

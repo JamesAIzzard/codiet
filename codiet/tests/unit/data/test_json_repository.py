@@ -60,6 +60,7 @@ class TestReadIngredientDTO(BaseJSONRepositoryTest):
             {
                 "vegan": {"name": "vegan", "value": True},
                 "gluten_free": {"name": "gluten_free", "value": True},
+                "vegetarian": {"name": "vegetarian", "value": True},
             },
         )
         self.assertEqual(apple_dto["gi"], 38)
@@ -77,6 +78,10 @@ class TestReadIngredientDTO(BaseJSONRepositoryTest):
                 "fat": {
                     "nutrient_name": "fat",
                     "quantity": {"unit_name": "gram", "value": 0.002},
+                },
+                "water": {
+                    "nutrient_name": "water",
+                    "quantity": {"unit_name": "gram", "value": 0.85},
                 },
             },
         )
