@@ -10,7 +10,7 @@
         "Gently spoon the milk foam on top of the latte.",
         "Serve immediately while hot."
     ],
-    "ingredient_quantites": {
+    "ingredient_quantities": {
         "espresso": {
             "unit_name": "millilitre",
             "value": 30

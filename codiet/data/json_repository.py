@@ -208,12 +208,10 @@ class JSONRepository:
         )
 
         ingredient_quantities = {}
-        for ingredient_name, quantity_data in recipe_file_data[
-            "ingredient_quantities"
-        ].items():
+        for ingredient_name, quantity_data in recipe_file_data["ingredient_quantities"].items():
             ingredient_quantities[ingredient_name] = {
-                "ingredient_name": ingredient_name,
-                "quantity": quantity_data,
+            "ingredient_name": ingredient_name,
+            "quantity": quantity_data,
             }
 
         serve_time_windows = []

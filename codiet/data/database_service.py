@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING
 
 from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
+from codiet.utils.unique_dict import FrozenUniqueDict as FUD
+from .exceptions import IngredientNotFoundError, RecipeNotFoundError
 from codiet.model.recipes import Recipe
 
 if TYPE_CHECKING:
@@ -90,7 +92,10 @@ class DatabaseService:
         return IUC(ingredient_names)
 
     def read_ingredient(self, ingredient_name: str) -> "Ingredient":
-        ingredient_dto = self._repository.read_ingredient_dto(ingredient_name)
+        try:
+            ingredient_dto = self._repository.read_ingredient_dto(ingredient_name)
+        except FileNotFoundError:
+            raise IngredientNotFoundError(ingredient_name)
         ingredient = self._ingredient_factory.create_ingredient_from_dto(ingredient_dto)
         return ingredient
 
@@ -99,6 +104,17 @@ class DatabaseService:
         return IUC(recipe_names)
 
     def read_recipe(self, recipe_name: str) -> "Recipe":
-        recipe_dto = self._repository.read_recipe_dto(recipe_name)
+        try:
+            recipe_dto = self._repository.read_recipe_dto(recipe_name)
+        except FileNotFoundError:
+            raise RecipeNotFoundError(recipe_name)
         recipe = self._recipe_factory.create_recipe_from_dto(recipe_dto)
         return recipe
+    
+    def read_all_recipes(self) -> FUD[str, "Recipe"]:
+        recipe_names = self.read_all_recipe_names()
+        recipes = {}
+        for recipe_name in recipe_names:
+            recipe = self.read_recipe(recipe_name)
+            recipes[recipe_name] = recipe
+        return FUD(recipes)

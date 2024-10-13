@@ -1,0 +1,49 @@
+{
+    "name": "espresso",
+    "description": "A highly concentrated coffee beverage, made by forcing hot water under pressure through finely-ground coffee beans",
+    "unit_conversions": [
+        {
+            "from_quantity": {
+                "unit_name": "gram",
+                "value": 1
+            },
+            "to_quantity": {
+                "unit_name": "millilitre",
+                "value": 1
+            }
+        }
+    ],
+    "standard_unit": "gram",
+    "quantity_cost": {
+        "quantity": {
+            "unit_name": "gram",
+            "value": 30
+        },
+        "cost": 0.75
+    },
+    "flags": {
+        "vegan": true,
+        "vegetarian": true,
+        "gluten_free": true,
+        "caffeine_free": false
+    },
+    "gi": 0,
+    "nutrient_quantities_per_gram": {
+        "protein": {
+            "unit_name": "gram",
+            "value": 0.002
+        },
+        "carbohydrate": {
+            "unit_name": "gram",
+            "value": 0.005
+        },
+        "fat": {
+            "unit_name": "gram",
+            "value": 0.001
+        },
+        "water": {
+            "unit_name": "gram",
+            "value": 0.98
+        }
+    }
+}

@@ -1,18 +1,21 @@
 from codiet.tests import BaseCodietTest
 from codiet.optimisation import DietStructure, DietStructureNode
 
+
 class BaseDietStructureTest(BaseCodietTest):
     def setUp(self) -> None:
+        super().setUp()
         self.monday_outline = {
             "Monday": {
                 "Breakfast": {"Drink": {}, "Main": {}},
                 "Lunch": {"Drink": {}, "Main": {}},
-                "Dinner": {"Drink": {}, "Main": {}}
+                "Dinner": {"Drink": {}, "Main": {}},
             }
         }
 
+
 class TestConstructor(BaseDietStructureTest):
-    
+
     def test_can_create_diet_structure(self):
         structure = DietStructure()
 
@@ -23,6 +26,20 @@ class TestConstructor(BaseDietStructureTest):
 
         self.assertIsInstance(structure, DietStructure)
 
+class TestGetConstraints(BaseDietStructureTest):
+
+    def test_gets_direct_and_parent_constraints_correctly(self):
+        structure = DietStructure(self.monday_outline)
+
+        structure.add_constraint(
+            address=("Monday", "Breakfast"),
+            constraint=self.constraint_factory.create_flag_constraint("vegan", True)
+        )
+        structure.add_constraint(
+            address=("Monday", "Breakfast", "Main"),
+            constraint=self.constraint_factory.create_flag_constraint("vegetarian", True)
+        )
+
 class TestGetNode(BaseDietStructureTest):
 
     def test_can_get_node(self):
@@ -32,25 +49,136 @@ class TestGetNode(BaseDietStructureTest):
         self.assertIsInstance(node, DietStructureNode)
         self.assertEqual(node.name, "Main")
 
-class TestRecipeAddresses(BaseDietStructureTest):
+
+class TestGetChildSolutions(BaseDietStructureTest):
+    def test_get_child_solutions_from_root(self):
+        structure = DietStructure(self.monday_outline)
+
+        # Add solutions to the leaf nodes
+        leaf_addresses = [
+            ("Monday", "Breakfast", "Drink"),
+            ("Monday", "Breakfast", "Main"),
+            ("Monday", "Lunch", "Drink"),
+            ("Monday", "Lunch", "Main"),
+            ("Monday", "Dinner", "Drink"),
+            ("Monday", "Dinner", "Main"),
+        ]
+
+        for address in leaf_addresses:
+            node = structure.get_node(address)
+            recipe = self.recipe_factory.create_new_recipe(name="_".join(address))
+            node.add_solution(recipe, solution_set_id=1)
+
+        # Get child solutions from the root
+        all_solutions = structure.get_child_solutions()
+
+        # Verify that all solutions are returned
+        self.assertEqual(len(all_solutions), 6)
+        recipe_names = [recipe.name for recipe in all_solutions]
+        expected_names = [
+            "Monday_Breakfast_Drink",
+            "Monday_Breakfast_Main",
+            "Monday_Lunch_Drink",
+            "Monday_Lunch_Main",
+            "Monday_Dinner_Drink",
+            "Monday_Dinner_Main",
+        ]
+        for name in expected_names:
+            self.assertIn(name, recipe_names)
+
+    def test_get_child_solutions_from_subnode(self):
+        structure = DietStructure(self.monday_outline)
+
+        # Add solutions to the leaf nodes
+        leaf_addresses = [
+            ("Monday", "Breakfast", "Drink"),
+            ("Monday", "Breakfast", "Main"),
+            ("Monday", "Lunch", "Drink"),
+            ("Monday", "Lunch", "Main"),
+            ("Monday", "Dinner", "Drink"),
+            ("Monday", "Dinner", "Main"),
+        ]
+
+        for address in leaf_addresses:
+            node = structure.get_node(address)
+            recipe = self.recipe_factory.create_new_recipe(name="_".join(address))
+            node.add_solution(recipe, solution_set_id=1)
+
+        # Get child solutions starting from "Monday -> Breakfast"
+        breakfast_solutions = structure.get_child_solutions(
+            starting_from_node=("Monday", "Breakfast")
+        )
+
+        # Verify that only breakfast solutions are returned
+        self.assertEqual(len(breakfast_solutions), 2)
+        recipe_names = [recipe.name for recipe in breakfast_solutions]
+        expected_names = ["Monday_Breakfast_Drink", "Monday_Breakfast_Main"]
+        for name in expected_names:
+            self.assertIn(name, recipe_names)
+
+
+class TestSolutionNodeAddresses(BaseDietStructureTest):
+
+    def test_returns_correct_solution_node_addresses_from_root(self):
+        structure = DietStructure(self.monday_outline)
+
+        addresses = structure.solution_node_addresses()
+        self.assertEqual(len(addresses), 6)
+        expected_addresses = [
+            ("Monday", "Breakfast", "Drink"),
+            ("Monday", "Breakfast", "Main"),
+            ("Monday", "Lunch", "Drink"),
+            ("Monday", "Lunch", "Main"),
+            ("Monday", "Dinner", "Drink"),
+            ("Monday", "Dinner", "Main"),
+        ]
+        for address in expected_addresses:
+            self.assertIn(address, addresses)
+
+    def test_returns_correct_solution_node_addresses_from_subnode(self):
+        structure = DietStructure(self.monday_outline)
+
+        # Get solution node addresses starting from "Monday -> Lunch"
+        addresses = structure.solution_node_addresses(
+            starting_from_node=("Monday", "Lunch")
+        )
+
+        # Expected addresses
+        expected_addresses = [("Monday", "Lunch", "Drink"), ("Monday", "Lunch", "Main")]
+
+        self.assertEqual(len(addresses), 2)
+        for address in expected_addresses:
+            self.assertIn(address, addresses)
+
+
+class TestSolutionNodes(BaseDietStructureTest):
     
-    def test_returns_recipe_node_addresses(self):
+    def test_returns_correct_solution_nodes_from_root(self):
         structure = DietStructure(self.monday_outline)
 
-        self.assertTrue(len(structure.recipe_node_addresses) == 6)
+        nodes = structure.solution_nodes()
+        self.assertEqual(len(nodes), 6)
+        expected_nodes = [
+            structure.get_node(("Monday", "Breakfast", "Drink")),
+            structure.get_node(("Monday", "Breakfast", "Main")),
+            structure.get_node(("Monday", "Lunch", "Drink")),
+            structure.get_node(("Monday", "Lunch", "Main")),
+            structure.get_node(("Monday", "Dinner", "Drink")),
+            structure.get_node(("Monday", "Dinner", "Main"))
+        ]
+        for node in expected_nodes:
+            self.assertIn(node, nodes)
 
-        self.assertTrue(("Monday", "Breakfast", "Drink") in structure.recipe_node_addresses)
-        self.assertTrue(("Monday", "Breakfast", "Main") in structure.recipe_node_addresses)
-        self.assertTrue(("Monday", "Lunch", "Drink") in structure.recipe_node_addresses)
-        self.assertTrue(("Monday", "Lunch", "Main") in structure.recipe_node_addresses)
-        self.assertTrue(("Monday", "Dinner", "Drink") in structure.recipe_node_addresses)
-        self.assertTrue(("Monday", "Dinner", "Main") in structure.recipe_node_addresses)
-
-class TestGetRecipeNode(BaseDietStructureTest):
-
-    def test_can_get_recipe_node(self):
+    def test_returns_correct_solution_nodes_from_subnode(self):
         structure = DietStructure(self.monday_outline)
-        
-        self.assertEqual(len(structure.recipe_nodes), 6)
-        for node in structure.recipe_nodes:
-            self.assertTrue(node.is_recipe_node)
+
+        # Get solution nodes starting from "Monday -> Dinner"
+        nodes = structure.solution_nodes(starting_from_node=("Monday", "Dinner"))
+        self.assertEqual(len(nodes), 2)
+        expected_nodes = [
+            structure.get_node(("Monday", "Dinner", "Drink")),
+            structure.get_node(("Monday", "Dinner", "Main"))
+        ]
+        for node in expected_nodes:
+            self.assertIn(node, nodes)
+

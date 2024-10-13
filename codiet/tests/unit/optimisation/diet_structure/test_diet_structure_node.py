@@ -52,41 +52,41 @@ class TestAddConstraint(BaseDietStructureNodeTest):
 
     def test_can_add_constraint_to_leaf_node(self):
         node = self.diet_structure.get_node(("Monday", "Breakfast", "Main"))
-        self.assertEqual(len(node.constraints), 0)
+        self.assertEqual(len(node.direct_constraints), 0)
 
         constraint = FlagConstraint("vegan", True)
         node.add_constraint(constraint)
 
-        self.assertIn(constraint, node.constraints)
+        self.assertIn(constraint, node.direct_constraints)
 
     def test_can_add_constraint_to_non_leaf_node(self):
         node = self.diet_structure.get_node(("Monday", "Breakfast"))
-        self.assertEqual(len(node.constraints), 0)
+        self.assertEqual(len(node.direct_constraints), 0)
 
         constraint = FlagConstraint("vegan", True)
         node.add_constraint(constraint)
 
-        self.assertIn(constraint, node.constraints)
+        self.assertIn(constraint, node.direct_constraints)
 
 class TestAddGoal(BaseDietStructureNodeTest):
 
     def test_can_add_goal_to_leaf_node(self):
         node = self.diet_structure.get_node(("Monday", "Breakfast", "Main"))
-        self.assertEqual(len(node.goals), 0)
+        self.assertEqual(len(node.direct_goals), 0)
 
         goal = MinimiseNutrientGoal("carbohydrate")
         node.add_goal(goal)
 
-        self.assertIn(goal, node.goals)
+        self.assertIn(goal, node.direct_goals)
 
     def test_can_add_goal_to_non_leaf_node(self):
         node = self.diet_structure.get_node(("Monday", "Breakfast"))
-        self.assertEqual(len(node.goals), 0)
+        self.assertEqual(len(node.direct_goals), 0)
 
         goal = MinimiseNutrientGoal("carbohydrate")
         node.add_goal(goal)
 
-        self.assertIn(goal, node.goals)
+        self.assertIn(goal, node.direct_goals)
 
 class TestAddSolution(BaseDietStructureNodeTest):
     
