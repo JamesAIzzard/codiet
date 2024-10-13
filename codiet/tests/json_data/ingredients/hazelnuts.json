@@ -1,11 +1,11 @@
 {
-    "name": "oats",
-    "description": "A type of whole grain used for porridge and baking",
+    "name": "hazelnuts",
+    "description": "A type of nut that is commonly used in desserts and confectioneries",
     "unit_conversions": [
         {
             "from_quantity": {
                 "unit_name": "gram",
-                "value": 100
+                "value": 150
             },
             "to_quantity": {
                 "unit_name": "cup",
@@ -19,26 +19,26 @@
             "unit_name": "kilogram",
             "value": 1
         },
-        "cost": 1.50
+        "cost": 8.50
     },
     "flags": {
         "vegan": true,
         "vegetarian": true,
-        "gluten_free": false
+        "gluten_free": true
     },
-    "gi": 55,
+    "gi": 15,
     "nutrient_quantities_per_gram": {
         "protein": {
             "unit_name": "gram",
-            "value": 0.17
+            "value": 0.15
         },
         "carbohydrate": {
             "unit_name": "gram",
-            "value": 0.6
+            "value": 0.06
         },
         "fat": {
             "unit_name": "gram",
-            "value": 0.07
+            "value": 0.62
         }
     }
 }

@@ -4,7 +4,7 @@ from codiet.model.ingredients import Ingredient, IngredientQuantity
 
 if TYPE_CHECKING:
     from codiet.model import SingletonRegister
-    from codiet.model.quantities import QuantitiesFactory
+    from codiet.model.quantities import QuantitiesFactory, UnitConversionService
     from codiet.model.cost import CostFactory
     from codiet.model.flags import FlagFactory
     from codiet.model.nutrients import NutrientFactory
@@ -17,21 +17,29 @@ class IngredientFactory:
         self._quantities_factory: "QuantitiesFactory"
         self._cost_factory: "CostFactory"
         self._flag_factory: "FlagFactory"
-        self._nutrients_factory: "NutrientFactory"
+        self._nutrient_factory: "NutrientFactory"
 
     def initialise(
         self,
         singleton_register: "SingletonRegister",
         quantities_factory: "QuantitiesFactory",
+        unit_conversion_service: "UnitConversionService",
         cost_factory: "CostFactory",
         flag_factory: "FlagFactory",
         nutrient_factory: "NutrientFactory",
     ) -> "IngredientFactory":
         self._singleton_register = singleton_register
         self._quantities_factory = quantities_factory
+        self._unit_conversion_service = unit_conversion_service
         self._cost_factory = cost_factory
         self._flag_factory = flag_factory
-        self._nutrients_factory = nutrient_factory
+        self._nutrient_factory = nutrient_factory
+
+        IngredientQuantity.initialise(
+            unit_conversion_service=self._unit_conversion_service,
+            nutrient_factory=self._nutrient_factory
+        )
+
         return self
 
     def create_ingredient_from_dto(self, ingredient_dto: "IngredientDTO") -> Ingredient:
@@ -46,7 +54,7 @@ class IngredientFactory:
 
         nutrient_quantities = {}
         for nutrient_name, nutrient_quantity_dto in ingredient_dto["nutrient_quantities_per_gram"].items():
-            nutrient_quantity = self._nutrients_factory.create_nutrient_quantity_from_dto(nutrient_quantity_dto)
+            nutrient_quantity = self._nutrient_factory.create_nutrient_quantity_from_dto(nutrient_quantity_dto)
             nutrient_quantities[nutrient_name] = nutrient_quantity
 
         ingredient = Ingredient(

@@ -1,0 +1,33 @@
+{
+    "name": "trail_mix",
+    "description": "A healthy and simple snack mix made with a variety of nuts",
+    "use_as_ingredient": true,
+    "instructions": [
+        "Measure out the hazelnuts, walnuts, and peanuts.",
+        "Mix the hazelnuts, walnuts, and peanuts together in a large bowl.",
+        "Store the trail mix in an airtight container to maintain freshness."
+    ],
+    "ingredient_quantities": {
+        "hazelnuts": {
+            "unit_name": "gram",
+            "value": 100
+        },
+        "walnuts": {
+            "unit_name": "gram",
+            "value": 100
+        },
+        "peanuts": {
+            "unit_name": "gram",
+            "value": 100
+        }
+    },
+    "serve_time_windows": [
+        {
+            "start_hh_mm": "08:00",
+            "end_hh_mm": "20:00"
+        }
+    ],
+    "tags": [
+        "snack"
+    ]
+}

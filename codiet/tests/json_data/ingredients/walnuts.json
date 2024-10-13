@@ -1,11 +1,11 @@
 {
-    "name": "oats",
-    "description": "A type of whole grain used for porridge and baking",
+    "name": "walnuts",
+    "description": "A type of tree nut known for its health benefits and omega-3 content",
     "unit_conversions": [
         {
             "from_quantity": {
                 "unit_name": "gram",
-                "value": 100
+                "value": 120
             },
             "to_quantity": {
                 "unit_name": "cup",
@@ -19,26 +19,26 @@
             "unit_name": "kilogram",
             "value": 1
         },
-        "cost": 1.50
+        "cost": 10.00
     },
     "flags": {
         "vegan": true,
         "vegetarian": true,
-        "gluten_free": false
+        "gluten_free": true
     },
-    "gi": 55,
+    "gi": 10,
     "nutrient_quantities_per_gram": {
         "protein": {
             "unit_name": "gram",
-            "value": 0.17
+            "value": 0.15
         },
         "carbohydrate": {
             "unit_name": "gram",
-            "value": 0.6
+            "value": 0.07
         },
         "fat": {
             "unit_name": "gram",
-            "value": 0.07
+            "value": 0.65
         }
     }
 }

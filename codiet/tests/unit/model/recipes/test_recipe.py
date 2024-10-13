@@ -44,3 +44,18 @@ class TestAddIngredientQuantity(BaseTestRecipe):
 
         with self.assertRaises(ValueError):
             recipe.add_ingredient_quantity(oats)
+
+class TestNutrientsDefinedOnAllIngredients(BaseTestRecipe):
+    def test_returns_correct_nutrients(self):
+        recipe = self.database_service.read_recipe("apple_pie")
+
+        self.assertEqual(recipe.nutrients_defined_on_all_ingredients, ["protein", "carbohydrate", "fat"])
+
+class TestNutrientQuantities(BaseTestRecipe):
+    def test_returns_correct_nutrient_quantities(self):
+        trail_mix = self.database_service.read_recipe("trail_mix")
+
+        # Sum protein in trail mix
+        trail_mix_protein = (100*0.15)+(100*0.26)+(100*0.15)
+
+        self.assertEqual(trail_mix.nutrient_quantities["protein"].quantity, trail_mix_protein)

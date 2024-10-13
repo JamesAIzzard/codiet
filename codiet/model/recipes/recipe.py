@@ -7,7 +7,7 @@ from codiet.utils.unique_dict import FrozenUniqueDict as FUD
 from codiet.model.calories import HasCalories
 
 if TYPE_CHECKING:
-    from codiet.model.quantities import UnitConversionService
+    from codiet.model.quantities import UnitConversionService, QuantitiesFactory
     from codiet.model.nutrients import NutrientQuantity
     from codiet.model.flags import Flag, FlagFactory, FlagService
     from codiet.model.time import TimeWindow, TimeWindowDTO
@@ -64,10 +64,12 @@ class Recipe(HasCalories):
     def initialise(
         cls,
         unit_conversion_service: "UnitConversionService",
+        quantities_factory: "QuantitiesFactory",
         flag_factory: "FlagFactory",
         flag_service: "FlagService",
     ):
         cls._unit_conversion_service = unit_conversion_service
+        cls._quantity_factory = quantities_factory
         cls._flag_factory = flag_factory
         cls._flag_service = flag_service
 
@@ -119,21 +121,46 @@ class Recipe(HasCalories):
 
     @property
     def nutrient_quantities(self) -> FUD[str, "NutrientQuantity"]:
-        nutrient_quantities = UD[str, "NutrientQuantity"]()
 
-        for ingredient_quantity in self.ingredient_quantities:
-            for (
-                nutrient_name,
-                nutrient_quantity,
-            ) in ingredient_quantity.nutrient_quantities.items():
-                if nutrient_name in nutrient_quantities:
-                    nutrient_quantities[
-                        nutrient_name
-                    ].quantity += nutrient_quantity.quantity
-                else:
-                    nutrient_quantities[nutrient_name] = nutrient_quantity
+        # REFACTOR: This is a mess. Refactor to make it more readable.
 
-        return FUD(nutrient_quantities)
+        common_nutrients = self.nutrients_defined_on_all_ingredients
+
+        merged_nutrient_quantities_grams = {}
+        for nutrient_name in common_nutrients:
+            merged_nutrient_quantities_grams[nutrient_name] = 0
+
+        for nutrient_name in common_nutrients:
+            for ingredient_quantity in self.ingredient_quantities.values():
+                merged_nutrient_quantities_grams[
+                    nutrient_name
+                ] += ingredient_quantity.nutrient_quantities[
+                    nutrient_name
+                ].quantity.value_in_grams
+
+        merged_nutrient_quantities = {}
+        for nutrient_name, grams_value in merged_nutrient_quantities_grams.items():
+            merged_nutrient_quantities[nutrient_name] = (
+                self._quantity_factory.create_quantity(
+                    value=grams_value, unit_name="gram"
+                )
+            )
+
+        return FUD(merged_nutrient_quantities)
+
+    @property
+    def nutrients_defined_on_all_ingredients(self) -> list[str]:
+        defined_nutrient_quantity_names = []
+        for ingredient_quantity in self.ingredient_quantities.values():
+            defined_nutrient_quantity_names.append(
+                set(ingredient_quantity.nutrient_quantities.keys())
+            )
+
+        common_nutrients = defined_nutrient_quantity_names[0]
+        for current_nutrients in defined_nutrient_quantity_names[1:]:
+            common_nutrients.intersection_update(current_nutrients)
+        
+        return list(common_nutrients)
 
     @property
     def total_grams_in_definition(self) -> float:
