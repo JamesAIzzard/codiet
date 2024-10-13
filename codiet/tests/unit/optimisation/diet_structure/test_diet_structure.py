@@ -31,14 +31,24 @@ class TestGetConstraints(BaseDietStructureTest):
     def test_gets_direct_and_parent_constraints_correctly(self):
         structure = DietStructure(self.monday_outline)
 
+        vegan = self.constraint_factory.create_flag_constraint("vegan", True)
+        vegetarian = self.constraint_factory.create_flag_constraint("vegetarian", True)
+        
         structure.add_constraint(
             address=("Monday", "Breakfast"),
-            constraint=self.constraint_factory.create_flag_constraint("vegan", True)
+            constraint=vegan
         )
         structure.add_constraint(
             address=("Monday", "Breakfast", "Main"),
-            constraint=self.constraint_factory.create_flag_constraint("vegetarian", True)
+            constraint=vegetarian
         )
+
+        constraints = structure.get_constraints(("Monday", "Breakfast", "Main"))
+
+        self.assertEqual(len(constraints), 2)
+        self.assertIn(vegan, constraints)
+        self.assertIn(vegetarian, constraints)
+
 
 class TestGetNode(BaseDietStructureTest):
 

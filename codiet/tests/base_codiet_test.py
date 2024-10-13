@@ -13,6 +13,7 @@ from codiet.model.time import TimeFactory
 from codiet.model.ingredients import IngredientFactory
 from codiet.model.recipes import RecipeFactory, Recipe
 from codiet.optimisation import OptimiserFactory
+from codiet.optimisation.constraints import ConstraintFactory
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 TEST_DATA_DIR = os.path.join(CURRENT_DIR, "json_data")
@@ -37,6 +38,7 @@ class BaseCodietTest(TestCase):
         self.ingredient_factory = IngredientFactory()
         self.recipe_factory = RecipeFactory()
         self.optimiser_factory = OptimiserFactory()
+        self.constraint_factory = ConstraintFactory()
 
         self.optimiser_fixtures = OptimiserFixtures()
         self.recipe_fixtures = RecipeFixtures()
