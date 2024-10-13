@@ -1,4 +1,4 @@
-from typing import Collection, TypedDict
+from typing import Collection, Mapping, Optional, TypedDict
 
 from codiet.utils.unique_dict import FrozenUniqueDict
 from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
@@ -10,30 +10,27 @@ class NutrientDTO(TypedDict):
     name: str
     cals_per_gram: float
     aliases: Collection[str]
-    parent_name: str | None
+    parent_name: Optional[str]
     child_names: Collection[str]
 
 
 class Nutrient(StoredEntity):
-
     def __init__(
         self,
         name: str,
-        calories_per_gram: float,        
-        aliases: Collection[str] | None = None,
-        parent: "Nutrient|None" = None,
-        children: dict[str, "Nutrient"] | None = None,
+        calories_per_gram: float,
+        aliases: Optional[Collection[str]] = None,
+        parent: Optional["Nutrient"] = None,
+        children: Optional[Mapping[str, "Nutrient"]] = None,
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self._name = name
         self._calories_per_gram = calories_per_gram
-        self._aliases = MUC(aliases) or MUC()
+        self._aliases = MUC(aliases if aliases is not None else [])
         self._parent = parent
-        self._children = (
-            FrozenUniqueDict(children) or FrozenUniqueDict[str, "Nutrient"]()
-        )
+        self._children = FrozenUniqueDict(children if children is not None else {})
 
     @property
     def name(self) -> str:
@@ -55,45 +52,36 @@ class Nutrient(StoredEntity):
     def parent(self) -> "Nutrient":
         if not self.is_child:
             raise ValueError(f"{self.name} has no parent nutrient.")
-        return self._parent # type: ignore
+        return self._parent  # type: ignore
 
     @property
     def parent_name(self) -> str:
-        if not self.is_child:
-            raise ValueError(f"{self.name} has no parent nutrient.")
         return self.parent.name
 
     @property
     def children(self) -> FrozenUniqueDict[str, "Nutrient"]:
         return self._children
-    
+
     @property
     def child_names(self) -> IUC[str]:
         return IUC(self.children.keys())
 
     @property
     def is_parent(self) -> bool:
-        return len(self.children) > 0
+        return bool(self.children)
 
     def is_parent_of(self, nutrient_name: str) -> bool:
-        if nutrient_name in self.children.keys():
+        if nutrient_name in self.children:
             return True
-        for child in self.children.values():
-            if child.is_parent_of(nutrient_name):
-                return True
-        return False
+        return any(child.is_parent_of(nutrient_name) for child in self.children.values())
 
-    def is_child_of(self, nutrient_name:str) -> bool:
-        if self.parent_name == nutrient_name:
+    def is_child_of(self, nutrient_name: str) -> bool:
+        if self.is_child and self.parent.name == nutrient_name:
             return True
-        if self.parent is not None:
-            return self.parent.is_child_of(nutrient_name)
-        return False
+        return self.parent.is_child_of(nutrient_name) if self.is_child else False
 
     def __eq__(self, other):
-        if isinstance(other, Nutrient):
-            return self.name == other.name
-        return False
+        return isinstance(other, Nutrient) and self.name == other.name
 
     def __hash__(self):
-        return hash((self.id, self.name))
+        return hash(self.name)

@@ -3,6 +3,26 @@ from codiet.tests import BaseCodietTest
 class NutrientBaseTest(BaseCodietTest):
     pass
 
+class TestName(NutrientBaseTest):
+
+    def test_name(self):
+        protein = self.singleton_register.get_nutrient("protein")
+        self.assertEqual(protein.name, "protein")
+
+    def test_cannot_set_name(self):
+        protein = self.singleton_register.get_nutrient("protein")
+
+        with self.assertRaises(AttributeError):
+            protein.name = "carbohydrate" # type: ignore
+
+class TestParent(NutrientBaseTest):
+    
+    def test_accessing_non_existent_parent_raises_value_error(self):
+        protein = self.singleton_register.get_nutrient("protein")
+
+        with self.assertRaises(ValueError):
+            protein.parent
+
 class TestIsParentOf(NutrientBaseTest):
     
     def test_returns_true_correctly(self):
@@ -23,10 +43,9 @@ class TestIsChildOf(NutrientBaseTest):
         self.assertTrue(alanine.is_child_of("protein"))
 
     def test_returns_false_correctly(self):
-        protein = self.singleton_register.get_nutrient("protein")
+        alanine = self.singleton_register.get_nutrient("alanine")
 
-        with self.assertRaises(ValueError):
-            protein.is_child_of("protein")
+        self.assertFalse(alanine.is_child_of("carbohydrate"))
 
 class TestEquality(NutrientBaseTest):
 
