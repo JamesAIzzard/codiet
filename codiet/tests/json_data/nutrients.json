@@ -24,7 +24,7 @@
                     }
                 }
             },
-            "complex carbohydrate": {
+            "complex_carbohydrate": {
                 "aliases": [],
                 "children": {
                     "starch": {
@@ -43,7 +43,7 @@
         "cals_per_gram": 4,
         "aliases": [],
         "children": {
-            "essential amino acid": {
+            "essential_amino_acid": {
                 "aliases": [],
                 "children": {
                     "histidine": {
@@ -84,7 +84,7 @@
                     }
                 }
             },
-            "non-essential amino acid": {
+            "non_essential_amino_acid": {
                 "aliases": [],
                 "children": {
                     "alanine": {
@@ -99,7 +99,7 @@
                         "aliases": [],
                         "children": {}
                     },
-                    "aspartic acid": {
+                    "aspartic_acid": {
                         "aliases": [],
                         "children": {}
                     },
@@ -107,7 +107,7 @@
                         "aliases": [],
                         "children": {}
                     },
-                    "glutamic acid": {
+                    "glutamic_acid": {
                         "aliases": [],
                         "children": {}
                     },
@@ -139,24 +139,24 @@
         "cals_per_gram": 9,
         "aliases": [],
         "children": {
-            "saturated fat": {
+            "saturated_fat": {
                 "aliases": [],
                 "children": {}
             },
-            "unsaturated fat": {
+            "unsaturated_fat": {
                 "aliases": [],
                 "children": {
-                    "monounsaturated fat": {
+                    "monounsaturated_fat": {
                         "aliases": [],
                         "children": {}
                     },
-                    "polyunsaturated fat": {
+                    "polyunsaturated_fat": {
                         "aliases": [],
                         "children": {}
                     }
                 }
             },
-            "trans fat": {
+            "trans_fat": {
                 "aliases": [],
                 "children": {}
             }
@@ -174,56 +174,56 @@
     "vitamins": {
         "aliases": [],
         "children": {
-            "vitamin A": {
+            "vitamin_A": {
                 "aliases": [],
                 "children": {}
             },
-            "vitamin B": {
+            "vitamin_B": {
                 "aliases": [],
                 "children": {
-                    "vitamin B1": {
+                    "vitamin_B1": {
                         "aliases": [
                             "thiamine"
                         ],
                         "children": {}
                     },
-                    "vitamin B2": {
+                    "vitamin_B2": {
                         "aliases": [
                             "riboflavin"
                         ],
                         "children": {}
                     },
-                    "vitamin B3": {
+                    "vitamin_B3": {
                         "aliases": [
                             "niacin"
                         ],
                         "children": {}
                     },
-                    "vitamin B5": {
+                    "vitamin_B5": {
                         "aliases": [
                             "pantothenic acid"
                         ],
                         "children": {}
                     },
-                    "vitamin B6": {
+                    "vitamin_B6": {
                         "aliases": [
                             "pyridoxine"
                         ],
                         "children": {}
                     },
-                    "vitamin B7": {
+                    "vitamin_B7": {
                         "aliases": [
                             "biotin"
                         ],
                         "children": {}
                     },
-                    "vitamin B9": {
+                    "vitamin_B9": {
                         "aliases": [
                             "folate"
                         ],
                         "children": {}
                     },
-                    "vitamin B12": {
+                    "vitamin_B12": {
                         "aliases": [
                             "cobalamin"
                         ],
@@ -231,19 +231,19 @@
                     }
                 }
             },
-            "vitamin C": {
-                "aliases": ["ascorbic acid"],
+            "vitamin_C": {
+                "aliases": ["ascorbic_acid"],
                 "children": {}
             },
-            "vitamin D": {
+            "vitamin_D": {
                 "aliases": [],
                 "children": {}
             },
-            "vitamin E": {
+            "vitamin_E": {
                 "aliases": [],
                 "children": {}
             },
-            "vitamin K": {
+            "vitamin_K": {
                 "aliases": [],
                 "children": {}
             }

@@ -79,6 +79,7 @@ class SingletonRegister:
         return flag_definitions
 
     def get_nutrient(self, nutrient_name: str) -> "Nutrient":
+        nutrient_name = nutrient_name.lower()
         try:
             return self._nutrients[nutrient_name]
         except KeyError:

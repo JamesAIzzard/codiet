@@ -26,14 +26,14 @@ class NutrientFactory:
     def create_nutrient_from_dto(self, nutrient_dto: "NutrientDTO") -> Nutrient:
         # Create the nutrient with children only (so working down the tree)
         children = {}
-        for child_name in nutrient_dto["child_names"]:
+        for child_name in nutrient_dto["direct_child_names"]:
             children[child_name] = self._singleton_register.get_nutrient(child_name)
 
         nutrient = Nutrient(
             name=nutrient_dto["name"],
             calories_per_gram=nutrient_dto["cals_per_gram"],
             aliases=nutrient_dto.get("aliases", []),
-            children=children
+            direct_children=children
         )
 
         # We need to add the nutrient to the singleton register before populating
@@ -42,8 +42,8 @@ class NutrientFactory:
             self._singleton_register._nutrients[nutrient.name] = nutrient
 
         # Set the parent nutrient
-        if nutrient_dto["parent_name"]:
-            nutrient._parent = self._singleton_register.get_nutrient(nutrient_dto["parent_name"])
+        if nutrient_dto["direct_parent_name"]:
+            nutrient._direct_parent = self._singleton_register.get_nutrient(nutrient_dto["direct_parent_name"])
 
         return nutrient
 

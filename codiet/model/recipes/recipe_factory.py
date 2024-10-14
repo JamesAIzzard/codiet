@@ -71,7 +71,7 @@ class RecipeFactory:
 
         return recipe
 
-    def create_recipe(self,
+    def create_new_recipe(self,
             name:str
         ) -> Recipe:
         recipe = Recipe(

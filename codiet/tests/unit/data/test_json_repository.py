@@ -15,21 +15,21 @@ class TestReadNutrientDTO(BaseJSONRepositoryTest):
                 "name": "protein",
                 "cals_per_gram": 4,
                 "aliases": [],
-                "parent_name": None,
-                "child_names": ["essential amino acid", "non-essential amino acid"],
+                "direct_parent_name": None,
+                "direct_child_names": ["essential_amino_acid", "non_essential_amino_acid"],
             },
         )
 
     def test_reads_non_calorie_nutrient_correctly(self):
-        vitamin_c_dto = self.json_repository.read_nutrient_dto("vitamin C")
+        vitamin_c_dto = self.json_repository.read_nutrient_dto("vitamin_C")
         self.assertEqual(
             vitamin_c_dto,
             {
-                "name": "vitamin C",
+                "name": "vitamin_C",
                 "cals_per_gram": 0,
-                "aliases": ["ascorbic acid"],
-                "parent_name": "vitamins",
-                "child_names": [],
+                "aliases": ["ascorbic_acid"],
+                "direct_parent_name": "vitamins",
+                "direct_child_names": [],
             },
         )
 
@@ -60,6 +60,7 @@ class TestReadIngredientDTO(BaseJSONRepositoryTest):
             {
                 "vegan": {"name": "vegan", "value": True},
                 "gluten_free": {"name": "gluten_free", "value": True},
+                "vegetarian": {"name": "vegetarian", "value": True},
             },
         )
         self.assertEqual(apple_dto["gi"], 38)
@@ -77,6 +78,10 @@ class TestReadIngredientDTO(BaseJSONRepositoryTest):
                 "fat": {
                     "nutrient_name": "fat",
                     "quantity": {"unit_name": "gram", "value": 0.002},
+                },
+                "water": {
+                    "nutrient_name": "water",
+                    "quantity": {"unit_name": "gram", "value": 0.85},
                 },
             },
         )

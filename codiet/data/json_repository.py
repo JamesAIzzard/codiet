@@ -130,8 +130,8 @@ class JSONRepository:
                         "name": target_name,
                         "cals_per_gram": cals_per_gram,
                         "aliases": data[target_name].get("aliases", []),
-                        "parent_name": parent_name,
-                        "child_names": list(
+                        "direct_parent_name": parent_name,
+                        "direct_child_names": list(
                             data[target_name].get("children", {}).keys()
                         ),
                     }
@@ -208,12 +208,10 @@ class JSONRepository:
         )
 
         ingredient_quantities = {}
-        for ingredient_name, quantity_data in recipe_file_data[
-            "ingredient_quantities"
-        ].items():
+        for ingredient_name, quantity_data in recipe_file_data["ingredient_quantities"].items():
             ingredient_quantities[ingredient_name] = {
-                "ingredient_name": ingredient_name,
-                "quantity": quantity_data,
+            "ingredient_name": ingredient_name,
+            "quantity": quantity_data,
             }
 
         serve_time_windows = []

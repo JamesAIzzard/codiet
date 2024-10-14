@@ -18,30 +18,37 @@ class TestSolve(BaseOptimiserTest):
 
         monday = DietStructure(self.optimiser_fixtures.monday_structure)
 
-        for node in monday.recipe_nodes:
+        for node in monday.solution_nodes():
             self.assertFalse(node.has_recipe_solutions)
 
         optimiser = self.optimiser_factory.create_optimiser()
         optimiser.solve(monday)
 
-        for node in monday.recipe_nodes:
+        for node in monday.solution_nodes():
             self.assertTrue(node.has_recipe_solutions)
 
-    def test_all_diet_plans_satisfy_flag_constraints(self):
+    def test_all_solutions_satisfy_constraints_to_entire_tree(self):
 
         monday = DietStructure(OptimiserFixtures().monday_structure)
         optimiser = self.optimiser_factory.create_optimiser()
 
-        vegan_constraint = FlagConstraint("vegan", True)
+        constraints = [
+            FlagConstraint("vegan", True),
+            FlagConstraint("vegetarian", True)
+        ]
 
-        monday.get_node(()).add_constraint(vegan_constraint)
+        for constraint in constraints:
+            monday.add_constraint(
+                address=(),
+                constraint=constraint
+            )
 
         monday = optimiser.solve(monday)
 
-        for recipe_node in monday.recipe_nodes:
+        for recipe_node in monday.solution_nodes():
             for recipe in recipe_node.solutions.values():
                 self.assertTrue(recipe.get_flag("vegetarian").value)
-                self.assertFalse(recipe.get_flag("vegan").value)
+                self.assertTrue(recipe.get_flag("vegan").value)
 
     def test_diet_plans_satisfy_calorie_constraints(self):
 
@@ -60,19 +67,25 @@ class TestSolve(BaseOptimiserTest):
             }
         )
 
-        monday_breakfast_main = two_day.get_node(
-            ("Monday", "Breakfast", "Main")
-        ).add_constraint(CalorieConstraint(2000))
-        tuesday_breakfast_main = two_day.get_node(
-            ("Tuesday", "Breakfast", "Main")
-        ).add_constraint(CalorieConstraint(3000))
+        two_day.add_constraint(
+            address=("Monday",),
+            constraint=CalorieConstraint(2000)
+        )
+        two_day.add_constraint(
+            address=("Tuesday",),
+            constraint=CalorieConstraint(3000)
+        )
 
         optimiser = self.optimiser_factory.create_optimiser()
 
         two_day = optimiser.solve(two_day)
 
-        for solution in monday_breakfast_main.solutions.values():
-            self.assertAlmostEqual(solution.calories, 2000, delta=1)
+        monday_cals_total = 0
+        for solution in two_day.get_child_solutions(("Monday",)):
+            monday_cals_total += solution.calories
+        self.assertAlmostEqual(monday_cals_total, 2000, places=1)
 
-        for solution in tuesday_breakfast_main.solutions.values():
-            self.assertAlmostEqual(solution.calories, 3000, delta=1)
+        tuesday_cals_total = 0
+        for solution in two_day.get_child_solutions(("Tuesday",)):
+            tuesday_cals_total += solution.calories
+        self.assertAlmostEqual(tuesday_cals_total, 3000, places=1)
