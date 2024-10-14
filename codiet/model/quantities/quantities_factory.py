@@ -25,8 +25,6 @@ class QuantitiesFactory:
         self._database_service = database_service
         self._unit_conversion_service = unit_conversion_service
 
-        Quantity.initialise(unit_conversion_service=self._unit_conversion_service)
-
         return self
 
     def create_unit_from_dto(self, unit_dto: "UnitDTO") -> Unit:

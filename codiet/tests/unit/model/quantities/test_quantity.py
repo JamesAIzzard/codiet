@@ -3,6 +3,25 @@ from codiet.tests import BaseCodietTest
 class BaseQuantityTest(BaseCodietTest):
     pass
 
+class TestUnit(BaseQuantityTest):
+    
+    def test_returns_unit(self):
+        gram = self.singleton_register.get_unit("gram")
+
+        quantity = self.quantities_factory.create_quantity(
+            unit_name="gram",
+            value=1
+        )
+
+        self.assertEqual(quantity.unit, gram)
+
+    def test_unit_is_immutable(self):
+        quantity = self.quantities_factory.create_quantity(
+            unit_name="gram", 
+            value=100)
+        with self.assertRaises(AttributeError):
+            quantity.unit = self.singleton_register.get_unit("kilogram") # type: ignore
+
 class TestIsDefined(BaseCodietTest): 
 
     def test_returns_true_if_defined(self):

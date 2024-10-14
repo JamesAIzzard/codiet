@@ -16,6 +16,14 @@ class TestNutrientQuantities(BaseTestIngredientQuantity):
         for nutrient_quantity in oats_100g.nutrient_quantities.values():
             self.assertIsInstance(nutrient_quantity, NutrientQuantity)
 
-        self.assertAlmostEqual(oats_100g.nutrient_quantities["protein"].quantity.value_in_grams, 17, places=3)
-        self.assertAlmostEqual(oats_100g.nutrient_quantities["carbohydrate"].quantity.value_in_grams, 60, places=3)
-        self.assertAlmostEqual(oats_100g.nutrient_quantities["fat"].quantity.value_in_grams, 7, places=3)
+        protein_quantity = oats_100g.nutrient_quantities["protein"].quantity
+        carbohydrate_quantity = oats_100g.nutrient_quantities["carbohydrate"].quantity
+        fat_quantity = oats_100g.nutrient_quantities["fat"].quantity
+
+        protein_grams = self.unit_conversion_service.convert_to_grams(protein_quantity).value
+        carbohydrate_grams = self.unit_conversion_service.convert_to_grams(carbohydrate_quantity).value
+        fat_grams = self.unit_conversion_service.convert_to_grams(fat_quantity).value
+
+        self.assertAlmostEqual(protein_grams, 17, places=3)
+        self.assertAlmostEqual(carbohydrate_grams, 60, places=3)
+        self.assertAlmostEqual(fat_grams, 7, places=3)

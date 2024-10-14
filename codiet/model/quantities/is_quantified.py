@@ -18,7 +18,3 @@ class IsQuantified:
     @quantity.setter
     def quantity(self, value: "Quantity"):
         self._quantity = value
-
-    @property
-    def mass_in_grams(self) -> float:
-        return self.quantity.value_in_grams
