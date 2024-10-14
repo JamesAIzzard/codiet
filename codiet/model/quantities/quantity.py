@@ -59,3 +59,15 @@ class Quantity:
         self._value = value
 
         return self
+    
+    def __eq__(self, value: object) -> bool:
+        if not isinstance(value, Quantity):
+            return False
+        return self.unit == value.unit and self.value == value.value
+    
+    def __hash__(self) -> int:
+        if not self.is_defined:
+            value = None
+        else:
+            value = self.value
+        return hash((self.unit, value))
