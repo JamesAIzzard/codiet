@@ -47,4 +47,4 @@ class TestConvertQuantity(BaseUnitConversionServiceTest):
         )
         
         self.assertEqual(converted_qty.unit.name, "millilitre")
-        self.assertEqual(converted_qty.value, 100)
+        self.assertAlmostEqual(converted_qty.value, 100, places=5)

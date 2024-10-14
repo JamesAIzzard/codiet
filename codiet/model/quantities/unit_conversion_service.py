@@ -107,9 +107,11 @@ class UnitConversionService:
                 if current_unit_name in conversion_key:
                     next_unit_name = next(iter(conversion_key - {current_unit_name}))
                     if next_unit_name not in visited:
-                        next_ratio = cumulative_ratio * self._get_conversion_ratio(
-                            conversion, current_unit_name, next_unit_name
-                        )
+                        if conversion._from_quantity.unit.name == current_unit_name:
+                            ratio = conversion._forwards_ratio
+                        else:
+                            ratio = 1 / conversion._forwards_ratio
+                        next_ratio = cumulative_ratio * ratio
                         visited[next_unit_name] = next_ratio
                         next_quantity = self._create_quantity(
                             next_unit_name, quantity.value * next_ratio
@@ -117,19 +119,6 @@ class UnitConversionService:
                         queue.append((next_quantity, next_ratio))
 
         raise ConversionUnavailableError(from_unit_name, to_unit_name)
-
-    def _get_conversion_ratio(
-        self, conversion: "UnitConversion", from_unit_name: str, to_unit_name: str
-    ) -> float:
-        quantities = conversion.quantities
-
-        if (
-            quantities[from_unit_name].value is None
-            or quantities[to_unit_name].value is None
-        ):
-            raise ValueError("The conversion quantities are not fully defined.")
-
-        return quantities[to_unit_name].value / quantities[from_unit_name].value
 
     def convert_to_grams(
         self,
