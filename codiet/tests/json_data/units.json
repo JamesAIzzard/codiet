@@ -102,49 +102,49 @@
         "aliases": []
     },
     "whole": {
-        "type": "grouping",
+        "type": "count",
         "singular_abbreviation": "whole",
         "plural_abbreviation": "whole",
         "aliases": []
     },
     "slice": {
-        "type": "grouping",
+        "type": "count",
         "singular_abbreviation": "slice",
         "plural_abbreviation": "slices",
         "aliases": []
     },
     "piece": {
-        "type": "grouping",
+        "type": "count",
         "singular_abbreviation": "piece",
         "plural_abbreviation": "pieces",
         "aliases": []
     },
     "clove": {
-        "type": "grouping",
+        "type": "count",
         "singular_abbreviation": "clove",
         "plural_abbreviation": "cloves",
         "aliases": []
     },
     "head": {
-        "type": "grouping",
+        "type": "count",
         "singular_abbreviation": "head",
         "plural_abbreviation": "heads",
         "aliases": []
     },
     "stalk": {
-        "type": "grouping",
+        "type": "count",
         "singular_abbreviation": "stalk",
         "plural_abbreviation": "stalks",
         "aliases": []
     },
     "bunch": {
-        "type": "grouping",
+        "type": "count",
         "singular_abbreviation": "bunch",
         "plural_abbreviation": "bunches",
         "aliases": []
     },
     "sprig": {
-        "type": "grouping",
+        "type": "count",
         "singular_abbreviation": "sprig",
         "plural_abbreviation": "sprigs",
         "aliases": []

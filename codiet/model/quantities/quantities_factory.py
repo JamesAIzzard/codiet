@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from codiet.model.quantities import Unit, Quantity, UnitConversion
+from codiet.model.quantities import Unit, Quantity, UnitConversion, UnitType
 
 if TYPE_CHECKING:
     from codiet.data import DatabaseService
@@ -32,7 +32,7 @@ class QuantitiesFactory:
     def create_unit_from_dto(self, unit_dto: "UnitDTO") -> Unit:
         unit = Unit(
             name=unit_dto["name"],
-            type=unit_dto["type"],
+            type=UnitType(unit_dto["type"]),
             singular_abbreviation=unit_dto["singular_abbreviation"],
             plural_abbreviation=unit_dto["plural_abbreviation"],
             aliases=unit_dto["aliases"],
