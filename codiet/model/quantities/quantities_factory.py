@@ -54,17 +54,23 @@ class QuantitiesFactory:
     def create_unit_conversion(
         self,
         from_unit_name: str,
-        from_unit_quantity: float,
+        from_unit_quantity_value: float,
         to_unit_name: str,
-        to_unit_quantity: float,
+        to_unit_quantity_value: float,
     ) -> "UnitConversion":
         return UnitConversion(
             from_quantity=self.create_quantity(
-                unit_name=from_unit_name, value=from_unit_quantity
+                unit_name=from_unit_name, value=from_unit_quantity_value
             ),
             to_quantity=self.create_quantity(
-                unit_name=to_unit_name, value=to_unit_quantity
+                unit_name=to_unit_name, value=to_unit_quantity_value
             ),
+        )
+    
+    def create_unit_conversion_from_quantities(self, from_quantity: Quantity, to_quantity: Quantity) -> "UnitConversion":
+        return UnitConversion(
+            from_quantity=from_quantity,
+            to_quantity=to_quantity
         )
 
     def create_quantity_from_dto(self, quantity_dto: "QuantityDTO") -> Quantity:
@@ -74,7 +80,7 @@ class QuantitiesFactory:
         )
         return quantity
 
-    def create_quantity(self, unit_name: str, value: float) -> Quantity:
+    def create_quantity(self, unit_name: str, value: float|None) -> Quantity:
         return Quantity(
             unit=self._singleton_register.get_unit(unit_name=unit_name), value=value
         )

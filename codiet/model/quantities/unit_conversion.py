@@ -40,7 +40,7 @@ class UnitConversion:
     @property
     def is_defined(self) -> bool:
         for qty in self.quantities.values():
-            if qty.value is None:
+            if not qty.is_defined:
                 return False
         return True
 
