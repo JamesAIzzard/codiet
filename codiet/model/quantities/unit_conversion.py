@@ -46,9 +46,10 @@ class UnitConversion:
 
     @property
     def _forwards_ratio(self) -> float:
+        quantities = list(self.quantities.values())
         if not self.is_defined:
             raise ValueError("The quantities are not defined.")
-        return self.quantities[1].value / self.quantities[0].value  # type: ignore
+        return quantities[1].value / quantities[0].value
 
     @property
     def _reverse_ratio(self) -> float:
