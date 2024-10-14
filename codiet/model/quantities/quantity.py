@@ -33,11 +33,6 @@ class Quantity:
     @property
     def is_defined(self) -> bool:
         return self._value is not None
-
-    def set_value(self, value: float|None) -> 'Quantity':
-        self._value = value
-
-        return self
     
     def __eq__(self, value: object) -> bool:
         if not isinstance(value, Quantity):
