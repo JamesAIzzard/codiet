@@ -10,8 +10,8 @@ class NutrientDTO(TypedDict):
     name: str
     cals_per_gram: float
     aliases: Collection[str]
-    parent_name: Optional[str]
-    child_names: Collection[str]
+    direct_parent_name: Optional[str]
+    direct_child_names: Collection[str]
 
 
 class Nutrient(StoredEntity):

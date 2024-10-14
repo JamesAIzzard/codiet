@@ -232,7 +232,7 @@
                 }
             },
             "vitamin_C": {
-                "aliases": ["ascorbic acid"],
+                "aliases": ["ascorbic_acid"],
                 "children": {}
             },
             "vitamin_D": {

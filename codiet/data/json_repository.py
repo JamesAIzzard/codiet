@@ -130,8 +130,8 @@ class JSONRepository:
                         "name": target_name,
                         "cals_per_gram": cals_per_gram,
                         "aliases": data[target_name].get("aliases", []),
-                        "parent_name": parent_name,
-                        "child_names": list(
+                        "direct_parent_name": parent_name,
+                        "direct_child_names": list(
                             data[target_name].get("children", {}).keys()
                         ),
                     }
