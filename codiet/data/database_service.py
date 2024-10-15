@@ -4,7 +4,9 @@ from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 from codiet.utils.unique_dict import FrozenUniqueDict as FUD
 from .exceptions import IngredientNotFoundError, RecipeNotFoundError, NutrientNotFoundError
 from codiet.model.recipes import Recipe
-from codiet.exceptions.quantities import UnitNotFoundError
+from codiet.exceptions.quantities import UnitNotFoundError, UnitConversionNotFoundError
+
+from codiet.model.tags import Tag
 
 if TYPE_CHECKING:
     from .repository import Repository
@@ -63,12 +65,17 @@ class DatabaseService:
     def read_global_unit_conversion(
         self, unit_conversion_key: frozenset[str]
     ) -> "UnitConversion":
-        unit_conversion_dto = self._repository.read_global_unit_conversion_dto(
-            unit_conversion_key
-        )
+        try:
+            unit_conversion_dto = self._repository.read_global_unit_conversion_dto(
+                unit_conversion_key
+            )
+        except ValueError:
+            raise UnitConversionNotFoundError(unit_conversion_key)
+        
         unit_conversion = self._quantities_factory.create_unit_conversion_from_dto(
             unit_conversion_dto
         )
+
         return unit_conversion
 
     def read_all_flag_names(self) -> IUC[str]:
@@ -97,7 +104,7 @@ class DatabaseService:
     def read_tag(self, tag_name: str) -> "Tag":
         # TODO: Implement - needs to use the tag factory to convert
         # a tag DTO into a tag object.
-        raise NotImplementedError
+        return Tag(tag_name)
 
     def read_all_ingredient_names(self) -> IUC[str]:
         ingredient_names = self._repository.read_all_ingredient_names()
