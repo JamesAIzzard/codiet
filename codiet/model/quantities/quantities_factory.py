@@ -1,11 +1,13 @@
 from typing import TYPE_CHECKING
 
-from codiet.model.quantities import Unit, Quantity, UnitConversion, UnitType
+from .unit import Unit, UnitType
+from .quantity import Quantity
+from .unit_conversion import UnitConversion
 
 if TYPE_CHECKING:
     from codiet.data import DatabaseService
     from codiet.model.singleton_register import SingletonRegister
-    from codiet.model.quantities import UnitDTO, QuantityDTO, UnitConversionDTO, UnitConversionService
+    from codiet.model.quantities import UnitDTO, QuantityDTO, UnitConversionDTO
 
 
 class QuantitiesFactory:
@@ -19,13 +21,9 @@ class QuantitiesFactory:
         self,
         singleton_register: "SingletonRegister",
         database_service: "DatabaseService",
-        unit_conversion_service: "UnitConversionService",
-    ) -> "QuantitiesFactory":
+    ):
         self._singleton_register = singleton_register
         self._database_service = database_service
-        self._unit_conversion_service = unit_conversion_service
-
-        return self
 
     def create_unit_from_dto(self, unit_dto: "UnitDTO") -> Unit:
         unit = Unit(
@@ -64,12 +62,9 @@ class QuantitiesFactory:
                 unit_name=to_unit_name, value=to_unit_quantity_value
             ),
         )
-    
+
     def create_unit_conversion_from_quantities(self, from_quantity: Quantity, to_quantity: Quantity) -> "UnitConversion":
-        return UnitConversion(
-            from_quantity=from_quantity,
-            to_quantity=to_quantity
-        )
+        return UnitConversion(from_quantity=from_quantity, to_quantity=to_quantity)
 
     def create_quantity_from_dto(self, quantity_dto: "QuantityDTO") -> Quantity:
         quantity = Quantity(
@@ -78,7 +73,7 @@ class QuantitiesFactory:
         )
         return quantity
 
-    def create_quantity(self, unit_name: str, value: float|None) -> Quantity:
+    def create_quantity(self, unit_name: str, value: float) -> Quantity:
         return Quantity(
-            unit=self._singleton_register.get_unit(unit_name=unit_name), value=value
+            unit=self._singleton_register.get_unit(name=unit_name), value=value
         )

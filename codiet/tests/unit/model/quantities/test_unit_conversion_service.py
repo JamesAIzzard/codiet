@@ -1,13 +1,8 @@
 from codiet.tests import BaseCodietTest
-from codiet.model.quantities import ConversionUnavailableError
+from codiet.exceptions.quantities import ConversionUnavailableError
 
 class BaseUnitConversionServiceTest(BaseCodietTest):
     pass
-
-class TestGlobalUnitConversions(BaseUnitConversionServiceTest):
-    def test_various_conversions_are_defined(self):
-        self.assertIn(frozenset(["gram", "kilogram"]), self.unit_conversion_service.global_unit_conversions)
-        self.assertIn(frozenset(["millilitre", "litre"]), self.unit_conversion_service.global_unit_conversions)
 
 class TestGetAvailableUnitNames(BaseUnitConversionServiceTest):
     def test_gets_correct_units_from_starting_unit(self):

@@ -28,7 +28,12 @@ class JSONRepository:
         entire_file_data = self._json_reader.read_file(
             os.path.join(self._data_dir, "units.json")
         )
+
+        if name not in entire_file_data:
+            raise ValueError(f"Unit '{name}' not found in the data.")
+
         unit_data = entire_file_data[name]
+        
         return {
             "name": name,
             "type": unit_data["type"],

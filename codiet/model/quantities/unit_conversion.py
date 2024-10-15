@@ -13,11 +13,9 @@ class UnitConversionDTO(TypedDict):
 
 class UnitConversion:
 
-    def __init__(self, 
-            from_quantity: "Quantity", 
-            to_quantity: "Quantity",
-            *args, **kwargs
-        ):
+    def __init__(
+        self, from_quantity: "Quantity", to_quantity: "Quantity", *args, **kwargs
+    ):
         super().__init__(*args, **kwargs)
 
         if from_quantity == to_quantity:
@@ -28,10 +26,12 @@ class UnitConversion:
 
     @property
     def quantities(self) -> FUD[str, "Quantity"]:
-        return FUD[str, "Quantity"]({
-            self._from_quantity.unit.name: self._from_quantity,
-            self._to_quantity.unit.name: self._to_quantity
-        })
+        return FUD[str, "Quantity"](
+            {
+                self._from_quantity.unit.name: self._from_quantity,
+                self._to_quantity.unit.name: self._to_quantity,
+            }
+        )
 
     @property
     def unit_names(self) -> tuple[str, str]:
@@ -47,7 +47,9 @@ class UnitConversion:
     @property
     def _forwards_ratio(self) -> float:
         if not self.is_defined:
-            raise ValueError("The quantities are not defined.")
+            raise TypeError(
+                "The quantities are not defined."
+            )  # This is a TypeError because None is not a number
         quantities = list(self.quantities.values())
         return quantities[1].value / quantities[0].value
 

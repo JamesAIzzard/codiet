@@ -2,47 +2,31 @@ from typing import TYPE_CHECKING, Collection, Callable, Deque, Mapping
 from collections import deque
 
 from codiet.utils import IUC
+from codiet.exceptions.quantities import ConversionUnavailableError
 
 if TYPE_CHECKING:
     from codiet.model.quantities import Unit, UnitConversion, Quantity
-
-
-class ConversionUnavailableError(ValueError):
-    def __init__(self, from_unit_name: str, to_unit_name: str):
-        super().__init__(
-            f"No conversion available from {from_unit_name} to {to_unit_name}"
-        )
 
 
 class UnitConversionService:
     def __init__(self):
         self._create_quantity: Callable[[str, float], "Quantity"]
         self._get_unit: Callable[[str], "Unit"]
-        self._get_global_unit_conversions: Callable[
-            [], dict[frozenset[str], "UnitConversion"]
+        self._get_all_global_unit_conversions: Callable[
+            [], Mapping[frozenset[str], "UnitConversion"]
         ]
-
-        self._global_unit_conversion_cache: (
-            dict[frozenset[str], "UnitConversion"] | None
-        ) = None
 
     def initialise(
         self,
         create_quantity: Callable[[str, float], "Quantity"],
         get_unit: Callable[[str], "Unit"],
-        get_global_unit_conversions: Callable[
-            [], dict[frozenset[str], "UnitConversion"]
+        get_all_global_unit_conversions: Callable[
+            [], Mapping[frozenset[str], "UnitConversion"]
         ],
     ):
         self._create_quantity = create_quantity
         self._get_unit = get_unit
-        self._get_global_unit_conversions = get_global_unit_conversions
-
-    @property
-    def global_unit_conversions(self) -> dict[frozenset[str], "UnitConversion"]:
-        if self._global_unit_conversion_cache is None:
-            self._global_unit_conversion_cache = self._get_global_unit_conversions()
-        return self._global_unit_conversion_cache
+        self._get_all_global_unit_conversions = get_all_global_unit_conversions
 
     def get_available_unit_names(
         self,
@@ -52,7 +36,7 @@ class UnitConversionService:
         if starting_unit_name is None:
             starting_unit_name = "gram"
 
-        combined_conversions = self.global_unit_conversions.copy()
+        combined_conversions = self._get_all_global_unit_conversions()
         if instance_unit_conversion_names:
             for key in instance_unit_conversion_names:
                 combined_conversions[key] = combined_conversions.get(key)  # type: ignore
@@ -86,7 +70,7 @@ class UnitConversionService:
         from_unit_name = quantity.unit.name
 
         # Combine global and instance unit conversions
-        combined_conversions = self.global_unit_conversions.copy()
+        combined_conversions = dict(self._get_all_global_unit_conversions())
         if instance_unit_conversions:
             combined_conversions.update(instance_unit_conversions)
 

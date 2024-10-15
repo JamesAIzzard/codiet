@@ -56,7 +56,7 @@ class TestIsDefined(BaseUnitConversionTest):
     def test_returns_false_if_quantities_are_not_defined(self):
         grams_quantity = self.quantities_factory.create_quantity(
             unit_name="gram",
-            value=None
+            value=None # type: ignore
         )
         litres_quantity = self.quantities_factory.create_quantity(
             unit_name="litre",
@@ -84,7 +84,7 @@ class TestForwardsRatio(BaseUnitConversionTest):
         def test_raises_error_if_quantities_not_defined(self):
             grams_quantity = self.quantities_factory.create_quantity(
                 unit_name="gram",
-                value=None
+                value=None # type: ignore
             )
             litres_quantity = self.quantities_factory.create_quantity(
                 unit_name="litre",
@@ -95,7 +95,7 @@ class TestForwardsRatio(BaseUnitConversionTest):
                 to_quantity=litres_quantity
             )
     
-            with self.assertRaises(ValueError):
+            with self.assertRaises(TypeError):
                 test_conversion._forwards_ratio
 
 class TestReverseRatio(BaseUnitConversionTest):

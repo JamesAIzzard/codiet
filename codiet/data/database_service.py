@@ -4,6 +4,7 @@ from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 from codiet.utils.unique_dict import FrozenUniqueDict as FUD
 from .exceptions import IngredientNotFoundError, RecipeNotFoundError, NutrientNotFoundError
 from codiet.model.recipes import Recipe
+from codiet.exceptions.quantities import UnitNotFoundError
 
 if TYPE_CHECKING:
     from .repository import Repository
@@ -48,7 +49,10 @@ class DatabaseService:
         return IUC(unit_names)
 
     def read_unit(self, unit_name: str) -> "Unit":
-        unit_dto = self._repository.read_unit_dto(unit_name)
+        try:
+            unit_dto = self._repository.read_unit_dto(unit_name)
+        except ValueError:
+            raise UnitNotFoundError(unit_name)
         unit = self._quantities_factory.create_unit_from_dto(unit_dto)
         return unit
 
@@ -89,6 +93,11 @@ class DatabaseService:
             raise NutrientNotFoundError(nutrient_name)
         nutrient = self._nutrients_factory.create_nutrient_from_dto(nutrient_dto)
         return nutrient
+
+    def read_tag(self, tag_name: str) -> "Tag":
+        # TODO: Implement - needs to use the tag factory to convert
+        # a tag DTO into a tag object.
+        raise NotImplementedError
 
     def read_all_ingredient_names(self) -> IUC[str]:
         ingredient_names = self._repository.read_all_ingredient_names()

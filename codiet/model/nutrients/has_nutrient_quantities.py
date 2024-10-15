@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 from abc import ABC, abstractmethod
 
-from .exceptions import NutrientUndefinedError
+from codiet.exceptions.nutrients import NutrientUndefinedError
 
 if TYPE_CHECKING:
     from codiet.utils.unique_dict import FrozenUniqueDict as FUD
