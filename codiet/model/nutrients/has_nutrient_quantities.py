@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 from abc import ABC, abstractmethod
 
-from codiet.exceptions.nutrients import NutrientUndefinedError
+from codiet.exceptions.nutrients import NutrientNotFoundError
 
 if TYPE_CHECKING:
     from codiet.utils.unique_dict import FrozenUniqueDict as FUD
@@ -18,7 +18,7 @@ class HasNutrientQuantities(ABC):
     
     def is_nutrient_present(self, nutrient_name:str) -> bool:
         if nutrient_name not in self.nutrient_quantities:
-            raise NutrientUndefinedError(nutrient_name)
+            raise NutrientNotFoundError(nutrient_name)
         if self.nutrient_quantities[nutrient_name].quantity.value == 0:
             return False
         return True

@@ -7,6 +7,7 @@ V = TypeVar('V')
 from .base_unique_dict import UniqueDictBase
 
 class FrozenUniqueDict(UniqueDictBase[K, V], Mapping):
+
     def __hash__(self) -> int:
         return hash(frozenset(self._data.items()))
 

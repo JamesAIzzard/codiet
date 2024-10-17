@@ -1,5 +1,7 @@
 from codiet.tests import BaseCodietTest
-from codiet.data import NutrientNotFoundError, IngredientNotFoundError, RecipeNotFoundError
+from codiet.exceptions.nutrients import NutrientNotFoundError
+from codiet.exceptions.ingredients import IngredientNotFoundError
+from codiet.exceptions.recipes import RecipeNotFoundError
 
 class BaseDatabaseServiceTest(BaseCodietTest):
     pass

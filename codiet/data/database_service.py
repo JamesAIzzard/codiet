@@ -2,9 +2,13 @@ from typing import TYPE_CHECKING
 
 from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 from codiet.utils.unique_dict import FrozenUniqueDict as FUD
-from .exceptions import IngredientNotFoundError, RecipeNotFoundError, NutrientNotFoundError
 from codiet.model.recipes import Recipe
 from codiet.exceptions.quantities import UnitNotFoundError, UnitConversionNotFoundError
+from codiet.exceptions.nutrients import NutrientNotFoundError
+from codiet.exceptions.flags import FlagDefinitionNotFoundError
+from codiet.exceptions.tags import TagNotFoundError
+from codiet.exceptions.ingredients import IngredientNotFoundError
+from codiet.exceptions.recipes import RecipeNotFoundError
 
 from codiet.model.tags import Tag
 
@@ -13,6 +17,7 @@ if TYPE_CHECKING:
     from codiet.model.quantities import Unit, QuantitiesFactory, UnitConversion
     from codiet.model.nutrients import Nutrient, NutrientFactory
     from codiet.model.flags import FlagDefinition, FlagFactory
+    from codiet.model.tags import TagFactory
     from codiet.model.ingredients import Ingredient, IngredientFactory
     from codiet.model.recipes import RecipeFactory
 
@@ -26,6 +31,7 @@ class DatabaseService:
         self._quantities_factory: "QuantitiesFactory"
         self._nutrients_factory: "NutrientFactory"
         self._flag_factory: "FlagFactory"
+        self._tag_factory: "TagFactory"
         self._ingredient_factory: "IngredientFactory"
         self._recipe_factory: "RecipeFactory"
 
@@ -35,6 +41,7 @@ class DatabaseService:
         quantities_factory: "QuantitiesFactory",
         nutrients_factory: "NutrientFactory",
         flag_factory: "FlagFactory",
+        tag_factory: "TagFactory",
         ingredient_factory: "IngredientFactory",
         recipe_factory: "RecipeFactory",
     ) -> "DatabaseService":
@@ -42,6 +49,7 @@ class DatabaseService:
         self._quantities_factory = quantities_factory
         self._nutrients_factory = nutrients_factory
         self._flag_factory = flag_factory
+        self._tag_factory = tag_factory
         self._ingredient_factory = ingredient_factory
         self._recipe_factory = recipe_factory
         return self
@@ -83,6 +91,7 @@ class DatabaseService:
         return IUC(flag_names)
 
     def read_flag_definition(self, flag_name: str) -> "FlagDefinition":
+        # TODO: Add error handling
         flag_definition_dto = self._repository.read_flag_definition_dto(flag_name)
         flag_definition = self._flag_factory.create_flag_definition_from_dto(
             flag_definition_dto
@@ -101,10 +110,10 @@ class DatabaseService:
         nutrient = self._nutrients_factory.create_nutrient_from_dto(nutrient_dto)
         return nutrient
 
-    def read_tag(self, tag_name: str) -> "Tag":
-        # TODO: Implement - needs to use the tag factory to convert
-        # a tag DTO into a tag object.
-        return Tag(tag_name)
+    def read_all_tags(self) -> FUD[str, "Tag"]:
+        tag_dtos = self._repository.read_all_tag_dtos()
+        tags = self._tag_factory.create_tags_from_graph(tag_dtos)
+        return tags
 
     def read_all_ingredient_names(self) -> IUC[str]:
         ingredient_names = self._repository.read_all_ingredient_names()

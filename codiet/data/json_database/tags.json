@@ -5,8 +5,8 @@
                 "cereal": {},
                 "cooked": {},
                 "fruit": {},
-                "pancakes": {},
-                "pastries": {}
+                "pancake": {},
+                "pastry": {}
             },
             "lunch": {
                 "salad": {},
@@ -47,6 +47,7 @@
             }
         },
         "sweet": {
+            "pancake": {},
             "cake": {
                 "cheesecake": {},
                 "sponge": {}

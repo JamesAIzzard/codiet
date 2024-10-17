@@ -30,7 +30,7 @@
                 "pretzels": {},
                 "crackers": {}
             },
-            "side-dish": {
+            "side_dish": {
                 "vegetables": {},
                 "grains": {},
                 "salad": {},
@@ -58,17 +58,17 @@
         }
     },
     "drink": {
-        "soft-drink": {
+        "soft_drink": {
             "soda": {},
             "water": {}
         },
-        "fruit-drink": {
+        "fruit_drink": {
             "smoothie": {},
             "juice": {},
             "lemonade": {},
-            "fruit-punch": {}
+            "fruit_punch": {}
         },
-        "alcoholic-drink": {
+        "alcoholic_drink": {
             "beer": {},
             "wine": {},
             "cocktail": {},

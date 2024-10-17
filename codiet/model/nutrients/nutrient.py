@@ -21,7 +21,7 @@ class Nutrient(StoredEntity):
         calories_per_gram: float,
         aliases: Optional[Collection[str]] = None,
         direct_parent: Optional["Nutrient"] = None,
-        direct_children: Optional[Mapping[str, "Nutrient"]] = None,
+        direct_children: Optional[Mapping[str, "Nutrient"]] = None, # REFACTOR: Update to remove none, could just pass empty list
         *args,
         **kwargs,
     ):

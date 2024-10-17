@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable, Mapping
 
 from codiet.utils.unique_dict import UniqueDict
 from codiet.utils.unique_dict import FrozenUniqueDict as FUD
@@ -22,7 +22,7 @@ class SingletonRegister:
     _global_unit_conversion_loader: Callable[[frozenset[str]], "UnitConversion"]
     _flag_loader: Callable[[str], "FlagDefinition"]
     _nutrient_loader: Callable[[str], "Nutrient"]
-    _tag_loader: Callable[[str], "Tag"]
+    _tag_graph_loader: Callable[[], Mapping[str, "Tag"]]
     _recipe_loader: Callable[[str], "Recipe"]
     _ingredient_loader: Callable[[str], "Ingredient"]
 
@@ -43,7 +43,7 @@ class SingletonRegister:
         global_unit_conversion_loader: Callable[[frozenset[str]], "UnitConversion"],
         flag_definition_loader: Callable[[str], "FlagDefinition"],
         nutrient_loader: Callable[[str], "Nutrient"],
-        tag_loader: Callable[[str], "Tag"],
+        tag_graph_loader: Callable[[], Mapping[str, "Tag"]],
         recipe_loader: Callable[[str], "Recipe"],
         ingredient_loader: Callable[[str], "Ingredient"],
     ) -> None:
@@ -54,7 +54,7 @@ class SingletonRegister:
         cls._global_unit_conversion_loader = global_unit_conversion_loader
         cls._flag_loader = flag_definition_loader
         cls._nutrient_loader = nutrient_loader
-        cls._tag_loader = tag_loader
+        cls._tag_graph_loader = tag_graph_loader
         cls._recipe_loader = recipe_loader
         cls._ingredient_loader = ingredient_loader
 
@@ -108,7 +108,7 @@ class SingletonRegister:
 
     def get_tag(self, name: str) -> "Tag":
         if name not in self._tags:
-            self._tags[name] = self._tag_loader(name)
+            self._tags = self._tag_graph_loader()
         return self._tags[name]
 
     def get_recipe(self, name: str) -> "Recipe":

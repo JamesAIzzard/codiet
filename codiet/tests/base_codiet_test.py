@@ -22,6 +22,8 @@ class BaseCodietTest(TestCase):
 
     def setUp(self) -> None:
         super().setUp()
+        # REFACTOR: Wrap this up into some reusable method, that just
+        # takes the TEST_DATA_DIR as an argument
         self.database_service = DatabaseService()
         self.json_repository = JSONRepository(TEST_DATA_DIR)        
         
@@ -55,6 +57,7 @@ class BaseCodietTest(TestCase):
             quantities_factory=self.quantities_factory,
             nutrients_factory=self.nutrient_factory,
             flag_factory=self.flag_factory,
+            tag_factory=self.tag_factory,
             ingredient_factory=self.ingredient_factory,
             recipe_factory=self.recipe_factory
         )
@@ -65,7 +68,7 @@ class BaseCodietTest(TestCase):
             global_unit_conversion_loader=self.database_service.read_global_unit_conversion,
             flag_definition_loader=self.database_service.read_flag_definition,
             nutrient_loader=self.database_service.read_nutrient,
-            tag_loader=self.database_service.read_tag,
+            tag_graph_loader=self.database_service.read_all_tags,
             recipe_loader=self.database_service.read_recipe,
             ingredient_loader=self.database_service.read_ingredient
         )

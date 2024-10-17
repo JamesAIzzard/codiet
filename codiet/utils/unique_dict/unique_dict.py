@@ -1,12 +1,19 @@
 from collections.abc import MutableMapping
 from typing import TypeVar
 
-K = TypeVar('K')
-V = TypeVar('V')
+K = TypeVar("K")
+V = TypeVar("V")
 
 from .base_unique_dict import UniqueDictBase
+from .frozen_unique_dict import FrozenUniqueDict
+
 
 class UniqueDict(UniqueDictBase[K, V], MutableMapping):
+
+    @property
+    def immutable(self) -> "FrozenUniqueDict[K, V]":
+        return FrozenUniqueDict(self._data)
+
     def __setitem__(self, key: K, value: V) -> None:
         if value in self._data.values() and self._data.get(key) != value:
             raise ValueError(f"Value {value!r} is already in the dictionary")
@@ -23,5 +30,5 @@ class UniqueDict(UniqueDictBase[K, V], MutableMapping):
         for key, value in new_data.items():
             self[key] = value
 
-    def copy(self) -> 'UniqueDict[K, V]':
-        return UniqueDict(self._data.copy())            
+    def copy(self) -> "UniqueDict[K, V]":
+        return UniqueDict(self._data.copy())
