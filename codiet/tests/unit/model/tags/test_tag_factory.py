@@ -16,25 +16,37 @@ class TestCreateTagsFromGraph(BaseTagFactoryTest):
     def test_creates_mapping_of_correct_length(self):
         tag_dtos = self.json_repository.read_all_tag_dtos()
         tags = self.tag_factory.create_tags_from_graph(tag_dtos)
-        self.assertEqual(len(tags), 57)
+        self.assertEqual(len(tags), self.NUM_TAGS)
 
-    def test_creates_mapping_with_correct_parents_and_children(self):
+    def test_creates_mapping_with_correct_children(self):
         tag_dtos = self.json_repository.read_all_tag_dtos()
         tags = self.tag_factory.create_tags_from_graph(tag_dtos)
-        fruit_drink = tags["fruit_drink"]
-        self.assertEqual(len(fruit_drink.direct_parents), 1)
-        self.assertIn("drink", fruit_drink.direct_parents)
-        self.assertEqual(len(fruit_drink.direct_children), 4)
+        drink = tags["drink"]
+        self.assertEqual(len(drink.direct_parents), 0)
+        self.assertEqual(len(drink.direct_children), 2)
         self.assertEqual(
-            set(fruit_drink.direct_children),
-            set(["smoothie", "juice", "lemonade", "fruit_punch"]),
+            set(drink.direct_children),
+            set(["smoothie", "juice"]),
+        )
+
+    def test_creates_mapping_with_correct_parents(self):
+        tag_dtos = self.json_repository.read_all_tag_dtos()
+        tags = self.tag_factory.create_tags_from_graph(tag_dtos)
+        smoothie = tags["smoothie"]
+        self.assertEqual(len(smoothie.direct_parents), 1)
+        self.assertEqual(len(smoothie.direct_children), 0)
+        self.assertEqual(
+            set(smoothie.direct_parents),
+            set(["drink"]),
         )
 
     def test_creates_mapping_with_correct_parent_and_child_types(self):
         tag_dtos = self.json_repository.read_all_tag_dtos()
         tags = self.tag_factory.create_tags_from_graph(tag_dtos)
-        fruit_drink = tags["fruit_drink"]
-        for parent in fruit_drink.direct_parents.values():
-            self.assertIsInstance(parent, Tag)
-        for child in fruit_drink.direct_children.values():
-            self.assertIsInstance(child, Tag)
+        for tag_name, tag in tags.items():
+            for parent_name, parent in tag.direct_parents.items():
+                self.assertIsInstance(parent_name, str)
+                self.assertIsInstance(parent, Tag)
+            for child_name, child in tag.direct_children.items():
+                self.assertIsInstance(child_name, str)
+                self.assertIsInstance(child, Tag)

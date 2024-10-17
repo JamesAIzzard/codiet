@@ -20,6 +20,11 @@ TEST_DATA_DIR = os.path.join(CURRENT_DIR, "json_data")
 
 class BaseCodietTest(TestCase):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.NUM_TAGS = 19
+
     def setUp(self) -> None:
         super().setUp()
         # REFACTOR: Wrap this up into some reusable method, that just
