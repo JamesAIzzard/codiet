@@ -1,81 +1,23 @@
 {
-    "meal": {
-        "savory": {
-            "breakfast": {
-                "cereal": {},
-                "cooked": {},
-                "fruit": {},
-                "pancakes": {},
-                "pastries": {}
-            },
-            "lunch": {
-                "salad": {},
-                "sandwich": {},
-                "soup": {},
-                "pizza": {}
-            },
-            "dinner": {
-                "pasta": {},
-                "grilled": {},
-                "salad": {},
-                "soup": {},
-                "pizza": {},
-                "stir-fry": {}
-
-            },
-            "snack": {
-                "chips": {},
-                "nuts": {},
-                "popcorn": {},
-                "pretzels": {},
-                "crackers": {}
-            },
-            "side-dish": {
-                "vegetables": {},
-                "grains": {},
-                "salad": {},
-                "chips": {},
-                "fries": {}
-            },
-            "sauce": {
-                "marinades": {},
-                "dressing": {}
-            },
-            "dip": {
-                "hummus": {},
-                "guacamole": {}
-            }
-        },
-        "sweet": {
-            "cake": {
-                "cheesecake": {},
-                "sponge": {}
-            },
-            "cookie": {
-                "biscuits": {},
-                "macarons": {}
-            }
-        }
+    "food": {
+        "soup": {},
+        "salad": {},
+        "sandwich": {},
+        "pizza": {},
+        "pasta": {},
+        "stir-fry": {},
+        "travel_snack": {}
     },
     "drink": {
-        "soft-drink": {
-            "soda": {},
-            "water": {}
-        },
-        "fruit-drink": {
-            "smoothie": {},
-            "juice": {},
-            "lemonade": {},
-            "fruit-punch": {}
-        },
-        "alcoholic-drink": {
-            "beer": {},
-            "wine": {},
-            "cocktail": {},
-            "spirit": {},
-            "liqueur": {},
-            "cider": {},
-            "brandy": {}
-        }
-    }
+        "smoothie": {},
+        "juice": {}
+    },
+    "sweet": {},
+    "savory": {},
+    "hot": {},
+    "cold": {},
+    "cereal": {},
+    "baked": {},
+    "cake": {},
+    "pie": {}
 }

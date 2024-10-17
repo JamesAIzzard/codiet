@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from codiet.model.nutrients import NutrientDTO
     from codiet.model.cost import QuantityCostDTO
     from codiet.model.flags import FlagDefinitionDTO
+    from codiet.model.tags import TagDTO
     from codiet.model.ingredients import IngredientDTO
     from codiet.model.recipes import RecipeDTO
 
@@ -28,7 +29,12 @@ class JSONRepository:
         entire_file_data = self._json_reader.read_file(
             os.path.join(self._data_dir, "units.json")
         )
+
+        if name not in entire_file_data:
+            raise ValueError(f"Unit '{name}' not found in the data.")
+
         unit_data = entire_file_data[name]
+        
         return {
             "name": name,
             "type": unit_data["type"],
@@ -144,6 +150,34 @@ class JSONRepository:
             raise ValueError(f"Nutrient '{name}' not found in the data.")
 
         return nutrient_dto
+
+    def read_all_tag_dtos(self) -> dict[str, "TagDTO"]:
+        entire_file_data = self._json_reader.read_file(
+            os.path.join(self._data_dir, "tags.json")
+        )
+
+        tag_dtos = {}
+
+        def process_tag(name, data, parent=None):
+            if name not in tag_dtos:
+                tag_dtos[name] = {
+                    "name": name,
+                    "direct_parents": [],
+                    "direct_children": []
+                }
+            
+            if parent and parent not in tag_dtos[name]['direct_parents']:
+                tag_dtos[name]['direct_parents'].append(parent)
+
+            for child_name, child_data in data.items():
+                if child_name not in tag_dtos[name]['direct_children']:
+                    tag_dtos[name]['direct_children'].append(child_name)
+                process_tag(child_name, child_data, name)
+
+        for top_level_name, top_level_data in entire_file_data.items():
+            process_tag(top_level_name, top_level_data)
+
+        return tag_dtos
 
     def read_all_ingredient_names(self) -> IUC[str]:
         ingredient_files = os.listdir(os.path.join(self._data_dir, "ingredients"))

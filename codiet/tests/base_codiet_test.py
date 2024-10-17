@@ -20,8 +20,15 @@ TEST_DATA_DIR = os.path.join(CURRENT_DIR, "json_data")
 
 class BaseCodietTest(TestCase):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.NUM_TAGS = 19
+
     def setUp(self) -> None:
         super().setUp()
+        # REFACTOR: Wrap this up into some reusable method, that just
+        # takes the TEST_DATA_DIR as an argument
         self.database_service = DatabaseService()
         self.json_repository = JSONRepository(TEST_DATA_DIR)        
         
@@ -55,20 +62,26 @@ class BaseCodietTest(TestCase):
             quantities_factory=self.quantities_factory,
             nutrients_factory=self.nutrient_factory,
             flag_factory=self.flag_factory,
+            tag_factory=self.tag_factory,
             ingredient_factory=self.ingredient_factory,
             recipe_factory=self.recipe_factory
         )
 
         self.singleton_register.initialise(
-            database_service=self.database_service,
-            quantities_factory=self.quantities_factory,
-            tag_factory=self.tag_factory
+            get_all_global_unit_conversion_names=self.database_service.read_all_global_unit_conversion_names,
+            unit_loader=self.database_service.read_unit,
+            global_unit_conversion_loader=self.database_service.read_global_unit_conversion,
+            flag_definition_loader=self.database_service.read_flag_definition,
+            nutrient_loader=self.database_service.read_nutrient,
+            tag_graph_loader=self.database_service.read_all_tags,
+            recipe_loader=self.database_service.read_recipe,
+            ingredient_loader=self.database_service.read_ingredient
         )
 
         self.unit_conversion_service.initialise(
             create_quantity=self.quantities_factory.create_quantity,
             get_unit=self.singleton_register.get_unit,
-            get_global_unit_conversions=self.singleton_register.get_global_unit_conversions
+            get_all_global_unit_conversions=lambda: self.singleton_register.global_unit_conversions
         )
 
         self.flag_service.initialise(
@@ -77,21 +90,24 @@ class BaseCodietTest(TestCase):
             get_all_flag_names=self.database_service.read_all_flag_names
         )
 
+        # REFACTOR: Decouple further by only passing in specific methods
         self.quantities_factory.initialise(
             singleton_register=self.singleton_register,
-            database_service=self.database_service,
-            unit_conversion_service=self.unit_conversion_service
+            database_service=self.database_service
         )
 
+        # REFACTOR: Decouple further by only passing in specific methods
         self.cost_factory.initialise(
             quantities_factory=self.quantities_factory
         )
 
+        # REFACTOR: Decouple further by only passing in specific methods
         self.nutrient_factory.initialise(
             singleton_register=self.singleton_register,
             quantities_factory=self.quantities_factory
         )
 
+        # REFACTOR: Decouple further by only passing in specific methods
         self.ingredient_factory.initialise(
             singleton_register=self.singleton_register,
             quantities_factory=self.quantities_factory,
@@ -101,6 +117,7 @@ class BaseCodietTest(TestCase):
             nutrient_factory=self.nutrient_factory
         )
 
+        # REFACTOR: Decouple further by only passing in specific methods
         self.recipe_factory.initialise(
             singleton_register=self.singleton_register,
             unit_conversion_service=self.unit_conversion_service,
@@ -110,10 +127,12 @@ class BaseCodietTest(TestCase):
             ingredient_factory=self.ingredient_factory
         )
 
+        # REFACTOR: Decouple further by only passing in specific methods
         self.optimiser_factory.initialise(
             database_service=self.database_service,
         )
 
+        # REFACTOR: Decouple further by only passing in specific methods
         self.recipe_fixtures.initialise(
             recipe_factory=self.recipe_factory,
         )

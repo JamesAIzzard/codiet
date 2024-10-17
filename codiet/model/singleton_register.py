@@ -1,106 +1,132 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Mapping
 
-from codiet.utils.unique_dict import UniqueDict as UD
+from codiet.utils.unique_dict import UniqueDict
+from codiet.utils.unique_dict import FrozenUniqueDict as FUD
+from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 
 if TYPE_CHECKING:
-    from codiet.data.database_service import DatabaseService
-    from codiet.model.quantities import (
-        Unit,
-        UnitConversion,
-        QuantitiesFactory,
-    )
-    from codiet.model.nutrients import Nutrient
+    from codiet.model.quantities import Unit, UnitConversion
     from codiet.model.flags import FlagDefinition
-    from codiet.model.tags import Tag, TagFactory, TagDTO
+    from codiet.model.nutrients import Nutrient
+    from codiet.model.tags import Tag
+    from codiet.model.recipes import Recipe
     from codiet.model.ingredients import Ingredient
 
 
 class SingletonRegister:
-    def __init__(self):
-        self._database_service: "DatabaseService"
-        self._quantities_factory: "QuantitiesFactory"
-        self._tag_factory: "TagFactory"
+    """The SingletonRegistry is responsible for providing access to the system's singleton entities
+    such as units, unit conversions, flags, nutrients, recipes, and ingredients."""
 
-        self._units = UD[str, "Unit"]()
-        self._unit_conversions = UD[frozenset[str], "UnitConversion"]()
-        self._nutrients = UD[str, "Nutrient"]()
-        self._tags = UD[str, "Tag"]()
-        self._flag_definitions = UD[str, "FlagDefinition"]()
-        self._ingredients = UD[str, "Ingredient"]()
+    _get_all_global_unit_conversion_names: Callable[[], IUC[frozenset[str]]]
+    _unit_loader: Callable[[str], "Unit"]
+    _global_unit_conversion_loader: Callable[[frozenset[str]], "UnitConversion"]
+    _flag_loader: Callable[[str], "FlagDefinition"]
+    _nutrient_loader: Callable[[str], "Nutrient"]
+    _tag_graph_loader: Callable[[], Mapping[str, "Tag"]]
+    _recipe_loader: Callable[[str], "Recipe"]
+    _ingredient_loader: Callable[[str], "Ingredient"]
 
+    def __init__(self) -> None:
+        self._units = UniqueDict[str, "Unit"]()
+        self._global_unit_conversions = UniqueDict[frozenset[str], "UnitConversion"]()
+        self._flag_definitions = UniqueDict[str, "FlagDefinition"]()
+        self._nutrients = UniqueDict[str, "Nutrient"]()
+        self._tags = UniqueDict[str, "Tag"]()
+        self._recipes = UniqueDict[str, "Recipe"]()
+        self._ingredients = UniqueDict[str, "Ingredient"]()
+
+    @classmethod
     def initialise(
-        self,
-        database_service: "DatabaseService",
-        quantities_factory: "QuantitiesFactory",
-        tag_factory: "TagFactory",
-    ) -> "SingletonRegister":
-        self._database_service = database_service
-        self._quantities_factory = quantities_factory
-        self._tag_factory = tag_factory
-        return self
+        cls,
+        get_all_global_unit_conversion_names: Callable[[], IUC[frozenset[str]]],
+        unit_loader: Callable[[str], "Unit"],
+        global_unit_conversion_loader: Callable[[frozenset[str]], "UnitConversion"],
+        flag_definition_loader: Callable[[str], "FlagDefinition"],
+        nutrient_loader: Callable[[str], "Nutrient"],
+        tag_graph_loader: Callable[[], Mapping[str, "Tag"]],
+        recipe_loader: Callable[[str], "Recipe"],
+        ingredient_loader: Callable[[str], "Ingredient"],
+    ) -> None:
+        cls._get_all_global_unit_conversion_names = (
+            get_all_global_unit_conversion_names
+        )
+        cls._unit_loader = unit_loader
+        cls._global_unit_conversion_loader = global_unit_conversion_loader
+        cls._flag_loader = flag_definition_loader
+        cls._nutrient_loader = nutrient_loader
+        cls._tag_graph_loader = tag_graph_loader
+        cls._recipe_loader = recipe_loader
+        cls._ingredient_loader = ingredient_loader
 
-    def get_unit(self, unit_name: str) -> "Unit":
-        if unit_name not in self._units:
-            self._units[unit_name] = self._database_service.read_unit(unit_name)
-        return self._units[unit_name]
+    def get_unit(self, name: str) -> "Unit":
+        if name not in self._units:
+            self._units[name] = self._unit_loader(name)
+        return self._units[name]
+
+    @property
+    def global_unit_conversions(self) -> FUD[frozenset[str], "UnitConversion"]:
+        unit_conversion_names = self._get_all_global_unit_conversion_names()
+
+        for unit_names in unit_conversion_names:
+            if unit_names not in self._global_unit_conversions:
+                unit_conversion = self._global_unit_conversion_loader(unit_names)
+                self._global_unit_conversions[unit_names] = unit_conversion
+
+        return FUD(self._global_unit_conversions)
 
     def get_global_unit_conversion(
-        self, unit_conversion_key: frozenset[str]
+        self, unit_names: frozenset[str]
     ) -> "UnitConversion":
-        if unit_conversion_key not in self._unit_conversions:
-            self._unit_conversions[unit_conversion_key] = (
-                self._database_service.read_global_unit_conversion(unit_conversion_key)
-            )
-        return self._unit_conversions[unit_conversion_key]
-
-    def get_global_unit_conversions(self) -> dict[frozenset[str], "UnitConversion"]:
-        conversion_keys = self._database_service.read_all_global_unit_conversion_names()
-
-        conversions = {}
-        for key in conversion_keys:
-            conversions[key] = self.get_global_unit_conversion(key)
-
-        return conversions
-
-    def get_flag_definition(self, flag_name: str) -> "FlagDefinition":
-        if flag_name not in self._flag_definitions:
-            self._flag_definitions[flag_name] = self._database_service.read_flag_definition(
-                flag_name
-            )
-        return self._flag_definitions[flag_name]
-
-    def get_all_flag_definitions(self) -> dict[str, "FlagDefinition"]:
-        flag_names = self._database_service.read_all_flag_names()
-
-        flag_definitions = {}
-        for flag_name in flag_names:
-            flag_definitions[flag_name] = self.get_flag_definition(flag_name)
-
-        return flag_definitions
-
-    def get_nutrient(self, nutrient_name: str) -> "Nutrient":
-        nutrient_name = nutrient_name.lower()
+        if self._global_unit_conversion_loader is None:
+            raise RuntimeError("Unit conversion loader not set.")
         try:
-            return self._nutrients[nutrient_name]
+            return self._global_unit_conversions[unit_names]
         except KeyError:
-            self._nutrients[nutrient_name] = self._database_service.read_nutrient(
-                nutrient_name
-            )
-            return self._nutrients[nutrient_name]
+            unit_conversion = self._global_unit_conversion_loader(unit_names)
+            self._global_unit_conversions[unit_names] = unit_conversion
+            return unit_conversion
 
-    def get_tag(self, tag_name: str) -> "Tag":
+    def get_flag_definition(self, name: str) -> "FlagDefinition":
+        if self._flag_loader is None:
+            raise RuntimeError("Flag loader not set.")
         try:
-            return self._tags[tag_name]
+            return self._flag_definitions[name]
         except KeyError:
-            tag_dto:"TagDTO" = {"name": tag_name}
-            self._tags[tag_name] = self._tag_factory.create_tag_from_dto(tag_dto)
-            return self._tags[tag_name]
+            flag_definition = self._flag_loader(name)
+            self._flag_definitions[name] = flag_definition
+            return flag_definition
 
-    def get_ingredient(self, ingredient_name: str) -> "Ingredient":
+    def get_nutrient(self, name: str) -> "Nutrient":
+        if self._nutrient_loader is None:
+            raise RuntimeError("Nutrient loader not set.")
         try:
-            return self._ingredients[ingredient_name]
+            return self._nutrients[name]
         except KeyError:
-            self._ingredients[ingredient_name] = self._database_service.read_ingredient(
-                ingredient_name
-            )
-            return self._ingredients[ingredient_name]
+            nutrient = self._nutrient_loader(name)
+            self._nutrients[name] = nutrient
+            return nutrient
+
+    def get_tag(self, name: str) -> "Tag":
+        if name not in self._tags:
+            self._tags = self._tag_graph_loader()
+        return self._tags[name]
+
+    def get_recipe(self, name: str) -> "Recipe":
+        if self._recipe_loader is None:
+            raise RuntimeError("Recipe loader not set.")
+        try:
+            return self._recipes[name]
+        except KeyError:
+            recipe = self._recipe_loader(name)
+            self._recipes[name] = recipe
+            return recipe
+
+    def get_ingredient(self, name: str) -> "Ingredient":
+        if self._ingredient_loader is None:
+            raise RuntimeError("Ingredient loader not set.")
+        try:
+            return self._ingredients[name]
+        except KeyError:
+            ingredient = self._ingredient_loader(name)
+            self._ingredients[name] = ingredient
+            return ingredient

@@ -21,7 +21,7 @@ class IngredientQuantityDTO(TypedDict):
 class IngredientQuantity(HasCalories, HasNutrientQuantities, IsQuantified):
 
     unit_conversion_service: "UnitConversionService"
-    nutrient_factory: "NutrientFactory"
+    _nutrient_factory: "NutrientFactory"
 
     def __init__(self, ingredient: "Ingredient", *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -35,7 +35,7 @@ class IngredientQuantity(HasCalories, HasNutrientQuantities, IsQuantified):
         nutrient_factory: "NutrientFactory"
     ) -> None:
         cls.unit_conversion_service = unit_conversion_service
-        cls.nutrient_factory = nutrient_factory
+        cls._nutrient_factory = nutrient_factory
 
     @property
     def ingredient(self) -> "Ingredient":
@@ -50,7 +50,7 @@ class IngredientQuantity(HasCalories, HasNutrientQuantities, IsQuantified):
         return self.unit_conversion_service.convert_quantity(
             self.quantity,
             to_unit_name="gram",
-            instance_unit_conversions=dict(self.ingredient.unit_conversions),
+            instance_unit_conversions=self.ingredient.unit_conversions,
         ).value
 
     @property
@@ -58,9 +58,14 @@ class IngredientQuantity(HasCalories, HasNutrientQuantities, IsQuantified):
         nutrient_quantities_totals = UD[str, "NutrientQuantity"]()
 
         for nutrient_name in self.ingredient.nutrient_quantities_per_gram.keys():
-            nutrient_quantities_totals[nutrient_name] = self.nutrient_factory.create_nutrient_quantity(
+            quantity = self.ingredient.nutrient_quantities_per_gram[nutrient_name].quantity
+            quantity_in_grams = self.unit_conversion_service.convert_to_grams(
+                quantity=quantity,
+                instance_unit_conversions=self.ingredient.unit_conversions
+            )
+            nutrient_quantities_totals[nutrient_name] = self._nutrient_factory.create_nutrient_quantity(
                 nutrient_name=nutrient_name,
-                quantity_value=self.ingredient.nutrient_quantities_per_gram[nutrient_name].mass_in_grams * self.mass_in_grams,
+                quantity_value=quantity_in_grams.value * self.mass_in_grams,
                 quantity_unit_name="gram",
             )
 

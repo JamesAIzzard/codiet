@@ -33,6 +33,32 @@ class TestReadNutrientDTO(BaseJSONRepositoryTest):
             },
         )
 
+class TestReadTagDTOs(BaseJSONRepositoryTest):
+    def test_reads_correct_number_tags(self):
+        tag_dtos = self.json_repository.read_all_tag_dtos()
+        self.assertEqual(len(tag_dtos), self.NUM_TAGS)
+
+    def test_children_are_correct(self):
+        tag_dtos = self.json_repository.read_all_tag_dtos()
+        fruit_drink_dto = tag_dtos["drink"]
+
+        self.assertEqual(len(fruit_drink_dto["direct_parents"]), 0)
+        self.assertEqual(len(fruit_drink_dto["direct_children"]), 2)
+        self.assertEqual(
+            set(fruit_drink_dto["direct_children"]),
+            set(["smoothie", "juice"]),
+        )
+
+    def test_parents_are_correct(self):
+        tag_dtos = self.json_repository.read_all_tag_dtos()
+        smoothie_dto = tag_dtos["smoothie"]
+
+        self.assertEqual(len(smoothie_dto["direct_parents"]), 1)
+        self.assertEqual(len(smoothie_dto["direct_children"]), 0)
+        self.assertEqual(
+            set(smoothie_dto["direct_parents"]),
+            set(["drink"]),
+        )
 
 class TestReadIngredientDTO(BaseJSONRepositoryTest):
 

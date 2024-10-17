@@ -123,10 +123,14 @@ class Recipe(HasCalories):
         merged_nutrient_quantities = {}
 
         for nutrient_name in common_nutrient_names:
-            total_grams = sum(
-                iq.nutrient_quantities[nutrient_name].quantity.value_in_grams
-                for iq in self.ingredient_quantities.values()
-            )
+            
+            total_grams = 0
+            for ingredient_quantity in self.ingredient_quantities.values():
+                nutrient_grams = self._unit_conversion_service.convert_to_grams(
+                    ingredient_quantity.nutrient_quantities[nutrient_name].quantity
+                )
+                total_grams += nutrient_grams.value
+
             merged_nutrient_quantities[nutrient_name] = self._nutrient_factory.create_nutrient_quantity(
                 nutrient_name=nutrient_name,
                 quantity_value=total_grams,

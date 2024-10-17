@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, TypedDict
 
 from codiet.utils.unique_dict import UniqueDict, FrozenUniqueDict
-from codiet.model.quantities import IsWeighable
 
 if TYPE_CHECKING:
     from codiet.model.quantities import Unit, UnitConversion, UnitConversionDTO, UnitConversionService
@@ -21,7 +20,7 @@ class IngredientDTO(TypedDict):
     nutrient_quantities_per_gram: dict[str, "NutrientQuantityDTO"]
 
 
-class Ingredient(IsWeighable):
+class Ingredient:
 
     unit_conversion_service: "UnitConversionService"
 

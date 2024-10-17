@@ -1,6 +1,12 @@
 from typing import Collection, TypedDict
+from enum import Enum
 
 from codiet.utils import MUC, IUC
+
+class UnitType(Enum):
+    MASS = "mass"
+    VOLUME = "volume"
+    COUNT = "count"
 
 class UnitDTO(TypedDict):
     name: str
@@ -14,7 +20,7 @@ class Unit:
     def __init__(
         self,
         name: str,
-        type: str,
+        type: UnitType,
         singular_abbreviation: str|None = None,
         plural_abbreviation: str|None = None,
         aliases: Collection[str]|None = None,
@@ -29,22 +35,12 @@ class Unit:
 
         self._aliases = MUC(aliases) or MUC[str]()
 
-    @classmethod
-    def from_dto(cls, dto: UnitDTO) -> 'Unit':
-        return cls(
-            name=dto["name"],
-            type=dto["type"],
-            singular_abbreviation=dto["singular_abbreviation"],
-            plural_abbreviation=dto["plural_abbreviation"],
-            aliases=dto["aliases"],
-        )
-
     @property
     def name(self) -> str:
         return self._unit_name
 
     @property
-    def type(self) -> str:
+    def type(self) -> UnitType:
         return self._type
 
     @property
