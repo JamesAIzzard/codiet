@@ -1,6 +1,7 @@
 from codiet.tests import BaseCodietTest
 from codiet.utils.graphs import build_dto_dict, build_graph, GraphNode
 
+
 class GraphsBaseTest(BaseCodietTest):
     def setUp(self) -> None:
         super().setUp()
@@ -14,14 +15,17 @@ class GraphsBaseTest(BaseCodietTest):
             },
         }
 
-        self.dto_dict = build_dto_dict(data = self.test_data)
-        self.test_graph:dict[str, GraphNode] = build_graph(data = self.dto_dict)
+        self.dto_dict = build_dto_dict(data=self.test_data)
+        self.test_graph: dict[str, GraphNode] = build_graph(
+            data=self.dto_dict, node_class=GraphNode
+        )
 
         self.a = self.test_graph["a"]
         self.b = self.test_graph["b"]
         self.c = self.test_graph["c"]
         self.d = self.test_graph["d"]
         self.e = self.test_graph["e"]
+
 
 class TestBuildDTODict(GraphsBaseTest):
 
@@ -47,8 +51,9 @@ class TestBuildDTODict(GraphsBaseTest):
         self.assertEqual(self.dto_dict["e"]["direct_parents"], ["d"])
         self.assertEqual(self.dto_dict["e"]["direct_children"], ["b"])
 
+
 class TestBuildGraph(GraphsBaseTest):
-    
+
     def test_graph_has_correct_nodes(self):
 
         self.assertEqual(len(self.test_graph), 5)

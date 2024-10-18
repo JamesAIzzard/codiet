@@ -1,8 +1,10 @@
-from typing import Mapping, Any, TypedDict
+from typing import Mapping, Any, TypedDict, Type, TypeVar
 from collections import defaultdict
 
 from codiet.utils.unique_dict import UniqueDict as UD
 from codiet.utils.unique_dict import FrozenUniqueDict as FUD
+
+T = TypeVar("T", bound="GraphNode")
 
 class GraphNodeDTO(TypedDict):
     name: str
@@ -89,12 +91,12 @@ def build_dto_dict(data: dict[str, Any]) -> dict[str, GraphNodeDTO]:
 
     return dict(dto_dict)  # Convert defaultdict back to regular dict
 
-def build_graph(data: dict[str, GraphNodeDTO]) -> dict[str, GraphNode]:
-    nodes: dict[str, GraphNode] = {}
+def build_graph(data: Mapping[str, GraphNodeDTO],  node_class:Type[T]) -> dict[str, T]:
+    nodes: dict[str, T] = {}
 
     # Phase 1: Create all nodes
     for name, node_dto in data.items():
-        nodes[name] = GraphNode(name=name, parents={}, children={})
+        nodes[name] = node_class(name=name, parents={}, children={})
 
     # Phase 2: Set up all relationships
     for name, node_dto in data.items():
