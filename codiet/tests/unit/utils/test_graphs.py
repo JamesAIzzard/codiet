@@ -1,5 +1,5 @@
 from codiet.tests import BaseCodietTest
-from codiet.utils.graphs import build_graph, GraphNode
+from codiet.utils.graphs import build_dto_dict, build_graph, GraphNode
 
 class GraphsBaseTest(BaseCodietTest):
     def setUp(self) -> None:
@@ -14,20 +14,45 @@ class GraphsBaseTest(BaseCodietTest):
             },
         }
 
-        self.tag_graph:dict[str, GraphNode] = build_graph(data = self.test_data)
+        self.dto_dict = build_dto_dict(data = self.test_data)
+        self.test_graph:dict[str, GraphNode] = build_graph(data = self.dto_dict)
 
-        self.a = self.tag_graph["a"]
-        self.b = self.tag_graph["b"]
-        self.c = self.tag_graph["c"]
-        self.d = self.tag_graph["d"]
-        self.e = self.tag_graph["e"]
+        self.a = self.test_graph["a"]
+        self.b = self.test_graph["b"]
+        self.c = self.test_graph["c"]
+        self.d = self.test_graph["d"]
+        self.e = self.test_graph["e"]
+
+class TestBuildDTODict(GraphsBaseTest):
+
+    def test_dict_has_correct_number_of_nodes(self):
+        self.assertEqual(len(self.dto_dict), 5)
+
+    def test_dict_has_correct_keys(self):
+        self.assertIn("a", self.dto_dict)
+        self.assertIn("b", self.dto_dict)
+        self.assertIn("c", self.dto_dict)
+        self.assertIn("d", self.dto_dict)
+        self.assertIn("e", self.dto_dict)
+
+    def test_dict_has_correct_values(self):
+        self.assertEqual(self.dto_dict["a"]["direct_parents"], [])
+        self.assertEqual(self.dto_dict["a"]["direct_children"], [])
+        self.assertEqual(self.dto_dict["b"]["direct_parents"], ["e"])
+        self.assertEqual(self.dto_dict["b"]["direct_children"], ["c", "d"])
+        self.assertEqual(self.dto_dict["c"]["direct_parents"], ["b"])
+        self.assertEqual(self.dto_dict["c"]["direct_children"], [])
+        self.assertEqual(self.dto_dict["d"]["direct_parents"], ["b"])
+        self.assertEqual(self.dto_dict["d"]["direct_children"], ["e"])
+        self.assertEqual(self.dto_dict["e"]["direct_parents"], ["d"])
+        self.assertEqual(self.dto_dict["e"]["direct_children"], ["b"])
 
 class TestBuildGraph(GraphsBaseTest):
     
     def test_graph_has_correct_nodes(self):
 
-        self.assertEqual(len(self.tag_graph), 5)
-        for node in self.tag_graph.values():
+        self.assertEqual(len(self.test_graph), 5)
+        for node in self.test_graph.values():
             self.assertIsInstance(node, GraphNode)
 
     def test_names_are_set_correctly(self):

@@ -1,7 +1,13 @@
-from typing import Mapping, Any
+from typing import Mapping, Any, TypedDict
+from collections import defaultdict
 
 from codiet.utils.unique_dict import UniqueDict as UD
 from codiet.utils.unique_dict import FrozenUniqueDict as FUD
+
+class GraphNodeDTO(TypedDict):
+    name: str
+    direct_parents: list[str]
+    direct_children: list[str]
 
 class GraphNode:
     def __init__(
@@ -64,29 +70,46 @@ class GraphNode:
             return False
         return dfs(self)
 
-def build_graph(data: dict[str, Any]) -> dict[str, Any]:
+def build_dto_dict(data: dict[str, Any]) -> dict[str, GraphNodeDTO]:
+    dto_dict: dict[str, GraphNodeDTO] = defaultdict(lambda: GraphNodeDTO(name="", direct_parents=[], direct_children=[]))
+
+    def process_node(name: str, node_data: dict[str, Any], parent: str|None = None):
+        dto_dict[name]["name"] = name
+        if parent and parent not in dto_dict[name]["direct_parents"]:
+            dto_dict[name]["direct_parents"].append(parent)
+
+        for child_name, child_data in node_data.items():
+            if child_name not in dto_dict[name]["direct_children"]:
+                dto_dict[name]["direct_children"].append(child_name)
+            process_node(child_name, child_data, name)
+
+    # Process the top-level nodes
+    for name, node_data in data.items():
+        process_node(name, node_data)
+
+    return dict(dto_dict)  # Convert defaultdict back to regular dict
+
+def build_graph(data: dict[str, GraphNodeDTO]) -> dict[str, GraphNode]:
     nodes: dict[str, GraphNode] = {}
 
-    def create_nodes(name: str, node_data: dict[str, Any]):
-        if name not in nodes:
-            nodes[name] = GraphNode(name=name, parents={}, children={})
-            for child_name, child_data in node_data.items():
-                create_nodes(child_name, child_data)
+    # Phase 1: Create all nodes
+    for name, node_dto in data.items():
+        nodes[name] = GraphNode(name=name, parents={}, children={})
 
-    def set_relationships(name: str, node_data: dict[str, Any]):
-        for child_name, child_data in node_data.items():
-            nodes[name]._direct_children[child_name] = nodes[child_name]
-            nodes[child_name]._direct_parents[name] = nodes[name]
-            set_relationships(child_name, child_data)
+    # Phase 2: Set up all relationships
+    for name, node_dto in data.items():
+        current_node = nodes[name]
+        
+        # Set up parent relationships
+        for parent_name in node_dto['direct_parents']:
+            if parent_name in nodes:
+                current_node._direct_parents[parent_name] = nodes[parent_name]
+                nodes[parent_name]._direct_children[name] = current_node
 
-    # Take a two phase approach to avoid recursion errors.
-    for name, node_data in data.items():
-        create_nodes(name, node_data)
-
-    for name, node_data in data.items():
-        set_relationships(name, node_data)
+        # Set up child relationships
+        for child_name in node_dto['direct_children']:
+            if child_name in nodes:
+                current_node._direct_children[child_name] = nodes[child_name]
+                nodes[child_name]._direct_parents[name] = current_node
 
     return nodes
-
-
-
