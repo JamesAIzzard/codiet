@@ -2,11 +2,10 @@ from typing import TYPE_CHECKING
 
 from codiet.utils.unique_collection import ImmutableUniqueCollection as IUC
 from codiet.utils.unique_dict import FrozenUniqueDict as FUD
+from codiet.utils.graphs import build_graph
 from codiet.model.recipes import Recipe
 from codiet.exceptions.quantities import UnitNotFoundError, UnitConversionNotFoundError
 from codiet.exceptions.nutrients import NutrientNotFoundError
-from codiet.exceptions.flags import FlagDefinitionNotFoundError
-from codiet.exceptions.tags import TagNotFoundError
 from codiet.exceptions.ingredients import IngredientNotFoundError
 from codiet.exceptions.recipes import RecipeNotFoundError
 
@@ -112,8 +111,8 @@ class DatabaseService:
 
     def read_all_tags(self) -> FUD[str, "Tag"]:
         tag_dtos = self._repository.read_all_tag_dtos()
-        tags = self._tag_factory.create_tags_from_graph(tag_dtos)
-        return tags
+        tags = build_graph(data=tag_dtos, node_class=Tag)
+        return FUD(tags)
 
     def read_all_ingredient_names(self) -> IUC[str]:
         ingredient_names = self._repository.read_all_ingredient_names()
